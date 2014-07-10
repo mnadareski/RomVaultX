@@ -8,7 +8,7 @@ namespace RomVaultX
         public RomVaultX()
         {
             InitializeComponent();
-            rvTree1.Setup();
+            DirTree.Setup();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -19,7 +19,7 @@ namespace RomVaultX
         private void btnUpdateDats_Click(object sender, EventArgs e)
         {
             UpdateDats();
-            rvTree1.Setup();
+            DirTree.Setup();
         }
 
         private void UpdateDats()

@@ -56,7 +56,7 @@ namespace RomVaultX
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
                 ReadDats(DirId, datRoot, "DatRoot");
 
-                _bgw.ReportProgress(0, new bgwText("Updating Indexs"));
+                _bgw.ReportProgress(0, new bgwText("Updating Indexes"));
                 DataAccessLayer.MakeIndex();
 
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
