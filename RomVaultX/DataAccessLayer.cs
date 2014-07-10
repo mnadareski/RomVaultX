@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Data;
 using System.Data.SQLite;
+using RomVaultX.IO;
 using RomVaultX.Util;
+using Convert = System.Convert;
 
 namespace RomVaultX
 {
@@ -18,13 +21,20 @@ namespace RomVaultX
 
         private static readonly SQLiteCommand _insertIntoCHD;
 
+        private static readonly SQLiteCommand _readTree;
+
         static DataAccessLayer()
         {
+            bool datFound = File.Exists("rom.db");
+
             _connection = new SQLiteConnection("data source=rom.db;Version=3");
             _connection.Open();
 
+            if (!datFound)
+                MakeDB();
+
             _insertIntoDir = new SQLiteCommand(
-                @"INSERT INTO [DIR] ([ParentDirId],[Name],[FullName])
+                @"INSERT INTO DIR (ParentDirId,Name,FullName)
                 VALUES (@ParentDirId,@Name,@FullName);
 
                 SELECT last_insert_rowid();", _connection);
@@ -35,7 +45,7 @@ namespace RomVaultX
 
 
             _insertIntoDat = new SQLiteCommand(
-                @"INSERT INTO [DAT] ([DirId],[Filename],[name],[rootdir],[description],[category],[version],[date],[author],[email],[homepage],[url],[comment])
+                @"INSERT INTO DAT (DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment)
                 VALUES (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment);
 
                 SELECT last_insert_rowid();", _connection);
@@ -55,7 +65,7 @@ namespace RomVaultX
             _insertIntoDat.Parameters.Add(new SQLiteParameter("comment"));
 
             _insertIntoGame = new SQLiteCommand(
-                @"INSERT INTO [GAME] ([DatId],[name],[romof],[description],[sourcefile])
+                @"INSERT INTO GAME (DatId,name,romof,description,sourcefile)
                 VALUES (@DatId,@name,@romof,@description,@sourcefile);
 
                 SELECT last_insert_rowid();", _connection);
@@ -67,7 +77,7 @@ namespace RomVaultX
             _insertIntoGame.Parameters.Add(new SQLiteParameter("sourcefile"));
 
             _insertIntoRom = new SQLiteCommand(
-                @"INSERT INTO [ROM] ([GameId],[name],[size],[crc],[sha1],[md5])
+                @"INSERT INTO ROM (GameId,name,size,crc,sha1,md5)
                 VALUES (@GameId,@name,@size,@crc,@sha1,@md5);", _connection);
 
             _insertIntoRom.Parameters.Add(new SQLiteParameter("GameId"));
@@ -76,6 +86,18 @@ namespace RomVaultX
             _insertIntoRom.Parameters.Add(new SQLiteParameter("crc"));
             _insertIntoRom.Parameters.Add(new SQLiteParameter("sha1"));
             _insertIntoRom.Parameters.Add(new SQLiteParameter("md5"));
+
+        
+            _readTree = new SQLiteCommand(
+                @"
+                    SELECT 
+                        dir.DirId as DirId,
+                        dir.name as dirname,
+                        dir.fullname,
+                        dat.DatId,
+                        dat.name as datname
+                    FROM dir LEFT JOIN dat ON dir.DirId=dat.dirid
+                    ORDER BY fullname,filename",_connection);
         }
 
         public static void close()
@@ -104,7 +126,8 @@ namespace RomVaultX
                     [DirId] INTEGER PRIMARY KEY NOT NULL,
                     [ParentDirId] INTEGER NULL,
                     [name] NVARCHAR(300) NOT NULL,
-                    [fullname] NVARCHAR(300) NOT NULL
+                    [fullname] NVARCHAR(300) NOT NULL,
+                    [expanded] BOOLEAN DEFAULT '1' NOT NULL
                 );
 
                 CREATE TABLE IF NOT EXISTS [DAT] (
@@ -112,7 +135,7 @@ namespace RomVaultX
                     [DirId] INTEGER  NOT NULL,
                     [Filename] NVARCHAR(300)  NULL,
 
-                    [name] NVARCHAR(10)  NULL,
+                    [name] NVARCHAR(100)  NULL,
                     [rootdir] NVARCHAR(10)  NULL,
                     [description] NVARCHAR(10)  NULL,
                     [category] NVARCHAR(10)  NULL,
@@ -279,6 +302,11 @@ namespace RomVaultX
             _insertIntoRom.Parameters["sha1"].Value = VarFix.ToString(sha1);
             _insertIntoRom.Parameters["md5"].Value = VarFix.ToString(md5);
             _insertIntoRom.ExecuteNonQuery();
+        }
+
+        public static SQLiteDataReader GetTree()
+        {
+            return _readTree.ExecuteReader();
         }
     }
 }

@@ -94,6 +94,8 @@ namespace RomVaultX
             {
                 int DirId = DataAccessLayer.InsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name));
                 ReadDats(DirId, datRoot, Path.Combine(subPath, d.Name));
+                if (_bgw.CancellationPending)
+                    return;
             }
 
             FileInfo[] fis = di.GetFiles("*.DAT");
@@ -106,7 +108,8 @@ namespace RomVaultX
                 DataAccessLayer.ExecuteNonQuery("BEGIN");
                 DatReader.DatReader.ReadDat(ParentId, f.FullName, _bgw);
                 DataAccessLayer.ExecuteNonQuery("COMMIT");
-
+                if (_bgw.CancellationPending)
+                    return;
             }
 
         }
