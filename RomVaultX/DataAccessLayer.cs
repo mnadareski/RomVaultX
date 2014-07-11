@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using RomVaultX.IO;
@@ -87,7 +88,7 @@ namespace RomVaultX
             _insertIntoRom.Parameters.Add(new SQLiteParameter("sha1"));
             _insertIntoRom.Parameters.Add(new SQLiteParameter("md5"));
 
-        
+
             _readTree = new SQLiteCommand(
                 @"
                     SELECT 
@@ -97,7 +98,7 @@ namespace RomVaultX
                         dat.DatId,
                         dat.name as datname
                     FROM dir LEFT JOIN dat ON dir.DirId=dat.dirid
-                    ORDER BY fullname,filename",_connection);
+                    ORDER BY fullname,filename", _connection);
         }
 
         public static void close()
@@ -304,9 +305,66 @@ namespace RomVaultX
             _insertIntoRom.ExecuteNonQuery();
         }
 
-        public static SQLiteDataReader GetTree()
+        public static List<RvTreeRow> ReadTreeFromDB()
         {
-            return _readTree.ExecuteReader();
+            List<RvTreeRow> rows = new List<RvTreeRow>();
+
+            using (SQLiteDataReader dr = _readTree.ExecuteReader())
+            {
+                int iDirId = dr.GetOrdinal("DirId");
+                int iDirName = dr.GetOrdinal("dirname");
+                int iFullName = dr.GetOrdinal("fullname");
+                int iDatId = dr.GetOrdinal("DatId");
+                int iDatName = dr.GetOrdinal("datname");
+
+                bool multiDatDirFound = false;
+
+                RvTreeRow lastTree = null;
+                while (dr.Read())
+                {
+                    // a single DAT is a directory is just displayed in the tree at the same level as the directory
+                    RvTreeRow pTree = new RvTreeRow
+                    {
+                        DirId = dr.GetInt32(iDirId),
+                        dirName = dr.GetString(iDirName),
+                        dirFullName = dr.GetString(iFullName),
+                        DatId = dr.IsDBNull(iDatId) ? null : (int?)dr.GetInt32(iDatId),
+                        datName = dr.IsDBNull(iDatName) ? null : dr.GetString(iDatName)
+                    };
+                    rows.Add(pTree);
+
+                    if (lastTree != null)
+                    {
+                        // if multiple DAT's are in the same directory then we should add another level in the tree to display the directory
+                        bool thisMultiDatDirFound = (lastTree.DirId == pTree.DirId);
+                        if (thisMultiDatDirFound && !multiDatDirFound)
+                        {
+                            // found a new multidat
+                            RvTreeRow dirTree = new RvTreeRow
+                            {
+                                DirId = lastTree.DirId,
+                                dirName = lastTree.dirName,
+                                dirFullName = lastTree.dirFullName,
+                                DatId = null,
+                                datName = null
+                            };
+                            rows.Insert(rows.Count - 2, dirTree);
+                            lastTree.MultiDatDir = true;
+                        }
+                        if (thisMultiDatDirFound)
+                            pTree.MultiDatDir = true;
+
+                        multiDatDirFound = thisMultiDatDirFound;
+                    }
+
+
+                    lastTree = pTree;
+                }
+            }
+
+            return rows;
         }
+
+
     }
 }

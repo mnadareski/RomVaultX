@@ -44,7 +44,7 @@ namespace RomVaultX
                 DataAccessLayer.DropIndex();
                 //const string datRoot = @"E:\RomVaultX";
                 const string datRoot = @"";
-                int DirId = DataAccessLayer.InsertIntoDir(0, "DatRoot", "DatRoot");
+                int DirId = DataAccessLayer.InsertIntoDir(0, "DatRoot", "DatRoot\\");
 
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
@@ -92,7 +92,7 @@ namespace RomVaultX
             DirectoryInfo[] dis = di.GetDirectories();
             foreach (DirectoryInfo d in dis)
             {
-                int DirId = DataAccessLayer.InsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name));
+                int DirId = DataAccessLayer.InsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name)+"\\");
                 ReadDats(DirId, datRoot, Path.Combine(subPath, d.Name));
                 if (_bgw.CancellationPending)
                     return;

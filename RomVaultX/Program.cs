@@ -15,7 +15,7 @@ namespace RomVaultX
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new RomVaultX());
+            Application.Run(new frmMain());
         }
     }
 }

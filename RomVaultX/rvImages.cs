@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
-using RomVaultX;
 
-namespace ROMVault2
+namespace RomVaultX
 {
     public static class RvImages
     {
