@@ -62,7 +62,6 @@
             this.lblDITName = new System.Windows.Forms.Label();
             this.lblDIRomsFixable = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.DirTree = new RvTree();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.gbSetInfo = new System.Windows.Forms.GroupBox();
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
@@ -82,6 +81,7 @@
             this.CStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ZipIndex = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ZipHeader = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DirTree = new RomVaultX.RvTree();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -165,6 +165,7 @@
             // splitContainer3.Panel1
             // 
             this.splitContainer3.Panel1.Controls.Add(this.gbDatInfo);
+            this.splitContainer3.Panel1.Resize += new System.EventHandler(this.splitContainer3_Panel1_Resize);
             // 
             // splitContainer3.Panel2
             // 
@@ -203,6 +204,7 @@
             this.gbDatInfo.TabIndex = 4;
             this.gbDatInfo.TabStop = false;
             this.gbDatInfo.Text = "Dat Info :";
+            this.gbDatInfo.Resize += new System.EventHandler(this.gbDatInfo_Resize);
             // 
             // lblDIRomsUnknown
             // 
@@ -390,15 +392,6 @@
             this.label8.TabIndex = 24;
             this.label8.Text = "ROMs Missing :";
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // DirTree
-            // 
-            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DirTree.Location = new System.Drawing.Point(0, 0);
-            this.DirTree.Name = "DirTree";
-            this.DirTree.Size = new System.Drawing.Size(478, 570);
-            this.DirTree.TabIndex = 0;
             // 
             // splitContainer4
             // 
@@ -656,6 +649,16 @@
             this.ZipHeader.HeaderText = "ZipHeader";
             this.ZipHeader.Name = "ZipHeader";
             this.ZipHeader.ReadOnly = true;
+            // 
+            // DirTree
+            // 
+            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DirTree.Location = new System.Drawing.Point(0, 0);
+            this.DirTree.Name = "DirTree";
+            this.DirTree.Size = new System.Drawing.Size(478, 570);
+            this.DirTree.TabIndex = 0;
+            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
             // 
             // frmMain
             // 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;

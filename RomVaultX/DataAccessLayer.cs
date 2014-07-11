@@ -24,6 +24,8 @@ namespace RomVaultX
 
         private static readonly SQLiteCommand _readTree;
 
+        private static readonly SQLiteCommand _readDatInfo;
+
         static DataAccessLayer()
         {
             bool datFound = File.Exists("rom.db");
@@ -99,6 +101,11 @@ namespace RomVaultX
                         dat.name as datname
                     FROM dir LEFT JOIN dat ON dir.DirId=dat.dirid
                     ORDER BY fullname,filename", _connection);
+
+            _readDatInfo = new SQLiteCommand(
+                @"
+                    SELECT description,category,version,author,date FROM DAT WHERE DatId=@datId",_connection);
+            _readDatInfo.Parameters.Add(new SQLiteParameter("datId"));
         }
 
         public static void close()
@@ -365,6 +372,28 @@ namespace RomVaultX
             return rows;
         }
 
-
+        public static void ReadDatInfo(int datId, out string description, out string category, out string version, out string author, out string date)
+        {
+            _readDatInfo.Parameters["DatId"].Value = datId;
+            using (SQLiteDataReader dr = _readDatInfo.ExecuteReader())
+            {
+                if (dr.Read())
+                {
+                    description = dr.GetString(0);
+                    category = dr.GetString(1);
+                    version = dr.GetString(2);
+                    author = dr.GetString(3);
+                    date = dr.GetString(4);     
+                }
+                else
+                {
+                    description = "";
+                    category = "";
+                    version = "";
+                    author = "";
+                    date = "";
+                }
+            }
+        }
     }
 }
