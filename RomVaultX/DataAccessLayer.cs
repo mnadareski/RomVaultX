@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SQLite;
 using RomVaultX.IO;
 using RomVaultX.Util;
@@ -13,18 +12,13 @@ namespace RomVaultX
         private static readonly SQLiteConnection _connection;
 
         private static readonly SQLiteCommand _insertIntoDir;
-
         private static readonly SQLiteCommand _insertIntoDat;
-
         private static readonly SQLiteCommand _insertIntoGame;
-
         private static readonly SQLiteCommand _insertIntoRom;
-
         private static readonly SQLiteCommand _insertIntoCHD;
-
         private static readonly SQLiteCommand _readTree;
-
         private static readonly SQLiteCommand _readDatInfo;
+        private static readonly SQLiteCommand _readGamesInfo;
 
         static DataAccessLayer()
         {
@@ -99,13 +93,18 @@ namespace RomVaultX
                         dir.fullname,
                         dat.DatId,
                         dat.name as datname
-                    FROM dir LEFT JOIN dat ON dir.DirId=dat.dirid
-                    ORDER BY fullname,filename", _connection);
+                    FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
+                    ORDER BY dir.Fullname,dat.Filename", _connection);
 
             _readDatInfo = new SQLiteCommand(
                 @"
                     SELECT description,category,version,author,date FROM DAT WHERE DatId=@datId",_connection);
             _readDatInfo.Parameters.Add(new SQLiteParameter("datId"));
+
+            _readGamesInfo = new SQLiteCommand(
+                @"
+                    SELECT GameId,Name,Description FROM game WHERE DatId=@datId ORDER BY Name",_connection);
+            _readGamesInfo.Parameters.Add(new SQLiteParameter("datId"));
         }
 
         public static void close()
@@ -205,6 +204,7 @@ namespace RomVaultX
         {
             ExecuteNonQuery(@"
                 DROP INDEX IF EXISTS [SHA1Index];
+                DROP INDEX IF EXISTS [GameDatId];
             ");
 
         }
@@ -217,7 +217,12 @@ namespace RomVaultX
                 [crc] ASC,
                 [md5] ASC,
                 [size] ASC
-                )
+                );
+
+                CREATE INDEX [GameDatId] ON [GAME](
+                [DatId]  ASC,
+                [name]  ASC
+                );
             ");
 
         }
@@ -394,6 +399,28 @@ namespace RomVaultX
                     date = "";
                 }
             }
+        }
+
+        public static List<rvGameRow> ReadGames(int datId)
+        {
+            List<rvGameRow> rows=new List<rvGameRow>();
+            _readGamesInfo.Parameters["DatId"].Value = datId;
+
+            using (SQLiteDataReader dr = _readGamesInfo.ExecuteReader())
+            {
+                int iGameId = dr.GetOrdinal("GameId");
+                int iName = dr.GetOrdinal("name");
+                int iDescription = dr.GetOrdinal("description");
+                while (dr.Read())
+                {
+                    rvGameRow row=new rvGameRow();
+                    row.GameId = dr.GetInt32(iGameId);
+                    row.Name = dr.GetString(iName);
+                    row.Description = dr.GetString(iDescription);
+                    rows.Add(row);
+                }
+            }
+            return rows;
         }
     }
 }
