@@ -1,10 +1,4 @@
-﻿/******************************************************
- *     ROMVault2 is written by Gordon J.              *
- *     Contact gordon@romvault.com                    *
- *     Copyright 2014                                 *
- ******************************************************/
-
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace RomVaultX
 {
@@ -17,7 +11,7 @@ namespace RomVaultX
         public string datName;
 
         public string TreeBranches;
-        public bool TreeExpanded;
+        public bool TreeExpanded=true;
 
         public bool MultiDatDir;
 
@@ -25,11 +19,6 @@ namespace RomVaultX
         public Rectangle RExpand;
         public Rectangle RIcon;
         public Rectangle RText;
-
-        public RvTreeRow()
-        {
-            TreeExpanded = true;
-        }
     }
 
 }

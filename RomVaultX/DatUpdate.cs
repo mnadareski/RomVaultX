@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Threading;
+using RomVaultX.DB;
 using RomVaultX.IO;
 
 namespace RomVaultX
@@ -42,7 +43,6 @@ namespace RomVaultX
                 DataAccessLayer.MakeDB();
                 DataAccessLayer.DeleteAll();
                 DataAccessLayer.DropIndex();
-                //const string datRoot = @"E:\RomVaultX";
                 const string datRoot = @"";
                 int DirId = DataAccessLayer.InsertIntoDir(0, "DatRoot", "DatRoot\\");
 

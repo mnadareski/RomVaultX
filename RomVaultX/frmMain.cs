@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using RomVaultX.DB;
+using RomVaultX.Util;
 
 namespace RomVaultX
 {
@@ -120,13 +122,13 @@ namespace RomVaultX
 
             if (tr.DatId != null)
             {
-                string Description, Category, Version, Author, Date;
-                DataAccessLayer.ReadDatInfo((int)tr.DatId, out Description, out Category, out Version, out Author, out Date);
-                lblDITDescription.Text = Description;
-                lblDITCategory.Text = Category;
-                lblDITVersion.Text = Version;
-                lblDITAuthor.Text = Author;
-                lblDITDate.Text = Date;
+                rvDat tDat=new rvDat();
+                tDat.DBRead((int)tr.DatId);
+                lblDITDescription.Text = tDat.Description;
+                lblDITCategory.Text = tDat.Category;
+                lblDITVersion.Text = tDat.Version;
+                lblDITAuthor.Text = tDat.Author;
+                lblDITDate.Text = tDat.Date;
             }
             else
             {
@@ -209,8 +211,8 @@ namespace RomVaultX
 
         private void addGameGrid()
         {
-            lblSIName = new Label { Location = SPoint(6, 15), Size = SSize(76, 13), Text = "Name :", TextAlign = ContentAlignment.TopRight };
-            lblSITName = new Label { Location = SPoint(84, 14), Size = SSize(320, 17), BorderStyle = BorderStyle.FixedSingle };
+            lblSIName = new Label { Location = SPoint(6, 15), Size = SSize(76, 13), Text = "Name :", TextAlign = ContentAlignment.TopRight, Visible = false };
+            lblSITName = new Label { Location = SPoint(84, 14), Size = SSize(320, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
             gbSetInfo.Controls.Add(lblSIName);
             gbSetInfo.Controls.Add(lblSITName);
 
@@ -328,6 +330,13 @@ namespace RomVaultX
             return new Size((int)(x * _scaleFactorX), (int)(y * _scaleFactorY));
         }
 
+        private void splitContainer4_Panel1_Resize(object sender, EventArgs e)
+        {
+            int chkLeft = splitContainer4.Panel1.Width - 150;
+            if (chkLeft < 430) chkLeft = 430;
+            gbSetInfo.Width = chkLeft - gbSetInfo.Left - 10;
+        }
+
         private void gbSetInfo_Resize(object sender, EventArgs e)
         {
             int leftPos = 84;
@@ -416,9 +425,9 @@ namespace RomVaultX
             if (DatId == null)
                 return;
 
-            List<rvGameRow> rows = DataAccessLayer.ReadGames((int)DatId);
+            List<RvGameRow> rows = RvGameRow.ReadGames((int)DatId);
 
-            foreach (rvGameRow row in rows)
+            foreach (RvGameRow row in rows)
             {
                 GameGrid.Rows.Add();
                 int iRow = GameGrid.Rows.Count - 1;
@@ -429,7 +438,8 @@ namespace RomVaultX
                 GameGrid.Rows[iRow].Cells[2].Value = row.Description;
             }
             _updatingGameGrid = false;
-            
+            UpdateSelectedGame();
+
         }
         private void GameGrid_SelectionChanged(object sender, EventArgs e)
         {
@@ -438,20 +448,22 @@ namespace RomVaultX
 
         private void UpdateSelectedGame()
         {
+            RvGame tGame = null;
+
             if (_updatingGameGrid)
                 return;
 
-            if (GameGrid.SelectedRows.Count != 1)
-                return;
-
-            int GameId=(int)GameGrid.SelectedRows[0].Tag;
-
-            lblSITName.Text =GameGrid.SelectedRows[0].Cells[1].Value.ToString();
-            
-            RvGameFullInfo tGame=new RvGameFullInfo();
-
+            if (GameGrid.SelectedRows.Count == 1)
+            {
+                int GameId = (int)GameGrid.SelectedRows[0].Tag;
+                tGame = new RvGame();
+                tGame.DBRead(GameId);
+            }
             if (tGame == null)
             {
+                lblSIName.Visible = false;
+                lblSITName.Visible = false;
+
                 lblSIDescription.Visible = false;
                 lblSITDescription.Visible = false;
 
@@ -510,159 +522,160 @@ namespace RomVaultX
 
                 lblSIMediaCatalogNumber.Visible = false;
                 lblSITMediaCatalogNumber.Visible = false;
+
+                return;
+            }
+
+            lblSIName.Visible = true;
+            lblSITName.Visible = true;
+            lblSITName.Text = GameGrid.SelectedRows[0].Cells[1].Value.ToString();
+
+            if (tGame.IsTrurip)
+            {
+                lblSIDescription.Visible = true;
+                lblSITDescription.Visible = true;
+                lblSITDescription.Text = tGame.Description;
+
+                lblSIManufacturer.Visible = false;
+                lblSITManufacturer.Visible = false;
+
+                lblSICloneOf.Visible = false;
+                lblSITCloneOf.Visible = false;
+
+                lblSIRomOf.Visible = false;
+                lblSITRomOf.Visible = false;
+
+                lblSIYear.Visible = false;
+                lblSITYear.Visible = false;
+
+                lblSITotalRoms.Visible = false;
+                lblSITTotalRoms.Visible = false;
+
+
+                lblSIPublisher.Visible = true;
+                lblSITPublisher.Visible = true;
+                lblSITPublisher.Text = tGame.Publisher;
+
+                lblSIDeveloper.Visible = true;
+                lblSITDeveloper.Visible = true;
+                lblSITDeveloper.Text = tGame.Developer;
+
+                lblSIEdition.Visible = true;
+                lblSITEdition.Visible = true;
+                lblSITEdition.Text = tGame.Edition;
+
+                lblSIVersion.Visible = true;
+                lblSITVersion.Visible = true;
+                lblSITVersion.Text = tGame.Version;
+
+                lblSIType.Visible = true;
+                lblSITType.Visible = true;
+                lblSITType.Text = tGame.Type;
+
+                lblSIMedia.Visible = true;
+                lblSITMedia.Visible = true;
+                lblSITMedia.Text = tGame.Media;
+
+                lblSILanguage.Visible = true;
+                lblSITLanguage.Visible = true;
+                lblSITLanguage.Text = tGame.Language;
+
+                lblSIPlayers.Visible = true;
+                lblSITPlayers.Visible = true;
+                lblSITPlayers.Text = tGame.Players;
+
+                lblSIRatings.Visible = true;
+                lblSITRatings.Visible = true;
+                lblSITRatings.Text = tGame.Ratings;
+
+                lblSIGenre.Visible = true;
+                lblSITGenre.Visible = true;
+                lblSITGenre.Text = tGame.Genre;
+
+                lblSIPeripheral.Visible = true;
+                lblSITPeripheral.Visible = true;
+                lblSITPeripheral.Text = tGame.Peripheral;
+
+                lblSIBarCode.Visible = true;
+                lblSITBarCode.Visible = true;
+                lblSITBarCode.Text = tGame.BarCode;
+
+                lblSIMediaCatalogNumber.Visible = true;
+                lblSITMediaCatalogNumber.Visible = true;
+                lblSITMediaCatalogNumber.Text = tGame.MediaCatalogNumber;
+
             }
             else
             {
+                lblSIDescription.Visible = true;
+                lblSITDescription.Visible = true;
+                lblSITDescription.Text = tGame.Description;
 
-                if (tGame.IsTrurip)
-                {
-                    lblSIDescription.Visible = true;
-                    lblSITDescription.Visible = true;
-                    lblSITDescription.Text = tGame.Description;
+                lblSIManufacturer.Visible = true;
+                lblSITManufacturer.Visible = true;
+                lblSITManufacturer.Text = tGame.Manufacturer;
 
-                    lblSIManufacturer.Visible = false;
-                    lblSITManufacturer.Visible = false;
+                lblSICloneOf.Visible = true;
+                lblSITCloneOf.Visible = true;
+                lblSITCloneOf.Text = tGame.CloneOf;
 
-                    lblSICloneOf.Visible = false;
-                    lblSITCloneOf.Visible = false;
+                lblSIRomOf.Visible = true;
+                lblSITRomOf.Visible = true;
+                lblSITRomOf.Text = tGame.RomOf;
 
-                    lblSIRomOf.Visible = false;
-                    lblSITRomOf.Visible = false;
+                lblSIYear.Visible = true;
+                lblSITYear.Visible = true;
+                lblSITYear.Text = tGame.Year;
 
-                    lblSIYear.Visible = false;
-                    lblSITYear.Visible = false;
-
-                    lblSITotalRoms.Visible = false;
-                    lblSITTotalRoms.Visible = false;
-
-
-                    lblSIPublisher.Visible = true;
-                    lblSITPublisher.Visible = true;
-                    lblSITPublisher.Text = tGame.Publisher;
-
-                    lblSIDeveloper.Visible = true;
-                    lblSITDeveloper.Visible = true;
-                    lblSITDeveloper.Text = tGame.Developer;
-
-                    lblSIEdition.Visible = true;
-                    lblSITEdition.Visible = true;
-                    lblSITEdition.Text = tGame.Edition;
-
-                    lblSIVersion.Visible = true;
-                    lblSITVersion.Visible = true;
-                    lblSITVersion.Text = tGame.Version;
-
-                    lblSIType.Visible = true;
-                    lblSITType.Visible = true;
-                    lblSITType.Text = tGame.Type;
-
-                    lblSIMedia.Visible = true;
-                    lblSITMedia.Visible = true;
-                    lblSITMedia.Text = tGame.Media;
-
-                    lblSILanguage.Visible = true;
-                    lblSITLanguage.Visible = true;
-                    lblSITLanguage.Text = tGame.Language;
-
-                    lblSIPlayers.Visible = true;
-                    lblSITPlayers.Visible = true;
-                    lblSITPlayers.Text = tGame.Players;
-
-                    lblSIRatings.Visible = true;
-                    lblSITRatings.Visible = true;
-                    lblSITRatings.Text = tGame.Ratings;
-
-                    lblSIGenre.Visible = true;
-                    lblSITGenre.Visible = true;
-                    lblSITGenre.Text = tGame.Genre;
-
-                    lblSIPeripheral.Visible = true;
-                    lblSITPeripheral.Visible = true;
-                    lblSITPeripheral.Text = tGame.Peripheral;
-
-                    lblSIBarCode.Visible = true;
-                    lblSITBarCode.Visible = true;
-                    lblSITBarCode.Text = tGame.BarCode;
-
-                    lblSIMediaCatalogNumber.Visible = true;
-                    lblSITMediaCatalogNumber.Visible = true;
-                    lblSITMediaCatalogNumber.Text = tGame.MediaCatalogNumber;
-
-                }
-                else
-                {
-                    lblSIDescription.Visible = true;
-                    lblSITDescription.Visible = true;
-                    lblSITDescription.Text = tGame.Description;
-
-                    lblSIManufacturer.Visible = true;
-                    lblSITManufacturer.Visible = true;
-                    lblSITManufacturer.Text = tGame.Manufacturer;
-
-                    lblSICloneOf.Visible = true;
-                    lblSITCloneOf.Visible = true;
-                    lblSITCloneOf.Text = tGame.CloneOf;
-
-                    lblSIRomOf.Visible = true;
-                    lblSITRomOf.Visible = true;
-                    lblSITRomOf.Text = tGame.RomOf;
-
-                    lblSIYear.Visible = true;
-                    lblSITYear.Visible = true;
-                    lblSITYear.Text = tGame.Year;
-
-                    lblSITotalRoms.Visible = true;
-                    lblSITTotalRoms.Visible = true;
+                lblSITotalRoms.Visible = true;
+                lblSITTotalRoms.Visible = true;
 
 
 
 
-                    lblSIPublisher.Visible = false;
-                    lblSITPublisher.Visible = false;
+                lblSIPublisher.Visible = false;
+                lblSITPublisher.Visible = false;
 
-                    lblSIDeveloper.Visible = false;
-                    lblSITDeveloper.Visible = false;
+                lblSIDeveloper.Visible = false;
+                lblSITDeveloper.Visible = false;
 
-                    lblSIEdition.Visible = false;
-                    lblSITEdition.Visible = false;
+                lblSIEdition.Visible = false;
+                lblSITEdition.Visible = false;
 
-                    lblSIVersion.Visible = false;
-                    lblSITVersion.Visible = false;
+                lblSIVersion.Visible = false;
+                lblSITVersion.Visible = false;
 
-                    lblSIType.Visible = false;
-                    lblSITType.Visible = false;
+                lblSIType.Visible = false;
+                lblSITType.Visible = false;
 
-                    lblSIMedia.Visible = false;
-                    lblSITMedia.Visible = false;
+                lblSIMedia.Visible = false;
+                lblSITMedia.Visible = false;
 
-                    lblSILanguage.Visible = false;
-                    lblSITLanguage.Visible = false;
+                lblSILanguage.Visible = false;
+                lblSITLanguage.Visible = false;
 
-                    lblSIPlayers.Visible = false;
-                    lblSITPlayers.Visible = false;
+                lblSIPlayers.Visible = false;
+                lblSITPlayers.Visible = false;
 
-                    lblSIRatings.Visible = false;
-                    lblSITRatings.Visible = false;
+                lblSIRatings.Visible = false;
+                lblSITRatings.Visible = false;
 
-                    lblSIGenre.Visible = false;
-                    lblSITGenre.Visible = false;
+                lblSIGenre.Visible = false;
+                lblSITGenre.Visible = false;
 
-                    lblSIPeripheral.Visible = false;
-                    lblSITPeripheral.Visible = false;
+                lblSIPeripheral.Visible = false;
+                lblSITPeripheral.Visible = false;
 
-                    lblSIBarCode.Visible = false;
-                    lblSITBarCode.Visible = false;
+                lblSIBarCode.Visible = false;
+                lblSITBarCode.Visible = false;
 
-                    lblSIMediaCatalogNumber.Visible = false;
-                    lblSITMediaCatalogNumber.Visible = false;
+                lblSIMediaCatalogNumber.Visible = false;
+                lblSITMediaCatalogNumber.Visible = false;
 
-                }
             }
 
-            
 
-
-            UpdateRomGrid(GameId);
+            UpdateRomGrid(tGame.GameId);
         }
 
         #endregion
@@ -670,8 +683,39 @@ namespace RomVaultX
         #region Rom display code
 
         private void UpdateRomGrid(int GameId)
-        { }
+        {
+            RomGrid.Rows.Clear();
+
+            IEnumerable<RvRom> roms = RvRom.ReadRoms(GameId);
+
+            foreach (RvRom rom in roms)
+            {
+                RomGrid.Rows.Add();
+                int iRow = RomGrid.Rows.Count - 1;
+
+                RomGrid.Rows[iRow].Selected = false;
+                RomGrid.Rows[iRow].Tag = rom.RomId;
+                RomGrid.Rows[iRow].Cells[1].Value = rom.Name;
+                RomGrid.Rows[iRow].Cells[2].Value = rom.Size;
+                RomGrid.Rows[iRow].Cells[3].Value = rom.Merge;
+                RomGrid.Rows[iRow].Cells[4].Value = VarFix.ToString(rom.CRC);
+                RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.SHA1);
+                RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.MD5);
+                RomGrid.Rows[iRow].Cells[7].Value = rom.Status;
+
+
+            }
+
+        }
+        private void RomGrid_SelectionChanged(object sender, EventArgs e)
+        {
+            RomGrid.ClearSelection();
+        }
 
         #endregion
+
+
+
+
     }
 }
