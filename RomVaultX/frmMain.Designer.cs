@@ -80,6 +80,7 @@
             this.CSHA1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CMD5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnScanRoms = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -129,6 +130,7 @@
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.BackColor = System.Drawing.Color.White;
+            this.splitContainer1.Panel1.Controls.Add(this.btnScanRoms);
             this.splitContainer1.Panel1.Controls.Add(this.btnUpdateDats);
             // 
             // splitContainer1.Panel2
@@ -653,6 +655,19 @@
             this.CStatus.Name = "CStatus";
             this.CStatus.ReadOnly = true;
             // 
+            // btnScanRoms
+            // 
+            this.btnScanRoms.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnScanRoms.BackgroundImage")));
+            this.btnScanRoms.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btnScanRoms.Location = new System.Drawing.Point(0, 79);
+            this.btnScanRoms.Name = "btnScanRoms";
+            this.btnScanRoms.Size = new System.Drawing.Size(80, 80);
+            this.btnScanRoms.TabIndex = 9;
+            this.btnScanRoms.Text = "Scan ROMs";
+            this.btnScanRoms.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.btnScanRoms.UseVisualStyleBackColor = true;
+            this.btnScanRoms.Click += new System.EventHandler(this.btnScanRoms_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -736,6 +751,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CSHA1;
         private System.Windows.Forms.DataGridViewTextBoxColumn CMD5;
         private System.Windows.Forms.DataGridViewTextBoxColumn CStatus;
+        private System.Windows.Forms.Button btnScanRoms;
     }
 }
 

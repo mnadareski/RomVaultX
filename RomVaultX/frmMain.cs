@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 using RomVaultX.DB;
+using RomVaultX.SupportedFiles.Files;
+using RomVaultX.SupportedFiles.GZ;
+using RomVaultX.SupportedFiles.Zip;
 using RomVaultX.Util;
 
 namespace RomVaultX
@@ -714,8 +719,12 @@ namespace RomVaultX
 
         #endregion
 
+        private void btnScanRoms_Click(object sender, EventArgs e)
+        {
 
-
-
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", romScanner.ScanFiles);
+            progress.ShowDialog(this);
+            progress.Dispose();
+        }
     }
 }

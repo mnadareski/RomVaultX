@@ -79,6 +79,7 @@
     <Compile Include="DatReader\DatXMLReader.cs" />
     <Compile Include="DatUpdate.cs" />
     <Compile Include="DB\rvDat.cs" />
+    <Compile Include="DB\rvFile.cs" />
     <Compile Include="DB\rvGameRow.cs" />
     <Compile Include="DB\rvRom.cs" />
     <Compile Include="frmMain.cs">
@@ -105,6 +106,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReportError.cs" />
     <Compile Include="DB\rvGame.cs" />
+    <Compile Include="romScanner.cs" />
     <Compile Include="rvImages.cs" />
     <Compile Include="rvImages1.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -118,6 +120,22 @@
       <DependentUpon>rvTree.cs</DependentUpon>
     </Compile>
     <Compile Include="rvTreeRow.cs" />
+    <Compile Include="SupportedFiles\Files\UnCompFiles.cs" />
+    <Compile Include="SupportedFiles\GZ\GZip.cs" />
+    <Compile Include="SupportedFiles\ZipEnums.cs" />
+    <Compile Include="SupportedFiles\Zip\zipFile.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\Crc32.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\Deflate.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\DeflateStream.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\GZipStream.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\Inflate.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\InfTree.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\Tree.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\Zlib.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\ZlibBaseStream.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\ZlibCodec.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\ZlibConstants.cs" />
+    <Compile Include="SupportedFiles\Zip\ZLib\ZlibStream.cs" />
     <Compile Include="Util\VarFix.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>

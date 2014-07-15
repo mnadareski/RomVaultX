@@ -177,5 +177,9 @@ namespace RomVaultX.Util
         {
             return b == null ? "" : BitConverter.ToString(b).ToLower().Replace("-", "");
         }
+        public static string ToString(byte b)
+        {
+            return ToString(new [] {b});
+        }
     }
 }
