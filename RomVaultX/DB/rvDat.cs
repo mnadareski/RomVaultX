@@ -78,7 +78,10 @@ namespace RomVaultX.DB
                     [email] NVARCHAR(10)  NULL,
                     [homepage] NVARCHAR(10)  NULL,
                     [url] NVARCHAR(10)  NULL,
-                    [comment] NVARCHAR(10) NULL
+                    [comment] NVARCHAR(10) NULL,
+                    [RomTotal] INTEGER DEFAULT '0' NOT NULL,
+                    [RomGot] INTEGER DEFAULT '0' NOT NULL,            
+                    FOREIGN KEY(DirId) REFERENCES DIR(DirId)
                 );");
         }
 

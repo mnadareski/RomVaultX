@@ -62,7 +62,10 @@ namespace RomVaultX.DB
                     [sha1] VARCHAR(40) NULL,
                     [md5] VARCHAR(32) NULL,
                     [merge] VARCHAR(20) NULL,
-                    [status] VARCHAR(20) NULL
+                    [status] VARCHAR(20) NULL,
+                    [FileId] INTEGER NULL,
+                    FOREIGN KEY(GameId) REFERENCES Game(GameId),
+                    FOREIGN KEY(FileId) REFERENCES File(FileId)
                 );");
         }
 
@@ -75,16 +78,18 @@ namespace RomVaultX.DB
             {
                 while (dr.Read())
                 {
+                    object tSize = dr["size"];
+                    ulong? iSize = tSize == DBNull.Value ? null : (ulong?)Convert.ToInt64(tSize);
                     RvRom row = new RvRom
                     {
-                        RomId = Convert.ToInt32(dr["RomId"]), 
-                        GameId = gameId, 
+                        RomId = Convert.ToInt32(dr["RomId"]),
+                        GameId = gameId,
                         Name = dr["name"].ToString(),
-                        Size = (ulong?) Convert.ToInt64(dr["size"]),
-                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8), 
+                        Size = iSize,
+                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8),
                         SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
                         MD5 = VarFix.CleanMD5SHA1(dr["MD5"].ToString(), 32),
-                        Merge = dr["merge"].ToString(), 
+                        Merge = dr["merge"].ToString(),
                         Status = dr["status"].ToString()
                     };
 
@@ -100,9 +105,9 @@ namespace RomVaultX.DB
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;
             SqlWrite.Parameters["size"].Value = Size;
-            SqlWrite.Parameters["crc"].Value = VarFix.ToString(CRC);
-            SqlWrite.Parameters["sha1"].Value = VarFix.ToString(SHA1);
-            SqlWrite.Parameters["md5"].Value = VarFix.ToString(MD5);
+            SqlWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
+            SqlWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
+            SqlWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
             SqlWrite.Parameters["merge"].Value = Merge;
             SqlWrite.Parameters["status"].Value = Status;
             SqlWrite.ExecuteNonQuery();

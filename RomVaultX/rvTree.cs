@@ -22,7 +22,7 @@ namespace RomVaultX
         }
 
         #region "Setup"
-        
+
         public void Setup(List<RvTreeRow> rows)
         {
             _rows = rows;
@@ -135,22 +135,17 @@ namespace RomVaultX
 
             if (pTree.RIcon.IntersectsWith(t))
             {
-                int icon = 1;
-                /*
-                if (pTree.DirStatus.HasInToSort())
+                int icon = 4;
+                if (!string.IsNullOrEmpty(pTree.datName))
                 {
-                    icon = 4;
+                    if (pTree.RomGot == pTree.RomTotal)
+                        icon = 3;
+                    else if (pTree.RomGot > 0)
+                        icon = 2;
+                    else
+                        icon = 1;
+                    
                 }
-                else if (!pTree.DirStatus.HasCorrect())
-                {
-                    icon = 1;
-                }
-                else if (!pTree.DirStatus.HasMissing())
-                {
-                    icon = 3;
-                }
-                */
-
 
                 Bitmap bm;
                 //if (pTree.Dat == null && pTree.DirDatCount != 1) // Directory above DAT's in Tree
@@ -174,6 +169,8 @@ namespace RomVaultX
                 string thistxt = pTree.dirName;
                 if (!string.IsNullOrEmpty(pTree.datName))
                     thistxt += ": " + pTree.datName;
+                if (pTree.RomTotal > 0 || pTree.RomGot > 0)
+                    thistxt += " ( Have:" + pTree.RomGot + " / Missing: " + (pTree.RomTotal - pTree.RomGot) + " )";
 
                 if (_lSelected == pTree)
                 {

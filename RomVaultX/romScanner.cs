@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using RomVaultX.DB;
-using RomVaultX.IO;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.Files;
 using RomVaultX.SupportedFiles.GZ;
@@ -30,7 +30,7 @@ namespace RomVaultX
                 return;
             }
 
-            ScanADir(@"D:\RomVault1\trunk\Stage1\ToSort");
+            ScanADir(@"ToSort");
 
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
             _bgw = null;
@@ -64,10 +64,14 @@ namespace RomVaultX
                         tFile.CRC = fz.CRC32(i);
                         tFile.MD5 = fz.MD5(i);
                         tFile.SHA1 = fz.SHA1(i);
+                        Debug.WriteLine("CRC " + VarFix.ToString(tFile.CRC));
+                        Debug.WriteLine("MD5 " + VarFix.ToString(tFile.MD5));
+                        Debug.WriteLine("SHA1 " + VarFix.ToString(tFile.SHA1));
 
                         string outfile = Getfilename(tFile.SHA1);
+                        
                         // test if needed.
-                        if (IO.File.Exists(outfile))
+                        if (!fileneededTest(tFile))
                             continue;
 
                         GZip gz = new GZip();
@@ -84,8 +88,12 @@ namespace RomVaultX
                         gz.compressedSize = compressedSize;
                         gz.WriteGZip(outfile, zds, isZipTrrntzip);
                         fz.ZipFileCloseReadStream();
+
+                        DataAccessLayer.AddInFiles(tFile);
                     }
                     fz.ZipFileClose();
+
+                
                 }
                 else
                 {
@@ -94,7 +102,7 @@ namespace RomVaultX
 
                     string outfile = Getfilename(tFile.SHA1);
                     // test if needed.
-                    if (IO.File.Exists(outfile))
+                    if (!fileneededTest(tFile))
                         continue;
 
                     GZip gz = new GZip();
@@ -108,6 +116,8 @@ namespace RomVaultX
                     gz.WriteGZip(outfile, ds, false);
                     ds.Close();
                     ds.Dispose();
+
+                    DataAccessLayer.AddInFiles(tFile);
                 }
             }
 
@@ -120,10 +130,19 @@ namespace RomVaultX
         {
             return @"RomRoot\" + VarFix.ToString(SHA1[0]) + @"\" +
                          VarFix.ToString(SHA1[1]) + @"\" +
-                         VarFix.ToString(SHA1[2]) + @"\" +
-                         VarFix.ToString(SHA1[3]) + @"\" + VarFix.ToString(SHA1) + ".gz";
+                         VarFix.ToString(SHA1) + ".gz";
 
         }
 
+
+        private static bool fileneededTest(rvFile tFile)
+        {
+            // first check to see if we already have it in the file table
+            bool inFileDB = DataAccessLayer.FindInFiles(tFile); // returns true if found in File table
+            if (inFileDB) return false;
+
+            // now check if needed in any ROMs
+            return DataAccessLayer.FindInROMs(tFile);
+        }
     }
 }

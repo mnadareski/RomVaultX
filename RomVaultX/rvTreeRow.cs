@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace RomVaultX
 {
@@ -9,6 +10,9 @@ namespace RomVaultX
         public string dirFullName;
         public int? DatId;
         public string datName;
+
+        public int RomTotal;
+        public int RomGot;
 
         public string TreeBranches;
         public bool TreeExpanded=true;

@@ -181,5 +181,10 @@ namespace RomVaultX.Util
         {
             return ToString(new [] {b});
         }
+
+        public static object ToDBString(Byte[] b)
+        {
+            return b == null ? DBNull.Value :(object) BitConverter.ToString(b).ToLower().Replace("-", "");            
+        }
     }
 }
