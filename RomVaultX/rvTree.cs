@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using RomVaultX.DB;
 
 namespace RomVaultX
 {
@@ -130,7 +131,7 @@ namespace RomVaultX
             if (!pTree.RExpand.IsEmpty)
                 if (pTree.RExpand.IntersectsWith(t))
                 {
-                    g.DrawImage(pTree.TreeExpanded ? RvImages.ExpandBoxMinus : RvImages.ExpandBoxPlus, RSub(pTree.RExpand, _hScroll, _vScroll));
+                    g.DrawImage(pTree.Expanded ? RvImages.ExpandBoxMinus : RvImages.ExpandBoxPlus, RSub(pTree.RExpand, _hScroll, _vScroll));
                 }
 
             if (pTree.RIcon.IntersectsWith(t))
@@ -167,8 +168,13 @@ namespace RomVaultX
             if (recBackGround.IntersectsWith(t))
             {
                 string thistxt = pTree.dirName;
-                if (!string.IsNullOrEmpty(pTree.datName))
-                    thistxt += ": " + pTree.datName;
+                if (!string.IsNullOrEmpty(pTree.datName) || !string.IsNullOrEmpty(pTree.description))
+                {
+                    if (!string.IsNullOrEmpty(pTree.description))
+                        thistxt += ": " + pTree.description;
+                    else
+                        thistxt += ": " + pTree.datName;
+                }
                 if (pTree.RomTotal > 0 || pTree.RomGot > 0)
                     thistxt += " ( Have:" + pTree.RomGot + " / Missing: " + (pTree.RomTotal - pTree.RomGot) + " )";
 
@@ -242,11 +248,13 @@ namespace RomVaultX
 
 
 
-        private static void SetExpanded(RvTreeRow pTree, MouseButtons mouseB)
+        private void SetExpanded(RvTreeRow pTree, MouseButtons mouseB)
         {
             if (mouseB == MouseButtons.Left)
             {
-                pTree.TreeExpanded = !pTree.TreeExpanded;
+                DataAccessLayer.SetTreeExpanded(pTree.DirId,!pTree.Expanded);
+                Setup(DataAccessLayer.ReadTreeFromDB());
+
             }
         }
 

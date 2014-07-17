@@ -19,16 +19,16 @@ namespace RomVaultX.DB
         public string Homepage;
         public string URL;
         public string Comment;
-
-
+        public long DatTimeStamp;
+        
         private static readonly SQLiteCommand SqlWrite;
         private static readonly SQLiteCommand SqlRead;
 
         static rvDat()
         {
             SqlWrite = new SQLiteCommand(
-               @"INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment)
-                VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment);
+               @"INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,DatTimeStamp)
+                VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@DatTimeStamp);
 
                 SELECT last_insert_rowid();");
 
@@ -45,6 +45,7 @@ namespace RomVaultX.DB
             SqlWrite.Parameters.Add(new SQLiteParameter("homepage"));
             SqlWrite.Parameters.Add(new SQLiteParameter("url"));
             SqlWrite.Parameters.Add(new SQLiteParameter("comment"));
+            SqlWrite.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
 
 
             SqlRead = new SQLiteCommand(
@@ -80,7 +81,8 @@ namespace RomVaultX.DB
                     [url] NVARCHAR(10)  NULL,
                     [comment] NVARCHAR(10) NULL,
                     [RomTotal] INTEGER DEFAULT '0' NOT NULL,
-                    [RomGot] INTEGER DEFAULT '0' NOT NULL,            
+                    [RomGot] INTEGER DEFAULT '0' NOT NULL,
+                    [DatTimeStamp] NVARCHAR(20)  NOT NULL,            
                     FOREIGN KEY(DirId) REFERENCES DIR(DirId)
                 );");
         }
@@ -127,6 +129,7 @@ namespace RomVaultX.DB
             SqlWrite.Parameters["homepage"].Value = Homepage;
             SqlWrite.Parameters["url"].Value = URL;
             SqlWrite.Parameters["comment"].Value = Comment;
+            SqlWrite.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
             object res = SqlWrite.ExecuteScalar();
 
             if (res == null || res == DBNull.Value)

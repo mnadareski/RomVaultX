@@ -8,14 +8,16 @@ namespace RomVaultX
         public int DirId;
         public string dirName;
         public string dirFullName;
+        public bool Expanded;
+
         public int? DatId;
         public string datName;
+        public string description;
 
         public int RomTotal;
         public int RomGot;
 
         public string TreeBranches;
-        public bool TreeExpanded=true;
 
         public bool MultiDatDir;
 

@@ -7,12 +7,12 @@ namespace RomVaultX.DatReader
 {
     public static class DatXmlReader
     {
-        public static bool ReadDat(XmlDocument doc,int DirId, string strFilename)
+        public static bool ReadDat(XmlDocument doc,int DirId, string strFilename,long fileTimeStamp)
         {
             string Filename = IO.Path.GetFileName(strFilename);
 
             int DatId;
-            if (!LoadHeaderFromDat(doc, DirId, Filename, out DatId))
+            if (!LoadHeaderFromDat(doc, DirId, Filename,fileTimeStamp, out DatId))
                 return false;
 
             if (doc.DocumentElement == null)
@@ -40,12 +40,12 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        public static bool ReadMameDat(XmlDocument doc, int DirId, string strFilename)
+        public static bool ReadMameDat(XmlDocument doc, int DirId, string strFilename,long fileTimeStamp)
         {
             string Filename = IO.Path.GetFileName(strFilename);
 
             int DatId;
-            if (!LoadMameHeaderFromDat(doc, DirId, Filename, out DatId))
+            if (!LoadMameHeaderFromDat(doc, DirId, Filename,fileTimeStamp, out DatId))
                 return false;
 
             if (doc.DocumentElement == null)
@@ -75,7 +75,7 @@ namespace RomVaultX.DatReader
 
 
 
-        private static bool LoadHeaderFromDat(XmlDocument doc, int DirId, string Filename, out int DatId)
+        private static bool LoadHeaderFromDat(XmlDocument doc, int DirId, string Filename,long fileTimeStamp, out int DatId)
         {
             DatId = 0;
             if (doc.DocumentElement == null)
@@ -85,6 +85,7 @@ namespace RomVaultX.DatReader
             rvDat tDat=new rvDat();
             tDat.DirId = DirId;
             tDat.Filename = Filename;
+            tDat.DatTimeStamp = fileTimeStamp;
 
             if (head == null)
                 return false;
@@ -106,7 +107,7 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadMameHeaderFromDat(XmlDocument doc, int DirId, string Filename, out int DatId)
+        private static bool LoadMameHeaderFromDat(XmlDocument doc, int DirId, string Filename,long fileTimeStamp, out int DatId)
         {
             DatId = 0;
             if (doc.DocumentElement == null)
@@ -122,6 +123,7 @@ namespace RomVaultX.DatReader
             tDat.Filename = Filename;
             tDat.Name = VarFix.CleanFileName(head.Attributes.GetNamedItem("build"));
             tDat.Description = VarFix.String(head.Attributes.GetNamedItem("build"));
+            tDat.DatTimeStamp = fileTimeStamp;
 
             tDat.DbWrite();
             DatId = tDat.DatId;

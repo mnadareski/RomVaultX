@@ -37,18 +37,15 @@ namespace RomVaultX
                     _bgw = null;
                     return;
                 }
-
-
+                
                 _bgw.ReportProgress(0, new bgwText("Clearing DB"));
-                DataAccessLayer.MakeDB();
-                DataAccessLayer.DeleteAll();
-                DataAccessLayer.DropIndex();
+                //DataAccessLayer.DropIndex();
                 const string datRoot = @"";
-                int DirId = DataAccessLayer.InsertIntoDir(0, "DatRoot", "DatRoot\\");
+                int DirId = DataAccessLayer.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
-                DatCount(datRoot,"DatRoot");
+                DatCount(datRoot, "DatRoot");
 
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
                 _datsProcessed = 0;
@@ -57,7 +54,7 @@ namespace RomVaultX
                 ReadDats(DirId, datRoot, "DatRoot");
 
                 _bgw.ReportProgress(0, new bgwText("Updating Indexes"));
-                DataAccessLayer.MakeIndex();
+                //DataAccessLayer.MakeIndex();
 
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
@@ -73,16 +70,16 @@ namespace RomVaultX
             }
         }
 
-        private static void DatCount(string datRoot,string subPath)
+        private static void DatCount(string datRoot, string subPath)
         {
             DirectoryInfo di = new DirectoryInfo(Path.Combine(datRoot, subPath));
 
             DirectoryInfo[] dis = di.GetDirectories();
             foreach (DirectoryInfo d in dis)
-               DatCount( datRoot, Path.Combine(subPath, d.Name));
+                DatCount(datRoot, Path.Combine(subPath, d.Name));
 
             FileInfo[] fis = di.GetFiles("*.DAT");
-            _datCount += fis.Length;            
+            _datCount += fis.Length;
         }
 
         private static void ReadDats(int ParentId, string datRoot, string subPath)
@@ -92,7 +89,7 @@ namespace RomVaultX
             DirectoryInfo[] dis = di.GetDirectories();
             foreach (DirectoryInfo d in dis)
             {
-                int DirId = DataAccessLayer.InsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name)+"\\");
+                int DirId = DataAccessLayer.FindOrInsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name) + "\\");
                 ReadDats(DirId, datRoot, Path.Combine(subPath, d.Name));
                 if (_bgw.CancellationPending)
                     return;
@@ -103,10 +100,15 @@ namespace RomVaultX
             {
                 _datsProcessed++;
                 _bgw.ReportProgress(_datsProcessed);
-                _bgw.ReportProgress(0, new bgwText("Dat : " + subPath+@"\"+f.Name));
-                
+
+                int DatId = DataAccessLayer.FindExistingDat(subPath, f.Name, f.LastWriteTime);
+                if (DatId > 0)
+                    continue;
+
+                _bgw.ReportProgress(0, new bgwText("Dat : " + subPath + @"\" + f.Name));
+
                 DataAccessLayer.ExecuteNonQuery("BEGIN");
-                DatReader.DatReader.ReadDat(ParentId, f.FullName, _bgw);
+                DatReader.DatReader.ReadDat(ParentId, f.FullName,f.LastWriteTime, _bgw);
                 DataAccessLayer.ExecuteNonQuery("COMMIT");
                 if (_bgw.CancellationPending)
                     return;

@@ -8,7 +8,7 @@ namespace RomVaultX.DatReader
 {
     public static class DatCmpReader
     {
-        public static bool ReadDat(int DirId, string strFilename)
+        public static bool ReadDat(int DirId, string strFilename,long fileTimeStamp)
         {
             int DatId = 0;
             int errorCode = DatFileLoader.LoadDat(strFilename);
@@ -26,14 +26,14 @@ namespace RomVaultX.DatReader
             if (DatFileLoader.Next.ToLower() == "clrmamepro")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(DirId, Filename, out DatId))
+                if (!LoadHeaderFromDat(DirId, Filename,fileTimeStamp, out DatId))
                     return false;
                 DatFileLoader.Gn();
             }
             if (DatFileLoader.Next.ToLower() == "romvault")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(DirId, Filename, out DatId))
+                if (!LoadHeaderFromDat(DirId, Filename,fileTimeStamp, out DatId))
                     return false;
                 DatFileLoader.Gn();
             }
@@ -79,7 +79,7 @@ namespace RomVaultX.DatReader
         }
 
 
-        private static bool LoadHeaderFromDat(int DirId, string Filename, out int DatId)
+        private static bool LoadHeaderFromDat(int DirId, string Filename,long fileTimeStamp, out int DatId)
         {
             DatId = 0;
             if (DatFileLoader.Next != "(")
@@ -92,6 +92,8 @@ namespace RomVaultX.DatReader
 
             rvDat tDat=new rvDat();
             tDat.DirId = DirId;
+            tDat.Filename = Filename;
+            tDat.DatTimeStamp = fileTimeStamp;
 
             while (DatFileLoader.Next != ")")
             {
