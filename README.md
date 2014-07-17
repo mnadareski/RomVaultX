@@ -1,7 +1,7 @@
 RomVaultX
 =========
 Reads DATS great now.
-Can add more DATS, does not delete DATS yes.
+Can add more DATS, does not delete DATS yet.
 
 Database is hard coded right now to:
 C:\stage\romX.db
@@ -26,10 +26,13 @@ Lots and lots. To Many to List just yet.
 But high on the list now is:
 
 Checking for removed DAT's
+
 Added DAT's need there files checked to see if we already have them.
+
 Add Color and numbers reporting back into UI.
 
 Analyze DAT's to find Merged files.
+
 Extracting files in a DAT back out to ZIP files.
 
 Improve internal .gz data storage.
