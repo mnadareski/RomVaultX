@@ -98,7 +98,11 @@ namespace RomVaultX
                 else
                 {
                     rvFile tFile = new rvFile();
-                    UnCompFiles.CheckSumRead(f.FullName, true, out tFile.CRC, out tFile.MD5, out tFile.SHA1, out tFile.Size);
+                    int errorcode=UnCompFiles.CheckSumRead(f.FullName, true, out tFile.CRC, out tFile.MD5, out tFile.SHA1, out tFile.Size);
+
+
+                    if (errorcode != 0)
+                        continue;
 
                     string outfile = Getfilename(tFile.SHA1);
                     // test if needed.
