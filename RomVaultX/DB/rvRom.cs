@@ -16,7 +16,7 @@ namespace RomVaultX.DB
         public byte[] MD5;
         public string Merge;
         public string Status;
-
+        public ulong? FileId;
 
         private static readonly SQLiteCommand SqlWrite;
         private static readonly SQLiteCommand SqlRead;
@@ -39,7 +39,7 @@ namespace RomVaultX.DB
             SqlWrite.Parameters.Add(new SQLiteParameter("Status"));
 
             SqlRead = new SQLiteCommand(
-                @"SELECT RomId,name,size,crc,sha1,md5,merge,status
+                @"SELECT RomId,name,size,crc,sha1,md5,merge,status,FileId
                     FROM ROM WHERE GameId=@GameId");
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
         }
@@ -80,6 +80,8 @@ namespace RomVaultX.DB
                 {
                     object tSize = dr["size"];
                     ulong? iSize = tSize == DBNull.Value ? null : (ulong?)Convert.ToInt64(tSize);
+                    object tFileId = dr["FileId"];
+                    ulong? iFileId = tFileId == DBNull.Value ? null : (ulong?)Convert.ToInt64(tFileId);
                     RvRom row = new RvRom
                     {
                         RomId = Convert.ToInt32(dr["RomId"]),
@@ -90,7 +92,8 @@ namespace RomVaultX.DB
                         SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
                         MD5 = VarFix.CleanMD5SHA1(dr["MD5"].ToString(), 32),
                         Merge = dr["merge"].ToString(),
-                        Status = dr["status"].ToString()
+                        Status = dr["status"].ToString(),
+                        FileId = iFileId,
                     };
 
                     rows.Add(row);

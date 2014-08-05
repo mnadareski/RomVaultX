@@ -24,9 +24,13 @@ namespace RomVaultX.DB
         private static readonly SQLiteCommand _findInROMs;
         private static readonly SQLiteCommand _addInFiles;
 
+        private static readonly SQLiteCommand _clearfound;
+        private static readonly SQLiteCommand _setDirFound;
+        private static readonly SQLiteCommand _setDatFound;
 
+        private static readonly SQLiteCommand _cleanupNotFound;
 
-        private const int DBVersion = 3;
+        private const int DBVersion = 4;
         private static readonly string dirFilename = @"C:\stage\rom" + DBVersion + ".db";
 
 
@@ -142,6 +146,38 @@ namespace RomVaultX.DB
             _findExistingDAT.Parameters.Add(new SQLiteParameter("filename"));
             _findExistingDAT.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
 
+
+            _clearfound=new SQLiteCommand(
+                @"UPDATE DIR SET Found=0; UPDATE DAT SET Found=0;",_connection);
+
+            _setDirFound=new SQLiteCommand(
+                @"Update Dir SET Found=1 WHERE DirId=@DirId",_connection);
+            _setDirFound.Parameters.Add(new SQLiteParameter("DirId"));
+
+            _setDatFound = new SQLiteCommand(
+                @"Update Dat SET Found=1 WHERE DatId=@DatId", _connection);
+            _setDatFound.Parameters.Add(new SQLiteParameter("DatId"));
+
+            _cleanupNotFound=new SQLiteCommand(
+                @"
+                delete from rom where rom.GameId in
+                (
+                    select gameid from game where game.datid in
+                    (
+                        select datId from dat where found=0
+                    )
+                );
+
+                delete from game where game.datid in
+                (
+                    select datId from dat where found=0
+                );
+
+                delete from dat where found=0;
+
+                delete from dir where found=0;
+            ", _connection);
+
             MakeIndex();
         }
 
@@ -197,7 +233,8 @@ namespace RomVaultX.DB
                     [ParentDirId] INTEGER NULL,
                     [name] NVARCHAR(300) NOT NULL,
                     [fullname] NVARCHAR(300) NOT NULL,
-                    [expanded] BOOLEAN DEFAULT '1' NOT NULL
+                    [expanded] BOOLEAN DEFAULT '1' NOT NULL,
+                    [found] BOOLEAN DEFAULT '1'
                 );
               
                 CREATE TABLE IF NOT EXISTS [FILES] (
@@ -411,7 +448,11 @@ namespace RomVaultX.DB
             {
                 int foundDatId = Convert.ToInt32(resFind);
                 if (foundDatId > 0)
+                {
+                    _setDirFound.Parameters["DirId"].Value = foundDatId;
+                    _setDirFound.ExecuteNonQuery();
                     return foundDatId;
+                }
             }
 
             _insertIntoDir.Parameters["ParentDirId"].Value = ParentDirId;
@@ -577,9 +618,21 @@ namespace RomVaultX.DB
 
             if (res == null || res == DBNull.Value)
                 return 0;
-            return Convert.ToInt32(res);
+            int datId = Convert.ToInt32(res);
+            _setDatFound.Parameters["DatId"].Value = datId;
+            _setDatFound.ExecuteNonQuery();
+            return datId;
 
         }
 
+        public static void ClearFound()
+        {
+            _clearfound.ExecuteNonQuery();
+        }
+
+        public static void RemoveNotFound()
+        {
+            _cleanupNotFound.ExecuteNonQuery();
+        }
     }
 }

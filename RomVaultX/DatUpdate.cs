@@ -40,8 +40,11 @@ namespace RomVaultX
                 
                 _bgw.ReportProgress(0, new bgwText("Clearing DB"));
                 //DataAccessLayer.DropIndex();
+                DataAccessLayer.ClearFound();
+                
                 const string datRoot = @"";
                 int DirId = DataAccessLayer.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
+
 
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
@@ -52,6 +55,9 @@ namespace RomVaultX
 
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
                 ReadDats(DirId, datRoot, "DatRoot");
+                
+                _bgw.ReportProgress(0,new bgwText("Removing old DATs"));
+                DataAccessLayer.RemoveNotFound();
 
                 _bgw.ReportProgress(0, new bgwText("Updating Indexes"));
                 //DataAccessLayer.MakeIndex();

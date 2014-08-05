@@ -11,21 +11,25 @@ namespace RomVaultX.SupportedFiles.GZ
         const int Buffersize = 4096 * 128;
         private static byte[] _buffer;
 
+        private string _filename;
         public byte[] sha1Hash;
         public byte[] md5Hash;
         public byte[] crc;
         public ulong uncompressedSize;
         public ulong compressedSize;
+        public long datapos;
+
+        private Stream _zipFs;
 
         public ZipReturn ReadGZip(string filename, bool deepScan)
         {
-            Stream _zipFs;
 
+            _filename = "";
             if (!IO.File.Exists(filename))
             {
                 return ZipReturn.ZipErrorFileNotFound;
             }
-
+            _filename = filename;
 
             int errorCode = IO.FileStream.OpenFileRead(filename, out _zipFs);
             if (errorCode != 0)
@@ -96,11 +100,11 @@ namespace RomVaultX.SupportedFiles.GZ
 
             compressedSize = (ulong)(_zipFs.Length - _zipFs.Position) - 8;
 
+            datapos = _zipFs.Position;
             if (deepScan)
             {
 
-                Stream sInput = null;
-                sInput = new DeflateStream(_zipFs, CompressionMode.Decompress, true);
+                Stream sInput = new DeflateStream(_zipFs, CompressionMode.Decompress, true);
 
 
                 CRC32Hash crc32 = new CRC32Hash();
@@ -215,6 +219,38 @@ namespace RomVaultX.SupportedFiles.GZ
             _zipFs.Close();
 
             return ZipReturn.ZipGood;
+        }
+
+        public ZipReturn GetStream(out Stream st)
+        {
+            st = null;
+            if (!IO.File.Exists(_filename))
+            {
+                return ZipReturn.ZipErrorFileNotFound;
+            }
+
+            int errorCode = IO.FileStream.OpenFileRead(_filename, out _zipFs);
+            if (errorCode != 0)
+            {
+                if (errorCode == 32)
+                    return ZipReturn.ZipFileLocked;
+                return ZipReturn.ZipErrorOpeningFile;
+            }
+
+            _zipFs.Position=datapos;
+
+            st = new DeflateStream(_zipFs, CompressionMode.Decompress, true);
+
+            return ZipReturn.ZipGood;
+        }
+
+        public void Close()
+        {
+            if (_zipFs==null) return;
+
+            _zipFs.Close();
+            _zipFs.Dispose();
+            _zipFs = null;
         }
 
         public ZipReturn WriteGZip(string filename, Stream sInput, bool isCompressedStream)

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles;
@@ -9,7 +9,9 @@ using RomVaultX.SupportedFiles.Files;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.SupportedFiles.Zip;
 using RomVaultX.Util;
+using Directory = System.IO.Directory;
 using DirectoryInfo = RomVaultX.IO.DirectoryInfo;
+using File = System.IO.File;
 using FileInfo = RomVaultX.IO.FileInfo;
 using Path = RomVaultX.IO.Path;
 
@@ -45,9 +47,18 @@ namespace RomVaultX
 
             FileInfo[] fi = di.GetFiles();
 
-            foreach (FileInfo f in fi)
+            _bgw.ReportProgress(0, new bgwRange2Visible(true));
+            _bgw.ReportProgress(0, new bgwSetRange2(fi.Count()));
+
+            for (int j = 0; j < fi.Count(); j++)
             {
-                Debug.WriteLine(f.FullName);
+
+                if (_bgw.CancellationPending)
+                    return;
+
+                FileInfo f = fi[j];
+                _bgw.ReportProgress(0, new bgwValue2(j));
+                _bgw.ReportProgress(0, new bgwText2(f.Name));
                 string ext = Path.GetExtension(f.Name);
 
                 if (ext.ToLower() == ".zip")
@@ -55,6 +66,8 @@ namespace RomVaultX
                     ZipFile fz = new ZipFile();
                     fz.ZipFileOpen(f.FullName, 0, true);
                     fz.DeepScan();
+
+                    int FileUsedCount = 0;
 
                     for (int i = 0; i < fz.LocalFilesCount(); i++)
                     {
@@ -68,66 +81,135 @@ namespace RomVaultX
                         Debug.WriteLine("MD5 " + VarFix.ToString(tFile.MD5));
                         Debug.WriteLine("SHA1 " + VarFix.ToString(tFile.SHA1));
 
-                        string outfile = Getfilename(tFile.SHA1);
-                        
-                        // test if needed.
-                        if (!fileneededTest(tFile))
+
+                        FindStatus res = fileneededTest(tFile);
+
+                        if (res == FindStatus.FileUnknown)
                             continue;
 
+                        FileUsedCount++;
+
+                        if (res != FindStatus.FoundFileInArchive)
+                        {
+                            GZip gz = new GZip();
+                            gz.crc = tFile.CRC;
+                            gz.md5Hash = tFile.MD5;
+                            gz.sha1Hash = tFile.SHA1;
+                            gz.uncompressedSize = tFile.Size;
+
+                            bool isZipTrrntzip = (fz.ZipStatus == ZipStatus.TrrntZip);
+                            ulong compressedSize;
+                            ushort method;
+                            Stream zds;
+                            fz.ZipFileOpenReadStream(i, isZipTrrntzip, out zds, out compressedSize, out method);
+                            gz.compressedSize = compressedSize;
+                            string outfile = Getfilename(tFile.SHA1);
+                            gz.WriteGZip(outfile, zds, isZipTrrntzip);
+                            fz.ZipFileCloseReadStream();
+
+                            DataAccessLayer.AddInFiles(tFile);
+                        }
+                    }
+                    fz.ZipFileClose();
+
+                    if (FileUsedCount == fz.LocalFilesCount())
+                        File.Delete(f.FullName);
+
+                }
+                else if (ext.ToLower() == ".gz")
+                {
+                    GZip gZipTest=new GZip();
+                    ZipReturn errorcode=gZipTest.ReadGZip(f.FullName, true);
+                    if (errorcode != ZipReturn.ZipGood)
+                        continue;
+                    rvFile tFile = new rvFile();
+                    tFile.CRC = gZipTest.crc;
+                    tFile.MD5 = gZipTest.md5Hash;
+                    tFile.SHA1 = gZipTest.sha1Hash;
+                    tFile.Size = gZipTest.uncompressedSize;
+                    tFile.CompressedSize = gZipTest.compressedSize;
+                    
+                    FindStatus res = fileneededTest(tFile);
+
+                    if (res == FindStatus.FileUnknown)
+                        continue;
+
+                    if (res != FindStatus.FoundFileInArchive)
+                    {
                         GZip gz = new GZip();
                         gz.crc = tFile.CRC;
                         gz.md5Hash = tFile.MD5;
                         gz.sha1Hash = tFile.SHA1;
                         gz.uncompressedSize = tFile.Size;
 
-                        bool isZipTrrntzip = (fz.ZipStatus == ZipStatus.TrrntZip);
-                        ulong compressedSize;
-                        ushort method;
-                        Stream zds;
-                        fz.ZipFileOpenReadStream(i, isZipTrrntzip, out zds, out compressedSize, out method);
-                        gz.compressedSize = compressedSize;
-                        gz.WriteGZip(outfile, zds, isZipTrrntzip);
-                        fz.ZipFileCloseReadStream();
+                        Stream ds;
+                        gZipTest.GetStream(out ds);
+                        string outfile = Getfilename(tFile.SHA1);
+                        gz.WriteGZip(outfile, ds, false);
+                        ds.Close();
+                        ds.Dispose();
 
+                        gZipTest.Close();
                         DataAccessLayer.AddInFiles(tFile);
                     }
-                    fz.ZipFileClose();
 
-                
+                    File.Delete(f.FullName);
+                    
                 }
                 else
                 {
-                    rvFile tFile = new rvFile();
-                    int errorcode=UnCompFiles.CheckSumRead(f.FullName, true, out tFile.CRC, out tFile.MD5, out tFile.SHA1, out tFile.Size);
 
+
+                    rvFile tFile = new rvFile();
+                    int errorcode = UnCompFiles.CheckSumRead(f.FullName, true, out tFile.CRC, out tFile.MD5, out tFile.SHA1, out tFile.Size);
 
                     if (errorcode != 0)
                         continue;
 
-                    string outfile = Getfilename(tFile.SHA1);
                     // test if needed.
-                    if (!fileneededTest(tFile))
+                    FindStatus res = fileneededTest(tFile);
+
+                    if (res == FindStatus.FileUnknown)
                         continue;
 
-                    GZip gz = new GZip();
-                    gz.crc = tFile.CRC;
-                    gz.md5Hash = tFile.MD5;
-                    gz.sha1Hash = tFile.SHA1;
-                    gz.uncompressedSize = tFile.Size;
+                    if (res != FindStatus.FoundFileInArchive)
+                    {
+                        GZip gz = new GZip();
+                        gz.crc = tFile.CRC;
+                        gz.md5Hash = tFile.MD5;
+                        gz.sha1Hash = tFile.SHA1;
+                        gz.uncompressedSize = tFile.Size;
 
-                    Stream ds;
-                    int errorCode = IO.FileStream.OpenFileRead(f.FullName, out ds);
-                    gz.WriteGZip(outfile, ds, false);
-                    ds.Close();
-                    ds.Dispose();
+                        Stream ds;
+                        int errorCode = IO.FileStream.OpenFileRead(f.FullName, out ds);
+                        string outfile = Getfilename(tFile.SHA1);
+                        gz.WriteGZip(outfile, ds, false);
+                        ds.Close();
+                        ds.Dispose();
 
-                    DataAccessLayer.AddInFiles(tFile);
+                        DataAccessLayer.AddInFiles(tFile);
+                    }
+
+                    File.Delete(f.FullName);
                 }
-            }
 
+            }
+            
             DirectoryInfo[] childdi = di.GetDirectories();
             foreach (DirectoryInfo d in childdi)
+            {
+                if (_bgw.CancellationPending)
+                    return;
                 ScanADir(d.FullName);
+            }
+
+            if (IsDirectoryEmpty(directory))
+                Directory.Delete(directory);
+        }
+
+        private static bool IsDirectoryEmpty(string path)
+        {
+            return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
         private static string Getfilename(byte[] SHA1)
@@ -138,15 +220,20 @@ namespace RomVaultX
 
         }
 
-
-        private static bool fileneededTest(rvFile tFile)
+        private enum FindStatus
+        {
+            FileUnknown,
+            FoundFileInArchive,
+            FileNeededInArchive,
+        };
+        private static FindStatus fileneededTest(rvFile tFile)
         {
             // first check to see if we already have it in the file table
             bool inFileDB = DataAccessLayer.FindInFiles(tFile); // returns true if found in File table
-            if (inFileDB) return false;
+            if (inFileDB) return FindStatus.FoundFileInArchive;
 
             // now check if needed in any ROMs
-            return DataAccessLayer.FindInROMs(tFile);
+            return DataAccessLayer.FindInROMs(tFile) ? FindStatus.FileNeededInArchive : FindStatus.FileUnknown;
         }
     }
 }

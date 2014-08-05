@@ -12,7 +12,7 @@ namespace RomVaultX.SupportedFiles.Files
 {
     public static class UnCompFiles
     {
-        private const int Buffersize = 4096;
+        private const int Buffersize = 1024*1024*64;
         private static readonly byte[] Buffer;
 
         static UnCompFiles()

@@ -11,6 +11,11 @@ namespace RomVaultX
     public partial class frmMain : Form
     {
 
+        private static readonly Color CRed = Color.FromArgb(255, 214, 214);
+        private static readonly Color CGreen = Color.FromArgb(214, 255, 214);
+        private static readonly Color CYellow = Color.FromArgb(255, 255, 214);
+        private static readonly Color CGray = Color.FromArgb(214, 214, 214);
+
         private bool _updatingGameGrid;
 
         private Single _scaleFactorX = 1;
@@ -432,10 +437,26 @@ namespace RomVaultX
                 GameGrid.Rows.Add();
                 int iRow = GameGrid.Rows.Count - 1;
 
+                Color cellColor;
+                if (row.TotalGot > 0 && row.TotalMissing == 0)
+                    cellColor = CGreen;
+                else if (row.TotalGot>0 && row.TotalMissing>0)
+                    cellColor = CYellow;
+                else if (row.TotalGot == 0 && row.TotalMissing > 0)
+                    cellColor = CRed;
+                else
+                    cellColor = CGray;
+
                 GameGrid.Rows[iRow].Selected = false;
                 GameGrid.Rows[iRow].Tag = row.GameId;
                 GameGrid.Rows[iRow].Cells[1].Value = row.Name;
                 GameGrid.Rows[iRow].Cells[2].Value = row.Description;
+                GameGrid.Rows[iRow].Cells[3].Value = row.TotalGot;
+                GameGrid.Rows[iRow].Cells[4].Value = row.TotalMissing;
+
+                for (int i = 0; i < 5; i++)
+                    GameGrid.Rows[iRow].DefaultCellStyle.BackColor = cellColor;
+
             }
             _updatingGameGrid = false;
             UpdateSelectedGame();
@@ -703,7 +724,7 @@ namespace RomVaultX
                 RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.MD5);
                 RomGrid.Rows[iRow].Cells[7].Value = rom.Status;
 
-
+                RomGrid.Rows[iRow].DefaultCellStyle.BackColor = rom.FileId > 0 ? CGreen : CRed;
             }
 
         }
@@ -716,8 +737,15 @@ namespace RomVaultX
 
         private void btnScanRoms_Click(object sender, EventArgs e)
         {
-
             FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", romScanner.ScanFiles);
+            progress.ShowDialog(this);
+            progress.Dispose();
+            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+        }
+
+        private void quickReScanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning RomRoot Files", romRootScanner.ScanFiles);
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
