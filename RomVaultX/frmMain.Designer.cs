@@ -63,10 +63,16 @@
             this.lblDITName = new System.Windows.Forms.Label();
             this.lblDIRomsFixable = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.DirTree = new RomVaultX.RvTree();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.gbSetInfo = new System.Windows.Forms.GroupBox();
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
             this.GameGrid = new System.Windows.Forms.DataGridView();
+            this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CGame = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CCorrect = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CMissing = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RomGrid = new System.Windows.Forms.DataGridView();
             this.CGot = new System.Windows.Forms.DataGridViewImageColumn();
             this.CRom = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -79,12 +85,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.DirTree = new RomVaultX.RvTree();
-            this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CGame = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CCorrect = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CMissing = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -416,6 +416,16 @@
             this.label8.Text = "ROMs Missing :";
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // DirTree
+            // 
+            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DirTree.Location = new System.Drawing.Point(0, 0);
+            this.DirTree.Name = "DirTree";
+            this.DirTree.Size = new System.Drawing.Size(553, 626);
+            this.DirTree.TabIndex = 0;
+            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
+            // 
             // splitContainer4
             // 
             this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -517,6 +527,44 @@
             this.GameGrid.Size = new System.Drawing.Size(665, 296);
             this.GameGrid.TabIndex = 5;
             this.GameGrid.SelectionChanged += new System.EventHandler(this.GameGrid_SelectionChanged);
+            // 
+            // Type
+            // 
+            this.Type.FillWeight = 40F;
+            this.Type.HeaderText = "Type";
+            this.Type.Name = "Type";
+            this.Type.ReadOnly = true;
+            this.Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Type.Width = 40;
+            // 
+            // CGame
+            // 
+            this.CGame.HeaderText = "Game (Directory / Zip)";
+            this.CGame.Name = "CGame";
+            this.CGame.ReadOnly = true;
+            this.CGame.Width = 220;
+            // 
+            // CDescription
+            // 
+            this.CDescription.HeaderText = "Description";
+            this.CDescription.Name = "CDescription";
+            this.CDescription.ReadOnly = true;
+            this.CDescription.Width = 220;
+            // 
+            // CCorrect
+            // 
+            this.CCorrect.HeaderText = "ROMs Got";
+            this.CCorrect.Name = "CCorrect";
+            this.CCorrect.ReadOnly = true;
+            this.CCorrect.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.CCorrect.Width = 80;
+            // 
+            // CMissing
+            // 
+            this.CMissing.HeaderText = "ROMs Missing";
+            this.CMissing.Name = "CMissing";
+            this.CMissing.ReadOnly = true;
+            this.CMissing.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
             // RomGrid
             // 
@@ -647,8 +695,8 @@
             this.romRootScanToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.quickReScanToolStripMenuItem});
             this.romRootScanToolStripMenuItem.Name = "romRootScanToolStripMenuItem";
-            this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(94, 20);
-            this.romRootScanToolStripMenuItem.Text = "RomRootScan";
+            this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
+            this.romRootScanToolStripMenuItem.Text = "RomRoot";
             // 
             // quickReScanToolStripMenuItem
             // 
@@ -656,54 +704,6 @@
             this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
             this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
-            // 
-            // DirTree
-            // 
-            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DirTree.Location = new System.Drawing.Point(0, 0);
-            this.DirTree.Name = "DirTree";
-            this.DirTree.Size = new System.Drawing.Size(553, 626);
-            this.DirTree.TabIndex = 0;
-            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
-            // 
-            // Type
-            // 
-            this.Type.FillWeight = 40F;
-            this.Type.HeaderText = "Type";
-            this.Type.Name = "Type";
-            this.Type.ReadOnly = true;
-            this.Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Type.Width = 40;
-            // 
-            // CGame
-            // 
-            this.CGame.HeaderText = "Game (Directory / Zip)";
-            this.CGame.Name = "CGame";
-            this.CGame.ReadOnly = true;
-            this.CGame.Width = 220;
-            // 
-            // CDescription
-            // 
-            this.CDescription.HeaderText = "Description";
-            this.CDescription.Name = "CDescription";
-            this.CDescription.ReadOnly = true;
-            this.CDescription.Width = 220;
-            // 
-            // CCorrect
-            // 
-            this.CCorrect.HeaderText = "ROMs Got";
-            this.CCorrect.Name = "CCorrect";
-            this.CCorrect.ReadOnly = true;
-            this.CCorrect.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.CCorrect.Width = 80;
-            // 
-            // CMissing
-            // 
-            this.CMissing.HeaderText = "ROMs Missing";
-            this.CMissing.Name = "CMissing";
-            this.CMissing.ReadOnly = true;
-            this.CMissing.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
             // frmMain
             // 

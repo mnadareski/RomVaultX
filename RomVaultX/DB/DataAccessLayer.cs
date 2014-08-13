@@ -30,6 +30,8 @@ namespace RomVaultX.DB
 
         private static readonly SQLiteCommand _cleanupNotFound;
 
+        private static readonly SQLiteCommand _findFile;
+
         private const int DBVersion = 4;
         private static readonly string dirFilename = @"C:\stage\rom" + DBVersion + ".db";
 
@@ -101,7 +103,7 @@ namespace RomVaultX.DB
                                 ( md5=@MD5 OR md5 is NULL) AND
                                 ( crc=@CRC OR crc is NULL ) AND
                                 ( size=@size OR size is NULL ) AND
-                            status!='nodump'
+                                ( status!='nodump' or status is NULL)
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
@@ -109,7 +111,7 @@ namespace RomVaultX.DB
                                 ( md5=@MD5 ) AND
                                 ( crc=@CRC OR crc is NULL ) AND
                                 ( size=@size OR size is NULL ) AND
-                            status!='nodump'
+                                ( status!='nodump' or status is NULL)
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
@@ -117,7 +119,7 @@ namespace RomVaultX.DB
                                 ( md5=@MD5 OR md5 is NULL) AND
                                 ( crc=@CRC ) AND
                                 ( size=@size OR size is NULL ) AND
-                            status!='nodump'
+                                ( status!='nodump' or status is NULL)
                         )
                         AS TotalFound"
                 , _connection);
@@ -147,18 +149,18 @@ namespace RomVaultX.DB
             _findExistingDAT.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
 
 
-            _clearfound=new SQLiteCommand(
-                @"UPDATE DIR SET Found=0; UPDATE DAT SET Found=0;",_connection);
+            _clearfound = new SQLiteCommand(
+                @"UPDATE DIR SET Found=0; UPDATE DAT SET Found=0;", _connection);
 
-            _setDirFound=new SQLiteCommand(
-                @"Update Dir SET Found=1 WHERE DirId=@DirId",_connection);
+            _setDirFound = new SQLiteCommand(
+                @"Update Dir SET Found=1 WHERE DirId=@DirId", _connection);
             _setDirFound.Parameters.Add(new SQLiteParameter("DirId"));
 
             _setDatFound = new SQLiteCommand(
                 @"Update Dat SET Found=1 WHERE DatId=@DatId", _connection);
             _setDatFound.Parameters.Add(new SQLiteParameter("DatId"));
 
-            _cleanupNotFound=new SQLiteCommand(
+            _cleanupNotFound = new SQLiteCommand(
                 @"
                 delete from rom where rom.GameId in
                 (
@@ -178,6 +180,42 @@ namespace RomVaultX.DB
                 delete from dir where found=0;
             ", _connection);
 
+
+            _findFile = new SQLiteCommand(
+                @"
+
+                    select (coalesce(
+
+                       (select Files.FileId from files
+                            WHERE
+	                                    (                  @sha1 = files.sha1 ) AND
+	                                    ( @md5  is NULL OR @md5  = files.md5  ) AND
+	                                    ( @crc  is NULL OR @crc  = files.crc  ) AND
+	                                    ( @size is NULL OR @size = files.Size )
+                            limit 1)
+                       ,
+                       (select Files.FileId from files
+                            WHERE
+	                                    (                  @md5  = files.md5  ) AND
+	                                    ( @sha1 is NULL OR @sha1 = files.sha1 ) AND
+	                                    ( @crc  is NULL OR @crc  = files.crc  ) AND
+	                                    ( @size is NULL OR @size = files.Size )
+                            limit 1)
+                       ,
+                       (select Files.FileId from files
+                            WHERE
+	                                    (                  @crc  = files.crc  ) AND
+	                                    ( @sha1 is NULL OR @sha1 = files.sha1 ) AND
+	                                    ( @md5  is NULL OR @md5  = files.md5  ) AND
+	                                    ( @size is NULL OR @size = files.Size )
+                            limit 1)
+                       )) as FileId;
+                ", _connection);
+
+            _findFile.Parameters.Add(new SQLiteParameter("sha1"));
+            _findFile.Parameters.Add(new SQLiteParameter("md5"));
+            _findFile.Parameters.Add(new SQLiteParameter("crc"));
+            _findFile.Parameters.Add(new SQLiteParameter("size"));
             MakeIndex();
         }
 
@@ -251,39 +289,45 @@ namespace RomVaultX.DB
             RvGame.MakeDB();
             RvRom.MakeDB();
 
+            /**** FILE Triggers ****/
+            /*INSERT*/
             ExecuteNonQuery(@"
                 CREATE TRIGGER IF NOT EXISTS [FileInsert] 
                 AFTER INSERT ON [FILES] 
                 FOR EACH ROW 
                 BEGIN 
                     UPDATE ROM SET 
-	                    FileId=new.FileId
+	                    FileId = new.FileId
                     WHERE
-	                    ( sha1=new.sha1) AND
-	                    ( md5=new.md5 OR md5 is NULL) AND 
-	                    ( crc=new.crc OR crc is NULL ) AND
-	                    ( size=new.Size OR size is NULL ) AND
-	                    status!='nodump';
+	                    (                 sha1 = new.sha1 ) AND
+	                    ( md5  is NULL OR md5  = new.md5  ) AND 
+	                    ( crc  is NULL OR crc  = new.crc  ) AND
+	                    ( size is NULL OR size = new.Size ) AND
+	                    ( status != 'nodump' OR status is NULL) AND 
+                        FileId IS NULL;
 		
                     UPDATE ROM SET 
-	                    FileId=new.FileId
+	                    FileId = new.FileId
                     WHERE
-	                    ( sha1=new.sha1 OR sha1 is NULL ) AND
-	                    ( md5=new.md5) AND 
-	                    ( crc=new.crc OR crc is NULL ) AND
-	                    ( size=new.Size OR size is NULL ) AND
-	                    status!='nodump';
+	                    (                 md5  = new.md5  ) AND 
+	                    ( sha1 is NULL OR sha1 = new.sha1 ) AND
+	                    ( crc  is NULL OR crc  = new.crc  ) AND
+	                    ( size is NULL OR size = new.Size ) AND
+	                    ( status != 'nodump' OR status is NULL) AND 
+                        FileId IS NULL;
 		
                     UPDATE ROM SET 
-	                    FileId=new.FileId
+	                    FileId = new.FileId
                     WHERE
-	                    ( sha1=new.sha1 OR sha1 is NULL ) AND
-	                    ( md5=new.md5 OR md5 is NULL) AND 
-	                    ( crc=new.crc) AND
-	                    ( size=new.Size OR size is NULL ) AND
-	                    status!='nodump';
+	                    (                 crc  = new.crc  ) AND
+	                    ( sha1 is NULL OR sha1 = new.sha1 ) AND
+	                    ( md5  is NULL OR md5  = new.md5  ) AND 
+	                    ( size is NULL OR size = new.Size ) AND
+	                    ( status != 'nodump' OR status is NULL) AND 
+                        FileId IS NULL;
                 END;
             ");
+            /*DELETE*/
             ExecuteNonQuery(@"
                 CREATE TRIGGER IF NOT EXISTS [FileDelete] 
                 AFTER DELETE ON [FILES] 
@@ -292,76 +336,93 @@ namespace RomVaultX.DB
                     UPDATE ROM SET FileId=null WHERE FileId=OLD.FileId;
                 END;
             ");
-            ExecuteNonQuery(@"
-                CREATE TRIGGER IF NOT EXISTS [RomInsert_FileIdIsNotNull] 
+
+            /******* ROM Triggers ******/
+
+            /*
+ CREATE TRIGGER IF NOT EXISTS [RomInsert_FileIdIsNull] 
                 AFTER INSERT ON [ROM] 
-                FOR EACH ROW WHEN new.FileId IS NOT NULL
+                FOR EACH ROW WHEN new.FileId is null 
                 BEGIN 
-                    UPDATE GAME SET
-                        RomTotal=RomTotal+1,
-                        RomGot=RomGot+1
-                    WHERE 
-                        Game.GameId=New.GameId;
-                END;
-            ");
+
+                update ROM SET
+                       FileId=coalesce(
+
+                       (select Files.FileId from files
+                            WHERE
+                                        (                     rom.sha1 = files.sha1 ) AND
+                                        ( rom.md5  is NULL OR rom.md5  = files.md5  ) AND
+                                        ( rom.crc  is NULL OR rom.crc  = files.crc  ) AND
+                                        ( rom.size is NULL OR rom.size = files.Size )
+                            limit 1)
+                       ,
+                       (select Files.FileId from files
+                            WHERE
+                                        ( rom.sha1 is NULL OR rom.sha1 = files.sha1 ) AND
+                                        (                     rom.md5  = files.md5  ) AND
+                                        ( rom.crc  is NULL OR rom.crc  = files.crc  ) AND
+                                        ( rom.size is NULL OR rom.size = files.Size )
+                            limit 1)
+                       ,
+                       (select Files.FileId from files
+                            WHERE
+                                        ( rom.sha1 is NULL OR rom.sha1 = files.sha1 ) AND
+                                        ( rom.md5  is NULL OR rom.md5  = files.md5  ) AND
+                                        (                     rom.crc  = files.crc  ) AND
+                                        ( rom.size is NULL OR rom.size = files.Size )
+                            limit 1)
+                       )
+                where romid=new.romid;
+
+
+                UPDATE GAME SET
+                      RomTotal = RomTotal + 1,
+                      RomGot = RomGot + (IFNULL((select fileId from rom where romid=new.romid),0)>0)
+                WHERE
+                      Game.GameId = New.GameId;            
+            
+            */
+            /*INSERT*/
             ExecuteNonQuery(@"
-                CREATE TRIGGER IF NOT EXISTS [RomInsert_FileIdIsNull] 
+                CREATE TRIGGER IF NOT EXISTS [RomInsert] 
                 AFTER INSERT ON [ROM] 
-                FOR EACH ROW WHEN new.FileId IS NULL 
+                FOR EACH ROW
                 BEGIN 
                     UPDATE GAME SET
-                        RomTotal=RomTotal+1
+                        RomTotal = RomTotal + 1,
+                        RomGot = RomGot + (IFNULL(New.FileId,0)>0)
                     WHERE 
-                        Game.GameId=New.GameId;
+                        Game.GameId = New.GameId;
                 END;
             ");
+            /*DELETE*/
             ExecuteNonQuery(@"
-                CREATE TRIGGER IF NOT EXISTS [RomDelete_FileIdIsNotNull] 
+                CREATE TRIGGER IF NOT EXISTS [RomDelete] 
                 AFTER DELETE ON [ROM] 
-                FOR EACH ROW WHEN old.FileId IS NOT NULL
+                FOR EACH ROW
                 BEGIN 
                     UPDATE GAME SET
-                        RomTotal=RomTotal-1,
-                        RomGot=RomGot-1
+                        RomTotal = RomTotal - 1,
+                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0)
                     WHERE 
-                        Game.GameId=Old.GameId;
+                        Game.GameId = Old.GameId;
                 END;
             ");
+            /*UPDATE*/
             ExecuteNonQuery(@"
-                CREATE TRIGGER IF NOT EXISTS [RomDelete_FileIdIsNull] 
-                AFTER DELETE ON [ROM] 
-                FOR EACH ROW WHEN old.FileId IS NULL 
-                BEGIN 
-                    UPDATE GAME SET
-                        RomTotal=RomTotal-1
-                    WHERE 
-                        Game.GameId=Old.GameId;
-                END;
-            ");
-            ExecuteNonQuery(@"
-                CREATE TRIGGER IF NOT EXISTS [RomUpdate_GettingFileId]
+                CREATE TRIGGER IF NOT EXISTS [RomUpdate]
                 AFTER UPDATE ON [ROM]
-                FOR EACH ROW WHEN new.FileId IS NOT NULL AND old.FileId IS NULL
+                FOR EACH ROW WHEN (IFNULL(Old.FileId,0)>0) != (IFNULL(New.FileId,0)>0)
                 BEGIN 
                     UPDATE GAME SET
-                        RomGot=RomGot+1
+                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0) + (IFNULL(New.FileId,0)>0)
                     WHERE 
-                        Game.GameId=New.GameId;
+                        Game.GameId = New.GameId;
                 END;
             ");
 
-            ExecuteNonQuery(@"
-                CREATE TRIGGER IF NOT EXISTS [RomUpdate_RemovingFileId]
-                AFTER UPDATE ON [ROM]
-                FOR EACH ROW WHEN old.FileId IS NOT NULL AND new.FileId IS NULL
-                BEGIN 
-                    UPDATE GAME SET
-                        RomGot=RomGot-1
-                    WHERE 
-                        Game.GameId=New.GameId;
-                END;
-            ");
-
+            /**** GAME Triggers ****/
+            /*INSERT*/
             ExecuteNonQuery(@"
                 CREATE TRIGGER IF NOT EXISTS [GameInsert]
                 AFTER INSERT ON [GAME]
@@ -374,7 +435,7 @@ namespace RomVaultX.DB
                             DatId= New.DatId;
                 END;
             ");
-
+            /*DELETE*/
             ExecuteNonQuery(@"
                 CREATE TRIGGER IF NOT EXISTS [GameDelete]
                 AFTER DELETE ON [GAME]
@@ -387,7 +448,7 @@ namespace RomVaultX.DB
                             DatId=Old.DatId;
                 END;
             ");
-
+            /*UPDATE*/
             ExecuteNonQuery(@"
                 CREATE TRIGGER IF NOT EXISTS [GameUpdate] 
                 AFTER UPDATE ON [GAME] 
@@ -435,6 +496,10 @@ namespace RomVaultX.DB
                 [GameId] ASC,
                 [name] ASC
                 );
+
+                CREATE INDEX IF NOT EXISTS [FILESHA1] ON [FILES]([sha1] ASC);
+                CREATE INDEX IF NOT EXISTS [FILEMD5] ON [FILES]([md5] ASC);
+                CREATE INDEX IF NOT EXISTS [FILECRC] ON [FILES]([crc] ASC);
             ");
 
         }
@@ -575,7 +640,7 @@ namespace RomVaultX.DB
             _findInROMs.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
             _findInROMs.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
 
-            Stopwatch sw=new Stopwatch();
+            Stopwatch sw = new Stopwatch();
 
             sw.Reset();
             sw.Start();
@@ -585,8 +650,8 @@ namespace RomVaultX.DB
             if (res == null || res == DBNull.Value)
                 return false;
             int count = Convert.ToInt32(res);
-            
-            Debug.WriteLine("Time ="+sw.ElapsedMilliseconds+" : Found "+count);
+
+            Debug.WriteLine("Time =" + sw.ElapsedMilliseconds + " : Found " + count);
 
             return count > 0;
         }
@@ -604,7 +669,7 @@ namespace RomVaultX.DB
             _addInFiles.ExecuteNonQuery();
             sw.Stop();
 
-            Debug.WriteLine("Time to add file =" + sw.ElapsedMilliseconds );
+            Debug.WriteLine("Time to add file =" + sw.ElapsedMilliseconds);
 
         }
 
@@ -633,6 +698,21 @@ namespace RomVaultX.DB
         public static void RemoveNotFound()
         {
             _cleanupNotFound.ExecuteNonQuery();
+        }
+
+        public static uint? FindAFile(RvRom tFile)
+        {
+            _findFile.Parameters["size"].Value = tFile.Size;
+            _findFile.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+            _findFile.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
+            _findFile.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+
+            object res = _findFile.ExecuteScalar();
+
+            if (res == null || res == DBNull.Value)
+                return null;
+            return (uint?)Convert.ToInt32(res);
+
         }
     }
 }

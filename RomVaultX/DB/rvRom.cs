@@ -24,8 +24,8 @@ namespace RomVaultX.DB
         static RvRom()
         {
             SqlWrite = new SQLiteCommand(
-                @"INSERT INTO ROM  ( GameId, name, size, crc, sha1, md5, merge, status)
-                            VALUES (@GameId,@Name,@Size,@CRC,@SHA1,@MD5,@Merge,@Status);
+                @"INSERT INTO ROM  ( GameId, name, size, crc, sha1, md5, merge, status,FileId)
+                            VALUES (@GameId,@Name,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
 
                 SELECT last_insert_rowid();");
 
@@ -37,6 +37,7 @@ namespace RomVaultX.DB
             SqlWrite.Parameters.Add(new SQLiteParameter("MD5"));
             SqlWrite.Parameters.Add(new SQLiteParameter("Merge"));
             SqlWrite.Parameters.Add(new SQLiteParameter("Status"));
+            SqlWrite.Parameters.Add(new SQLiteParameter("FileId"));
 
             SqlRead = new SQLiteCommand(
                 @"SELECT RomId,name,size,crc,sha1,md5,merge,status,FileId
@@ -105,6 +106,8 @@ namespace RomVaultX.DB
 
         public void DBWrite()
         {
+            FileId = DataAccessLayer.FindAFile(this);
+            
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;
             SqlWrite.Parameters["size"].Value = Size;
@@ -113,6 +116,7 @@ namespace RomVaultX.DB
             SqlWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
             SqlWrite.Parameters["merge"].Value = Merge;
             SqlWrite.Parameters["status"].Value = Status;
+            SqlWrite.Parameters["FileID"].Value = FileId;
             SqlWrite.ExecuteNonQuery();
         }
     }
