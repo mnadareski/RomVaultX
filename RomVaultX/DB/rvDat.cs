@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 
 namespace RomVaultX.DB
 {
-    public class rvDat
+    public class RvDat
     {
         public int DatId;
         public int DirId;
@@ -20,11 +21,13 @@ namespace RomVaultX.DB
         public string URL;
         public string Comment;
         public long DatTimeStamp;
-        
+
+        private List<RvGame> Games = null; 
+
         private static readonly SQLiteCommand SqlWrite;
         private static readonly SQLiteCommand SqlRead;
 
-        static rvDat()
+        static RvDat()
         {
             SqlWrite = new SQLiteCommand(
                @"INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,DatTimeStamp)
@@ -88,7 +91,7 @@ namespace RomVaultX.DB
                 );");
         }
 
-        public void DBRead(int datId)
+        public void DBRead(int datId,bool readGames=false)
         {
             SqlRead.Parameters["DatID"].Value = datId;
 
@@ -113,6 +116,9 @@ namespace RomVaultX.DB
                 }
                 dr.Close();
             }
+
+            if (readGames)
+                Games = RvGame.ReadGames(DatId,true);
         }
 
         public void DbWrite()
@@ -136,6 +142,23 @@ namespace RomVaultX.DB
             if (res == null || res == DBNull.Value)
                 return;
             DatId = Convert.ToInt32(res);
+
+            if (Games==null)
+                return;
+
+            foreach (RvGame rvGame in Games)
+            {
+                rvGame.DatId = DatId;
+                rvGame.DBWrite();
+            }
+        }
+
+        public void AddGame(RvGame rvGame)
+        {
+            if (Games==null)
+                Games=new List<RvGame>();
+
+            Games.Add(rvGame);
         }
     }
 }

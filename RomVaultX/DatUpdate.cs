@@ -37,11 +37,11 @@ namespace RomVaultX
                     _bgw = null;
                     return;
                 }
-                
+
                 _bgw.ReportProgress(0, new bgwText("Clearing DB"));
                 //DataAccessLayer.DropIndex();
                 DataAccessLayer.ClearFound();
-                
+
                 const string datRoot = @"";
                 int DirId = DataAccessLayer.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
@@ -55,8 +55,8 @@ namespace RomVaultX
 
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
                 ReadDats(DirId, datRoot, "DatRoot");
-                
-                _bgw.ReportProgress(0,new bgwText("Removing old DATs"));
+
+                _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
                 DataAccessLayer.RemoveNotFound();
 
                 _bgw.ReportProgress(0, new bgwText("Updating Indexes"));
@@ -113,9 +113,15 @@ namespace RomVaultX
 
                 _bgw.ReportProgress(0, new bgwText("Dat : " + subPath + @"\" + f.Name));
 
-                DataAccessLayer.ExecuteNonQuery("BEGIN");
-                DatReader.DatReader.ReadDat(ParentId, f.FullName,f.LastWriteTime, _bgw);
-                DataAccessLayer.ExecuteNonQuery("COMMIT");
+                RvDat rvDat;
+                if (DatReader.DatReader.ReadDat(f.FullName, f.LastWriteTime, _bgw, out rvDat))
+                {
+                    rvDat.DirId = ParentId;
+                    DataAccessLayer.ExecuteNonQuery("BEGIN");
+                    rvDat.DbWrite();
+                    DataAccessLayer.ExecuteNonQuery("COMMIT");
+                }
+
                 if (_bgw.CancellationPending)
                     return;
             }

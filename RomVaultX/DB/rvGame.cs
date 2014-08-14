@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 
 namespace RomVaultX.DB
@@ -33,10 +34,12 @@ namespace RomVaultX.DB
         public string Peripheral;
         public string BarCode;
         public string MediaCatalogNumber;
+        
+        private List<RvRom> Roms=null; 
 
-      
         private static readonly SQLiteCommand SqlWrite;
         private static readonly SQLiteCommand SqlRead;
+       private static readonly SQLiteCommand SqlReadGames;
 
         static RvGame()
         {
@@ -76,9 +79,15 @@ namespace RomVaultX.DB
         
         
             SqlRead = new SQLiteCommand(
-                @"SELECT DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
+                @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
                     FROM GAME WHERE GameId=@GameId");
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
+
+            SqlReadGames = new SQLiteCommand(
+                @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
+                    FROM GAME WHERE DatId=@DatId");
+            SqlRead.Parameters.Add(new SQLiteParameter("DatId"));
+
         }
 
         public static void SetConnection(SQLiteConnection connection)
@@ -131,35 +140,62 @@ namespace RomVaultX.DB
             {
                 if (dr.Read())
                 {
-                    GameId = gameId;
-                    DatId =Convert.ToInt32(dr["DatId"]);
-                    Name = dr["name"].ToString();
-                    Description = dr["description"].ToString();
-                    Manufacturer = dr["manufacturer"].ToString();
-                    CloneOf = dr["cloneOf"].ToString();
-                    RomOf = dr["romof"].ToString();
-                    SourceFile = dr["sourcefile"].ToString();
-                    IsBios = dr["isbios"].ToString();
-                    Board = dr["board"].ToString();
-                    Year = dr["year"].ToString();
-                    IsTrurip =Convert.ToBoolean(dr["istrurip"]);
-                    Publisher = dr["publisher"].ToString();
-                    Developer = dr["developer"].ToString();
-                    Edition = dr["edition"].ToString();
-                    Version = dr["version"].ToString();
-                    Type = dr["type"].ToString();
-                    Media = dr["media"].ToString();
-                    Language = dr["language"].ToString();
-                    Players = dr["players"].ToString();
-                    Ratings=dr["ratings"].ToString();
-                    Genre=dr["genre"].ToString();
-                    Peripheral=dr["peripheral"].ToString();
-                    BarCode=dr["barcode"].ToString();
-                    MediaCatalogNumber = dr["mediacatalognumber"].ToString();
+                    ReadFromReader(dr);
                 }
                 dr.Close();
             }
         }
+
+       public static List<RvGame> ReadGames(int DatId,bool readRoms=false)
+       {
+           List<RvGame> games=new List<RvGame>();
+           SqlReadGames.Parameters["DatId"].Value = DatId;
+           
+           using (SQLiteDataReader dr = SqlReadGames.ExecuteReader())
+           {
+               while (dr.Read())
+               {
+                   RvGame rvGame=new RvGame();
+                   rvGame.ReadFromReader(dr,readRoms);
+                   games.Add(rvGame);
+               }
+               dr.Close();
+           }
+
+           return games;
+       }
+
+       private void ReadFromReader(SQLiteDataReader dr,bool readRoms =false)
+       {
+           GameId = Convert.ToInt32(dr["GameId"]);
+           DatId = Convert.ToInt32(dr["DatId"]);
+           Name = dr["name"].ToString();
+           Description = dr["description"].ToString();
+           Manufacturer = dr["manufacturer"].ToString();
+           CloneOf = dr["cloneOf"].ToString();
+           RomOf = dr["romof"].ToString();
+           SourceFile = dr["sourcefile"].ToString();
+           IsBios = dr["isbios"].ToString();
+           Board = dr["board"].ToString();
+           Year = dr["year"].ToString();
+           IsTrurip = Convert.ToBoolean(dr["istrurip"]);
+           Publisher = dr["publisher"].ToString();
+           Developer = dr["developer"].ToString();
+           Edition = dr["edition"].ToString();
+           Version = dr["version"].ToString();
+           Type = dr["type"].ToString();
+           Media = dr["media"].ToString();
+           Language = dr["language"].ToString();
+           Players = dr["players"].ToString();
+           Ratings = dr["ratings"].ToString();
+           Genre = dr["genre"].ToString();
+           Peripheral = dr["peripheral"].ToString();
+           BarCode = dr["barcode"].ToString();
+           MediaCatalogNumber = dr["mediacatalognumber"].ToString();
+
+           if (readRoms)
+               Roms = RvRom.ReadRoms(GameId);
+       }
 
         public void DBWrite()
         {
@@ -196,6 +232,23 @@ namespace RomVaultX.DB
             if (res == null || res == DBNull.Value)
                 return;
             GameId = Convert.ToInt32(res);
+
+            if (Roms != null)
+            {
+                foreach (RvRom rvRom in Roms)
+                {
+                    rvRom.GameId = GameId;
+                    rvRom.DBWrite();
+                }
+            }
+        }
+
+        public void AddRom(RvRom rvRom)
+        {
+            if (Roms == null)
+                Roms = new List<RvRom>();
+
+            Roms.Add(rvRom);
         }
 
 

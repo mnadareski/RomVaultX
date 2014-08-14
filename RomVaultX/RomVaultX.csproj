@@ -102,7 +102,7 @@
     <Compile Include="DatUpdate.cs" />
     <Compile Include="DB\rvDat.cs" />
     <Compile Include="DB\rvFile.cs" />
-    <Compile Include="DB\rvGameRow.cs" />
+    <Compile Include="DB\RvGameGridRow.cs" />
     <Compile Include="DB\rvRom.cs" />
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>

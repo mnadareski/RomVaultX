@@ -70,9 +70,9 @@ namespace RomVaultX.DB
                 );");
         }
 
-        public static IEnumerable<RvRom> ReadRoms(int gameId)
+        public static List<RvRom> ReadRoms(int gameId)
         {
-            List<RvRom> rows = new List<RvRom>();
+            List<RvRom> roms = new List<RvRom>();
             SqlRead.Parameters["GameId"].Value = gameId;
 
             using (SQLiteDataReader dr = SqlRead.ExecuteReader())
@@ -97,11 +97,11 @@ namespace RomVaultX.DB
                         FileId = iFileId,
                     };
 
-                    rows.Add(row);
+                    roms.Add(row);
                 }
                 dr.Close();
             }
-            return rows;
+            return roms;
         }
 
         public void DBWrite()

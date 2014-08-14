@@ -8,9 +8,9 @@ namespace RomVaultX.DatReader
 {
     public static class DatCmpReader
     {
-        public static bool ReadDat(int DirId, string strFilename,long fileTimeStamp)
+        public static bool ReadDat(string strFilename, long fileTimeStamp, out RvDat rvDat)
         {
-            int DatId = 0;
+            rvDat = new RvDat();
             int errorCode = DatFileLoader.LoadDat(strFilename);
             if (errorCode != 0)
             {
@@ -26,14 +26,14 @@ namespace RomVaultX.DatReader
             if (DatFileLoader.Next.ToLower() == "clrmamepro")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(DirId, Filename,fileTimeStamp, out DatId))
+                if (!LoadHeaderFromDat(Filename, fileTimeStamp, rvDat))
                     return false;
                 DatFileLoader.Gn();
             }
             if (DatFileLoader.Next.ToLower() == "romvault")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(DirId, Filename,fileTimeStamp, out DatId))
+                if (!LoadHeaderFromDat(Filename, fileTimeStamp, rvDat))
                     return false;
                 DatFileLoader.Gn();
             }
@@ -44,19 +44,19 @@ namespace RomVaultX.DatReader
                 {
                     case "dir":
                         DatFileLoader.Gn();
-                        if (!LoadDirFromDat(DatId, ""))
+                        if (!LoadDirFromDat(rvDat, ""))
                             return false;
                         DatFileLoader.Gn();
                         break;
                     case "game":
                         DatFileLoader.Gn();
-                        if (!LoadGameFromDat(DatId, ""))
+                        if (!LoadGameFromDat(rvDat, ""))
                             return false;
                         DatFileLoader.Gn();
                         break;
                     case "resource":
                         DatFileLoader.Gn();
-                        if (!LoadGameFromDat(DatId, ""))
+                        if (!LoadGameFromDat(rvDat, ""))
                             return false;
                         DatFileLoader.Gn();
                         break;
@@ -79,9 +79,8 @@ namespace RomVaultX.DatReader
         }
 
 
-        private static bool LoadHeaderFromDat(int DirId, string Filename,long fileTimeStamp, out int DatId)
+        private static bool LoadHeaderFromDat(string Filename, long fileTimeStamp, RvDat rvDat)
         {
-            DatId = 0;
             if (DatFileLoader.Next != "(")
             {
                 DatUpdate.SendAndShowDat("( not found after clrmamepro", DatFileLoader.Filename);
@@ -89,27 +88,24 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-
-            rvDat tDat=new rvDat();
-            tDat.DirId = DirId;
-            tDat.Filename = Filename;
-            tDat.DatTimeStamp = fileTimeStamp;
+            rvDat.Filename = Filename;
+            rvDat.DatTimeStamp = fileTimeStamp;
 
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
                 {
-                    case "name": tDat.Name = VarFix.CleanFileName(DatFileLoader.GnRest()); DatFileLoader.Gn(); break;
-                    case "description": tDat.Description = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "category": tDat.Category = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "version": tDat.Version = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "date": tDat.Date = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "author": tDat.Author = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "email": tDat.Email = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "homepage": tDat.Homepage = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "url": tDat.URL = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "name": rvDat.Name = VarFix.CleanFileName(DatFileLoader.GnRest()); DatFileLoader.Gn(); break;
+                    case "description": rvDat.Description = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "category": rvDat.Category = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "version": rvDat.Version = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "date": rvDat.Date = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "author": rvDat.Author = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "email": rvDat.Email = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "homepage": rvDat.Homepage = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "url": rvDat.URL = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
 
-                    case "comment": tDat.Comment = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "comment": rvDat.Comment = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "header": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "forcezipping": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "forcepacking": DatFileLoader.GnRest(); DatFileLoader.Gn(); break; // incorrect usage
@@ -122,9 +118,6 @@ namespace RomVaultX.DatReader
                         break;
                 }
             }
-            
-            tDat.DbWrite();
-            DatId = tDat.DatId;
 
             return true;
 
@@ -151,7 +144,7 @@ namespace RomVaultX.DatReader
 
 
 
-        private static bool LoadDirFromDat(int DatId, string rootDir)
+        private static bool LoadDirFromDat(RvDat rvDat, string rootDir)
         {
             if (DatFileLoader.Next != "(")
             {
@@ -175,19 +168,19 @@ namespace RomVaultX.DatReader
                 {
                     case "dir":
                         DatFileLoader.Gn();
-                        if (!LoadDirFromDat(DatId, fullname))
+                        if (!LoadDirFromDat(rvDat, fullname))
                             return false;
                         DatFileLoader.Gn();
                         break;
                     case "game":
                         DatFileLoader.Gn();
-                        if (!LoadGameFromDat(DatId, fullname))
+                        if (!LoadGameFromDat(rvDat, fullname))
                             return false;
                         DatFileLoader.Gn();
                         break;
                     case "resource":
                         DatFileLoader.Gn();
-                        if (!LoadGameFromDat(DatId, fullname))
+                        if (!LoadGameFromDat(rvDat, fullname))
                             return false;
                         DatFileLoader.Gn();
                         break;
@@ -200,7 +193,7 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadGameFromDat(int DatId, string rootdir)
+        private static bool LoadGameFromDat(RvDat rvDat, string rootdir)
         {
             if (DatFileLoader.Next != "(")
             {
@@ -232,22 +225,21 @@ namespace RomVaultX.DatReader
 
             DatFileLoader.Gn();
 
-            RvGame gInfo=new RvGame();
-            gInfo.DatId = DatId;
-            gInfo.Name = name;
+            RvGame rvGame = new RvGame();
+            rvGame.Name = name;
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
                 {
-                    case "romof": gInfo.RomOf = VarFix.CleanFileName(DatFileLoader.GnRest()); DatFileLoader.Gn(); break;
-                    case "description": gInfo.Description = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "romof": rvGame.RomOf = VarFix.CleanFileName(DatFileLoader.GnRest()); DatFileLoader.Gn(); break;
+                    case "description": rvGame.Description = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
 
-                    case "sourcefile": gInfo.SourceFile = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "cloneof": gInfo.CloneOf = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "sampleof": gInfo.SampleOf = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "board": gInfo.Board = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "year": gInfo.Year = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
-                    case "manufacturer":gInfo.Manufacturer = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "sourcefile": rvGame.SourceFile = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "cloneof": rvGame.CloneOf = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "sampleof": rvGame.SampleOf = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "board": rvGame.Board = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "year": rvGame.Year = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "manufacturer": rvGame.Manufacturer = DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "serial": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "rebuildto": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
 
@@ -263,20 +255,14 @@ namespace RomVaultX.DatReader
 
 
                     case "rom":
-                        if (gInfo.GameId == 0)
-                            gInfo.DBWrite();
-
                         DatFileLoader.Gn();
-                        if (!LoadRomFromDat(gInfo.GameId))
+                        if (!LoadRomFromDat(rvGame))
                             return false;
                         DatFileLoader.Gn();
                         break;
                     case "disk":
-                        if (gInfo.GameId == 0)
-                            gInfo.DBWrite();
-
                         DatFileLoader.Gn();
-                        if (!LoadDiskFromDat(gInfo.GameId))
+                        if (!LoadDiskFromDat(rvGame))
                             return false;
                         DatFileLoader.Gn();
                         break;
@@ -294,11 +280,11 @@ namespace RomVaultX.DatReader
                         break;
                 }
             }
-
+            rvDat.AddGame(rvGame);
             return true;
         }
 
-        private static bool LoadRomFromDat(int GameId)
+        private static bool LoadRomFromDat(RvGame rvGame)
         {
 
             if (DatFileLoader.Next != "(")
@@ -315,9 +301,8 @@ namespace RomVaultX.DatReader
             }
 
 
-            RvRom tRom = new RvRom();
-            tRom.GameId = GameId;
-            tRom.Name = VarFix.CleanFullFileName(DatFileLoader.Gn());
+            RvRom rvRom = new RvRom();
+            rvRom.Name = VarFix.CleanFullFileName(DatFileLoader.Gn());
             DatFileLoader.Gn();
 
 
@@ -325,17 +310,17 @@ namespace RomVaultX.DatReader
             {
                 switch (DatFileLoader.Next.ToLower())
                 {
-                    case "size": tRom.Size = VarFix.ULong(DatFileLoader.Gn()); DatFileLoader.Gn(); break;
-                    case "crc": tRom.CRC = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 8); DatFileLoader.Gn(); break;
-                    case "sha1": tRom.SHA1 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40); DatFileLoader.Gn(); break;
-                    case "md5": tRom.MD5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32); DatFileLoader.Gn(); break;
-                    case "merge": tRom.Merge = VarFix.CleanFullFileName(DatFileLoader.Gn()); DatFileLoader.Gn(); break;
-                    case "flags": tRom.Status = VarFix.ToLower(DatFileLoader.Gn()); DatFileLoader.Gn(); break;
+                    case "size": rvRom.Size = VarFix.ULong(DatFileLoader.Gn()); DatFileLoader.Gn(); break;
+                    case "crc": rvRom.CRC = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 8); DatFileLoader.Gn(); break;
+                    case "sha1": rvRom.SHA1 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40); DatFileLoader.Gn(); break;
+                    case "md5": rvRom.MD5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32); DatFileLoader.Gn(); break;
+                    case "merge": rvRom.Merge = VarFix.CleanFullFileName(DatFileLoader.Gn()); DatFileLoader.Gn(); break;
+                    case "flags": rvRom.Status = VarFix.ToLower(DatFileLoader.Gn()); DatFileLoader.Gn(); break;
                     case "date": DatFileLoader.Gn(); DatFileLoader.Gn(); break;
                     case "bios": DatFileLoader.Gn(); DatFileLoader.Gn(); break;
                     case "region": DatFileLoader.Gn(); DatFileLoader.Gn(); break;
                     case "offs": DatFileLoader.Gn(); DatFileLoader.Gn(); break;
-                    case "nodump": tRom.Status = "nodump"; DatFileLoader.Gn(); break;
+                    case "nodump": rvRom.Status = "nodump"; DatFileLoader.Gn(); break;
                     default:
                         DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in rom", DatFileLoader.Filename);
                         DatFileLoader.Gn();
@@ -343,12 +328,12 @@ namespace RomVaultX.DatReader
                 }
             }
 
-            tRom.DBWrite();
+            rvGame.AddRom(rvRom);
 
             return true;
         }
 
-        private static bool LoadDiskFromDat(int GameId)
+        private static bool LoadDiskFromDat(RvGame rvGame)
         {
 
             if (DatFileLoader.Next != "(")

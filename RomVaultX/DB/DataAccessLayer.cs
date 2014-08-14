@@ -137,8 +137,8 @@ namespace RomVaultX.DB
             _addInFiles.Parameters.Add(new SQLiteParameter("md5"));
 
 
-            rvDat.SetConnection(_connection);
-            RvGameRow.setConnection(_connection);
+            RvDat.SetConnection(_connection);
+            RvGameGridRow.setConnection(_connection);
             RvGame.SetConnection(_connection);
             RvRom.SetConnection(_connection);
 
@@ -285,7 +285,7 @@ namespace RomVaultX.DB
 
         ");
 
-            rvDat.MakeDB();
+            RvDat.MakeDB();
             RvGame.MakeDB();
             RvRom.MakeDB();
 

@@ -127,7 +127,7 @@ namespace RomVaultX
 
             if (tr.DatId != null)
             {
-                rvDat tDat=new rvDat();
+                RvDat tDat=new RvDat();
                 tDat.DBRead((int)tr.DatId);
                 lblDITDescription.Text = tDat.Description;
                 lblDITCategory.Text = tDat.Category;
@@ -430,9 +430,9 @@ namespace RomVaultX
             if (DatId == null)
                 return;
 
-            List<RvGameRow> rows = RvGameRow.ReadGames((int)DatId);
+            List<RvGameGridRow> rows = RvGameGridRow.ReadGames((int)DatId);
 
-            foreach (RvGameRow row in rows)
+            foreach (RvGameGridRow row in rows)
             {
                 GameGrid.Rows.Add();
                 int iRow = GameGrid.Rows.Count - 1;
