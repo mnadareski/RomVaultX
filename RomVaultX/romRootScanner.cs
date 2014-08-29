@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using RomVaultX.DB;
+using RomVaultX.DB.DBAccess;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
@@ -89,7 +90,7 @@ namespace RomVaultX
         private static FindStatus fileneededTest(rvFile tFile)
         {
             // first check to see if we already have it in the file table
-            bool inFileDB = DataAccessLayer.FindInFiles(tFile); // returns true if found in File table
+            bool inFileDB = FindInFiles.Execute(tFile); // returns true if found in File table
             return inFileDB ? FindStatus.FoundFileInArchive : FindStatus.FileNeededInArchive;
         }
 

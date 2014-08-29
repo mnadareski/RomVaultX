@@ -246,7 +246,10 @@ namespace RomVaultX
             return false;
         }
 
-
+        public RvTreeRow Selected
+        {
+            get { return _lSelected; }
+        }
 
         private void SetExpanded(RvTreeRow pTree, MouseButtons mouseB)
         {

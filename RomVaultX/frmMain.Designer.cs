@@ -85,6 +85,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createZIPsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -683,7 +684,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.romRootScanToolStripMenuItem});
+            this.romRootScanToolStripMenuItem,
+            this.createZIPsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1306, 24);
@@ -701,9 +703,16 @@
             // quickReScanToolStripMenuItem
             // 
             this.quickReScanToolStripMenuItem.Name = "quickReScanToolStripMenuItem";
-            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
             this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
+            // 
+            // createZIPsToolStripMenuItem
+            // 
+            this.createZIPsToolStripMenuItem.Name = "createZIPsToolStripMenuItem";
+            this.createZIPsToolStripMenuItem.Size = new System.Drawing.Size(78, 20);
+            this.createZIPsToolStripMenuItem.Text = "Create ZIPs";
+            this.createZIPsToolStripMenuItem.Click += new System.EventHandler(this.createZIPsToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -798,6 +807,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CDescription;
         private System.Windows.Forms.DataGridViewTextBoxColumn CCorrect;
         private System.Windows.Forms.DataGridViewTextBoxColumn CMissing;
+        private System.Windows.Forms.ToolStripMenuItem createZIPsToolStripMenuItem;
     }
 }
 

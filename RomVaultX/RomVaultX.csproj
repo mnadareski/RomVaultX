@@ -95,11 +95,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackGroundWorkerInterface.cs" />
-    <Compile Include="DB\DataAccessLayer.cs" />
+    <Compile Include="DB\DBAccess\FindExistingDAT.cs" />
+    <Compile Include="DB\DBAccess\FindInFiles.cs" />
+    <Compile Include="DB\DBAccess\DataAccessLayer.cs" />
     <Compile Include="DatReader\DatCmpReader.cs" />
     <Compile Include="DatReader\DatReader.cs" />
     <Compile Include="DatReader\DatXMLReader.cs" />
     <Compile Include="DatUpdate.cs" />
+    <Compile Include="DB\DBAccess\FindInDir.cs" />
+    <Compile Include="DB\DBAccess\FindInROMs.cs" />
     <Compile Include="DB\rvDat.cs" />
     <Compile Include="DB\rvFile.cs" />
     <Compile Include="DB\RvGameGridRow.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="IO\Win32Native.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReMakeZips.cs" />
     <Compile Include="ReportError.cs" />
     <Compile Include="DB\rvGame.cs" />
     <Compile Include="romRootScanner.cs" />
@@ -147,6 +152,7 @@
     <Compile Include="SupportedFiles\GZ\GZip.cs" />
     <Compile Include="SupportedFiles\ZipEnums.cs" />
     <Compile Include="SupportedFiles\Zip\zipFile.cs" />
+    <Compile Include="SupportedFiles\Zip\zipFileReadOnly.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\Crc32.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\Deflate.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\DeflateStream.cs" />

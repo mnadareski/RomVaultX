@@ -6,8 +6,8 @@ namespace RomVaultX.DB
 {
     public class RvDat
     {
-        public int DatId;
-        public int DirId;
+        public uint DatId;
+        public uint DirId;
         public string Filename;
         public string Name;
         public string RootDir;
@@ -22,7 +22,7 @@ namespace RomVaultX.DB
         public string Comment;
         public long DatTimeStamp;
 
-        private List<RvGame> Games = null; 
+        public List<RvGame> Games = null; 
 
         private static readonly SQLiteCommand SqlWrite;
         private static readonly SQLiteCommand SqlRead;
@@ -91,7 +91,7 @@ namespace RomVaultX.DB
                 );");
         }
 
-        public void DBRead(int datId,bool readGames=false)
+        public void DBRead(uint datId,bool readGames=false)
         {
             SqlRead.Parameters["DatID"].Value = datId;
 
@@ -100,7 +100,7 @@ namespace RomVaultX.DB
                 if (dr.Read())
                 {
                     DatId = datId;
-                    DirId = Convert.ToInt32(dr["DirId"]);
+                    DirId = Convert.ToUInt32(dr["DirId"]);
                     Filename = dr["filename"].ToString();
                     Name = dr["name"].ToString();
                     RootDir = dr["rootdir"].ToString();
@@ -141,7 +141,7 @@ namespace RomVaultX.DB
 
             if (res == null || res == DBNull.Value)
                 return;
-            DatId = Convert.ToInt32(res);
+            DatId = Convert.ToUInt32(res);
 
             if (Games==null)
                 return;

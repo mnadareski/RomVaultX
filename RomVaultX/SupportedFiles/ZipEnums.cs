@@ -41,7 +41,8 @@ namespace RomVaultX.SupportedFiles
     public enum ZipOpenType
     {
         Closed,
-        OpenRead
+        OpenRead,
+        OpenWrite
     }
 
     [Flags]

@@ -5,12 +5,12 @@ namespace RomVaultX
 {
     public class RvTreeRow
     {
-        public int DirId;
+        public uint DirId;
         public string dirName;
         public string dirFullName;
         public bool Expanded;
 
-        public int? DatId;
+        public uint? DatId;
         public string datName;
         public string description;
 

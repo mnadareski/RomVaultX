@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using RomVaultX.DB;
+using RomVaultX.DB.DBAccess;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.Files;
 using RomVaultX.SupportedFiles.GZ;
@@ -229,11 +230,11 @@ namespace RomVaultX
         private static FindStatus fileneededTest(rvFile tFile)
         {
             // first check to see if we already have it in the file table
-            bool inFileDB = DataAccessLayer.FindInFiles(tFile); // returns true if found in File table
+            bool inFileDB = FindInFiles.Execute(tFile); // returns true if found in File table
             if (inFileDB) return FindStatus.FoundFileInArchive;
 
             // now check if needed in any ROMs
-            return DataAccessLayer.FindInROMs(tFile) ? FindStatus.FileNeededInArchive : FindStatus.FileUnknown;
+            return FindInROMs.Execute(tFile) ? FindStatus.FileNeededInArchive : FindStatus.FileUnknown;
         }
     }
 }

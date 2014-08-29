@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 using RomVaultX.DB;
+using RomVaultX.DB.DBAccess;
 using RomVaultX.IO;
 
 namespace RomVaultX
@@ -39,11 +40,10 @@ namespace RomVaultX
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Clearing DB"));
-                //DataAccessLayer.DropIndex();
                 DataAccessLayer.ClearFound();
 
                 const string datRoot = @"";
-                int DirId = DataAccessLayer.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
+                uint DirId = FindOrInsert.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
 
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
@@ -60,7 +60,6 @@ namespace RomVaultX
                 DataAccessLayer.RemoveNotFound();
 
                 _bgw.ReportProgress(0, new bgwText("Updating Indexes"));
-                //DataAccessLayer.MakeIndex();
 
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
@@ -88,14 +87,14 @@ namespace RomVaultX
             _datCount += fis.Length;
         }
 
-        private static void ReadDats(int ParentId, string datRoot, string subPath)
+        private static void ReadDats(uint ParentId, string datRoot, string subPath)
         {
             DirectoryInfo di = new DirectoryInfo(Path.Combine(datRoot, subPath));
 
             DirectoryInfo[] dis = di.GetDirectories();
             foreach (DirectoryInfo d in dis)
             {
-                int DirId = DataAccessLayer.FindOrInsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name) + "\\");
+                uint DirId = FindOrInsert.FindOrInsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name) + "\\");
                 ReadDats(DirId, datRoot, Path.Combine(subPath, d.Name));
                 if (_bgw.CancellationPending)
                     return;
@@ -107,8 +106,8 @@ namespace RomVaultX
                 _datsProcessed++;
                 _bgw.ReportProgress(_datsProcessed);
 
-                int DatId = DataAccessLayer.FindExistingDat(subPath, f.Name, f.LastWriteTime);
-                if (DatId > 0)
+                uint datId = FindDAT.Execute(subPath, f.Name, f.LastWriteTime);
+                if (datId > 0)
                     continue;
 
                 _bgw.ReportProgress(0, new bgwText("Dat : " + subPath + @"\" + f.Name));

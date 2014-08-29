@@ -128,7 +128,7 @@ namespace RomVaultX
             if (tr.DatId != null)
             {
                 RvDat tDat=new RvDat();
-                tDat.DBRead((int)tr.DatId);
+                tDat.DBRead((uint)tr.DatId);
                 lblDITDescription.Text = tDat.Description;
                 lblDITCategory.Text = tDat.Category;
                 lblDITVersion.Text = tDat.Version;
@@ -421,7 +421,7 @@ namespace RomVaultX
 
 
 
-        private void UpdateGameGrid(int? DatId)
+        private void UpdateGameGrid(uint? DatId)
         {
             _updatingGameGrid = true;
             GameGrid.Rows.Clear();
@@ -703,7 +703,7 @@ namespace RomVaultX
 
         #region Rom display code
 
-        private void UpdateRomGrid(int GameId)
+        private void UpdateRomGrid(uint GameId)
         {
             RomGrid.Rows.Clear();
 
@@ -749,6 +749,18 @@ namespace RomVaultX
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+        }
+
+        private void createZIPsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RvTreeRow selected = DirTree.Selected;
+            if (selected == null)
+                return;
+            if (selected.DatId == null)
+            {
+                MessageBox.Show("Select a DAT to remake","RomVaultX", MessageBoxButtons.OK,MessageBoxIcon.Information);
+            }
+            ReMakeZips.MakeDatZips(selected.DatId??0);
         }
     }
 }

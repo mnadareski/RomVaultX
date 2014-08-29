@@ -7,8 +7,8 @@ namespace RomVaultX.DB
 {
     public class RvRom
     {
-        public int RomId;
-        public int GameId;
+        public uint RomId;
+        public uint GameId;
         public string Name;
         public ulong? Size;
         public byte[] CRC;
@@ -70,7 +70,7 @@ namespace RomVaultX.DB
                 );");
         }
 
-        public static List<RvRom> ReadRoms(int gameId)
+        public static List<RvRom> ReadRoms(uint gameId)
         {
             List<RvRom> roms = new List<RvRom>();
             SqlRead.Parameters["GameId"].Value = gameId;
@@ -85,7 +85,7 @@ namespace RomVaultX.DB
                     ulong? iFileId = tFileId == DBNull.Value ? null : (ulong?)Convert.ToInt64(tFileId);
                     RvRom row = new RvRom
                     {
-                        RomId = Convert.ToInt32(dr["RomId"]),
+                        RomId = Convert.ToUInt32(dr["RomId"]),
                         GameId = gameId,
                         Name = dr["name"].ToString(),
                         Size = iSize,
