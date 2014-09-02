@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
+using RomVaultX.DB.DBAccess;
 using RomVaultX.IO;
 using RomVaultX.Util;
 using Convert = System.Convert;
@@ -12,9 +13,7 @@ namespace RomVaultX.DB
     {
         private static SQLiteConnection _connection;
 
-        //private static readonly SQLiteCommand _findExistingDAT;
-
-
+        
         private static readonly SQLiteCommand _readTree;
         private static readonly SQLiteCommand _setTreeExpanded;
 
@@ -22,11 +21,8 @@ namespace RomVaultX.DB
 
         private static readonly SQLiteCommand _clearfound;
         private static readonly SQLiteCommand _setDirFound;
-        //private static readonly SQLiteCommand _setDatFound;
-
+        
         private static readonly SQLiteCommand _cleanupNotFound;
-
-        private static readonly SQLiteCommand _findFile;
 
         private const int DBVersion = 4;
         private static readonly string dirFilename = @"C:\stage\rom" + DBVersion + ".db";
@@ -51,7 +47,7 @@ namespace RomVaultX.DB
             if (!datFound)
                 MakeDB();
 
-
+            ExecuteNonQuery("Attach ':memory:' AS memdb");
 
 
             _readTree = new SQLiteCommand(
@@ -85,14 +81,7 @@ namespace RomVaultX.DB
             _addInFiles.Parameters.Add(new SQLiteParameter("crc"));
             _addInFiles.Parameters.Add(new SQLiteParameter("sha1"));
             _addInFiles.Parameters.Add(new SQLiteParameter("md5"));
-
-
-            RvDat.SetConnection(_connection);
-            RvGameGridRow.setConnection(_connection);
-            RvGame.SetConnection(_connection);
-            RvRom.SetConnection(_connection);
-
-       
+      
 
 
             _clearfound = new SQLiteCommand(
@@ -122,41 +111,6 @@ namespace RomVaultX.DB
             ", _connection);
 
 
-            _findFile = new SQLiteCommand(
-                @"
-
-                    select (coalesce(
-
-                       (select Files.FileId from files
-                            WHERE
-	                                    (                  @sha1 = files.sha1 ) AND
-	                                    ( @md5  is NULL OR @md5  = files.md5  ) AND
-	                                    ( @crc  is NULL OR @crc  = files.crc  ) AND
-	                                    ( @size is NULL OR @size = files.Size )
-                            limit 1)
-                       ,
-                       (select Files.FileId from files
-                            WHERE
-	                                    (                  @md5  = files.md5  ) AND
-	                                    ( @sha1 is NULL OR @sha1 = files.sha1 ) AND
-	                                    ( @crc  is NULL OR @crc  = files.crc  ) AND
-	                                    ( @size is NULL OR @size = files.Size )
-                            limit 1)
-                       ,
-                       (select Files.FileId from files
-                            WHERE
-	                                    (                  @crc  = files.crc  ) AND
-	                                    ( @sha1 is NULL OR @sha1 = files.sha1 ) AND
-	                                    ( @md5  is NULL OR @md5  = files.md5  ) AND
-	                                    ( @size is NULL OR @size = files.Size )
-                            limit 1)
-                       )) as FileId;
-                ", _connection);
-
-            _findFile.Parameters.Add(new SQLiteParameter("sha1"));
-            _findFile.Parameters.Add(new SQLiteParameter("md5"));
-            _findFile.Parameters.Add(new SQLiteParameter("crc"));
-            _findFile.Parameters.Add(new SQLiteParameter("size"));
             MakeIndex();
         }
 
@@ -566,19 +520,7 @@ namespace RomVaultX.DB
             _cleanupNotFound.ExecuteNonQuery();
         }
 
-        public static uint? FindAFile(RvRom tFile)
-        {
-            _findFile.Parameters["size"].Value = tFile.Size;
-            _findFile.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
-            _findFile.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-            _findFile.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
 
-            object res = _findFile.ExecuteScalar();
 
-            if (res == null || res == DBNull.Value)
-                return null;
-            return (uint?)Convert.ToInt32(res);
-
-        }
     }
 }

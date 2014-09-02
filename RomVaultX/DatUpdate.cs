@@ -46,6 +46,9 @@ namespace RomVaultX
                 uint DirId = FindOrInsert.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
 
+                _bgw.ReportProgress(0, new bgwText("Pull File DB into memory"));
+                FindAFile.copyDBtoMem();
+
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
                 DatCount(datRoot, "DatRoot");

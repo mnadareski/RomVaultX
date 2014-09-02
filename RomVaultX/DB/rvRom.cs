@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using RomVaultX.DB.DBAccess;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
@@ -27,7 +28,7 @@ namespace RomVaultX.DB
                 @"INSERT INTO ROM  ( GameId, name, size, crc, sha1, md5, merge, status,FileId)
                             VALUES (@GameId,@Name,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
 
-                SELECT last_insert_rowid();");
+                SELECT last_insert_rowid();", DataAccessLayer.dbConnection);
 
             SqlWrite.Parameters.Add(new SQLiteParameter("GameId"));
             SqlWrite.Parameters.Add(new SQLiteParameter("Name"));
@@ -41,15 +42,10 @@ namespace RomVaultX.DB
 
             SqlRead = new SQLiteCommand(
                 @"SELECT RomId,name,size,crc,sha1,md5,merge,status,FileId
-                    FROM ROM WHERE GameId=@GameId");
+                    FROM ROM WHERE GameId=@GameId", DataAccessLayer.dbConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
         }
-        public static void SetConnection(SQLiteConnection connection)
-        {
-            SqlWrite.Connection = connection;
-            SqlRead.Connection = connection;
-        }
-
+      
         public static void MakeDB()
         {
 
@@ -106,7 +102,7 @@ namespace RomVaultX.DB
 
         public void DBWrite()
         {
-            FileId = DataAccessLayer.FindAFile(this);
+            FileId =  FindAFile.Execute(this);
             
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;

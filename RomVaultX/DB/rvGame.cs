@@ -47,7 +47,7 @@ namespace RomVaultX.DB
               @"INSERT INTO GAME ( DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber)
                           VALUES (@DatId,@Name,@Description,@Manufacturer,@CloneOf,@RomOf,@SourceFile,@IsBios,@Board,@Year,@IsTrurip,@Publisher,@Developer,@Edition,@Version,@Type,@Media,@Language,@Players,@Ratings,@Genre,@Peripheral,@BarCode,@MediaCatalogNumber);
 
-                SELECT last_insert_rowid();");
+                SELECT last_insert_rowid();",DataAccessLayer.dbConnection);
 
             SqlWrite.Parameters.Add(new SQLiteParameter("DatId")); //DatId;
             SqlWrite.Parameters.Add(new SQLiteParameter("Name")); //Name;
@@ -80,21 +80,14 @@ namespace RomVaultX.DB
 
             SqlRead = new SQLiteCommand(
                 @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE GameId=@GameId");
+                    FROM GAME WHERE GameId=@GameId", DataAccessLayer.dbConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
 
             SqlReadGames = new SQLiteCommand(
                 @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE DatId=@DatId");
+                    FROM GAME WHERE DatId=@DatId", DataAccessLayer.dbConnection);
             SqlReadGames.Parameters.Add(new SQLiteParameter("DatId"));
 
-        }
-
-        public static void SetConnection(SQLiteConnection connection)
-        {
-            SqlWrite.Connection = connection;
-            SqlRead.Connection = connection;
-            SqlReadGames.Connection = connection;
         }
 
         public static void MakeDB()

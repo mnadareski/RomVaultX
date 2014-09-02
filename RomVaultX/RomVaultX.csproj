@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackGroundWorkerInterface.cs" />
+    <Compile Include="DB\DBAccess\FindAFile.cs" />
     <Compile Include="DB\DBAccess\FindExistingDAT.cs" />
     <Compile Include="DB\DBAccess\FindInFiles.cs" />
     <Compile Include="DB\DBAccess\DataAccessLayer.cs" />
