@@ -94,6 +94,7 @@ namespace RomVaultX.DB
         {
             SqlWrite.Connection = connection;
             SqlRead.Connection = connection;
+            SqlReadGames.Connection = connection;
         }
 
         public static void MakeDB()

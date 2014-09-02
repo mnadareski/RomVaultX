@@ -65,7 +65,7 @@ namespace RomVaultX
                 if (ext.ToLower() == ".zip")
                 {
                     ZipFile fz = new ZipFile();
-                    fz.ZipFileOpen(f.FullName, 0, true);
+                    fz.ZipFileOpen(f.FullName, f.LastWriteTime, true);
                     fz.DeepScan();
 
                     int FileUsedCount = 0;

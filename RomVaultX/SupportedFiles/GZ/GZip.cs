@@ -244,6 +244,29 @@ namespace RomVaultX.SupportedFiles.GZ
             return ZipReturn.ZipGood;
         }
 
+        public ZipReturn GetRawStream(out Stream st)
+        {
+            st = null;
+            if (!IO.File.Exists(_filename))
+            {
+                return ZipReturn.ZipErrorFileNotFound;
+            }
+
+            int errorCode = IO.FileStream.OpenFileRead(_filename, out _zipFs);
+            if (errorCode != 0)
+            {
+                if (errorCode == 32)
+                    return ZipReturn.ZipFileLocked;
+                return ZipReturn.ZipErrorOpeningFile;
+            }
+
+            _zipFs.Position = datapos;
+
+            st = _zipFs;
+
+            return ZipReturn.ZipGood;
+        }
+
         public void Close()
         {
             if (_zipFs==null) return;
