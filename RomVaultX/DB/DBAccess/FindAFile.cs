@@ -66,9 +66,9 @@ namespace RomVaultX.DB.DBAccess
 
 
             DataAccessLayer.ExecuteNonQuery(@"
-                CREATE INDEX IF NOT EXISTS [memdb.memFILESHA1] ON [memdb.FILESMEM]([sha1] ASC);
-                CREATE INDEX IF NOT EXISTS [memdb.memFILEMD5] ON [memdb.FILESMEM]([md5] ASC);
-                CREATE INDEX IF NOT EXISTS [memdb.memFILECRC] ON [memdb.FILESMEM]([crc] ASC);");
+                CREATE INDEX IF NOT EXISTS memdb.memFILESHA1 ON FILESMEM ([sha1] ASC);
+                CREATE INDEX IF NOT EXISTS memdb.memFILEMD5 ON FILESMEM ([md5] ASC);
+                CREATE INDEX IF NOT EXISTS memdb.memFILECRC ON FILESMEM ([crc] ASC);");
 
             DataAccessLayer.ExecuteNonQuery(@"
                 INSERT INTO memdb.FILESMEM SELECT * FROM FILES");

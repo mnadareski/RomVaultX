@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
-using RomVaultX.DB.DBAccess;
 using RomVaultX.IO;
 using RomVaultX.Util;
 using Convert = System.Convert;
@@ -25,7 +24,7 @@ namespace RomVaultX.DB
         private static readonly SQLiteCommand _cleanupNotFound;
 
         private const int DBVersion = 4;
-        private static readonly string dirFilename = @"C:\stage\rom" + DBVersion + ".db";
+        private static readonly string dirFilename = @"rom" + DBVersion + ".db";
 
 
         public static SQLiteConnection dbConnection
@@ -47,7 +46,8 @@ namespace RomVaultX.DB
             if (!datFound)
                 MakeDB();
 
-            ExecuteNonQuery("Attach ':memory:' AS memdb");
+            ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
+            //ExecuteNonQuery("Attach Database 'db2.db' AS memdb");
 
 
             _readTree = new SQLiteCommand(
