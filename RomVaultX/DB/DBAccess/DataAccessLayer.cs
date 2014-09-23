@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SQLite;
 using System.Diagnostics;
 using RomVaultX.IO;
@@ -23,8 +24,8 @@ namespace RomVaultX.DB
         
         private static readonly SQLiteCommand _cleanupNotFound;
 
-        private const int DBVersion = 4;
-        private static readonly string dirFilename = @"rom" + DBVersion + ".db";
+        private const int DBVersion = 5;
+        private static readonly string dirFilename = @"C:\RomVaultX\rom" + DBVersion + ".db";
 
 
         public static SQLiteConnection dbConnection
@@ -46,10 +47,9 @@ namespace RomVaultX.DB
             if (!datFound)
                 MakeDB();
 
+            //ExecuteNonQuery("PRAGMA journal_mode= MEMORY");
             ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
-            //ExecuteNonQuery("Attach Database 'db2.db' AS memdb");
-
-
+            
             _readTree = new SQLiteCommand(
                 @"
                     SELECT 
@@ -57,6 +57,8 @@ namespace RomVaultX.DB
                         dir.name as dirname,
                         dir.fullname,
                         dir.expanded,
+                        dir.RomTotal as dirRomTotal,
+                        dir.RomGot as dirRomGot,
                         dat.DatId,
                         dat.name as datname,
                         dat.description,
@@ -167,7 +169,9 @@ namespace RomVaultX.DB
                     [name] NVARCHAR(300) NOT NULL,
                     [fullname] NVARCHAR(300) NOT NULL,
                     [expanded] BOOLEAN DEFAULT '1' NOT NULL,
-                    [found] BOOLEAN DEFAULT '1'
+                    [found] BOOLEAN DEFAULT '1',
+                    [RomTotal] INTEGER  NULL,
+                    [RomGot] iNTEGER  NULL
                 );
               
                 CREATE TABLE IF NOT EXISTS [FILES] (
@@ -399,6 +403,41 @@ namespace RomVaultX.DB
 
         }
 
+        public static void UpdateGotTotal()
+        {
+            ExecuteNonQuery(@"
+
+            UPDATE DIR SET RomTotal=null, ROMGot=null;
+
+            UPDATE DIR SET
+                romtotal = (SELECT SUM(romtotal) FROM dat WHERE dat.dirid=dir.dirid)
+            WHERE
+                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;
+
+            UPDATE DIR SET
+                romgot = (SELECT SUM(romgot) FROM dat WHERE dat.dirid=dir.dirid)
+            WHERE
+                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;");
+
+
+            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null",_connection);
+
+            int nullcount;
+            do
+            {
+                ExecuteNonQuery(@"
+                    UPDATE dir SET
+                        romtotal=(SELECT SUM(p1.romtotal) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid),
+                        romGot  =(SELECT SUM(p1.romgot  ) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid)
+                    WHERE
+                        romtotal IS null AND
+                        (SELECT COUNT(1) FROM dir AS p WHERE p.romtotal IS null AND p.parentdirid=dir.dirid)=0");
+
+                object res = sqlNullCount.ExecuteScalar();
+                nullcount = Convert.ToInt32(res);
+
+            } while (nullcount > 0);
+        }
 
        
 
@@ -426,8 +465,8 @@ namespace RomVaultX.DB
                     pTree.datName = dr["datname"] == DBNull.Value ? null : dr["datname"].ToString();
                     pTree.description = dr["description"] == DBNull.Value ? null : dr["description"].ToString();
 
-                    pTree.RomTotal = dr["RomTotal"] == DBNull.Value ? 0 : Convert.ToInt32(dr["RomTotal"]);
-                    pTree.RomGot = dr["RomGot"] == DBNull.Value ? 0 : Convert.ToInt32(dr["RomGot"]);
+                    pTree.RomTotal = dr["RomTotal"] == DBNull.Value ? Convert.ToInt32(dr["dirRomTotal"]) : Convert.ToInt32(dr["RomTotal"]);
+                    pTree.RomGot = dr["RomGot"] == DBNull.Value ? Convert.ToInt32(dr["dirRomGot"]) : Convert.ToInt32(dr["RomGot"]);
 
                     if (!string.IsNullOrEmpty(SkipUntil))
                     {
@@ -443,8 +482,8 @@ namespace RomVaultX.DB
                         pTree.DatId = null;
                         pTree.datName = null;
                         pTree.description = null;
-                        pTree.RomTotal = 0;
-                        pTree.RomGot = 0;
+                        pTree.RomTotal = Convert.ToInt32(dr["dirRomTotal"]);
+                        pTree.RomGot = Convert.ToInt32(dr["dirRomGot"]);
                     }
                     rows.Add(pTree);
 
@@ -462,7 +501,9 @@ namespace RomVaultX.DB
                                 dirFullName = lastTree.dirFullName,
                                 Expanded = lastTree.Expanded,
                                 DatId = null,
-                                datName = null
+                                datName = null,
+                                RomTotal = Convert.ToInt32(dr["dirRomTotal"]),
+                                RomGot = Convert.ToInt32(dr["dirRomGot"])
                             };
                             rows.Insert(rows.Count - 2, dirTree);
                             lastTree.MultiDatDir = true;
@@ -522,5 +563,6 @@ namespace RomVaultX.DB
 
 
 
+      
     }
 }

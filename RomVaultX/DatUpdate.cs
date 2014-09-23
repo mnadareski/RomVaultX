@@ -62,8 +62,7 @@ namespace RomVaultX
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
                 DataAccessLayer.RemoveNotFound();
 
-                _bgw.ReportProgress(0, new bgwText("Updating Indexes"));
-
+                DataAccessLayer.UpdateGotTotal();
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
                 Program.SyncCont = null;

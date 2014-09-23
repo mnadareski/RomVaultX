@@ -39,21 +39,47 @@ namespace RomVaultX
         {
             InitializeComponent();
             addGameGrid();
+            DataAccessLayer.UpdateGotTotal();
             DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
         }
 
         private void btnUpdateDats_Click(object sender, EventArgs e)
         {
-            UpdateDats();
-            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
-        }
-
-        private void UpdateDats()
-        {
             FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Dats", DatUpdate.UpdateDat);
             progress.ShowDialog(this);
             progress.Dispose();
+            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
         }
+
+
+        private void btnScanRoms_Click(object sender, EventArgs e)
+        {
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", romScanner.ScanFiles);
+            progress.ShowDialog(this);
+            progress.Dispose();
+            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+        }
+
+        private void quickReScanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning RomRoot Files", romRootScanner.ScanFiles);
+            progress.ShowDialog(this);
+            progress.Dispose();
+            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+        }
+
+        private void createZIPsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RvTreeRow selected = DirTree.Selected;
+            if (selected == null)
+                return;
+            if (selected.DatId == null)
+            {
+                MessageBox.Show("Select a DAT to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            ReMakeZips.MakeDatZips(selected.DatId ?? 0);
+        }
+        
 
         private void DirTree_RvSelected(object sender, MouseEventArgs e)
         {
@@ -735,32 +761,5 @@ namespace RomVaultX
 
         #endregion
 
-        private void btnScanRoms_Click(object sender, EventArgs e)
-        {
-            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", romScanner.ScanFiles);
-            progress.ShowDialog(this);
-            progress.Dispose();
-            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
-        }
-
-        private void quickReScanToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning RomRoot Files", romRootScanner.ScanFiles);
-            progress.ShowDialog(this);
-            progress.Dispose();
-            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
-        }
-
-        private void createZIPsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RvTreeRow selected = DirTree.Selected;
-            if (selected == null)
-                return;
-            if (selected.DatId == null)
-            {
-                MessageBox.Show("Select a DAT to remake","RomVaultX", MessageBoxButtons.OK,MessageBoxIcon.Information);
-            }
-            ReMakeZips.MakeDatZips(selected.DatId??0);
-        }
     }
 }

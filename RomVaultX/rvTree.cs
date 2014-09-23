@@ -136,17 +136,16 @@ namespace RomVaultX
 
             if (pTree.RIcon.IntersectsWith(t))
             {
-                int icon = 4;
-                if (!string.IsNullOrEmpty(pTree.datName))
-                {
-                    if (pTree.RomGot == pTree.RomTotal)
-                        icon = 3;
-                    else if (pTree.RomGot > 0)
-                        icon = 2;
-                    else
-                        icon = 1;
-                    
-                }
+                int icon;
+
+                if (pTree.RomGot == pTree.RomTotal)
+                    icon = 3;
+                else if (pTree.RomGot > 0)
+                    icon = 2;
+                else
+                    icon = 1;
+
+
 
                 Bitmap bm;
                 //if (pTree.Dat == null && pTree.DirDatCount != 1) // Directory above DAT's in Tree
@@ -176,7 +175,7 @@ namespace RomVaultX
                         thistxt += ": " + pTree.datName;
                 }
                 if (pTree.RomTotal > 0 || pTree.RomGot > 0)
-                    thistxt += " ( Have:" + pTree.RomGot + " / Missing: " + (pTree.RomTotal - pTree.RomGot) + " )";
+                    thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (pTree.RomTotal - pTree.RomGot).ToString("#,0") + " )";
 
                 if (_lSelected == pTree)
                 {
@@ -255,7 +254,7 @@ namespace RomVaultX
         {
             if (mouseB == MouseButtons.Left)
             {
-                DataAccessLayer.SetTreeExpanded(pTree.DirId,!pTree.Expanded);
+                DataAccessLayer.SetTreeExpanded(pTree.DirId, !pTree.Expanded);
                 Setup(DataAccessLayer.ReadTreeFromDB());
 
             }
