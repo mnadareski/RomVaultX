@@ -39,7 +39,7 @@ namespace RomVaultX
                     return;
                 }
 
-                _bgw.ReportProgress(0, new bgwText("Clearing DB"));
+                _bgw.ReportProgress(0, new bgwText("Clearing Found DAT List"));
                 DataAccessLayer.ClearFound();
 
                 const string datRoot = @"";
@@ -62,7 +62,9 @@ namespace RomVaultX
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
                 DataAccessLayer.RemoveNotFound();
 
+                _bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
                 DataAccessLayer.UpdateGotTotal();
+
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
                 Program.SyncCont = null;

@@ -43,6 +43,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.bgWork = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.ErrorGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -181,6 +182,7 @@
             // 
             this.bgWork.WorkerReportsProgress = true;
             this.bgWork.WorkerSupportsCancellation = true;
+            this.bgWork.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.Complete);
             // 
             // FrmProgressWindow
             // 
@@ -197,6 +199,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.ErrorGrid)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
 

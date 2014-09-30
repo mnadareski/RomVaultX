@@ -399,6 +399,9 @@ namespace RomVaultX.DB
                 CREATE INDEX IF NOT EXISTS [FILESHA1] ON [FILES]([sha1] ASC);
                 CREATE INDEX IF NOT EXISTS [FILEMD5] ON [FILES]([md5] ASC);
                 CREATE INDEX IF NOT EXISTS [FILECRC] ON [FILES]([crc] ASC);
+
+                CREATE INDEX IF NOT EXISTS [DATDIRID] on [DAT]([DirId] ASC);
+                CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] on [DIR]([ParentDirId] ASC);
             ");
 
         }
@@ -417,7 +420,12 @@ namespace RomVaultX.DB
             UPDATE DIR SET
                 romgot = (SELECT SUM(romgot) FROM dat WHERE dat.dirid=dir.dirid)
             WHERE
-                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;");
+                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;
+
+            UPDATE DIR SET romtotal=0, romgot=0
+            WHERE
+            (select count(1) from dir as p1 where p1.parentdirid=dir.dirid)=0 and
+            (select count(1) from dat       where dat.DirId=dir.dirid)=0;");
 
 
             SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null",_connection);

@@ -206,5 +206,12 @@ namespace RomVaultX
             }
         }
 
+        private void Complete(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Exception er = e.Error;
+            if (er != null)
+                MessageBox.Show(e.Error.ToString(), "RomVault", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
     }
 }
