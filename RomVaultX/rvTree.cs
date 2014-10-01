@@ -256,7 +256,11 @@ namespace RomVaultX
             {
                 DataAccessLayer.SetTreeExpanded(pTree.DirId, !pTree.Expanded);
                 Setup(DataAccessLayer.ReadTreeFromDB());
-
+            }
+            else
+            {
+                DataAccessLayer.SetTreeExpandedChildren(pTree.DirId);
+                Setup(DataAccessLayer.ReadTreeFromDB());
             }
         }
 

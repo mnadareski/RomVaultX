@@ -13,7 +13,7 @@ namespace RomVaultX.DB
     {
         private static SQLiteConnection _connection;
 
-        
+
         private static readonly SQLiteCommand _readTree;
         private static readonly SQLiteCommand _setTreeExpanded;
 
@@ -21,7 +21,7 @@ namespace RomVaultX.DB
 
         private static readonly SQLiteCommand _clearfound;
         private static readonly SQLiteCommand _setDirFound;
-        
+
         private static readonly SQLiteCommand _cleanupNotFound;
 
         private const int DBVersion = 5;
@@ -30,7 +30,7 @@ namespace RomVaultX.DB
 
         public static SQLiteConnection dbConnection
         {
-            get { return _connection;  }
+            get { return _connection; }
         }
 
 
@@ -49,7 +49,7 @@ namespace RomVaultX.DB
 
             //ExecuteNonQuery("PRAGMA journal_mode= MEMORY");
             ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
-            
+
             _readTree = new SQLiteCommand(
                 @"
                     SELECT 
@@ -73,8 +73,8 @@ namespace RomVaultX.DB
             _setTreeExpanded.Parameters.Add(new SQLiteParameter("expanded"));
             _setTreeExpanded.Parameters.Add(new SQLiteParameter("dirId"));
 
-          
-           
+
+
 
             _addInFiles = new SQLiteCommand(
                 @"INSERT INTO FILES (size,crc,sha1,md5)
@@ -83,15 +83,15 @@ namespace RomVaultX.DB
             _addInFiles.Parameters.Add(new SQLiteParameter("crc"));
             _addInFiles.Parameters.Add(new SQLiteParameter("sha1"));
             _addInFiles.Parameters.Add(new SQLiteParameter("md5"));
-      
+
 
 
             _clearfound = new SQLiteCommand(
                 @"UPDATE DIR SET Found=0; UPDATE DAT SET Found=0;", _connection);
 
-           
 
-           
+
+
             _cleanupNotFound = new SQLiteCommand(
                 @"
                 delete from rom where rom.GameId in
@@ -428,7 +428,7 @@ namespace RomVaultX.DB
             (select count(1) from dat       where dat.DirId=dir.dirid)=0;");
 
 
-            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null",_connection);
+            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", _connection);
 
             int nullcount;
             do
@@ -447,7 +447,7 @@ namespace RomVaultX.DB
             } while (nullcount > 0);
         }
 
-       
+
 
         public static List<RvTreeRow> ReadTreeFromDB()
         {
@@ -538,7 +538,41 @@ namespace RomVaultX.DB
         }
 
 
-      
+        public static void SetTreeExpandedChildren(uint DirId)
+        {
+            SQLiteCommand getStatus = new SQLiteCommand(@"SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1", _connection);
+            getStatus.Parameters.Add(new SQLiteParameter("DirId"));
+            getStatus.Parameters["DirId"].Value = DirId;
+
+            Object res = getStatus.ExecuteScalar();
+
+            int value;
+            if (res != null && res != DBNull.Value)
+                value = 1 - Convert.ToInt32(res);
+            else
+                return;
+
+            List<uint> todo = new List<uint>();
+            todo.Add(DirId);
+
+            while (todo.Count > 0)
+            {
+                string inJoin = string.Join(",", todo);
+                todo.Clear();
+                SQLiteCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + inJoin + ")", _connection);
+                SetStatus.ExecuteNonQuery();
+
+
+                SQLiteCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + inJoin + ")", _connection);
+                SQLiteDataReader dr = GetChild.ExecuteReader();
+                while (dr.Read())
+                {
+                    uint id = Convert.ToUInt32(dr["DirId"]);
+                    todo.Add(id);
+                }
+                dr.Close();
+            }
+        }
 
         public static void AddInFiles(rvFile tFile)
         {
@@ -557,7 +591,7 @@ namespace RomVaultX.DB
 
         }
 
-     
+
 
         public static void ClearFound()
         {
@@ -571,6 +605,6 @@ namespace RomVaultX.DB
 
 
 
-      
+
     }
 }
