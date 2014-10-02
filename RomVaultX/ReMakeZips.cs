@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using RomVaultX.DB;
 using RomVaultX.DB.DBAccess;
 using RomVaultX.SupportedFiles;
@@ -47,8 +49,20 @@ namespace RomVaultX
                 // export the rom;
 
                 ZipFile zipOut = new ZipFile();
-                zipOut.ZipFileCreate(Path.Combine(outDir, tGame.Name + ".zip"));
-
+                string filename = Path.Combine(outDir, tGame.Name + ".zip");
+                filename=filename.Replace(@"/",@"\");
+                if (!Directory.Exists(filename))
+                {
+                    string dir = Path.GetDirectoryName(filename);
+                    Directory.CreateDirectory(dir);
+                }
+                zr= zipOut.ZipFileCreate(filename);
+                if (zr != ZipReturn.ZipGood)
+                {
+                    MessageBox.Show("Error creating " + Path.Combine(outDir, tGame.Name + ".zip") + " " + zr);
+                    return;
+                }
+                
                 for (int rIndex = 0; rIndex < tGame.Roms.Count; rIndex++)
                 {
                     RvRom tRom = tGame.Roms[rIndex];

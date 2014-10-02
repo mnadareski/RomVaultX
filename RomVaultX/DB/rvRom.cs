@@ -19,6 +19,12 @@ namespace RomVaultX.DB
         public string Status;
         public ulong? FileId;
 
+        public ulong? fileSize;
+        public byte[] fileCRC;
+        public byte[] fileSHA1;
+        public byte[] fileMD5;
+
+
         private static readonly SQLiteCommand SqlWrite;
         private static readonly SQLiteCommand SqlRead;
 
@@ -41,11 +47,21 @@ namespace RomVaultX.DB
             SqlWrite.Parameters.Add(new SQLiteParameter("FileId"));
 
             SqlRead = new SQLiteCommand(
-                @"SELECT RomId,name,size,crc,sha1,md5,merge,status,FileId
-                    FROM ROM WHERE GameId=@GameId", DataAccessLayer.dbConnection);
+                @"SELECT RomId,name,
+                    rom.size,
+                    rom.crc,
+                    rom.sha1,
+                    rom.md5,
+                    merge,status,
+                    rom.FileId,
+                    files.size as fileSize,
+                    files.crc as filecrc,
+                    files.sha1 as filesha1,
+                    files.md5 as filemd5
+                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId", DataAccessLayer.dbConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
         }
-      
+
         public static void MakeDB()
         {
 
@@ -75,22 +91,22 @@ namespace RomVaultX.DB
             {
                 while (dr.Read())
                 {
-                    object tSize = dr["size"];
-                    ulong? iSize = tSize == DBNull.Value ? null : (ulong?)Convert.ToInt64(tSize);
-                    object tFileId = dr["FileId"];
-                    ulong? iFileId = tFileId == DBNull.Value ? null : (ulong?)Convert.ToInt64(tFileId);
                     RvRom row = new RvRom
                     {
                         RomId = Convert.ToUInt32(dr["RomId"]),
                         GameId = gameId,
                         Name = dr["name"].ToString(),
-                        Size = iSize,
-                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8),
+                        Size = FixLong(dr["size"]),
+                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8), 
                         SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
                         MD5 = VarFix.CleanMD5SHA1(dr["MD5"].ToString(), 32),
-                        Merge = dr["merge"].ToString(),
+                        Merge = dr["merge"].ToString(), 
                         Status = dr["status"].ToString(),
-                        FileId = iFileId,
+                        FileId = FixLong(dr["FileId"]), 
+                        fileSize = FixLong(dr["fileSize"]),
+                        fileCRC = VarFix.CleanMD5SHA1(dr["fileCRC"].ToString(), 8),
+                        fileSHA1 = VarFix.CleanMD5SHA1(dr["fileSHA1"].ToString(), 40),
+                        fileMD5 = VarFix.CleanMD5SHA1(dr["fileMD5"].ToString(), 32)
                     };
 
                     roms.Add(row);
@@ -100,10 +116,15 @@ namespace RomVaultX.DB
             return roms;
         }
 
+        private static ulong? FixLong(object v)
+        {
+            return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
+        }
+
         public void DBWrite()
         {
-            FileId =  FindAFile.Execute(this);
-            
+            FileId = FindAFile.Execute(this);
+
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;
             SqlWrite.Parameters["size"].Value = Size;

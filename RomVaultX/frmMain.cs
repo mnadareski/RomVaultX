@@ -743,11 +743,37 @@ namespace RomVaultX
                 RomGrid.Rows[iRow].Selected = false;
                 RomGrid.Rows[iRow].Tag = rom.RomId;
                 RomGrid.Rows[iRow].Cells[1].Value = rom.Name;
-                RomGrid.Rows[iRow].Cells[2].Value = rom.Size;
+                if (rom.Size!=null)
+                    RomGrid.Rows[iRow].Cells[2].Value = rom.Size;
+                else if (rom.fileSize != null)
+                {
+                    RomGrid.Rows[iRow].Cells[2].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[2].Value = rom.Size;    
+                }
                 RomGrid.Rows[iRow].Cells[3].Value = rom.Merge;
-                RomGrid.Rows[iRow].Cells[4].Value = VarFix.ToString(rom.CRC);
-                RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.SHA1);
-                RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.MD5);
+                
+                if (rom.CRC!=null)
+                    RomGrid.Rows[iRow].Cells[4].Value = VarFix.ToString(rom.CRC);
+                else if (rom.fileCRC != null)
+                {
+                    RomGrid.Rows[iRow].Cells[4].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[4].Value = VarFix.ToString(rom.fileCRC);                   
+                }
+                
+                if (rom.SHA1!=null)
+                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.SHA1);
+                else if (rom.fileSHA1 != null)
+                {
+                    RomGrid.Rows[iRow].Cells[5].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.fileSHA1);
+                }
+                if (rom.MD5!=null)
+                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.MD5);
+                else if (rom.fileMD5 != null)
+                {
+                    RomGrid.Rows[iRow].Cells[6].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.fileMD5);                    
+                }
                 RomGrid.Rows[iRow].Cells[7].Value = rom.Status;
 
                 RomGrid.Rows[iRow].DefaultCellStyle.BackColor = rom.FileId > 0 ? CGreen : CRed;
