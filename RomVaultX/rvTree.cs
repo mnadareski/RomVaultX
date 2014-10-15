@@ -254,13 +254,13 @@ namespace RomVaultX
         {
             if (mouseB == MouseButtons.Left)
             {
-                DataAccessLayer.SetTreeExpanded(pTree.DirId, !pTree.Expanded);
-                Setup(DataAccessLayer.ReadTreeFromDB());
+                RvTreeRow.SetTreeExpanded(pTree.DirId, !pTree.Expanded);
+                Setup(RvTreeRow.ReadTreeFromDB());
             }
             else
             {
-                DataAccessLayer.SetTreeExpandedChildren(pTree.DirId);
-                Setup(DataAccessLayer.ReadTreeFromDB());
+                RvTreeRow.SetTreeExpandedChildren(pTree.DirId);
+                Setup(RvTreeRow.ReadTreeFromDB());
             }
         }
 

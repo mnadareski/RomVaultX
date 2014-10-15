@@ -18,7 +18,7 @@ namespace RomVaultX.DB
         {
             SQLRead = new SQLiteCommand(
                 @"
-                    SELECT GameId,Name,Description,RomTotal,RomGot FROM game WHERE DatId=@datId ORDER BY Name",DataAccessLayer.dbConnection);
+                    SELECT GameId,Name,Description,RomTotal,RomGot FROM game WHERE DatId=@datId ORDER BY Name",DataAccessLayer.DBConnection);
             SQLRead.Parameters.Add(new SQLiteParameter("datId"));
 
         }

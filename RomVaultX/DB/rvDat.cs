@@ -33,7 +33,7 @@ namespace RomVaultX.DB
                @"INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,DatTimeStamp)
                 VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@DatTimeStamp);
 
-                SELECT last_insert_rowid();", DataAccessLayer.dbConnection);
+                SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
 
             SqlWrite.Parameters.Add(new SQLiteParameter("DirId"));
             SqlWrite.Parameters.Add(new SQLiteParameter("Filename"));
@@ -53,7 +53,7 @@ namespace RomVaultX.DB
 
             SqlRead = new SQLiteCommand(
              @"SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment 
-                FROM DAT WHERE DatId=@datId", DataAccessLayer.dbConnection);
+                FROM DAT WHERE DatId=@datId", DataAccessLayer.DBConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("datId"));
 
         }

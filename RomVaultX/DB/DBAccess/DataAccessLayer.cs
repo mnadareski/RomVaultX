@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.SQLite;
-using System.Diagnostics;
 using RomVaultX.IO;
 using RomVaultX.Util;
 using Convert = System.Convert;
@@ -11,36 +9,32 @@ namespace RomVaultX.DB
 {
     public static class DataAccessLayer
     {
-        private static SQLiteConnection _connection;
+        private static readonly SQLiteConnection Connection;
 
 
-        private static readonly SQLiteCommand _readTree;
-        private static readonly SQLiteCommand _setTreeExpanded;
+        private static readonly SQLiteCommand CmdAddInFiles;
 
-        private static readonly SQLiteCommand _addInFiles;
+        private static readonly SQLiteCommand CmdClearfound;
 
-        private static readonly SQLiteCommand _clearfound;
-        private static readonly SQLiteCommand _setDirFound;
-
-        private static readonly SQLiteCommand _cleanupNotFound;
+        private static readonly SQLiteCommand CmdCleanupNotFound;
 
         private const int DBVersion = 5;
-        private static readonly string dirFilename = @"C:\RomVaultX\rom" + DBVersion + ".db";
+        private static readonly string DirFilename = @"C:\RomVaultX\rom" + DBVersion + ".db";
 
 
-        public static SQLiteConnection dbConnection
+        public static SQLiteConnection DBConnection
         {
-            get { return _connection; }
+            get { return Connection; }
         }
 
 
         static DataAccessLayer()
         {
 
-            bool datFound = File.Exists(dirFilename);
+            bool datFound = File.Exists(DirFilename);
 
-            _connection = new SQLiteConnection(@"data source=" + dirFilename + ";Version=3");
-            _connection.Open();
+            Connection = new SQLiteConnection(@"data source=" + DirFilename + ";Version=3");
+            Connection.Open();
 
             CheckDbVersion(ref datFound);
 
@@ -50,49 +44,30 @@ namespace RomVaultX.DB
             //ExecuteNonQuery("PRAGMA journal_mode= MEMORY");
             ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
 
-            _readTree = new SQLiteCommand(
-                @"
-                    SELECT 
-                        dir.DirId as DirId,
-                        dir.name as dirname,
-                        dir.fullname,
-                        dir.expanded,
-                        dir.RomTotal as dirRomTotal,
-                        dir.RomGot as dirRomGot,
-                        dat.DatId,
-                        dat.name as datname,
-                        dat.description,
-                        dat.RomTotal,
-                        dat.RomGot
-                    FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
-                    ORDER BY dir.Fullname,dat.Filename", _connection);
+         
 
-            _setTreeExpanded = new SQLiteCommand(
-                @"
-                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId", _connection);
-            _setTreeExpanded.Parameters.Add(new SQLiteParameter("expanded"));
-            _setTreeExpanded.Parameters.Add(new SQLiteParameter("dirId"));
+        
 
 
 
 
-            _addInFiles = new SQLiteCommand(
+            CmdAddInFiles = new SQLiteCommand(
                 @"INSERT INTO FILES (size,crc,sha1,md5)
-                        VALUES (@Size,@CRC,@SHA1,@MD5);", _connection);
-            _addInFiles.Parameters.Add(new SQLiteParameter("size"));
-            _addInFiles.Parameters.Add(new SQLiteParameter("crc"));
-            _addInFiles.Parameters.Add(new SQLiteParameter("sha1"));
-            _addInFiles.Parameters.Add(new SQLiteParameter("md5"));
+                        VALUES (@Size,@CRC,@SHA1,@MD5);", Connection);
+            CmdAddInFiles.Parameters.Add(new SQLiteParameter("size"));
+            CmdAddInFiles.Parameters.Add(new SQLiteParameter("crc"));
+            CmdAddInFiles.Parameters.Add(new SQLiteParameter("sha1"));
+            CmdAddInFiles.Parameters.Add(new SQLiteParameter("md5"));
 
 
 
-            _clearfound = new SQLiteCommand(
-                @"UPDATE DIR SET Found=0; UPDATE DAT SET Found=0;", _connection);
+            CmdClearfound = new SQLiteCommand(
+                @"UPDATE DIR SET Found=0; UPDATE DAT SET Found=0;", Connection);
 
 
 
 
-            _cleanupNotFound = new SQLiteCommand(
+            CmdCleanupNotFound = new SQLiteCommand(
                 @"
                 delete from rom where rom.GameId in
                 (
@@ -110,7 +85,7 @@ namespace RomVaultX.DB
                 delete from dat where found=0;
 
                 delete from dir where found=0;
-            ", _connection);
+            ", Connection);
 
 
             MakeIndex();
@@ -119,7 +94,7 @@ namespace RomVaultX.DB
 
         public static void ExecuteNonQuery(string query, params object[] args)
         {
-            using (SQLiteCommand command = new SQLiteCommand(query, _connection))
+            using (SQLiteCommand command = new SQLiteCommand(query, Connection))
             {
                 for (int i = 0; i < args.Length; i += 2)
                     command.Parameters.Add(new SQLiteParameter(args[i].ToString(), args[i + 1]));
@@ -137,8 +112,8 @@ namespace RomVaultX.DB
             try
             {
 
-                SQLiteCommand _dbVersionCommand = new SQLiteCommand(@"SELECT version from version limit 1", _connection);
-                object res = _dbVersionCommand.ExecuteScalar();
+                SQLiteCommand dbVersionCommand = new SQLiteCommand(@"SELECT version from version limit 1", Connection);
+                object res = dbVersionCommand.ExecuteScalar();
 
                 if (res != null && res != DBNull.Value)
                     testVersion = Convert.ToInt32(res);
@@ -150,9 +125,9 @@ namespace RomVaultX.DB
             {
             }
 
-            _connection.Close();
-            File.Delete(dirFilename);
-            _connection.Open();
+            Connection.Close();
+            File.Delete(DirFilename);
+            Connection.Open();
             datFound = false;
         }
 
@@ -222,6 +197,16 @@ namespace RomVaultX.DB
 	                    ( sha1 is NULL OR sha1 = new.sha1 ) AND
 	                    ( md5  is NULL OR md5  = new.md5  ) AND 
 	                    ( size is NULL OR size = new.Size ) AND
+	                    ( status != 'nodump' OR status is NULL) AND 
+                        FileId IS NULL;
+
+                    UPDATE ROM SET 
+	                    FileId = new.FileId
+                    WHERE
+	                    (                 size = new.Size ) AND
+	                    ( crc  is NULL OR crc  = new.crc  ) AND
+	                    ( sha1 is NULL OR sha1 = new.sha1 ) AND
+	                    ( md5  is NULL OR md5  = new.md5  ) AND 
 	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
                 END;
@@ -363,45 +348,24 @@ namespace RomVaultX.DB
 
         }
 
-
-        public static void DropIndex()
+        private static void MakeIndex()
         {
             ExecuteNonQuery(@"
-                DROP INDEX IF EXISTS [ROMSHA1Index];
-                DROP INDEX IF EXISTS [ROMMD5Index];
-                DROP INDEX IF EXISTS [ROMCRCIndex];
-                DROP INDEX IF EXISTS [ROMSizeIndex];
-                DROP INDEX IF EXISTS [ROMGameId];
-                DROP INDEX IF EXISTS [ROMFileId];
-                DROP INDEX IF EXISTS [GameDatId];
-            ");
-        }
+                CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]        ASC);
+                CREATE INDEX IF NOT EXISTS [ROMMD5Index]    ON [ROM]   ([md5]         ASC);
+                CREATE INDEX IF NOT EXISTS [ROMCRCIndex]    ON [ROM]   ([crc]         ASC);
+                CREATE INDEX IF NOT EXISTS [ROMSizeIndex]   ON [ROM]   ([size]        ASC);
+                CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]   ([FileId]      ASC);
+                CREATE INDEX IF NOT EXISTS [ROMGameId]      ON [ROM]   ([GameId]      ASC,[name] ASC);
 
-        public static void MakeIndex()
-        {
-            ExecuteNonQuery(@"
-                CREATE INDEX IF NOT EXISTS [ROMSHA1Index] ON [ROM]( [sha1] ASC);
-                CREATE INDEX IF NOT EXISTS [ROMMD5Index] ON [ROM]( [md5] ASC);
-                CREATE INDEX IF NOT EXISTS [ROMCRCIndex] ON [ROM]( [crc] ASC);
-                CREATE INDEX IF NOT EXISTS [ROMSizeIndex] ON [ROM]( [size] ASC);
-                CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]( [FileId] ASC);
+                CREATE INDEX IF NOT EXISTS [GameDatId]      ON [GAME]  ([DatId]       ASC,[name] ASC);
 
-                CREATE INDEX IF NOT EXISTS [GameDatId] ON [GAME](
-                [DatId]  ASC,
-                [name]  ASC
-                );
+                CREATE INDEX IF NOT EXISTS [FILESHA1]       ON [FILES] ([sha1]        ASC);
+                CREATE INDEX IF NOT EXISTS [FILEMD5]        ON [FILES] ([md5]         ASC);
+                CREATE INDEX IF NOT EXISTS [FILECRC]        ON [FILES] ([crc]         ASC);
 
-                CREATE INDEX IF NOT EXISTS [ROMGameId] on [ROM](
-                [GameId] ASC,
-                [name] ASC
-                );
-
-                CREATE INDEX IF NOT EXISTS [FILESHA1] ON [FILES]([sha1] ASC);
-                CREATE INDEX IF NOT EXISTS [FILEMD5] ON [FILES]([md5] ASC);
-                CREATE INDEX IF NOT EXISTS [FILECRC] ON [FILES]([crc] ASC);
-
-                CREATE INDEX IF NOT EXISTS [DATDIRID] on [DAT]([DirId] ASC);
-                CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] on [DIR]([ParentDirId] ASC);
+                CREATE INDEX IF NOT EXISTS [DATDIRID]       ON [DAT]   ([DirId]       ASC);
+                CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);
             ");
 
         }
@@ -428,7 +392,7 @@ namespace RomVaultX.DB
             (select count(1) from dat       where dat.DirId=dir.dirid)=0;");
 
 
-            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", _connection);
+            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", Connection);
 
             int nullcount;
             do
@@ -449,158 +413,31 @@ namespace RomVaultX.DB
 
 
 
-        public static List<RvTreeRow> ReadTreeFromDB()
-        {
-            List<RvTreeRow> rows = new List<RvTreeRow>();
+      
+     
 
-            using (SQLiteDataReader dr = _readTree.ExecuteReader())
-            {
-                bool multiDatDirFound = false;
-
-                string SkipUntil = "";
-
-                RvTreeRow lastTree = null;
-                while (dr.Read())
-                {
-                    // a single DAT in a directory is just displayed in the tree at the same level as the directory
-                    RvTreeRow pTree = new RvTreeRow();
-                    pTree.DirId = Convert.ToUInt32(dr["DirId"]);
-                    pTree.dirName = dr["dirname"].ToString();
-                    pTree.dirFullName = dr["fullname"].ToString();
-                    pTree.Expanded = Convert.ToBoolean(dr["expanded"]);
-
-                    pTree.DatId = dr["DatId"] == DBNull.Value ? null : (uint?)Convert.ToUInt32(dr["DatId"]);
-                    pTree.datName = dr["datname"] == DBNull.Value ? null : dr["datname"].ToString();
-                    pTree.description = dr["description"] == DBNull.Value ? null : dr["description"].ToString();
-
-                    pTree.RomTotal = dr["RomTotal"] == DBNull.Value ? Convert.ToInt32(dr["dirRomTotal"]) : Convert.ToInt32(dr["RomTotal"]);
-                    pTree.RomGot = dr["RomGot"] == DBNull.Value ? Convert.ToInt32(dr["dirRomGot"]) : Convert.ToInt32(dr["RomGot"]);
-
-                    if (!string.IsNullOrEmpty(SkipUntil))
-                    {
-                        if (pTree.dirFullName.Length >= SkipUntil.Length)
-                        {
-                            if (pTree.dirFullName.Substring(0, SkipUntil.Length) == SkipUntil)
-                                continue;
-                        }
-                    }
-                    if (!pTree.Expanded)
-                    {
-                        SkipUntil = pTree.dirFullName;
-                        pTree.DatId = null;
-                        pTree.datName = null;
-                        pTree.description = null;
-                        pTree.RomTotal = Convert.ToInt32(dr["dirRomTotal"]);
-                        pTree.RomGot = Convert.ToInt32(dr["dirRomGot"]);
-                    }
-                    rows.Add(pTree);
-
-                    if (lastTree != null)
-                    {
-                        // if multiple DAT's are in the same directory then we should add another level in the tree to display the directory
-                        bool thisMultiDatDirFound = (lastTree.DirId == pTree.DirId);
-                        if (thisMultiDatDirFound && !multiDatDirFound)
-                        {
-                            // found a new multidat
-                            RvTreeRow dirTree = new RvTreeRow
-                            {
-                                DirId = lastTree.DirId,
-                                dirName = lastTree.dirName,
-                                dirFullName = lastTree.dirFullName,
-                                Expanded = lastTree.Expanded,
-                                DatId = null,
-                                datName = null,
-                                RomTotal = Convert.ToInt32(dr["dirRomTotal"]),
-                                RomGot = Convert.ToInt32(dr["dirRomGot"])
-                            };
-                            rows.Insert(rows.Count - 2, dirTree);
-                            lastTree.MultiDatDir = true;
-                        }
-                        if (thisMultiDatDirFound)
-                            pTree.MultiDatDir = true;
-
-                        multiDatDirFound = thisMultiDatDirFound;
-                    }
-
-
-                    lastTree = pTree;
-                }
-            }
-
-            return rows;
-        }
-
-        public static void SetTreeExpanded(uint DirId, bool expanded)
-        {
-            _setTreeExpanded.Parameters["dirId"].Value = DirId;
-            _setTreeExpanded.Parameters["expanded"].Value = expanded;
-            _setTreeExpanded.ExecuteNonQuery();
-        }
-
-
-        public static void SetTreeExpandedChildren(uint DirId)
-        {
-            SQLiteCommand getStatus = new SQLiteCommand(@"SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1", _connection);
-            getStatus.Parameters.Add(new SQLiteParameter("DirId"));
-            getStatus.Parameters["DirId"].Value = DirId;
-
-            Object res = getStatus.ExecuteScalar();
-
-            int value;
-            if (res != null && res != DBNull.Value)
-                value = 1 - Convert.ToInt32(res);
-            else
-                return;
-
-            List<uint> todo = new List<uint>();
-            todo.Add(DirId);
-
-            while (todo.Count > 0)
-            {
-                string inJoin = string.Join(",", todo);
-                todo.Clear();
-                SQLiteCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + inJoin + ")", _connection);
-                SetStatus.ExecuteNonQuery();
-
-
-                SQLiteCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + inJoin + ")", _connection);
-                SQLiteDataReader dr = GetChild.ExecuteReader();
-                while (dr.Read())
-                {
-                    uint id = Convert.ToUInt32(dr["DirId"]);
-                    todo.Add(id);
-                }
-                dr.Close();
-            }
-        }
+      
 
         public static void AddInFiles(rvFile tFile)
         {
-            _addInFiles.Parameters["size"].Value = tFile.Size;
-            _addInFiles.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
-            _addInFiles.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-            _addInFiles.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
-            Stopwatch sw = new Stopwatch();
+            CmdAddInFiles.Parameters["size"].Value = tFile.Size;
+            CmdAddInFiles.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+            CmdAddInFiles.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
+            CmdAddInFiles.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
 
-            sw.Reset();
-            sw.Start();
-            _addInFiles.ExecuteNonQuery();
-            sw.Stop();
-
-            Debug.WriteLine("Time to add file =" + sw.ElapsedMilliseconds);
-
+            CmdAddInFiles.ExecuteNonQuery();
         }
 
 
 
         public static void ClearFound()
         {
-            _clearfound.ExecuteNonQuery();
+            CmdClearfound.ExecuteNonQuery();
         }
 
         public static void RemoveNotFound()
         {
-            _cleanupNotFound.ExecuteNonQuery();
+            CmdCleanupNotFound.ExecuteNonQuery();
         }
 
 

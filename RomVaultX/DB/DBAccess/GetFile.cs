@@ -12,7 +12,7 @@ namespace RomVaultX.DB.DBAccess
             Command = new SQLiteCommand(
               @"
                     SELECT sha1 FROM FILES WHERE
-                        fileId=@fileId", DataAccessLayer.dbConnection);
+                        fileId=@fileId", DataAccessLayer.DBConnection);
             Command.Parameters.Add(new SQLiteParameter("fileId"));
         }
 

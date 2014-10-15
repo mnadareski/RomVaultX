@@ -13,7 +13,7 @@ namespace RomVaultX.DB.DBAccess
             Command = new SQLiteCommand(
               @"
                     SELECT COUNT(1) FROM FILES WHERE
-                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5", DataAccessLayer.dbConnection);
+                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5", DataAccessLayer.DBConnection);
             Command.Parameters.Add(new SQLiteParameter("size"));
             Command.Parameters.Add(new SQLiteParameter("crc"));
             Command.Parameters.Add(new SQLiteParameter("sha1"));

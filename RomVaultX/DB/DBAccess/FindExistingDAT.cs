@@ -13,7 +13,7 @@ namespace RomVaultX.DB.DBAccess
             static FindExistingDat()
             {
                 Command = new SQLiteCommand(
-           @"SELECT DatId FROM Dat,Dir WHERE Dat.DirId=Dir.DirId AND fullname=@fullname AND Filename=@filename AND DatTimeStamp=@DatTimeStamp", DataAccessLayer.dbConnection);
+           @"SELECT DatId FROM Dat,Dir WHERE Dat.DirId=Dir.DirId AND fullname=@fullname AND Filename=@filename AND DatTimeStamp=@DatTimeStamp", DataAccessLayer.DBConnection);
                 Command.Parameters.Add(new SQLiteParameter("fullname"));
                 Command.Parameters.Add(new SQLiteParameter("filename"));
                 Command.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
@@ -41,7 +41,7 @@ namespace RomVaultX.DB.DBAccess
             static SetDatFound()
             {
                 Command = new SQLiteCommand(
-                     @"Update Dat SET Found=1 WHERE DatId=@DatId", DataAccessLayer.dbConnection);
+                     @"Update Dat SET Found=1 WHERE DatId=@DatId", DataAccessLayer.DBConnection);
                 Command.Parameters.Add(new SQLiteParameter("DatId"));
 
             }

@@ -29,7 +29,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>\\10.0.1.11\e%24\RomVaultX\</OutputPath>
+    <OutputPath>..\..\stage\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -154,7 +154,6 @@
     <Compile Include="SupportedFiles\GZ\GZip.cs" />
     <Compile Include="SupportedFiles\ZipEnums.cs" />
     <Compile Include="SupportedFiles\Zip\zipFile.cs" />
-    <Compile Include="SupportedFiles\Zip\zipFileReadOnly.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\Crc32.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\Deflate.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\DeflateStream.cs" />

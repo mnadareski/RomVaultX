@@ -40,7 +40,7 @@ namespace RomVaultX
             InitializeComponent();
             addGameGrid();
             DataAccessLayer.UpdateGotTotal();
-            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+            DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
         private void btnUpdateDats_Click(object sender, EventArgs e)
@@ -48,7 +48,7 @@ namespace RomVaultX
             FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Dats", DatUpdate.UpdateDat);
             progress.ShowDialog(this);
             progress.Dispose();
-            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+            DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
 
@@ -57,7 +57,7 @@ namespace RomVaultX
             FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", romScanner.ScanFiles);
             progress.ShowDialog(this);
             progress.Dispose();
-            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+            DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
         private void quickReScanToolStripMenuItem_Click(object sender, EventArgs e)
@@ -65,7 +65,7 @@ namespace RomVaultX
             FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning RomRoot Files", romRootScanner.ScanFiles);
             progress.ShowDialog(this);
             progress.Dispose();
-            DirTree.Setup(DataAccessLayer.ReadTreeFromDB());
+            DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
         private void createZIPsToolStripMenuItem_Click(object sender, EventArgs e)

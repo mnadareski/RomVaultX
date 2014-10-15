@@ -34,7 +34,7 @@ namespace RomVaultX.DB
                 @"INSERT INTO ROM  ( GameId, name, size, crc, sha1, md5, merge, status,FileId)
                             VALUES (@GameId,@Name,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
 
-                SELECT last_insert_rowid();", DataAccessLayer.dbConnection);
+                SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
 
             SqlWrite.Parameters.Add(new SQLiteParameter("GameId"));
             SqlWrite.Parameters.Add(new SQLiteParameter("Name"));
@@ -58,7 +58,7 @@ namespace RomVaultX.DB
                     files.crc as filecrc,
                     files.sha1 as filesha1,
                     files.md5 as filemd5
-                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId", DataAccessLayer.dbConnection);
+                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId", DataAccessLayer.DBConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
         }
 

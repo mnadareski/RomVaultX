@@ -12,7 +12,7 @@ namespace RomVaultX.DB.DBAccess
 
             static FindInDir()
             {
-                Command = new SQLiteCommand(@"SELECT DirId FROM dir WHERE fullname=@fullname LIMIT 1", DataAccessLayer.dbConnection);
+                Command = new SQLiteCommand(@"SELECT DirId FROM dir WHERE fullname=@fullname LIMIT 1", DataAccessLayer.DBConnection);
                 Command.Parameters.Add(new SQLiteParameter("fullname"));
             }
 
@@ -34,7 +34,7 @@ namespace RomVaultX.DB.DBAccess
             static SetDirFound()
             {
                 Command = new SQLiteCommand(
-                    @"Update Dir SET Found=1 WHERE DirId=@DirId", DataAccessLayer.dbConnection);
+                    @"Update Dir SET Found=1 WHERE DirId=@DirId", DataAccessLayer.DBConnection);
                 Command.Parameters.Add(new SQLiteParameter("DirId"));
             }
 
@@ -57,7 +57,7 @@ namespace RomVaultX.DB.DBAccess
                     @"INSERT INTO DIR (ParentDirId,Name,FullName)
                          VALUES (@ParentDirId,@Name,@FullName);
 
-                         SELECT last_insert_rowid();", DataAccessLayer.dbConnection);
+                         SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
 
                 Command.Parameters.Add(new SQLiteParameter("ParentDirId"));
                 Command.Parameters.Add(new SQLiteParameter("Name"));
