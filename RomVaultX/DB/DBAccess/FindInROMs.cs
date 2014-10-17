@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SQLite;
-using System.Diagnostics;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB.DBAccess
@@ -8,6 +7,7 @@ namespace RomVaultX.DB.DBAccess
     public static class FindInROMs
     {
         private static readonly SQLiteCommand Command;
+        private static readonly SQLiteCommand CommandZero;
 
         static FindInROMs()
         {
@@ -24,38 +24,61 @@ namespace RomVaultX.DB.DBAccess
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
                                 ( md5=@MD5 ) AND
+                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
                                 ( crc=@CRC OR crc is NULL ) AND
                                 ( size=@size OR size is NULL ) AND
                                 ( status!='nodump' or status is NULL)
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
                                 ( crc=@CRC ) AND
-                                ( size=@size OR size is NULL ) AND
-                                ( status!='nodump' or status is NULL)
-                        ) +
-                        (
-                            SELECT count(1) FROM ROM WHERE
                                 ( sha1=@SHA1 OR sha1 is NULL ) AND 
                                 ( md5=@MD5 OR md5 is NULL) AND
-                                ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size ) AND
+                                ( size=@size OR size is NULL ) AND
                                 ( status!='nodump' or status is NULL)
-                        )
+                        ) 
                         AS TotalFound"
                , DataAccessLayer.DBConnection);
             Command.Parameters.Add(new SQLiteParameter("size"));
             Command.Parameters.Add(new SQLiteParameter("crc"));
             Command.Parameters.Add(new SQLiteParameter("sha1"));
             Command.Parameters.Add(new SQLiteParameter("md5"));
+
+            CommandZero = new SQLiteCommand(
+               @"
+                    SELECT count(1) AS TotalFound FROM ROM WHERE
+                        ( sha1=@SHA1 OR sha1 is NULL ) AND 
+                        ( md5=@MD5 OR md5 is NULL) AND
+                        ( crc=@CRC OR crc is NULL ) AND
+                        ( size=0 ) AND
+                        ( status!='nodump' or status is NULL)"
+               , DataAccessLayer.DBConnection);
+            CommandZero.Parameters.Add(new SQLiteParameter("crc"));
+            CommandZero.Parameters.Add(new SQLiteParameter("sha1"));
+            CommandZero.Parameters.Add(new SQLiteParameter("md5"));
+
         }
 
-        public static bool Execute(rvFile tFile)
+
+        public static bool Execute(RvFile tFile)
         {
+            if (tFile.Size == 0)
+            {
+                CommandZero.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandZero.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
+                CommandZero.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+
+                object resZero = Command.ExecuteScalar();
+
+                if (resZero == null || resZero == DBNull.Value)
+                    return false;
+                int countZero = Convert.ToInt32(resZero);
+
+                return countZero > 0;
+                
+            }
+            
             Command.Parameters["size"].Value = tFile.Size;
             Command.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
             Command.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
@@ -66,7 +89,7 @@ namespace RomVaultX.DB.DBAccess
             if (res == null || res == DBNull.Value)
                 return false;
             int count = Convert.ToInt32(res);
-            
+
             return count > 0;
         }
     }

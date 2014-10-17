@@ -134,13 +134,10 @@ namespace RomVaultX
             lblDITRomsGot.Width = widthB1;
             lblDITRomsMissing.Width = widthB1;
 
-            lblDIRomsFixable.Left = leftB2 - backD;
-            lblDIRomsUnknown.Left = leftB2 - backD;
+            lblDIRomsTotal.Left = leftB2 - backD;
 
-            lblDITRomsFixable.Left = leftB2;
-            lblDITRomsFixable.Width = widthB1;
-            lblDITRomsUnknown.Left = leftB2;
-            lblDITRomsUnknown.Width = widthB1;
+            lblDITRomsTotal.Left = leftB2;
+            lblDITRomsTotal.Width = widthB1;
         }
 
 
@@ -169,6 +166,9 @@ namespace RomVaultX
                 lblDITAuthor.Text = "";
                 lblDITDate.Text = "";
             }
+            lblDITRomsGot.Text = tr.RomGot.ToString("#,0");
+            lblDITRomsMissing.Text = (tr.RomTotal - tr.RomGot).ToString("#,0");
+            lblDITRomsTotal.Text = tr.RomTotal.ToString("#,0");
 
             UpdateGameGrid(tr.DatId);
 
@@ -750,31 +750,38 @@ namespace RomVaultX
                     RomGrid.Rows[iRow].Cells[2].Style.ForeColor = Color.FromArgb(0, 0, 255);
                     RomGrid.Rows[iRow].Cells[2].Value = rom.Size;    
                 }
-                RomGrid.Rows[iRow].Cells[3].Value = rom.Merge;
+
+                if (rom.fileCompressedSize != null)
+                {
+                    RomGrid.Rows[iRow].Cells[3].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[3].Value = rom.fileCompressedSize;                        
+                }
+
+                RomGrid.Rows[iRow].Cells[4].Value = rom.Merge;
                 
                 if (rom.CRC!=null)
-                    RomGrid.Rows[iRow].Cells[4].Value = VarFix.ToString(rom.CRC);
+                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.CRC);
                 else if (rom.fileCRC != null)
                 {
-                    RomGrid.Rows[iRow].Cells[4].Style.ForeColor = Color.FromArgb(0, 0, 255);
-                    RomGrid.Rows[iRow].Cells[4].Value = VarFix.ToString(rom.fileCRC);                   
+                    RomGrid.Rows[iRow].Cells[5].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.fileCRC);                   
                 }
                 
                 if (rom.SHA1!=null)
-                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.SHA1);
+                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1);
                 else if (rom.fileSHA1 != null)
                 {
-                    RomGrid.Rows[iRow].Cells[5].Style.ForeColor = Color.FromArgb(0, 0, 255);
-                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.fileSHA1);
+                    RomGrid.Rows[iRow].Cells[6].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.fileSHA1);
                 }
                 if (rom.MD5!=null)
-                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.MD5);
+                    RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5);
                 else if (rom.fileMD5 != null)
                 {
-                    RomGrid.Rows[iRow].Cells[6].Style.ForeColor = Color.FromArgb(0, 0, 255);
-                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.fileMD5);                    
+                    RomGrid.Rows[iRow].Cells[7].Style.ForeColor = Color.FromArgb(0, 0, 255);
+                    RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.fileMD5);                    
                 }
-                RomGrid.Rows[iRow].Cells[7].Value = rom.Status;
+                RomGrid.Rows[iRow].Cells[8].Value = rom.Status;
 
                 RomGrid.Rows[iRow].DefaultCellStyle.BackColor = rom.FileId > 0 ? CGreen : CRed;
             }

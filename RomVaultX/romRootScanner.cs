@@ -47,6 +47,9 @@ namespace RomVaultX
 
             for (int j = 0; j < fi.Count(); j++)
             {
+                if (_bgw.CancellationPending)
+                    return;
+
                 FileInfo f = fi[j];
                 _bgw.ReportProgress(0, new bgwValue2(j));
                 _bgw.ReportProgress(0, new bgwText2(f.Name));
@@ -55,12 +58,12 @@ namespace RomVaultX
                 if (ext.ToLower() == ".gz")
                 {
                     GZip gZipTest = new GZip();
-                    ZipReturn errorcode = gZipTest.ReadGZip(f.FullName,false);
+                    ZipReturn errorcode = gZipTest.ReadGZip(f.FullName, false);
                     gZipTest.sha1Hash = VarFix.CleanMD5SHA1(Path.GetFileNameWithoutExtension(f.Name), 40);
 
                     if (errorcode != ZipReturn.ZipGood)
                         continue;
-                    rvFile tFile = new rvFile();
+                    RvFile tFile = new RvFile();
                     tFile.CRC = gZipTest.crc;
                     tFile.MD5 = gZipTest.md5Hash;
                     tFile.SHA1 = gZipTest.sha1Hash;
@@ -70,7 +73,7 @@ namespace RomVaultX
                     FindStatus res = fileneededTest(tFile);
 
                     if (res != FindStatus.FoundFileInArchive)
-                        DataAccessLayer.AddInFiles(tFile);
+                        tFile.DBWrite();
 
                 }
                 if (_bgw.CancellationPending)
@@ -79,7 +82,11 @@ namespace RomVaultX
 
             DirectoryInfo[] childdi = di.GetDirectories();
             foreach (DirectoryInfo d in childdi)
+            {
+                if (_bgw.CancellationPending)
+                    return;
                 ScanRomRoot(d.FullName);
+            }
         }
 
         private enum FindStatus
@@ -88,7 +95,7 @@ namespace RomVaultX
             FoundFileInArchive,
             FileNeededInArchive,
         };
-        private static FindStatus fileneededTest(rvFile tFile)
+        private static FindStatus fileneededTest(RvFile tFile)
         {
             // first check to see if we already have it in the file table
             bool inFileDB = FindInFiles.Execute(tFile); // returns true if found in File table

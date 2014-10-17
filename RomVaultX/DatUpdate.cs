@@ -40,7 +40,7 @@ namespace RomVaultX
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Clearing Found DAT List"));
-                DataAccessLayer.ClearFound();
+                DataAccessLayer.ClearFoundDATs();
 
                 const string datRoot = @"";
                 uint DirId = FindOrInsert.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
@@ -56,15 +56,22 @@ namespace RomVaultX
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
                 _datsProcessed = 0;
 
+                
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
+                //DataAccessLayer.ExecuteNonQuery("BEGIN");
                 ReadDats(DirId, datRoot, "DatRoot");
-
+                //DataAccessLayer.ExecuteNonQuery("COMMIT");
+                
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
-                DataAccessLayer.RemoveNotFound();
-
+                //DataAccessLayer.ExecuteNonQuery("BEGIN");
+                DataAccessLayer.RemoveNotFoundDATs();
+                //DataAccessLayer.ExecuteNonQuery("COMMIT");
+                
                 _bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
+                //DataAccessLayer.ExecuteNonQuery("BEGIN");
                 DataAccessLayer.UpdateGotTotal();
-
+                //DataAccessLayer.ExecuteNonQuery("COMMIT");
+                
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
                 Program.SyncCont = null;

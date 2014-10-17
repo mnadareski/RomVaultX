@@ -20,7 +20,7 @@ namespace RomVaultX.DB.DBAccess
             Command.Parameters.Add(new SQLiteParameter("md5"));
         }
 
-        public static bool Execute(rvFile tFile)
+        public static bool Execute(RvFile tFile)
         {
             Command.Parameters["size"].Value = tFile.Size;
             Command.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);

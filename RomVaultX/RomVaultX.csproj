@@ -110,6 +110,7 @@
     <Compile Include="DB\rvFile.cs" />
     <Compile Include="DB\RvGameGridRow.cs" />
     <Compile Include="DB\rvRom.cs" />
+    <Compile Include="FileHeaderReader.cs" />
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>

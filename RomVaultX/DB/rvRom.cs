@@ -20,6 +20,7 @@ namespace RomVaultX.DB
         public ulong? FileId;
 
         public ulong? fileSize;
+        public ulong? fileCompressedSize;
         public byte[] fileCRC;
         public byte[] fileSHA1;
         public byte[] fileMD5;
@@ -55,6 +56,7 @@ namespace RomVaultX.DB
                     merge,status,
                     rom.FileId,
                     files.size as fileSize,
+                    files.compressedsize as fileCompressedSize,
                     files.crc as filecrc,
                     files.sha1 as filesha1,
                     files.md5 as filemd5
@@ -104,6 +106,7 @@ namespace RomVaultX.DB
                         Status = dr["status"].ToString(),
                         FileId = FixLong(dr["FileId"]), 
                         fileSize = FixLong(dr["fileSize"]),
+                        fileCompressedSize = FixLong(dr["fileCompressedSize"]),
                         fileCRC = VarFix.CleanMD5SHA1(dr["fileCRC"].ToString(), 8),
                         fileSHA1 = VarFix.CleanMD5SHA1(dr["fileSHA1"].ToString(), 40),
                         fileMD5 = VarFix.CleanMD5SHA1(dr["fileMD5"].ToString(), 32)

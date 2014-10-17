@@ -41,10 +41,9 @@
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.gbDatInfo = new System.Windows.Forms.GroupBox();
-            this.lblDIRomsUnknown = new System.Windows.Forms.Label();
+            this.lblDIRomsTotal = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.lblDITRomsUnknown = new System.Windows.Forms.Label();
-            this.lblDITRomsFixable = new System.Windows.Forms.Label();
+            this.lblDITRomsTotal = new System.Windows.Forms.Label();
             this.lblDITRomsMissing = new System.Windows.Forms.Label();
             this.lblDITRomsGot = new System.Windows.Forms.Label();
             this.lblDITRomPath = new System.Windows.Forms.Label();
@@ -61,9 +60,7 @@
             this.lblDIName = new System.Windows.Forms.Label();
             this.lblDITDescription = new System.Windows.Forms.Label();
             this.lblDITName = new System.Windows.Forms.Label();
-            this.lblDIRomsFixable = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.DirTree = new RomVaultX.RvTree();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.gbSetInfo = new System.Windows.Forms.GroupBox();
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
@@ -74,18 +71,20 @@
             this.CCorrect = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CMissing = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RomGrid = new System.Windows.Forms.DataGridView();
-            this.CGot = new System.Windows.Forms.DataGridViewImageColumn();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createZIPsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DirTree = new RomVaultX.RvTree();
+            this.CGot = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CRom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CCompressSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CMerge = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CCRC32 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CSHA1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CMD5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createZIPsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -200,10 +199,9 @@
             // 
             // gbDatInfo
             // 
-            this.gbDatInfo.Controls.Add(this.lblDIRomsUnknown);
+            this.gbDatInfo.Controls.Add(this.lblDIRomsTotal);
             this.gbDatInfo.Controls.Add(this.label9);
-            this.gbDatInfo.Controls.Add(this.lblDITRomsUnknown);
-            this.gbDatInfo.Controls.Add(this.lblDITRomsFixable);
+            this.gbDatInfo.Controls.Add(this.lblDITRomsTotal);
             this.gbDatInfo.Controls.Add(this.lblDITRomsMissing);
             this.gbDatInfo.Controls.Add(this.lblDITRomsGot);
             this.gbDatInfo.Controls.Add(this.lblDITRomPath);
@@ -220,7 +218,6 @@
             this.gbDatInfo.Controls.Add(this.lblDIName);
             this.gbDatInfo.Controls.Add(this.lblDITDescription);
             this.gbDatInfo.Controls.Add(this.lblDITName);
-            this.gbDatInfo.Controls.Add(this.lblDIRomsFixable);
             this.gbDatInfo.Controls.Add(this.label8);
             this.gbDatInfo.Location = new System.Drawing.Point(5, 0);
             this.gbDatInfo.Name = "gbDatInfo";
@@ -230,14 +227,14 @@
             this.gbDatInfo.Text = "Dat Info :";
             this.gbDatInfo.Resize += new System.EventHandler(this.gbDatInfo_Resize);
             // 
-            // lblDIRomsUnknown
+            // lblDIRomsTotal
             // 
-            this.lblDIRomsUnknown.Location = new System.Drawing.Point(214, 121);
-            this.lblDIRomsUnknown.Name = "lblDIRomsUnknown";
-            this.lblDIRomsUnknown.Size = new System.Drawing.Size(92, 13);
-            this.lblDIRomsUnknown.TabIndex = 26;
-            this.lblDIRomsUnknown.Text = "ROMs Unknown :";
-            this.lblDIRomsUnknown.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.lblDIRomsTotal.Location = new System.Drawing.Point(214, 121);
+            this.lblDIRomsTotal.Name = "lblDIRomsTotal";
+            this.lblDIRomsTotal.Size = new System.Drawing.Size(92, 13);
+            this.lblDIRomsTotal.TabIndex = 26;
+            this.lblDIRomsTotal.Text = "ROMs Total :";
+            this.lblDIRomsTotal.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // label9
             // 
@@ -248,21 +245,13 @@
             this.label9.Text = "ROMs Got :";
             this.label9.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // lblDITRomsUnknown
+            // lblDITRomsTotal
             // 
-            this.lblDITRomsUnknown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblDITRomsUnknown.Location = new System.Drawing.Point(311, 120);
-            this.lblDITRomsUnknown.Name = "lblDITRomsUnknown";
-            this.lblDITRomsUnknown.Size = new System.Drawing.Size(120, 17);
-            this.lblDITRomsUnknown.TabIndex = 21;
-            // 
-            // lblDITRomsFixable
-            // 
-            this.lblDITRomsFixable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblDITRomsFixable.Location = new System.Drawing.Point(311, 104);
-            this.lblDITRomsFixable.Name = "lblDITRomsFixable";
-            this.lblDITRomsFixable.Size = new System.Drawing.Size(120, 17);
-            this.lblDITRomsFixable.TabIndex = 20;
+            this.lblDITRomsTotal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblDITRomsTotal.Location = new System.Drawing.Point(311, 120);
+            this.lblDITRomsTotal.Name = "lblDITRomsTotal";
+            this.lblDITRomsTotal.Size = new System.Drawing.Size(120, 17);
+            this.lblDITRomsTotal.TabIndex = 21;
             // 
             // lblDITRomsMissing
             // 
@@ -399,15 +388,6 @@
             this.lblDITName.Size = new System.Drawing.Size(342, 17);
             this.lblDITName.TabIndex = 1;
             // 
-            // lblDIRomsFixable
-            // 
-            this.lblDIRomsFixable.Location = new System.Drawing.Point(214, 105);
-            this.lblDIRomsFixable.Name = "lblDIRomsFixable";
-            this.lblDIRomsFixable.Size = new System.Drawing.Size(92, 13);
-            this.lblDIRomsFixable.TabIndex = 25;
-            this.lblDIRomsFixable.Text = "ROMs Fixable :";
-            this.lblDIRomsFixable.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
             // label8
             // 
             this.label8.Location = new System.Drawing.Point(2, 121);
@@ -416,16 +396,6 @@
             this.label8.TabIndex = 24;
             this.label8.Text = "ROMs Missing :";
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // DirTree
-            // 
-            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DirTree.Location = new System.Drawing.Point(0, 0);
-            this.DirTree.Name = "DirTree";
-            this.DirTree.Size = new System.Drawing.Size(553, 626);
-            this.DirTree.TabIndex = 0;
-            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
             // 
             // splitContainer4
             // 
@@ -586,6 +556,7 @@
             this.CGot,
             this.CRom,
             this.CSize,
+            this.CCompressSize,
             this.CMerge,
             this.CCRC32,
             this.CSHA1,
@@ -623,6 +594,49 @@
             this.RomGrid.TabIndex = 22;
             this.RomGrid.SelectionChanged += new System.EventHandler(this.RomGrid_SelectionChanged);
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.romRootScanToolStripMenuItem,
+            this.createZIPsToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1306, 24);
+            this.menuStrip1.TabIndex = 5;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // romRootScanToolStripMenuItem
+            // 
+            this.romRootScanToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.quickReScanToolStripMenuItem});
+            this.romRootScanToolStripMenuItem.Name = "romRootScanToolStripMenuItem";
+            this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
+            this.romRootScanToolStripMenuItem.Text = "RomRoot";
+            // 
+            // quickReScanToolStripMenuItem
+            // 
+            this.quickReScanToolStripMenuItem.Name = "quickReScanToolStripMenuItem";
+            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
+            this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
+            // 
+            // createZIPsToolStripMenuItem
+            // 
+            this.createZIPsToolStripMenuItem.Name = "createZIPsToolStripMenuItem";
+            this.createZIPsToolStripMenuItem.Size = new System.Drawing.Size(78, 20);
+            this.createZIPsToolStripMenuItem.Text = "Create ZIPs";
+            this.createZIPsToolStripMenuItem.Click += new System.EventHandler(this.createZIPsToolStripMenuItem_Click);
+            // 
+            // DirTree
+            // 
+            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DirTree.Location = new System.Drawing.Point(0, 0);
+            this.DirTree.Name = "DirTree";
+            this.DirTree.Size = new System.Drawing.Size(553, 626);
+            this.DirTree.TabIndex = 0;
+            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
+            // 
             // CGot
             // 
             this.CGot.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
@@ -630,7 +644,6 @@
             this.CGot.Name = "CGot";
             this.CGot.ReadOnly = true;
             this.CGot.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.CGot.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             this.CGot.Width = 65;
             // 
             // CRom
@@ -646,6 +659,13 @@
             this.CSize.Name = "CSize";
             this.CSize.ReadOnly = true;
             this.CSize.Width = 60;
+            // 
+            // CCompressSize
+            // 
+            this.CCompressSize.HeaderText = "ZipSize";
+            this.CCompressSize.Name = "CCompressSize";
+            this.CCompressSize.ReadOnly = true;
+            this.CCompressSize.Width = 60;
             // 
             // CMerge
             // 
@@ -680,39 +700,6 @@
             this.CStatus.HeaderText = "Status";
             this.CStatus.Name = "CStatus";
             this.CStatus.ReadOnly = true;
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.romRootScanToolStripMenuItem,
-            this.createZIPsToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1306, 24);
-            this.menuStrip1.TabIndex = 5;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // romRootScanToolStripMenuItem
-            // 
-            this.romRootScanToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.quickReScanToolStripMenuItem});
-            this.romRootScanToolStripMenuItem.Name = "romRootScanToolStripMenuItem";
-            this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
-            this.romRootScanToolStripMenuItem.Text = "RomRoot";
-            // 
-            // quickReScanToolStripMenuItem
-            // 
-            this.quickReScanToolStripMenuItem.Name = "quickReScanToolStripMenuItem";
-            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
-            this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
-            this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
-            // 
-            // createZIPsToolStripMenuItem
-            // 
-            this.createZIPsToolStripMenuItem.Name = "createZIPsToolStripMenuItem";
-            this.createZIPsToolStripMenuItem.Size = new System.Drawing.Size(78, 20);
-            this.createZIPsToolStripMenuItem.Text = "Create ZIPs";
-            this.createZIPsToolStripMenuItem.Click += new System.EventHandler(this.createZIPsToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -765,10 +752,9 @@
         private System.Windows.Forms.SplitContainer splitContainer5;
         private RvTree DirTree;
         private System.Windows.Forms.GroupBox gbDatInfo;
-        private System.Windows.Forms.Label lblDIRomsUnknown;
+        private System.Windows.Forms.Label lblDIRomsTotal;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label lblDITRomsUnknown;
-        private System.Windows.Forms.Label lblDITRomsFixable;
+        private System.Windows.Forms.Label lblDITRomsTotal;
         private System.Windows.Forms.Label lblDITRomsMissing;
         private System.Windows.Forms.Label lblDITRomsGot;
         private System.Windows.Forms.Label lblDITRomPath;
@@ -785,19 +771,10 @@
         private System.Windows.Forms.Label lblDIName;
         private System.Windows.Forms.Label lblDITDescription;
         private System.Windows.Forms.Label lblDITName;
-        private System.Windows.Forms.Label lblDIRomsFixable;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.GroupBox gbSetInfo;
         private System.Windows.Forms.DataGridView GameGrid;
         private System.Windows.Forms.DataGridView RomGrid;
-        private System.Windows.Forms.DataGridViewImageColumn CGot;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CRom;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CSize;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CMerge;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CCRC32;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CSHA1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CMD5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CStatus;
         private System.Windows.Forms.Button btnScanRoms;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem romRootScanToolStripMenuItem;
@@ -808,6 +785,15 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CCorrect;
         private System.Windows.Forms.DataGridViewTextBoxColumn CMissing;
         private System.Windows.Forms.ToolStripMenuItem createZIPsToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CGot;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CRom;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CSize;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CCompressSize;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CMerge;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CCRC32;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CSHA1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CMD5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CStatus;
     }
 }
 
