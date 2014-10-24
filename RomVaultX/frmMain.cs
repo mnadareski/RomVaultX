@@ -138,6 +138,10 @@ namespace RomVaultX
 
             lblDITRomsTotal.Left = leftB2;
             lblDITRomsTotal.Width = widthB1;
+
+            lblDIRomsNoDump.Left = leftB2 - backD;
+            lblDITRomsNoDump.Left = leftB2;
+            lblDITRomsNoDump.Width = widthB1;
         }
 
 
@@ -167,8 +171,9 @@ namespace RomVaultX
                 lblDITDate.Text = "";
             }
             lblDITRomsGot.Text = tr.RomGot.ToString("#,0");
-            lblDITRomsMissing.Text = (tr.RomTotal - tr.RomGot).ToString("#,0");
+            lblDITRomsMissing.Text = (tr.RomTotal - tr.RomGot - tr.RomNoDump).ToString("#,0");
             lblDITRomsTotal.Text = tr.RomTotal.ToString("#,0");
+            lblDITRomsNoDump.Text = tr.RomNoDump.ToString("#,0");
 
             UpdateGameGrid(tr.DatId);
 
