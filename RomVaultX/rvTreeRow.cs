@@ -20,6 +20,7 @@ namespace RomVaultX
 
         public int RomTotal;
         public int RomGot;
+        public int RomNoDump;
 
         public string TreeBranches;
 
@@ -44,11 +45,13 @@ namespace RomVaultX
                         dir.expanded,
                         dir.RomTotal as dirRomTotal,
                         dir.RomGot as dirRomGot,
+                        dir.RomNoDump as dirNoDump,
                         dat.DatId,
                         dat.name as datname,
                         dat.description,
                         dat.RomTotal,
-                        dat.RomGot
+                        dat.RomGot,
+                        dat.RomNoDump
                     FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
                     ORDER BY dir.Fullname,dat.Filename", DataAccessLayer.DBConnection);
 
@@ -82,7 +85,8 @@ namespace RomVaultX
                         datName = dr["datname"] == DBNull.Value ? null : dr["datname"].ToString(),
                         description = dr["description"] == DBNull.Value ? null : dr["description"].ToString(),
                         RomTotal = dr["RomTotal"] == DBNull.Value ? Convert.ToInt32(dr["dirRomTotal"]) : Convert.ToInt32(dr["RomTotal"]),
-                        RomGot = dr["RomGot"] == DBNull.Value ? Convert.ToInt32(dr["dirRomGot"]) : Convert.ToInt32(dr["RomGot"])
+                        RomGot = dr["RomGot"] == DBNull.Value ? Convert.ToInt32(dr["dirRomGot"]) : Convert.ToInt32(dr["RomGot"]),
+                        RomNoDump = dr["RomNoDump"] == DBNull.Value ? Convert.ToInt32(dr["dirNoDump"]) : Convert.ToInt32(dr["RomNoDump"]),
                     };
 
                     if (!string.IsNullOrEmpty(skipUntil))
@@ -101,6 +105,7 @@ namespace RomVaultX
                         pTree.description = null;
                         pTree.RomTotal = Convert.ToInt32(dr["dirRomTotal"]);
                         pTree.RomGot = Convert.ToInt32(dr["dirRomGot"]);
+                        pTree.RomNoDump = Convert.ToInt32(dr["dirNoDump"]);
                     }
                     rows.Add(pTree);
 
@@ -120,7 +125,8 @@ namespace RomVaultX
                                 DatId = null,
                                 datName = null,
                                 RomTotal = Convert.ToInt32(dr["dirRomTotal"]),
-                                RomGot = Convert.ToInt32(dr["dirRomGot"])
+                                RomGot = Convert.ToInt32(dr["dirRomGot"]),
+                                RomNoDump = Convert.ToInt32(dr["dirNoDump"])
                             };
                             rows.Insert(rows.Count - 2, dirTree);
                             lastTree.MultiDatDir = true;

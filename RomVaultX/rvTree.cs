@@ -138,7 +138,7 @@ namespace RomVaultX
             {
                 int icon;
 
-                if (pTree.RomGot == pTree.RomTotal)
+                if (pTree.RomGot == (pTree.RomTotal-pTree.RomNoDump))
                     icon = 3;
                 else if (pTree.RomGot > 0)
                     icon = 2;
@@ -174,9 +174,13 @@ namespace RomVaultX
                     else
                         thistxt += ": " + pTree.datName;
                 }
-                if (pTree.RomTotal > 0 || pTree.RomGot > 0)
-                    thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (pTree.RomTotal - pTree.RomGot).ToString("#,0") + " )";
-
+                if (pTree.RomTotal > 0 || pTree.RomGot > 0 || pTree.RomNoDump > 0)
+                {
+                    string noDump = "";
+                    if (pTree.RomNoDump > 0)
+                        noDump = " , " + pTree.RomNoDump;
+                    thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (pTree.RomTotal - pTree.RomGot).ToString("#,0") + noDump + " )";
+                }
                 if (_lSelected == pTree)
                 {
                     g.FillRectangle(new SolidBrush(Color.FromArgb(51, 153, 255)), RSub(recBackGround, _hScroll, _vScroll));

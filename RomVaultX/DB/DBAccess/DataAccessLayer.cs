@@ -13,7 +13,7 @@ namespace RomVaultX.DB
 
         private static readonly SQLiteCommand CmdCleanupNotFoundDATs;
 
-        private const int DBVersion = 5;
+        private const int DBVersion = 6;
         private static readonly string DirFilename = @"C:\RomVaultX\rom" + DBVersion + ".db";
         //private static readonly string DirFilename = @":memory:";
 
@@ -125,10 +125,11 @@ namespace RomVaultX.DB
                     [ParentDirId] INTEGER NULL,
                     [name] NVARCHAR(300) NOT NULL,
                     [fullname] NVARCHAR(300) NOT NULL,
-                    [expanded] BOOLEAN DEFAULT '1' NOT NULL,
-                    [found] BOOLEAN DEFAULT '1',
-                    [RomTotal] INTEGER  NULL,
-                    [RomGot] iNTEGER  NULL
+                    [expanded] BOOLEAN DEFAULT 1 NOT NULL,
+                    [found] BOOLEAN DEFAULT 1,
+                    [RomTotal] INTEGER NULL,
+                    [RomGot] iNTEGER NULL,
+                    [RomNoDump] INTEGER NULL
                 );
              
         ");
@@ -144,12 +145,14 @@ namespace RomVaultX.DB
             /**** FILE Triggers ****/
             /*INSERT*/
             ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [FileInsert];");
+                DROP TRIGGER IF EXISTS [FileInsert];
+                ");
 
           
 
             /*DELETE*/
             ExecuteNonQuery(@"
+                DROP TRIGGER IF EXISTS [FileDelete];
                 CREATE TRIGGER IF NOT EXISTS [FileDelete] 
                 AFTER DELETE ON [FILES] 
                 FOR EACH ROW 
@@ -162,32 +165,37 @@ namespace RomVaultX.DB
             //**** ROM Triggers ****
             //INSERT
             ExecuteNonQuery(@"
+                DROP TRIGGER IF EXISTS [RomInsert];
                 CREATE TRIGGER IF NOT EXISTS [RomInsert] 
                 AFTER INSERT ON [ROM] 
                 FOR EACH ROW
                 BEGIN 
                     UPDATE GAME SET
                         RomTotal = RomTotal + 1,
-                        RomGot = RomGot + (IFNULL(New.FileId,0)>0)
+                        RomGot = RomGot + (IFNULL(New.FileId,0)>0),
+                        RomNoDump = RomNoDump + (New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null)
                     WHERE 
                         Game.GameId = New.GameId;
                 END;
             ");
             //DELETE
             ExecuteNonQuery(@"
+                DROP TRIGGER IF EXISTS [RomDelete];
                 CREATE TRIGGER IF NOT EXISTS [RomDelete] 
                 AFTER DELETE ON [ROM] 
                 FOR EACH ROW
                 BEGIN 
                     UPDATE GAME SET
                         RomTotal = RomTotal - 1,
-                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0)
+                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
+                        RomNoDump = RomNoDump - (Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null)
                     WHERE 
                         Game.GameId = Old.GameId;
                 END;
             ");
             //UPDATE
             ExecuteNonQuery(@"
+                DROP TRIGGER IF EXISTS [RomUpdate];
                 CREATE TRIGGER IF NOT EXISTS [RomUpdate]
                 AFTER UPDATE ON [ROM]
                 FOR EACH ROW WHEN (IFNULL(Old.FileId,0)>0) != (IFNULL(New.FileId,0)>0)
@@ -202,39 +210,45 @@ namespace RomVaultX.DB
             //**** GAME Triggers ****
             //INSERT
             ExecuteNonQuery(@"
+                DROP TRIGGER IF EXISTS [GameInsert];
                 CREATE TRIGGER IF NOT EXISTS [GameInsert]
                 AFTER INSERT ON [GAME]
                 FOR EACH ROW
                 BEGIN
                     UPDATE DAT SET
-                            RomTotal=RomTotal + New.RomTotal , 
-                            RomGot  =RomGot   + New.RomGot
+                            RomTotal   =RomTotal  + New.RomTotal  , 
+                            RomGot     =RomGot    + New.RomGot    ,
+                            RomNoDump  =RomNoDump + New.RomNoDump
                     WHERE
                             DatId= New.DatId;
                 END;
             ");
             //DELETE
             ExecuteNonQuery(@"
+                DROP TRIGGER IF EXISTS [GameDelete];
                 CREATE TRIGGER IF NOT EXISTS [GameDelete]
                 AFTER DELETE ON [GAME]
                 FOR EACH ROW
                 BEGIN
                     UPDATE DAT SET 
-                            RomTotal=RomTotal - Old.RomTotal ,
-                            RomGot  =RomGot   - Old.RomGot
+                            RomTotal   =RomTotal  - Old.RomTotal  ,
+                            RomGot     =RomGot    - Old.RomGot    ,
+                            RomNoDump  =RomNoDump - Old.RomNoDump
                     WHERE
                             DatId=Old.DatId;
                 END;
             ");
             //UPDATE
             ExecuteNonQuery(@"
+                DROP TRIGGER IF EXISTS [GameUpdate];
                 CREATE TRIGGER IF NOT EXISTS [GameUpdate] 
                 AFTER UPDATE ON [GAME] 
                 FOR EACH ROW WHEN Old.RomTotal!=New.RomTotal OR Old.RomGot!=New.RomGot 
                 BEGIN 
                   UPDATE DAT SET
-                            RomTotal=RomTotal - Old.RomTotal + New.RomTotal ,
-                            RomGot  =RomGot   - Old.RomGot   + New.RomGot
+                            RomTotal   =RomTotal  - Old.RomTotal  + New.RomTotal ,
+                            RomGot     =RomGot    - Old.RomGot    + New.RomGot ,
+                            RomNoDump  =RomNoDump - Old.RomNoDump + New.RomNoDump
                     WHERE
                             DatId=New.DatId;
                 END;
@@ -268,7 +282,7 @@ namespace RomVaultX.DB
         {
             ExecuteNonQuery(@"
 
-            UPDATE DIR SET RomTotal=null, ROMGot=null;
+            UPDATE DIR SET RomTotal=null, ROMGot=null,RomNoDump=null;
 
             UPDATE DIR SET
                 romtotal = (SELECT SUM(romtotal) FROM dat WHERE dat.dirid=dir.dirid)
@@ -280,7 +294,13 @@ namespace RomVaultX.DB
             WHERE
                 (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;
 
-            UPDATE DIR SET romtotal=0, romgot=0
+            UPDATE DIR SET
+                romnodump = (SELECT SUM(romnodump) FROM dat WHERE dat.dirid=dir.dirid)
+            WHERE
+                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;
+
+
+            UPDATE DIR SET romtotal=0, romgot=0, romnodump=0
             WHERE
             (select count(1) from dir as p1 where p1.parentdirid=dir.dirid)=0 and
             (select count(1) from dat       where dat.DirId=dir.dirid)=0;");
@@ -293,8 +313,9 @@ namespace RomVaultX.DB
             {
                 ExecuteNonQuery(@"
                     UPDATE dir SET
-                        romtotal=(SELECT SUM(p1.romtotal) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid),
-                        romGot  =(SELECT SUM(p1.romgot  ) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid)
+                        romtotal  =(SELECT SUM(p1.romtotal ) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid),
+                        romGot    =(SELECT SUM(p1.romgot   ) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid),
+                        romnodump =(SELECT SUM(p1.romnodump) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid)
                     WHERE
                         romtotal IS null AND
                         (SELECT COUNT(1) FROM dir AS p WHERE p.romtotal IS null AND p.parentdirid=dir.dirid)=0");

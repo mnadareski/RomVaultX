@@ -9,8 +9,9 @@ namespace RomVaultX.DB
         public int GameId;
         public string Name;
         public string Description;
-        public int TotalGot;
-        public int TotalMissing;
+        public int RomGot;
+        public int RomTotal;
+        public int RomNoDump;
 
         private static readonly SQLiteCommand SQLRead;
 
@@ -18,7 +19,7 @@ namespace RomVaultX.DB
         {
             SQLRead = new SQLiteCommand(
                 @"
-                    SELECT GameId,Name,Description,RomTotal,RomGot FROM game WHERE DatId=@datId ORDER BY Name",DataAccessLayer.DBConnection);
+                    SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name",DataAccessLayer.DBConnection);
             SQLRead.Parameters.Add(new SQLiteParameter("datId"));
 
         }
@@ -36,8 +37,9 @@ namespace RomVaultX.DB
                     gridRow.GameId = System.Convert.ToInt32(dr["GameID"]);;
                     gridRow.Name = dr["name"].ToString();
                     gridRow.Description =dr["description"].ToString();
-                    gridRow.TotalGot = System.Convert.ToInt32(dr["RomGot"]);
-                    gridRow.TotalMissing = System.Convert.ToInt32(dr["RomTotal"]) - gridRow.TotalGot;
+                    gridRow.RomGot = System.Convert.ToInt32(dr["RomGot"]);
+                    gridRow.RomTotal = System.Convert.ToInt32(dr["RomTotal"]);
+                    gridRow.RomNoDump = System.Convert.ToInt32(dr["RomNoDump"]);
                     rows.Add(gridRow);
                 }
                 dr.Close();

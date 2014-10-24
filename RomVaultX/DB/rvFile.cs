@@ -100,6 +100,7 @@ namespace RomVaultX.DB
                 CREATE TABLE IF NOT EXISTS [FILES] (
                     [FileId] INTEGER PRIMARY KEY NOT NULL,
                     [size] INTEGER NOT NULL,
+                    [compressedsize] INTEGER NULL,
                     [crc] VARCHAR(8) NULL,
                     [sha1] VARCHAR(40) NULL,
                     [md5] VARCHAR(32) NULL

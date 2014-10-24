@@ -91,7 +91,7 @@ namespace RomVaultX.DB.DBAccess
                 CREATE INDEX IF NOT EXISTS memdb.memFILESize ON FILESMEM ([size] ASC);");
 
             DataAccessLayer.ExecuteNonQuery(@"
-                INSERT INTO memdb.FILESMEM SELECT * FROM FILES");
+                INSERT INTO memdb.FILESMEM SELECT FileId,size,crc,sha1,md5 FROM FILES");
         }
 
         public static uint? Execute(RvRom tFile)

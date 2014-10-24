@@ -120,8 +120,9 @@ namespace RomVaultX.DB
                     [peripheral] NVARCHAR(20) NULL,
                     [barcode] NVARCHAR(20) NULL,
                     [mediacatalognumber] NVARCHAR(20),
-                    [RomTotal] INTEGER DEFAULT '0' NOT NULL,
-                    [RomGot] INTEGER DEFAULT '0' NOT NULL,
+                    [RomTotal] INTEGER DEFAULT 0 NOT NULL,
+                    [RomGot] INTEGER DEFAULT 0 NOT NULL,
+                    [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
                     FOREIGN KEY(DatId) REFERENCES DAT(DatId)
                 );");
         }

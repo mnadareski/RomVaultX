@@ -96,6 +96,7 @@ namespace RomVaultX
                 {
                     for (int i = 0; i < fz.LocalFilesCount(); i++)
                     {
+                        // this needs to go back into the Zip library.
                         int Buffersize = 1024 * 1024;
                         byte[] _buffer = new byte[Buffersize];
                         Stream stream;

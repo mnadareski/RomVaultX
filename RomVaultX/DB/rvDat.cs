@@ -78,10 +78,11 @@ namespace RomVaultX.DB
                     [homepage] NVARCHAR(10)  NULL,
                     [url] NVARCHAR(10)  NULL,
                     [comment] NVARCHAR(10) NULL,
-                    [RomTotal] INTEGER DEFAULT '0' NOT NULL,
-                    [RomGot] INTEGER DEFAULT '0' NOT NULL,
+                    [RomTotal] INTEGER DEFAULT 0 NOT NULL,
+                    [RomGot] INTEGER DEFAULT 0 NOT NULL,
+                    [RomNoDump] INTERGER DEFAULT 0 NOT NULL,
                     [DatTimeStamp] NVARCHAR(20)  NOT NULL,
-                    [found] BOOLEAN DEFAULT '1',            
+                    [found] BOOLEAN DEFAULT 1,            
                     FOREIGN KEY(DirId) REFERENCES DIR(DirId)
                 );");
         }
