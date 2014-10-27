@@ -1,6 +1,7 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
+using System.Threading;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using RomVaultX.DB;
 using RomVaultX.DB.DBAccess;
 using RomVaultX.SupportedFiles;
@@ -16,7 +17,46 @@ namespace RomVaultX
         private static byte[] buffer = null;
         private static ulong BufferSize = 1024 * 1024;
 
-        public static void MakeDatZips(uint DatId)
+        private static uint _DatId = 0;
+        private static string _outputdir;
+
+        private static BackgroundWorker _bgw;
+        public static void SetDatZipInfo(uint DatId, string outputDir)
+        {
+            _DatId = DatId;
+            _outputdir = outputDir;
+        }
+
+        public static void MakeDatZips(object sender, DoWorkEventArgs e)
+        {
+            _bgw = sender as BackgroundWorker;
+            Program.SyncCont = e.Argument as SynchronizationContext;
+            if (Program.SyncCont == null)
+            {
+                _bgw = null;
+                return;
+            }
+
+            if (_DatId == 0)
+                return;
+
+            if (!Directory.Exists(_outputdir))
+                return;
+
+            ExtractZips();
+
+            _DatId = 0;
+            _outputdir = "";
+            
+            _bgw.ReportProgress(0, new bgwText("Creating Zips Complete"));
+            _bgw = null;
+            Program.SyncCont = null;
+        
+        
+        }
+
+
+        private static void ExtractZips()
         {
             if (buffer == null)
                 buffer = new byte[BufferSize];
@@ -25,13 +65,18 @@ namespace RomVaultX
             ZipReturn zr;
 
             RvDat tDat = new RvDat();
-            tDat.DBRead(DatId, true);
+            tDat.DBRead(_DatId, true);
 
-            string outDir = @"D:\outroms";
+            _bgw.ReportProgress(0,new bgwSetRange(tDat.Games.Count));
 
             for (int gIndex = 0; gIndex < tDat.Games.Count; gIndex++)
             {
+                if (_bgw.CancellationPending)
+                    return;
+
                 RvGame tGame = tDat.Games[gIndex];
+                _bgw.ReportProgress(gIndex);
+                _bgw.ReportProgress(0,new bgwText("Creating zip : "+tGame.Name+".zip"));
 
                 bool romGot = false;
                 for (int rIndex = 0; rIndex < tGame.Roms.Count; rIndex++)
@@ -49,20 +94,20 @@ namespace RomVaultX
                 // export the rom;
 
                 ZipFile zipOut = new ZipFile();
-                string filename = Path.Combine(outDir, tGame.Name + ".zip");
-                filename=filename.Replace(@"/",@"\");
+                string filename = Path.Combine(_outputdir, tGame.Name + ".zip");
+                filename = filename.Replace(@"/", @"\");
                 if (!Directory.Exists(filename))
                 {
                     string dir = Path.GetDirectoryName(filename);
                     Directory.CreateDirectory(dir);
                 }
-                zr= zipOut.ZipFileCreate(filename);
+                zr = zipOut.ZipFileCreate(filename);
                 if (zr != ZipReturn.ZipGood)
                 {
-                    MessageBox.Show("Error creating " + Path.Combine(outDir, tGame.Name + ".zip") + " " + zr);
+                    MessageBox.Show("Error creating " + Path.Combine(_outputdir, tGame.Name + ".zip") + " " + zr);
                     return;
                 }
-                
+
                 for (int rIndex = 0; rIndex < tGame.Roms.Count; rIndex++)
                 {
                     RvRom tRom = tGame.Roms[rIndex];

@@ -68,6 +68,7 @@ namespace RomVaultX
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
+        private FolderBrowserDialog outputDir;
         private void createZIPsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RvTreeRow selected = DirTree.Selected;
@@ -76,8 +77,20 @@ namespace RomVaultX
             if (selected.DatId == null)
             {
                 MessageBox.Show("Select a DAT to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
             }
-            ReMakeZips.MakeDatZips(selected.DatId ?? 0);
+            if (outputDir==null)
+                outputDir = new FolderBrowserDialog();
+            
+            DialogResult result = outputDir.ShowDialog();
+            if (result != DialogResult.OK)
+                return;
+
+            ReMakeZips.SetDatZipInfo(selected.DatId ?? 0, outputDir.SelectedPath);
+
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Extracting File To Zips", ReMakeZips.MakeDatZips);
+            progress.ShowDialog(this);
+            progress.Dispose();
         }
 
 
