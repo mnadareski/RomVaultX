@@ -173,7 +173,7 @@ namespace RomVaultX.DB
                     UPDATE GAME SET
                         RomTotal = RomTotal + 1,
                         RomGot = RomGot + (IFNULL(New.FileId,0)>0),
-                        RomNoDump = RomNoDump + (New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null)
+                        RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null,0))
                     WHERE 
                         Game.GameId = New.GameId;
                 END;
