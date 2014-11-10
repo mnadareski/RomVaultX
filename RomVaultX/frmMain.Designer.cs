@@ -29,18 +29,20 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             this.btnUpdateDats = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.btnScanRoms = new System.Windows.Forms.Button();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.gbDatInfo = new System.Windows.Forms.GroupBox();
+            this.lblDITRomsNoDump = new System.Windows.Forms.Label();
+            this.lblDIRomsNoDump = new System.Windows.Forms.Label();
             this.lblDIRomsTotal = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.lblDITRomsTotal = new System.Windows.Forms.Label();
@@ -84,8 +86,8 @@
             this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createZIPsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblDIRomsNoDump = new System.Windows.Forms.Label();
-            this.lblDITRomsNoDump = new System.Windows.Forms.Label();
+            this.chkBoxShowMissing = new System.Windows.Forms.CheckBox();
+            this.chkBoxShowCorrect = new System.Windows.Forms.CheckBox();
             this.DirTree = new RomVaultX.RvTree();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -143,7 +145,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(1306, 778);
+            this.splitContainer1.Size = new System.Drawing.Size(1264, 737);
             this.splitContainer1.SplitterDistance = 80;
             this.splitContainer1.TabIndex = 4;
             // 
@@ -174,8 +176,8 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer4);
-            this.splitContainer2.Size = new System.Drawing.Size(1222, 778);
-            this.splitContainer2.SplitterDistance = 553;
+            this.splitContainer2.Size = new System.Drawing.Size(1180, 737);
+            this.splitContainer2.SplitterDistance = 533;
             this.splitContainer2.TabIndex = 0;
             // 
             // splitContainer3
@@ -195,7 +197,7 @@
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.DirTree);
-            this.splitContainer3.Size = new System.Drawing.Size(553, 778);
+            this.splitContainer3.Size = new System.Drawing.Size(533, 737);
             this.splitContainer3.SplitterDistance = 148;
             this.splitContainer3.TabIndex = 0;
             // 
@@ -230,6 +232,23 @@
             this.gbDatInfo.TabStop = false;
             this.gbDatInfo.Text = "Dat Info :";
             this.gbDatInfo.Resize += new System.EventHandler(this.gbDatInfo_Resize);
+            // 
+            // lblDITRomsNoDump
+            // 
+            this.lblDITRomsNoDump.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblDITRomsNoDump.Location = new System.Drawing.Point(311, 120);
+            this.lblDITRomsNoDump.Name = "lblDITRomsNoDump";
+            this.lblDITRomsNoDump.Size = new System.Drawing.Size(120, 17);
+            this.lblDITRomsNoDump.TabIndex = 28;
+            // 
+            // lblDIRomsNoDump
+            // 
+            this.lblDIRomsNoDump.Location = new System.Drawing.Point(214, 121);
+            this.lblDIRomsNoDump.Name = "lblDIRomsNoDump";
+            this.lblDIRomsNoDump.Size = new System.Drawing.Size(92, 13);
+            this.lblDIRomsNoDump.TabIndex = 27;
+            this.lblDIRomsNoDump.Text = "ROMs NoDump :";
+            this.lblDIRomsNoDump.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // lblDIRomsTotal
             // 
@@ -411,13 +430,15 @@
             // 
             // splitContainer4.Panel1
             // 
+            this.splitContainer4.Panel1.Controls.Add(this.chkBoxShowMissing);
+            this.splitContainer4.Panel1.Controls.Add(this.chkBoxShowCorrect);
             this.splitContainer4.Panel1.Controls.Add(this.gbSetInfo);
             this.splitContainer4.Panel1.Resize += new System.EventHandler(this.splitContainer4_Panel1_Resize);
             // 
             // splitContainer4.Panel2
             // 
             this.splitContainer4.Panel2.Controls.Add(this.splitContainer5);
-            this.splitContainer4.Size = new System.Drawing.Size(665, 778);
+            this.splitContainer4.Size = new System.Drawing.Size(643, 737);
             this.splitContainer4.SplitterDistance = 148;
             this.splitContainer4.TabIndex = 0;
             // 
@@ -445,8 +466,8 @@
             // splitContainer5.Panel2
             // 
             this.splitContainer5.Panel2.Controls.Add(this.RomGrid);
-            this.splitContainer5.Size = new System.Drawing.Size(665, 626);
-            this.splitContainer5.SplitterDistance = 296;
+            this.splitContainer5.Size = new System.Drawing.Size(643, 585);
+            this.splitContainer5.SplitterDistance = 276;
             this.splitContainer5.TabIndex = 0;
             // 
             // GameGrid
@@ -455,14 +476,14 @@
             this.GameGrid.AllowUserToDeleteRows = false;
             this.GameGrid.AllowUserToResizeRows = false;
             this.GameGrid.BackgroundColor = System.Drawing.Color.White;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.GameGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.GameGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
             this.GameGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.GameGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Type,
@@ -470,28 +491,28 @@
             this.CDescription,
             this.CCorrect,
             this.CMissing});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.GameGrid.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.GameGrid.DefaultCellStyle = dataGridViewCellStyle8;
             this.GameGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GameGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.GameGrid.Location = new System.Drawing.Point(0, 0);
             this.GameGrid.MultiSelect = false;
             this.GameGrid.Name = "GameGrid";
             this.GameGrid.ReadOnly = true;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.GameGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.GameGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
             this.GameGrid.RowHeadersVisible = false;
             this.GameGrid.RowTemplate.Height = 17;
             this.GameGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
@@ -499,7 +520,7 @@
             this.GameGrid.ShowCellToolTips = false;
             this.GameGrid.ShowEditingIcon = false;
             this.GameGrid.ShowRowErrors = false;
-            this.GameGrid.Size = new System.Drawing.Size(665, 296);
+            this.GameGrid.Size = new System.Drawing.Size(643, 276);
             this.GameGrid.TabIndex = 5;
             this.GameGrid.SelectionChanged += new System.EventHandler(this.GameGrid_SelectionChanged);
             // 
@@ -547,14 +568,14 @@
             this.RomGrid.AllowUserToDeleteRows = false;
             this.RomGrid.AllowUserToResizeRows = false;
             this.RomGrid.BackgroundColor = System.Drawing.Color.White;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.RomGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.RomGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle10;
             this.RomGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.RomGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.CGot,
@@ -566,35 +587,35 @@
             this.CSHA1,
             this.CMD5,
             this.CStatus});
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.RomGrid.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.RomGrid.DefaultCellStyle = dataGridViewCellStyle11;
             this.RomGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RomGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.RomGrid.Location = new System.Drawing.Point(0, 0);
             this.RomGrid.MultiSelect = false;
             this.RomGrid.Name = "RomGrid";
             this.RomGrid.ReadOnly = true;
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.RomGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.RomGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
             this.RomGrid.RowHeadersVisible = false;
             this.RomGrid.RowTemplate.Height = 19;
             this.RomGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.RomGrid.ShowCellErrors = false;
             this.RomGrid.ShowEditingIcon = false;
             this.RomGrid.ShowRowErrors = false;
-            this.RomGrid.Size = new System.Drawing.Size(665, 326);
+            this.RomGrid.Size = new System.Drawing.Size(643, 305);
             this.RomGrid.TabIndex = 22;
             this.RomGrid.SelectionChanged += new System.EventHandler(this.RomGrid_SelectionChanged);
             // 
@@ -669,7 +690,7 @@
             this.createZIPsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1306, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1264, 24);
             this.menuStrip1.TabIndex = 5;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -695,22 +716,31 @@
             this.createZIPsToolStripMenuItem.Text = "Create ZIPs";
             this.createZIPsToolStripMenuItem.Click += new System.EventHandler(this.createZIPsToolStripMenuItem_Click);
             // 
-            // lblDIRomsNoDump
+            // chkBoxShowMissing
             // 
-            this.lblDIRomsNoDump.Location = new System.Drawing.Point(214, 121);
-            this.lblDIRomsNoDump.Name = "lblDIRomsNoDump";
-            this.lblDIRomsNoDump.Size = new System.Drawing.Size(92, 13);
-            this.lblDIRomsNoDump.TabIndex = 27;
-            this.lblDIRomsNoDump.Text = "ROMs NoDump :";
-            this.lblDIRomsNoDump.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.chkBoxShowMissing.AutoSize = true;
+            this.chkBoxShowMissing.Checked = true;
+            this.chkBoxShowMissing.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkBoxShowMissing.Location = new System.Drawing.Point(508, 27);
+            this.chkBoxShowMissing.Name = "chkBoxShowMissing";
+            this.chkBoxShowMissing.Size = new System.Drawing.Size(124, 17);
+            this.chkBoxShowMissing.TabIndex = 8;
+            this.chkBoxShowMissing.Text = "Show Missing ROMs";
+            this.chkBoxShowMissing.UseVisualStyleBackColor = true;
+            this.chkBoxShowMissing.CheckedChanged += new System.EventHandler(this.chkBoxShowMissing_CheckedChanged);
             // 
-            // lblDITRomsNoDump
+            // chkBoxShowCorrect
             // 
-            this.lblDITRomsNoDump.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblDITRomsNoDump.Location = new System.Drawing.Point(311, 120);
-            this.lblDITRomsNoDump.Name = "lblDITRomsNoDump";
-            this.lblDITRomsNoDump.Size = new System.Drawing.Size(120, 17);
-            this.lblDITRomsNoDump.TabIndex = 28;
+            this.chkBoxShowCorrect.AutoSize = true;
+            this.chkBoxShowCorrect.Checked = true;
+            this.chkBoxShowCorrect.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkBoxShowCorrect.Location = new System.Drawing.Point(508, 11);
+            this.chkBoxShowCorrect.Name = "chkBoxShowCorrect";
+            this.chkBoxShowCorrect.Size = new System.Drawing.Size(123, 17);
+            this.chkBoxShowCorrect.TabIndex = 7;
+            this.chkBoxShowCorrect.Text = "Show Correct ROMs";
+            this.chkBoxShowCorrect.UseVisualStyleBackColor = true;
+            this.chkBoxShowCorrect.CheckedChanged += new System.EventHandler(this.chkBoxShowCorrect_CheckedChanged);
             // 
             // DirTree
             // 
@@ -718,7 +748,7 @@
             this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.DirTree.Location = new System.Drawing.Point(0, 0);
             this.DirTree.Name = "DirTree";
-            this.DirTree.Size = new System.Drawing.Size(553, 626);
+            this.DirTree.Size = new System.Drawing.Size(533, 585);
             this.DirTree.TabIndex = 0;
             this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
             // 
@@ -726,7 +756,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1306, 802);
+            this.ClientSize = new System.Drawing.Size(1264, 761);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -747,6 +777,7 @@
             this.splitContainer3.ResumeLayout(false);
             this.gbDatInfo.ResumeLayout(false);
             this.splitContainer4.Panel1.ResumeLayout(false);
+            this.splitContainer4.Panel1.PerformLayout();
             this.splitContainer4.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
             this.splitContainer4.ResumeLayout(false);
@@ -817,6 +848,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CStatus;
         private System.Windows.Forms.Label lblDITRomsNoDump;
         private System.Windows.Forms.Label lblDIRomsNoDump;
+        private System.Windows.Forms.CheckBox chkBoxShowMissing;
+        private System.Windows.Forms.CheckBox chkBoxShowCorrect;
     }
 }
 

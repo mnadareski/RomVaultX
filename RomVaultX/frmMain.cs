@@ -49,6 +49,7 @@ namespace RomVaultX
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
+            DatSetSelected(DirTree.Selected);
         }
 
 
@@ -58,6 +59,7 @@ namespace RomVaultX
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
+            DatSetSelected(DirTree.Selected);
         }
 
         private void quickReScanToolStripMenuItem_Click(object sender, EventArgs e)
@@ -66,6 +68,7 @@ namespace RomVaultX
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
+            DatSetSelected(DirTree.Selected);
         }
 
         private FolderBrowserDialog outputDir;
@@ -383,6 +386,10 @@ namespace RomVaultX
         {
             int chkLeft = splitContainer4.Panel1.Width - 150;
             if (chkLeft < 430) chkLeft = 430;
+
+            chkBoxShowCorrect.Left = chkLeft;
+            chkBoxShowMissing.Left = chkLeft;
+
             gbSetInfo.Width = chkLeft - gbSetInfo.Left - 10;
         }
 
@@ -478,6 +485,15 @@ namespace RomVaultX
 
             foreach (RvGameGridRow row in rows)
             {
+                bool gCorrect = row.HasCorrect();
+                bool gMissing = row.HasMissing();
+
+                bool show = (chkBoxShowCorrect.Checked && gCorrect && !gMissing);
+                show = show || (chkBoxShowMissing.Checked && gMissing);
+                show = show || !(gCorrect || gMissing);
+                
+                if (!show) continue;
+
                 GameGrid.Rows.Add();
                 int iRow = GameGrid.Rows.Count - 1;
 
@@ -817,6 +833,30 @@ namespace RomVaultX
         }
 
         #endregion
+
+
+        private void DatSetSelected(RvTreeRow cf)
+        {
+            DirTree.Refresh();
+            GameGrid.Rows.Clear();
+            RomGrid.Rows.Clear();
+
+            if (cf == null)
+                return;
+
+            UpdateGameGrid(cf.DatId);
+        }
+
+
+        private void chkBoxShowCorrect_CheckedChanged(object sender, EventArgs e)
+        {
+            DatSetSelected(DirTree.Selected);
+        }
+
+        private void chkBoxShowMissing_CheckedChanged(object sender, EventArgs e)
+        {
+            DatSetSelected(DirTree.Selected);
+        }
 
     }
 }

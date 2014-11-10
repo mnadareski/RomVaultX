@@ -46,5 +46,15 @@ namespace RomVaultX.DB
             }
             return rows;
         }
+
+        public bool HasCorrect()
+        {
+            return RomGot > 0;
+        }
+
+        public bool HasMissing()
+        {
+            return RomTotal - RomNoDump - RomGot > 0;
+        }
     }
 }
