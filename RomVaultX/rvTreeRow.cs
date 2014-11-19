@@ -32,12 +32,12 @@ namespace RomVaultX
         public Rectangle RText;
 
         private static readonly SQLiteCommand CmdReadTree;
+        private static readonly SQLiteCommand CmdReadTreeZipRebuild;
         private static readonly SQLiteCommand CmdSetTreeExpanded;
 
         static RvTreeRow()
         {
-            CmdReadTree = new SQLiteCommand(
-         @"
+            CmdReadTree = new SQLiteCommand(@"
                     SELECT 
                         dir.DirId as DirId,
                         dir.name as dirname,
@@ -60,6 +60,7 @@ namespace RomVaultX
                     UPDATE dir SET expanded=@expanded WHERE DirId=@dirId", DataAccessLayer.DBConnection);
             CmdSetTreeExpanded.Parameters.Add(new SQLiteParameter("expanded"));
             CmdSetTreeExpanded.Parameters.Add(new SQLiteParameter("dirId"));
+
         }
         public static List<RvTreeRow> ReadTreeFromDB()
         {
@@ -184,6 +185,76 @@ namespace RomVaultX
                 }
                 dr.Close();
             }
+        }
+
+
+        public static List<RvTreeRow> ReadTreeFromDBZipRebuild(string baseDir)
+        {
+            List<RvTreeRow> rows = new List<RvTreeRow>();
+            
+            using (SQLiteDataReader dr = CmdReadTree.ExecuteReader())
+            {
+                bool multiDatDirFound = false;
+
+                RvTreeRow lastTree = null;
+                while (dr.Read())
+                {
+                    string dirName = dr["fullname"].ToString();
+                    if (dirName.Length < baseDir.Length)
+                        continue;
+                    if (dirName.Substring(0, baseDir.Length) != baseDir)
+                        continue;
+
+                    // a single DAT in a directory is just displayed in the tree at the same level as the directory
+                    RvTreeRow pTree = new RvTreeRow
+                    {
+                        DirId = Convert.ToUInt32(dr["DirId"]),
+                        dirName = dr["dirname"].ToString(),
+                        dirFullName = dr["fullname"].ToString(),
+                        Expanded = Convert.ToBoolean(dr["expanded"]),
+                        DatId = dr["DatId"] == DBNull.Value ? null : (uint?)Convert.ToUInt32(dr["DatId"]),
+                        datName = dr["datname"] == DBNull.Value ? null : dr["datname"].ToString(),
+                        description = dr["description"] == DBNull.Value ? null : dr["description"].ToString(),
+                        RomTotal = dr["RomTotal"] == DBNull.Value ? Convert.ToInt32(dr["dirRomTotal"]) : Convert.ToInt32(dr["RomTotal"]),
+                        RomGot = dr["RomGot"] == DBNull.Value ? Convert.ToInt32(dr["dirRomGot"]) : Convert.ToInt32(dr["RomGot"]),
+                        RomNoDump = dr["RomNoDump"] == DBNull.Value ? Convert.ToInt32(dr["dirNoDump"]) : Convert.ToInt32(dr["RomNoDump"]),
+                    };
+
+                    rows.Add(pTree);
+
+                    if (lastTree != null)
+                    {
+                        // if multiple DAT's are in the same directory then we should add another level in the tree to display the directory
+                        bool thisMultiDatDirFound = (lastTree.DirId == pTree.DirId);
+                        if (thisMultiDatDirFound && !multiDatDirFound)
+                        {
+                            // found a new multidat
+                            RvTreeRow dirTree = new RvTreeRow
+                            {
+                                DirId = lastTree.DirId,
+                                dirName = lastTree.dirName,
+                                dirFullName = lastTree.dirFullName,
+                                Expanded = lastTree.Expanded,
+                                DatId = null,
+                                datName = null,
+                                RomTotal = Convert.ToInt32(dr["dirRomTotal"]),
+                                RomGot = Convert.ToInt32(dr["dirRomGot"]),
+                                RomNoDump = Convert.ToInt32(dr["dirNoDump"])
+                            };
+                            rows.Insert(rows.Count - 2, dirTree);
+                            lastTree.MultiDatDir = true;
+                        }
+                        if (thisMultiDatDirFound)
+                            pTree.MultiDatDir = true;
+
+                        multiDatDirFound = thisMultiDatDirFound;
+                    }
+
+                    lastTree = pTree;
+                }
+            }
+
+            return rows;
         }
     }
 

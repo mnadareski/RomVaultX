@@ -77,11 +77,14 @@ namespace RomVaultX
             RvTreeRow selected = DirTree.Selected;
             if (selected == null)
                 return;
+
+            /*
             if (selected.DatId == null)
             {
                 MessageBox.Show("Select a DAT to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
+            */
             if (outputDir==null)
                 outputDir = new FolderBrowserDialog();
             
@@ -89,7 +92,7 @@ namespace RomVaultX
             if (result != DialogResult.OK)
                 return;
 
-            ReMakeZips.SetDatZipInfo(selected.DatId ?? 0, outputDir.SelectedPath);
+            ReMakeZips.SetDatZipInfo(selected, outputDir.SelectedPath);
 
             FrmProgressWindow progress = new FrmProgressWindow(this, "Extracting File To Zips", ReMakeZips.MakeDatZips);
             progress.ShowDialog(this);

@@ -194,7 +194,10 @@ namespace RomVaultX
                 if (ext.ToLower() == ".zip")
                 {
                     ZipFile fz = new ZipFile();
-                    fz.ZipFileOpen(f.FullName, f.LastWriteTime, true);
+                    ZipReturn zr=fz.ZipFileOpen(f.FullName, f.LastWriteTime, true);
+                    if (zr != ZipReturn.ZipGood)
+                        continue;
+
                     fz.DeepScan();
 
                     int FileUsedCount = 0;
@@ -243,8 +246,10 @@ namespace RomVaultX
                     fz.ZipFileClose();
 
                     if (FileUsedCount == fz.LocalFilesCount())
+                    {
+                        File.SetAttributes(f.FullName,FileAttributes.Normal);
                         File.Delete(f.FullName);
-
+                    }
                 }
                 else if (ext.ToLower() == ".gz")
                 {

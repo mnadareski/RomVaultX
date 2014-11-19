@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -17,13 +19,13 @@ namespace RomVaultX
         private static byte[] buffer = null;
         private static ulong BufferSize = 1024 * 1024;
 
-        private static uint _DatId = 0;
+        private static RvTreeRow _treeRow;
         private static string _outputdir;
 
         private static BackgroundWorker _bgw;
-        public static void SetDatZipInfo(uint DatId, string outputDir)
+        public static void SetDatZipInfo(RvTreeRow treeRow, string outputDir)
         {
-            _DatId = DatId;
+            _treeRow = treeRow;
             _outputdir = outputDir;
         }
 
@@ -37,26 +39,43 @@ namespace RomVaultX
                 return;
             }
 
-            if (_DatId == 0)
-                return;
-
             if (!Directory.Exists(_outputdir))
                 return;
 
-            ExtractZips();
+            //ExtractZips();
+            FindDats(_treeRow);
 
-            _DatId = 0;
-            _outputdir = "";
-            
             _bgw.ReportProgress(0, new bgwText("Creating Zips Complete"));
             _bgw = null;
             Program.SyncCont = null;
-        
-        
+
+
         }
 
+        private static void FindDats(RvTreeRow treeRow)
+        {
+            List<RvTreeRow> rows = RvTreeRow.ReadTreeFromDBZipRebuild(treeRow.dirFullName);
+            for (int i = 0; i < rows.Count; i++)
+            {
+                if (_bgw.CancellationPending)
+                    return;
 
-        private static void ExtractZips()
+                Debug.WriteLine(rows[i].dirName + " : " + rows[i].dirFullName);
+                if (rows[i].DatId == null)
+                    continue;
+
+                string localdir = rows[i].dirFullName;
+                localdir = localdir.Substring(treeRow.dirFullName.Length);
+                if (rows[i].MultiDatDir)
+                    localdir = Path.Combine(localdir, rows[i].datName);
+                Debug.WriteLine(localdir);
+                localdir = Path.Combine(_outputdir, localdir);
+
+                ExtractZips((uint)rows[i].DatId, localdir);
+            }
+        }
+
+        private static void ExtractZips(uint datId, string outDir)
         {
             if (buffer == null)
                 buffer = new byte[BufferSize];
@@ -65,9 +84,9 @@ namespace RomVaultX
             ZipReturn zr;
 
             RvDat tDat = new RvDat();
-            tDat.DBRead(_DatId, true);
+            tDat.DBRead(datId, true);
 
-            _bgw.ReportProgress(0,new bgwSetRange(tDat.Games.Count));
+            _bgw.ReportProgress(0, new bgwSetRange(tDat.Games.Count));
 
             for (int gIndex = 0; gIndex < tDat.Games.Count; gIndex++)
             {
@@ -76,7 +95,7 @@ namespace RomVaultX
 
                 RvGame tGame = tDat.Games[gIndex];
                 _bgw.ReportProgress(gIndex);
-                _bgw.ReportProgress(0,new bgwText("Creating zip : "+tGame.Name+".zip"));
+                _bgw.ReportProgress(0, new bgwText("Creating zip : " + tGame.Name + ".zip"));
 
                 bool romGot = false;
                 for (int rIndex = 0; rIndex < tGame.Roms.Count; rIndex++)
@@ -94,7 +113,7 @@ namespace RomVaultX
                 // export the rom;
 
                 ZipFile zipOut = new ZipFile();
-                string filename = Path.Combine(_outputdir, tGame.Name + ".zip");
+                string filename = Path.Combine(outDir, tGame.Name + ".zip");
                 filename = filename.Replace(@"/", @"\");
                 if (!Directory.Exists(filename))
                 {
@@ -104,7 +123,7 @@ namespace RomVaultX
                 zr = zipOut.ZipFileCreate(filename);
                 if (zr != ZipReturn.ZipGood)
                 {
-                    MessageBox.Show("Error creating " + Path.Combine(_outputdir, tGame.Name + ".zip") + " " + zr);
+                    MessageBox.Show("Error creating " + Path.Combine(outDir, tGame.Name + ".zip") + " " + zr);
                     return;
                 }
 
@@ -126,7 +145,7 @@ namespace RomVaultX
                         }
 
                         Stream outStream;
-                        zipOut.ZipFileOpenWriteStream(true, false, tRom.Name, sourceGZip.uncompressedSize, 8, out outStream);
+                        zipOut.ZipFileOpenWriteStream(true, true, tRom.Name, sourceGZip.uncompressedSize, 8, out outStream);
 
                         Stream gZipStream;
                         zr = sourceGZip.GetRawStream(out gZipStream);
