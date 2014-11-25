@@ -96,6 +96,9 @@ namespace RomVaultX
 
             FileInfo[] fis = di.GetFiles("*.DAT");
             _datCount += fis.Length;
+            
+            fis = di.GetFiles("*.XML");
+            _datCount += fis.Length;
         }
 
         private static void ReadDats(uint ParentId, string datRoot, string subPath)
@@ -112,6 +115,14 @@ namespace RomVaultX
             }
 
             FileInfo[] fis = di.GetFiles("*.DAT");
+            ReadDat(fis,subPath,ParentId);
+            
+            fis = di.GetFiles("*.XML");
+            ReadDat(fis, subPath, ParentId);
+        }
+
+        private static void ReadDat(FileInfo[] fis,string subPath,uint ParentId)
+        {
             foreach (FileInfo f in fis)
             {
                 _datsProcessed++;
@@ -134,8 +145,7 @@ namespace RomVaultX
 
                 if (_bgw.CancellationPending)
                     return;
-            }
-
+            }            
         }
     }
 }

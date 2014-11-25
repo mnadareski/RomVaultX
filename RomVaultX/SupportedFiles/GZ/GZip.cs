@@ -301,9 +301,9 @@ namespace RomVaultX.SupportedFiles.GZ
             if (_buffer == null)
                 _buffer = new byte[Buffersize];
 
+            ulong dataStartPos =(ulong) zipBw.BaseStream.Position;
             if (isCompressedStream)
             {
-
                 ulong sizetogo = compressedSize;
                 while (sizetogo > 0)
                 {
@@ -328,6 +328,7 @@ namespace RomVaultX.SupportedFiles.GZ
                 writeStream.Close();
                 writeStream.Dispose();
             }
+            compressedSize = (ulong)zipBw.BaseStream.Position - dataStartPos;
 
             zipBw.Write(crc[3]);
             zipBw.Write(crc[2]);

@@ -234,10 +234,13 @@ namespace RomVaultX
                             ulong compressedSize;
                             ushort method;
                             Stream zds;
+                            
                             fz.ZipFileOpenReadStream(i, isZipTrrntzip, out zds, out compressedSize, out method);
                             gz.compressedSize = compressedSize;
+
                             string outfile = Getfilename(tFile.SHA1);
                             gz.WriteGZip(outfile, zds, isZipTrrntzip);
+                            tFile.CompressedSize = gz.compressedSize;
                             fz.ZipFileCloseReadStream();
 
                             tFile.DBWrite();
@@ -262,7 +265,6 @@ namespace RomVaultX
                     tFile.MD5 = gZipTest.md5Hash;
                     tFile.SHA1 = gZipTest.sha1Hash;
                     tFile.Size = gZipTest.uncompressedSize;
-                    tFile.CompressedSize = gZipTest.compressedSize;
 
                     FindStatus res = fileneededTest(tFile);
 
@@ -285,16 +287,16 @@ namespace RomVaultX
                         ds.Dispose();
 
                         gZipTest.Close();
+                        tFile.CompressedSize = gz.compressedSize;
                         tFile.DBWrite();
                     }
 
+                    File.SetAttributes(f.FullName, FileAttributes.Normal);
                     File.Delete(f.FullName);
 
                 }
                 else
                 {
-
-
                     RvFile tFile = new RvFile();
                     int errorcode = UnCompFiles.CheckSumRead(f.FullName, true, out tFile.CRC, out tFile.MD5, out tFile.SHA1, out tFile.Size);
 
@@ -322,9 +324,11 @@ namespace RomVaultX
                         ds.Close();
                         ds.Dispose();
 
+                        tFile.CompressedSize = gz.compressedSize;
                         tFile.DBWrite();
                     }
 
+                    File.SetAttributes(f.FullName, FileAttributes.Normal);
                     File.Delete(f.FullName);
                 }
 
