@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -52,14 +53,52 @@ namespace RomVaultX
             DatSetSelected(DirTree.Selected);
         }
 
-
-        private void btnScanRoms_Click(object sender, EventArgs e)
+        private void btnScanRoms_MouseUp(object sender, MouseEventArgs e)
         {
+            if (e == null)
+                return;
+            if (e.Button == MouseButtons.Right)
+                setScanDir();
+            else
+                ToSortScanDir();
+        }
+
+        private FolderBrowserDialog sortDir;
+        private void scanADirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            setScanDir();
+        }
+
+        private void setScanDir()
+        {
+            if (sortDir == null)
+            {
+                sortDir = new FolderBrowserDialog {ShowNewFolderButton = false};
+            }
+
+            DialogResult result = sortDir.ShowDialog();
+            if (result != DialogResult.OK)
+                return;
+            romScanner.rootDir = sortDir.SelectedPath;
+            romScanner.delFiles = false;
+            DoScan();
+        }
+
+        private void ToSortScanDir()
+        {
+            romScanner.rootDir = @"ToSort";
+            romScanner.delFiles = true;      
+            DoScan();
+        }
+
+        private void DoScan()
+        {
+
             FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", romScanner.ScanFiles);
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
-            DatSetSelected(DirTree.Selected);
+            DatSetSelected(DirTree.Selected);            
         }
 
         private void quickReScanToolStripMenuItem_Click(object sender, EventArgs e)
@@ -72,22 +111,16 @@ namespace RomVaultX
         }
 
         private FolderBrowserDialog outputDir;
-        private void createZIPsToolStripMenuItem_Click(object sender, EventArgs e)
+
+        private void createDATZipsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RvTreeRow selected = DirTree.Selected;
             if (selected == null)
                 return;
 
-            /*
-            if (selected.DatId == null)
-            {
-                MessageBox.Show("Select a DAT to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            */
-            if (outputDir==null)
+            if (outputDir == null)
                 outputDir = new FolderBrowserDialog();
-            
+
             DialogResult result = outputDir.ShowDialog();
             if (result != DialogResult.OK)
                 return;
@@ -98,6 +131,42 @@ namespace RomVaultX
             progress.ShowDialog(this);
             progress.Dispose();
         }
+
+        private void createGameZipToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RvTreeRow selected = DirTree.Selected;
+            if (selected == null)
+                return;
+
+            if (selected.DatId == null)
+            {
+                MessageBox.Show("Select a DAT to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (GameGrid.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Select a Game to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            };
+
+             int GameId = (int)GameGrid.SelectedRows[0].Tag;
+
+            if (outputDir == null)
+                outputDir = new FolderBrowserDialog();
+
+            DialogResult result = outputDir.ShowDialog();
+            if (result != DialogResult.OK)
+                return;
+
+            ReMakeZips.SetDatZipInfo(GameId, outputDir.SelectedPath);
+
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Extracting File To Zips", ReMakeZips.MakeDatZips);
+            progress.ShowDialog(this);
+            progress.Dispose();
+
+        }
+
+
 
 
         private void DirTree_RvSelected(object sender, MouseEventArgs e)
@@ -860,6 +929,5 @@ namespace RomVaultX
         {
             DatSetSelected(DirTree.Selected);
         }
-
     }
 }

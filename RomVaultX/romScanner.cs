@@ -24,6 +24,9 @@ namespace RomVaultX
     {
         private static BackgroundWorker _bgw;
 
+        public static string rootDir = @"ToSort";
+        public static bool delFiles = true;
+
         public static void ScanFiles(object sender, DoWorkEventArgs e)
         {
             _bgw = sender as BackgroundWorker;
@@ -34,7 +37,7 @@ namespace RomVaultX
                 return;
             }
 
-            ScanADir(@"ToSort");
+            ScanADir(rootDir);
 
             DataAccessLayer.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
@@ -248,7 +251,7 @@ namespace RomVaultX
                     }
                     fz.ZipFileClose();
 
-                    if (FileUsedCount == fz.LocalFilesCount())
+                    if (delFiles && FileUsedCount == fz.LocalFilesCount())
                     {
                         File.SetAttributes(f.FullName,FileAttributes.Normal);
                         File.Delete(f.FullName);
@@ -291,9 +294,11 @@ namespace RomVaultX
                         tFile.DBWrite();
                     }
 
-                    File.SetAttributes(f.FullName, FileAttributes.Normal);
-                    File.Delete(f.FullName);
-
+                    if (delFiles)
+                    {
+                        File.SetAttributes(f.FullName, FileAttributes.Normal);
+                        File.Delete(f.FullName);
+                    }
                 }
                 else
                 {
@@ -328,8 +333,11 @@ namespace RomVaultX
                         tFile.DBWrite();
                     }
 
-                    File.SetAttributes(f.FullName, FileAttributes.Normal);
-                    File.Delete(f.FullName);
+                    if (delFiles)
+                    {
+                        File.SetAttributes(f.FullName, FileAttributes.Normal);
+                        File.Delete(f.FullName);
+                    }
                 }
 
             }
@@ -342,9 +350,7 @@ namespace RomVaultX
                 ScanADir(d.FullName);
             }
 
-            if (directory == "ToSort")
-                return;
-            if (IsDirectoryEmpty(directory))
+            if (directory!=rootDir && IsDirectoryEmpty(directory))
                 Directory.Delete(directory);
         }
 

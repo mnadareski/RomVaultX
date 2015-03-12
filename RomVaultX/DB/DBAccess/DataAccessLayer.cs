@@ -39,7 +39,7 @@ namespace RomVaultX.DB
             MakeTriggers();
             MakeIndex();
 
-            ExecuteNonQuery("PRAGMA journal_mode= MEMORY");
+            //ExecuteNonQuery("PRAGMA journal_mode= MEMORY");
             ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
 
 
@@ -275,7 +275,6 @@ namespace RomVaultX.DB
                 CREATE INDEX IF NOT EXISTS [DATDIRID]       ON [DAT]   ([DirId]       ASC);
                 CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);
             ");
-
         }
 
         public static void UpdateGotTotal()

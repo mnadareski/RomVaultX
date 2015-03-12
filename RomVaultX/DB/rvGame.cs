@@ -47,7 +47,7 @@ namespace RomVaultX.DB
               @"INSERT INTO GAME ( DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber)
                           VALUES (@DatId,@Name,@Description,@Manufacturer,@CloneOf,@RomOf,@SourceFile,@IsBios,@Board,@Year,@IsTrurip,@Publisher,@Developer,@Edition,@Version,@Type,@Media,@Language,@Players,@Ratings,@Genre,@Peripheral,@BarCode,@MediaCatalogNumber);
 
-                SELECT last_insert_rowid();",DataAccessLayer.DBConnection);
+                SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
 
             SqlWrite.Parameters.Add(new SQLiteParameter("DatId")); //DatId;
             SqlWrite.Parameters.Add(new SQLiteParameter("Name")); //Name;
@@ -127,7 +127,7 @@ namespace RomVaultX.DB
                 );");
         }
 
-        public void DBRead(int gameId)
+        public void DBRead(int gameId, bool readRoms = false)
         {
             SqlRead.Parameters["GameId"].Value = gameId;
 
@@ -135,7 +135,7 @@ namespace RomVaultX.DB
             {
                 if (dr.Read())
                 {
-                    ReadFromReader(dr);
+                    ReadFromReader(dr, readRoms);
                 }
                 dr.Close();
             }
@@ -238,15 +238,24 @@ namespace RomVaultX.DB
             }
         }
 
-        public void AddRom(RvRom rvRom)
+        public int AddRom(RvRom rvRom)
         {
             if (Roms == null)
                 Roms = new List<RvRom>();
 
             Roms.Add(rvRom);
+            return Roms.Count - 1;
         }
 
+        public int RomCount
+        {
+            get { return Roms == null ? 0 : Roms.Count; }
+        }
 
+        public RvRom Get(int index)
+        {
+            return Roms[index];
+        }
     }
 
 

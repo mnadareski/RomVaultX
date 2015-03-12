@@ -11,7 +11,7 @@ namespace RomVaultX.DatReader
 
         private static BackgroundWorker _bgw;
 
-        public static bool ReadDat(string fullname, long fileTimeStamp, BackgroundWorker bgw,out RvDat rvDat)
+        public static bool ReadDat(string fullname, long fileTimeStamp, BackgroundWorker bgw, out RvDat rvDat)
         {
             _bgw = bgw;
 
@@ -67,7 +67,7 @@ namespace RomVaultX.DatReader
 
 
 
-        private static bool ReadXMLDat(string fullname,long fileTimeStamp,out RvDat rvDat)
+        private static bool ReadXMLDat(string fullname, long fileTimeStamp, out RvDat rvDat)
         {
             rvDat = null;
             Stream fs;
@@ -98,18 +98,18 @@ namespace RomVaultX.DatReader
 
             XmlNode mame = doc.SelectSingleNode("mame");
             if (mame != null)
-                return DatXmlReader.ReadMameDat(doc,fullname,fileTimeStamp,out rvDat);
+                return DatXmlReader.ReadMameDat(doc, fullname, fileTimeStamp, out rvDat);
 
             if (doc.DocumentElement != null)
             {
                 XmlNode head = doc.DocumentElement.SelectSingleNode("header");
                 if (head != null)
-                    return DatXmlReader.ReadDat(doc,fullname,fileTimeStamp,out rvDat);
+                    return DatXmlReader.ReadDat(doc, fullname, fileTimeStamp, out rvDat);
             }
 
             XmlNodeList headList = doc.SelectNodes("softwarelist");
-            //if (headList != null)
-            //    return DatMessXmlReader.ReadDat(doc);
+            if (headList != null)
+                return DatMessXmlReader.ReadDat(doc, fullname, fileTimeStamp, out rvDat);
 
             return false;
         }

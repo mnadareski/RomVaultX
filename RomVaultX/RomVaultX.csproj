@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackGroundWorkerInterface.cs" />
+    <Compile Include="DatReader\DatMessXmlReader.cs" />
     <Compile Include="DB\DBAccess\FindAFile.cs" />
     <Compile Include="DB\DBAccess\FindExistingDAT.cs" />
     <Compile Include="DB\DBAccess\FindInFiles.cs" />
