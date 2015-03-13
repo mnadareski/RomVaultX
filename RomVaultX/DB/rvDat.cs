@@ -53,7 +53,7 @@ namespace RomVaultX.DB
 
             SqlRead = new SQLiteCommand(
              @"SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment 
-                FROM DAT WHERE DatId=@datId", DataAccessLayer.DBConnection);
+                FROM DAT WHERE DatId=@datId ORDER BY Filename", DataAccessLayer.DBConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("datId"));
 
         }

@@ -109,6 +109,14 @@ namespace RomVaultX
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
             DatSetSelected(DirTree.Selected);
         }
+        private void deepReScanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning RomRoot Files", romRootScanner.ScanFilesDeep);
+            progress.ShowDialog(this);
+            progress.Dispose();
+            DirTree.Setup(RvTreeRow.ReadTreeFromDB());
+            DatSetSelected(DirTree.Selected);
+        }
 
         private FolderBrowserDialog outputDir;
 
@@ -929,5 +937,12 @@ namespace RomVaultX
         {
             DatSetSelected(DirTree.Selected);
         }
+
+        private void romRootScanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+   
     }
 }

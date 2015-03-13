@@ -60,7 +60,7 @@ namespace RomVaultX.DB
                     files.crc as filecrc,
                     files.sha1 as filesha1,
                     files.md5 as filemd5
-                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId", DataAccessLayer.DBConnection);
+                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY name", DataAccessLayer.DBConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
         }
 

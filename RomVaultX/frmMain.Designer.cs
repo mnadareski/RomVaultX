@@ -63,7 +63,6 @@
             this.lblDITDescription = new System.Windows.Forms.Label();
             this.lblDITName = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.DirTree = new RomVaultX.RvTree();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.chkBoxShowMissing = new System.Windows.Forms.CheckBox();
             this.chkBoxShowCorrect = new System.Windows.Forms.CheckBox();
@@ -92,6 +91,8 @@
             this.createDATZipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createGameZipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanADirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DirTree = new RomVaultX.RvTree();
+            this.deepReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -423,16 +424,6 @@
             this.label8.Text = "ROMs Missing :";
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // DirTree
-            // 
-            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DirTree.Location = new System.Drawing.Point(0, 0);
-            this.DirTree.Name = "DirTree";
-            this.DirTree.Size = new System.Drawing.Size(533, 585);
-            this.DirTree.TabIndex = 0;
-            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
-            // 
             // splitContainer4
             // 
             this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -737,10 +728,12 @@
             // romRootScanToolStripMenuItem
             // 
             this.romRootScanToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.quickReScanToolStripMenuItem});
+            this.quickReScanToolStripMenuItem,
+            this.deepReScanToolStripMenuItem});
             this.romRootScanToolStripMenuItem.Name = "romRootScanToolStripMenuItem";
             this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
             this.romRootScanToolStripMenuItem.Text = "RomRoot";
+            this.romRootScanToolStripMenuItem.Click += new System.EventHandler(this.romRootScanToolStripMenuItem_Click);
             // 
             // quickReScanToolStripMenuItem
             // 
@@ -778,6 +771,23 @@
             this.scanADirToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
             this.scanADirToolStripMenuItem.Text = "Scan A Dir";
             this.scanADirToolStripMenuItem.Click += new System.EventHandler(this.scanADirToolStripMenuItem_Click);
+            // 
+            // DirTree
+            // 
+            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DirTree.Location = new System.Drawing.Point(0, 0);
+            this.DirTree.Name = "DirTree";
+            this.DirTree.Size = new System.Drawing.Size(533, 585);
+            this.DirTree.TabIndex = 0;
+            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
+            // 
+            // deepReScanToolStripMenuItem
+            // 
+            this.deepReScanToolStripMenuItem.Name = "deepReScanToolStripMenuItem";
+            this.deepReScanToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.deepReScanToolStripMenuItem.Text = "Deep ReScan";
+            this.deepReScanToolStripMenuItem.Click += new System.EventHandler(this.deepReScanToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -880,6 +890,7 @@
         private System.Windows.Forms.ToolStripMenuItem scanADirToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createDATZipsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createGameZipToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deepReScanToolStripMenuItem;
     }
 }
 

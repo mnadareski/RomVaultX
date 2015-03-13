@@ -80,12 +80,12 @@ namespace RomVaultX.DB
 
             SqlRead = new SQLiteCommand(
                 @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE GameId=@GameId", DataAccessLayer.DBConnection);
+                    FROM GAME WHERE GameId=@GameId ORDER BY name", DataAccessLayer.DBConnection);
             SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
 
             SqlReadGames = new SQLiteCommand(
                 @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE DatId=@DatId", DataAccessLayer.DBConnection);
+                    FROM GAME WHERE DatId=@DatId ORDER BY name", DataAccessLayer.DBConnection);
             SqlReadGames.Parameters.Add(new SQLiteParameter("DatId"));
 
         }
