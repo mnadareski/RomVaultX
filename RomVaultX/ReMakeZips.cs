@@ -65,6 +65,17 @@ namespace RomVaultX
 
         private static void FindDats(RvTreeRow treeRow)
         {
+            if (treeRow.DatId != null)
+            {
+                string localdir = treeRow.dirFullName;
+                localdir = localdir.Substring(treeRow.dirFullName.Length);
+                Debug.WriteLine(localdir);
+                localdir = Path.Combine(_outputdir, localdir);
+                ExtractZips((uint)treeRow.DatId, localdir);
+                return;
+            }
+
+
             List<RvTreeRow> rows = RvTreeRow.ReadTreeFromDBZipRebuild(treeRow.dirFullName);
             for (int i = 0; i < rows.Count; i++)
             {
