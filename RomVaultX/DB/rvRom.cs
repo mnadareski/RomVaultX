@@ -99,12 +99,12 @@ namespace RomVaultX.DB
                         GameId = gameId,
                         Name = dr["name"].ToString(),
                         Size = FixLong(dr["size"]),
-                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8), 
+                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8),
                         SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
                         MD5 = VarFix.CleanMD5SHA1(dr["MD5"].ToString(), 32),
-                        Merge = dr["merge"].ToString(), 
+                        Merge = dr["merge"].ToString(),
                         Status = dr["status"].ToString(),
-                        FileId = FixLong(dr["FileId"]), 
+                        FileId = FixLong(dr["FileId"]),
                         fileSize = FixLong(dr["fileSize"]),
                         fileCompressedSize = FixLong(dr["fileCompressedSize"]),
                         fileCRC = VarFix.CleanMD5SHA1(dr["fileCRC"].ToString(), 8),
@@ -126,7 +126,7 @@ namespace RomVaultX.DB
 
         public void DBWrite()
         {
-            FileId = FindAFile.Execute(this);
+            FileId = DatUpdate.FirstTimeDatLoad ? null : FindAFile.Execute(this);
 
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;

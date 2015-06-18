@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.Drawing.Text;
 using RomVaultX.IO;
 using Convert = System.Convert;
 
@@ -14,7 +15,7 @@ namespace RomVaultX.DB
         private static readonly SQLiteCommand CmdCleanupNotFoundDATs;
 
         private const int DBVersion = 6;
-        private static readonly string DirFilename = @"C:\RomVaultX\rom" + DBVersion + ".db";
+        private static readonly string DirFilename = @"C:\RomvaultX\rom" + DBVersion + ".db3";
         //private static readonly string DirFilename = @":memory:";
 
 
@@ -39,6 +40,7 @@ namespace RomVaultX.DB
             MakeTriggers();
             MakeIndex();
 
+            ExecuteNonQuery("PRAGMA temp_store = MEMORY");
             //ExecuteNonQuery("PRAGMA journal_mode= MEMORY");
             ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
 
@@ -140,6 +142,7 @@ namespace RomVaultX.DB
             RvFile.MakeDB();
 
         }
+
         private static void MakeTriggers()
         {
             /**** FILE Triggers ****/
@@ -148,7 +151,7 @@ namespace RomVaultX.DB
                 DROP TRIGGER IF EXISTS [FileInsert];
                 ");
 
-          
+
 
             /*DELETE*/
             ExecuteNonQuery(@"
@@ -161,7 +164,7 @@ namespace RomVaultX.DB
                 END;
             ");
 
-            
+
             //**** ROM Triggers ****
             //INSERT
             ExecuteNonQuery(@"
@@ -253,10 +256,9 @@ namespace RomVaultX.DB
                             DatId=New.DatId;
                 END;
             ");
-            
         }
 
-        private static void MakeIndex()
+        public static void MakeIndex()
         {
             ExecuteNonQuery(@"
                 CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]        ASC);
@@ -275,6 +277,17 @@ namespace RomVaultX.DB
                 CREATE INDEX IF NOT EXISTS [DATDIRID]       ON [DAT]   ([DirId]       ASC);
                 CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);
             ");
+        }
+        public static void DropIndex()
+        {
+
+            ExecuteNonQuery(@"
+                DROP INDEX IF EXISTS [ROMSHA1Index];
+                DROP INDEX IF EXISTS [ROMMD5Index];
+                DROP INDEX IF EXISTS [ROMCRCIndex];
+                DROP INDEX IF EXISTS [ROMSizeIndex];
+                DROP INDEX IF EXISTS [ROMFileIdIndex];
+                DROP INDEX IF EXISTS [ROMGameId];");
         }
 
         public static void UpdateGotTotal()
@@ -324,7 +337,7 @@ namespace RomVaultX.DB
 
             } while (nullcount > 0);
         }
-        
+
 
         public static void ClearFoundDATs()
         {

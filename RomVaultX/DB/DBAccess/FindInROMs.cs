@@ -69,7 +69,7 @@ namespace RomVaultX.DB.DBAccess
                 CommandZero.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
                 CommandZero.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
 
-                object resZero = Command.ExecuteScalar();
+                object resZero = CommandZero.ExecuteScalar();
 
                 if (resZero == null || resZero == DBNull.Value)
                     return false;
