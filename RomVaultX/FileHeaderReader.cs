@@ -64,6 +64,7 @@ namespace RomVaultX
                 new Detector(FileType.GZ, 18, 0, new Data(0, new byte[] {0x1f, 0x8b, 0x08})), 
                 new Detector(FileType.SevenZip, 6, 0, new Data(0, new byte[] {0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C})), 
                 new Detector(FileType.RAR, 6, 0, new Data(0, new byte[] {0x52, 0x61, 0x72, 0x21, 0x1A, 0x07})), 
+           
                 new Detector(FileType.CHD, 76, 0, new Data(0, new byte[] {(byte) 'M', (byte) 'C', (byte) 'o', (byte) 'm', (byte) 'p', (byte) 'r', (byte) 'H', (byte) 'D'})),
                 new Detector(FileType.Lynx, 40, 40, new Data(0, new byte[] {0x4C, 0x59, 0x4E, 0x58})),
                 new Detector(FileType.NES, 10, 10, new Data(0, new byte[] {0x04E, 0x45, 0x53}))

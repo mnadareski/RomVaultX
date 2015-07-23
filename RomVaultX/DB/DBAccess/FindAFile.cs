@@ -93,14 +93,11 @@ namespace RomVaultX.DB.DBAccess
             DataAccessLayer.ExecuteNonQuery(@"
                 INSERT INTO memdb.FILESMEM SELECT FileId,size,crc,sha1,md5 FROM FILES");
 
-
-            SQLiteCommand count = new SQLiteCommand("SELECT COUNT(1) FROM memdb.FILESMEM LIMIT 1",DataAccessLayer.DBConnection);
+            SQLiteCommand count = new SQLiteCommand("SELECT COUNT(1) FROM memdb.FILESMEM LIMIT 1", DataAccessLayer.DBConnection);
             object res = count.ExecuteScalar();
             if (res == null || res == DBNull.Value)
                 return true;
             return Convert.ToInt32(res) == 0;
-
-
         }
 
         public static uint? Execute(RvRom tFile)

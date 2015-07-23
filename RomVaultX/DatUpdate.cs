@@ -12,7 +12,7 @@ namespace RomVaultX
         private static int _datCount;
         private static int _datsProcessed;
         private static BackgroundWorker _bgw;
-        public static bool FirstTimeDatLoad;
+        public static bool NoFilesInDB;
 
         public static void ShowDat(string message, string filename)
         {
@@ -39,46 +39,49 @@ namespace RomVaultX
                     _bgw = null;
                     return;
                 }
-                
+
                 _bgw.ReportProgress(0, new bgwText("Clearing Found DAT List"));
                 DataAccessLayer.ClearFoundDATs();
 
                 const string datRoot = @"";
                 uint DirId = FindOrInsert.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
-                _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
-                DataAccessLayer.DropIndex();
-                
                 _bgw.ReportProgress(0, new bgwText("Pull File DB into memory"));
-                FirstTimeDatLoad = FindAFile.copyDBtoMem();
-                
+                NoFilesInDB = FindAFile.copyDBtoMem();
+
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
                 DatCount(datRoot, "DatRoot");
 
+                int dbDatCount = DataAccessLayer.DatDBCount();
+                bool dropIndex = false;
+
+                dropIndex = (_datCount - dbDatCount > 10);
+
+                if (dropIndex)
+                {
+                    _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
+                    DataAccessLayer.DropIndex();
+                }
+
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
                 _datsProcessed = 0;
 
-
-                
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
-                //DataAccessLayer.ExecuteNonQuery("BEGIN");
                 ReadDats(DirId, datRoot, "DatRoot");
-                //DataAccessLayer.ExecuteNonQuery("COMMIT");
-                
-                _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
-                //DataAccessLayer.ExecuteNonQuery("BEGIN");
-                DataAccessLayer.RemoveNotFoundDATs();
-                //DataAccessLayer.ExecuteNonQuery("COMMIT");
 
-                _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
-                DataAccessLayer.MakeIndex();
-                
+                _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
+                DataAccessLayer.RemoveNotFoundDATs();
+
+                if (dropIndex)
+                {
+                    _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
+                    DataAccessLayer.MakeIndex();
+                }
+
                 _bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
-                //DataAccessLayer.ExecuteNonQuery("BEGIN");
                 DataAccessLayer.UpdateGotTotal();
-                //DataAccessLayer.ExecuteNonQuery("COMMIT");
-                
+
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
                 Program.SyncCont = null;
@@ -103,7 +106,7 @@ namespace RomVaultX
 
             FileInfo[] fis = di.GetFiles("*.DAT");
             _datCount += fis.Length;
-            
+
             fis = di.GetFiles("*.XML");
             _datCount += fis.Length;
         }
@@ -122,13 +125,13 @@ namespace RomVaultX
             }
 
             FileInfo[] fis = di.GetFiles("*.DAT");
-            ReadDat(fis,subPath,ParentId);
-            
+            ReadDat(fis, subPath, ParentId);
+
             fis = di.GetFiles("*.XML");
             ReadDat(fis, subPath, ParentId);
         }
 
-        private static void ReadDat(FileInfo[] fis,string subPath,uint ParentId)
+        private static void ReadDat(FileInfo[] fis, string subPath, uint ParentId)
         {
             foreach (FileInfo f in fis)
             {
@@ -152,7 +155,7 @@ namespace RomVaultX
 
                 if (_bgw.CancellationPending)
                     return;
-            }            
+            }
         }
     }
 }

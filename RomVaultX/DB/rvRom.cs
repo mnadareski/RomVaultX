@@ -126,7 +126,7 @@ namespace RomVaultX.DB
 
         public void DBWrite()
         {
-            FileId = DatUpdate.FirstTimeDatLoad ? null : FindAFile.Execute(this);
+            FileId = DatUpdate.NoFilesInDB ? null : FindAFile.Execute(this);
 
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;

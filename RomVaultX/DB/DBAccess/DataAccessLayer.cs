@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SQLite;
-using System.Drawing.Text;
 using RomVaultX.IO;
 using Convert = System.Convert;
 
@@ -13,6 +12,8 @@ namespace RomVaultX.DB
         private static readonly SQLiteCommand CmdClearfoundDirDATs;
 
         private static readonly SQLiteCommand CmdCleanupNotFoundDATs;
+
+        private static readonly SQLiteCommand CmdCountDATs;
 
         private const int DBVersion = 6;
         private static readonly string DirFilename = @"C:\RomvaultX\rom" + DBVersion + ".db3";
@@ -73,6 +74,8 @@ namespace RomVaultX.DB
                 delete from dir where found=0;
             ", Connection);
 
+
+            CmdCountDATs = new SQLiteCommand(@"select count(1) from dat", Connection);
         }
 
 
@@ -191,7 +194,7 @@ namespace RomVaultX.DB
                     UPDATE GAME SET
                         RomTotal = RomTotal - 1,
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
-                        RomNoDump = RomNoDump - (Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null)
+                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null),0))
                     WHERE 
                         Game.GameId = Old.GameId;
                 END;
@@ -347,6 +350,18 @@ namespace RomVaultX.DB
         public static void RemoveNotFoundDATs()
         {
             CmdCleanupNotFoundDATs.ExecuteNonQuery();
+        }
+
+        public static int DatDBCount()
+        {
+            CmdCountDATs.ExecuteScalar();
+
+            object res = CmdCountDATs.ExecuteScalar();
+
+            if (res != null && res != DBNull.Value)
+                return Convert.ToInt32(res);
+
+            return 0;
         }
     }
 }

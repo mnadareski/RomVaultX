@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using RomVaultX.DB;
 
 namespace RomVaultX
@@ -32,7 +31,6 @@ namespace RomVaultX
         public Rectangle RText;
 
         private static readonly SQLiteCommand CmdReadTree;
-        private static readonly SQLiteCommand CmdReadTreeZipRebuild;
         private static readonly SQLiteCommand CmdSetTreeExpanded;
 
         static RvTreeRow()

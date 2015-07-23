@@ -91,11 +91,6 @@ namespace RomVaultX
             {
                 ZipFile fz = new ZipFile();
                 fz.ZipFileOpen(f.FullName, f.LastWriteTime, true);
-                //if (fz.ZipStatus == ZipStatus.TrrntZip)
-                //{
-
-                //}
-                //else
                 {
                     for (int i = 0; i < fz.LocalFilesCount(); i++)
                     {
