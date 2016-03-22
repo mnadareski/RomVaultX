@@ -155,10 +155,10 @@ namespace RomVaultX.DB
                     [sha1] VARCHAR(40) NULL,
                     [md5] VARCHAR(32) NULL,
                     [alttype] VARCHAR(8) NULL,
-                    [altsize] INTEGER NOT NULL,
+                    [altsize] INTEGER NULL,
                     [altcrc] VARCHAR(8) NULL,
                     [altsha1] VARCHAR(40) NULL,
-                    [altmd5] VARCHAR(32) NULL,
+                    [altmd5] VARCHAR(32) NULL
                 );
             ");
         }

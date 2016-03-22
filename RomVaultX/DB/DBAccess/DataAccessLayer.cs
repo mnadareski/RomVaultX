@@ -16,7 +16,7 @@ namespace RomVaultX.DB
         private static readonly SQLiteCommand CmdCountDATs;
 
         private const int DBVersion = 6;
-        private static readonly string DirFilename = @"C:\RomvaultX\rom" + DBVersion + ".db3";
+        private static readonly string DirFilename = @"rom" + DBVersion + ".db3";
         //private static readonly string DirFilename = @":memory:";
 
 
@@ -194,7 +194,7 @@ namespace RomVaultX.DB
                     UPDATE GAME SET
                         RomTotal = RomTotal - 1,
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
-                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null),0))
+                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null,0))
                     WHERE 
                         Game.GameId = Old.GameId;
                 END;
