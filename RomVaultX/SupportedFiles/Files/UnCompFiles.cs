@@ -99,7 +99,6 @@ namespace RomVaultX.SupportedFiles.Files
                 md5.TransformBlock(Buffer, 0, sizenow, null, 0);
                 sha1.TransformBlock(Buffer, 0, sizenow, null, 0);
                 sizetogo -= sizenow;
-
             }
 
             while (sizetogo > 0)
@@ -117,7 +116,6 @@ namespace RomVaultX.SupportedFiles.Files
                     altMd5.TransformBlock(Buffer, 0, sizenow, null, 0);
                     altSha1.TransformBlock(Buffer, 0, sizenow, null, 0);
                 }
-
                 sizetogo -= sizenow;
             }
 

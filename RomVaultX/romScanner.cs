@@ -60,9 +60,10 @@ namespace RomVaultX
             RvFile tFile = UnCompFiles.CheckSumRead(fStream, offset);
             tFile.AltType = foundFileType;
 
+
             if (foundFileType == FileType.CHD)
             {
-                // need to validate check the CHD file
+                // read altheader values from CHD file.
             }
 
             // test if needed.
@@ -71,11 +72,8 @@ namespace RomVaultX
             if (res == FindStatus.FileNeededInArchive)
             {
                 Debug.WriteLine("Reading file as "+tFile.SHA1);
-                GZip gz = new GZip();
-                gz.crc = tFile.CRC;
-                gz.md5Hash = tFile.MD5;
-                gz.sha1Hash = tFile.SHA1;
-                gz.uncompressedSize = tFile.Size;
+                GZip gz = new GZip(tFile);
+               
 
                 Stream ds;
                 IO.FileStream.OpenFileRead(f.FullName, out ds);
@@ -375,7 +373,13 @@ namespace RomVaultX
             if (inFileDB) return FindStatus.FoundFileInArchive;
 
             // now check if needed in any ROMs
-            return FindInROMs.Execute(tFile) ? FindStatus.FileNeededInArchive : FindStatus.FileUnknown;
+            if (FindInROMs.Execute(tFile))
+                return FindStatus.FileNeededInArchive;
+            
+            if (FileHeaderReader.AltHeaderFile(tFile.AltType) && FindInROMs.ExecuteAlt(tFile))
+                return FindStatus.FileNeededInArchive;
+            
+            return FindStatus.FileUnknown;
         }
     }
 }

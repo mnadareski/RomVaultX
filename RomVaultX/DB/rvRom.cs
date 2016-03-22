@@ -12,6 +12,7 @@ namespace RomVaultX.DB
         public uint GameId;
         public string Name;
         public ulong? Size;
+        public FileType altType;
         public byte[] CRC;
         public byte[] SHA1;
         public byte[] MD5;
@@ -32,13 +33,14 @@ namespace RomVaultX.DB
         static RvRom()
         {
             SqlWrite = new SQLiteCommand(
-                @"INSERT INTO ROM  ( GameId, name, size, crc, sha1, md5, merge, status,FileId)
-                            VALUES (@GameId,@Name,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
+                @"INSERT INTO ROM  ( GameId, name,type, size, crc, sha1, md5, merge, status,FileId)
+                            VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
 
                 SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
 
             SqlWrite.Parameters.Add(new SQLiteParameter("GameId"));
             SqlWrite.Parameters.Add(new SQLiteParameter("Name"));
+            SqlWrite.Parameters.Add(new SQLiteParameter("Type"));
             SqlWrite.Parameters.Add(new SQLiteParameter("Size"));
             SqlWrite.Parameters.Add(new SQLiteParameter("CRC"));
             SqlWrite.Parameters.Add(new SQLiteParameter("SHA1"));
@@ -49,6 +51,7 @@ namespace RomVaultX.DB
 
             SqlRead = new SQLiteCommand(
                 @"SELECT RomId,name,
+                    type,
                     rom.size,
                     rom.crc,
                     rom.sha1,
@@ -72,6 +75,7 @@ namespace RomVaultX.DB
                     [RomId] INTEGER PRIMARY KEY NOT NULL,
                     [GameId] INTEGER NOT NULL,
                     [name] NVARCHAR(320) NOT NULL,
+                    [type] VARCHAR(8) NULL,
                     [size] INTEGER NULL,
                     [crc] VARCHAR(8) NULL,
                     [sha1] VARCHAR(40) NULL,
@@ -98,6 +102,7 @@ namespace RomVaultX.DB
                         RomId = Convert.ToUInt32(dr["RomId"]),
                         GameId = gameId,
                         Name = dr["name"].ToString(),
+                        altType = (FileType)FixLong(dr["type"]),
                         Size = FixLong(dr["size"]),
                         CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8),
                         SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
@@ -130,6 +135,7 @@ namespace RomVaultX.DB
 
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;
+            SqlWrite.Parameters["type"].Value = altType;
             SqlWrite.Parameters["size"].Value = Size;
             SqlWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
             SqlWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);

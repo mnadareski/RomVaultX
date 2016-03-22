@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using RomVaultX.DB;
 
 namespace RomVaultX
 {
@@ -10,7 +11,9 @@ namespace RomVaultX
         GZ,
         SevenZip,
         RAR,
+
         CHD,
+
         A7800,
         Lynx,
         NES
@@ -71,6 +74,10 @@ namespace RomVaultX
             };
         }
 
+        public static bool AltHeaderFile(FileType fileType)
+        {
+            return fileType == FileType.Lynx || fileType == FileType.NES;
+        }
      
         public static FileType GetType(Stream sIn,out int offset)
         {

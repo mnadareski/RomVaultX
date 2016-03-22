@@ -1,25 +1,47 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using RomVaultX.DB;
 using RomVaultX.SupportedFiles.Zip.ZLib;
 
 namespace RomVaultX.SupportedFiles.GZ
 {
     public class GZip
     {
-
         const int Buffersize = 4096 * 128;
         private static byte[] _buffer;
 
         private string _filename;
-        public byte[] sha1Hash;
-        public byte[] md5Hash;
         public byte[] crc;
+        public byte[] sha1Hash;         
+        public byte[] md5Hash;
+        public FileType altType;
+        public byte[] altcrc;
+        public byte[] altsha1Hash;
+        public byte[] altmd5Hash;
+
         public ulong uncompressedSize;
+        public ulong? uncompressedAltSize;
         public ulong compressedSize;
         public long datapos;
 
         private Stream _zipFs;
+
+        public GZip()
+        { }
+
+        public GZip(RvFile tFile)
+        {
+            altType = tFile.AltType;
+            crc = tFile.CRC;
+            md5Hash = tFile.MD5;
+            sha1Hash = tFile.SHA1;
+            uncompressedSize = tFile.Size;
+            altcrc = tFile.AltCRC;
+            altsha1Hash = tFile.AltSHA1;
+            altmd5Hash = tFile.AltMD5;
+            uncompressedAltSize = tFile.AltSize;
+        }
 
         public ZipReturn ReadGZip(string filename, bool deepScan)
         {
@@ -70,11 +92,20 @@ namespace RomVaultX.SupportedFiles.GZ
 
                 if (XLen == 28)
                 {
-                    md5Hash = new byte[16];
-                    Array.Copy(bytes, 0, md5Hash, 0, 16);
-                    crc = new byte[4];
-                    Array.Copy(bytes, 16, crc, 0, 4);
+                    md5Hash = new byte[16]; Array.Copy(bytes, 0, md5Hash, 0, 16);
+                    crc = new byte[4]; Array.Copy(bytes, 16, crc, 0, 4);
                     uncompressedSize = BitConverter.ToUInt64(bytes, 20);
+                }
+                if (XLen == 77)
+                {
+                    md5Hash = new byte[16]; Array.Copy(bytes, 0, md5Hash, 0, 16);
+                    crc = new byte[4]; Array.Copy(bytes, 16, crc, 0, 4);
+                    uncompressedSize = BitConverter.ToUInt64(bytes, 20);
+                    altType = (FileType)bytes[28];
+                    altmd5Hash = new byte[16]; Array.Copy(bytes, 29, altmd5Hash, 0, 16);
+                    altsha1Hash = new byte[20]; Array.Copy(bytes, 45, altmd5Hash, 0, 20);
+                    altcrc = new byte[4]; Array.Copy(bytes, 65, altcrc, 0, 4);
+                    uncompressedAltSize = BitConverter.ToUInt64(bytes, 69);
                 }
             }
 
@@ -293,10 +324,24 @@ namespace RomVaultX.SupportedFiles.GZ
             zipBw.Write((byte)0xff); // OS  = 0x00
 
             // writing FEXTRA
-            zipBw.Write((Int16)28); // XLEN
-            zipBw.Write(md5Hash);
-            zipBw.Write(crc);
-            zipBw.Write(uncompressedSize);
+            if(FileHeaderReader.AltHeaderFile(altType))
+                zipBw.Write((Int16)77); // XLEN 16+4+8+1+16+20+4+8
+            else
+                zipBw.Write((Int16)28); // XLEN 16+4+8
+
+            zipBw.Write(md5Hash);           // 16 bytes
+            zipBw.Write(crc);               // 4 bytes
+            zipBw.Write(uncompressedSize);  // 8 bytes
+
+            if (FileHeaderReader.AltHeaderFile(altType))
+            {
+                zipBw.Write((byte) altType);  // 1
+                zipBw.Write(altmd5Hash);      // 16
+                zipBw.Write(altsha1Hash);     // 20
+                zipBw.Write(altcrc);          // 4
+                zipBw.Write((ulong) uncompressedAltSize);  // 8
+            }
+
 
             if (_buffer == null)
                 _buffer = new byte[Buffersize];
