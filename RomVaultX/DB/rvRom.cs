@@ -75,7 +75,7 @@ namespace RomVaultX.DB
                     [RomId] INTEGER PRIMARY KEY NOT NULL,
                     [GameId] INTEGER NOT NULL,
                     [name] NVARCHAR(320) NOT NULL,
-                    [type] VARCHAR(8) NULL,
+                    [type] INTEGER NULL,
                     [size] INTEGER NULL,
                     [crc] VARCHAR(8) NULL,
                     [sha1] VARCHAR(40) NULL,
@@ -83,6 +83,9 @@ namespace RomVaultX.DB
                     [merge] VARCHAR(20) NULL,
                     [status] VARCHAR(20) NULL,
                     [FileId] INTEGER NULL,
+                    [LocalFileHeader] BLOB NULL,
+                    [LocalFileHeaderOffset] INTEGER NULL,
+                    [LocalFileHeaderLength] INTEGER NULL,
                     FOREIGN KEY(GameId) REFERENCES Game(GameId),
                     FOREIGN KEY(FileId) REFERENCES File(FileId)
                 );");
@@ -135,7 +138,7 @@ namespace RomVaultX.DB
 
             SqlWrite.Parameters["GameId"].Value = GameId;
             SqlWrite.Parameters["name"].Value = Name;
-            SqlWrite.Parameters["type"].Value = altType;
+            SqlWrite.Parameters["type"].Value = (int)altType;
             SqlWrite.Parameters["size"].Value = Size;
             SqlWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
             SqlWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);

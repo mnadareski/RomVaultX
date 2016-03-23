@@ -171,7 +171,7 @@ namespace RomVaultX.DB
             SqlWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
             SqlWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
             SqlWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
-            SqlWrite.Parameters["alttype"].Value = Size;
+            SqlWrite.Parameters["alttype"].Value = (int)AltType;
             SqlWrite.Parameters["altsize"].Value = AltSize;
             SqlWrite.Parameters["altcrc"].Value = VarFix.ToDBString(AltCRC);
             SqlWrite.Parameters["altsha1"].Value = VarFix.ToDBString(AltSHA1);

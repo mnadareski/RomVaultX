@@ -123,6 +123,9 @@ namespace RomVaultX.DB
                     [RomTotal] INTEGER DEFAULT 0 NOT NULL,
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
                     [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
+                    [CentralDirectory] BLOB NULL,
+                    [CentralDirectoryOffset] NULL,
+                    [CentralDirectoryLength] NULL,
                     FOREIGN KEY(DatId) REFERENCES DAT(DatId)
                 );");
         }
