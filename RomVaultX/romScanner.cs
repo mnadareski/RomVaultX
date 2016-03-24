@@ -37,7 +37,7 @@ namespace RomVaultX
                 return;
             }
 
-            ScanADir(rootDir);
+            ScanADirNew(rootDir);
 
             DataAccessLayer.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
@@ -48,7 +48,7 @@ namespace RomVaultX
         private static void ScanAFile(FileInfo f)
         {
             Debug.WriteLine(f.FullName);
-            
+
             Stream fStream;
             int errorCode = IO.FileStream.OpenFileRead(f.FullName, out fStream);
             if (errorCode != 0)
@@ -71,9 +71,9 @@ namespace RomVaultX
 
             if (res == FindStatus.FileNeededInArchive)
             {
-                Debug.WriteLine("Reading file as "+tFile.SHA1);
+                Debug.WriteLine("Reading file as " + tFile.SHA1);
                 GZip gz = new GZip(tFile);
-               
+
 
                 Stream ds;
                 IO.FileStream.OpenFileRead(f.FullName, out ds);
@@ -82,6 +82,7 @@ namespace RomVaultX
                 ds.Close();
                 ds.Dispose();
 
+                tFile.CompressedSize = gz.compressedSize;
                 tFile.DBWrite();
             }
 
@@ -89,35 +90,35 @@ namespace RomVaultX
             {
                 ZipFile fz = new ZipFile();
                 fz.ZipFileOpen(f.FullName, f.LastWriteTime, true);
-                {
-                    for (int i = 0; i < fz.LocalFilesCount(); i++)
-                    {
-                        // this needs to go back into the Zip library.
-                        int Buffersize = 1024 * 1024;
-                        byte[] _buffer = new byte[Buffersize];
-                        Stream stream;
-                        ulong streamSize;
-                        ushort compressionMethod;
-                        fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
-                        string file = @"C:\RomVaultX\" + Guid.NewGuid();
-                        Stream Fs;
-                        IO.FileStream.OpenFileWrite(file, out Fs);
-                        ulong sizetogo = streamSize;
-                        while (sizetogo > 0)
-                        {
-                            int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
-                            stream.Read(_buffer, 0, sizenow);
-                            Fs.Write(_buffer, 0, sizenow);
-                            sizetogo -= (ulong)sizenow;
-                        }
-                        Fs.Close();
-                        stream.Close();
 
-                        FileInfo fi = new FileInfo(file);
-                        ScanAFile(fi);
-                        File.Delete(file);
+                for (int i = 0; i < fz.LocalFilesCount(); i++)
+                {
+                    // this needs to go back into the Zip library.
+                    int Buffersize = 1024 * 1024;
+                    byte[] _buffer = new byte[Buffersize];
+                    Stream stream;
+                    ulong streamSize;
+                    ushort compressionMethod;
+                    fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
+                    string file = @"C:\tmp\" + Guid.NewGuid();
+                    Stream Fs;
+                    IO.FileStream.OpenFileWrite(file, out Fs);
+                    ulong sizetogo = streamSize;
+                    while (sizetogo > 0)
+                    {
+                        int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
+                        stream.Read(_buffer, 0, sizenow);
+                        Fs.Write(_buffer, 0, sizenow);
+                        sizetogo -= (ulong)sizenow;
                     }
+                    Fs.Close();
+                    stream.Close();
+
+                    FileInfo fi = new FileInfo(file);
+                    ScanAFile(fi);
+                    File.Delete(file);
                 }
+                fz.ZipFileClose();
             }
             if (foundFileType == FileType.GZ)
             {
@@ -190,7 +191,7 @@ namespace RomVaultX
                 if (ext.ToLower() == ".zip")
                 {
                     ZipFile fz = new ZipFile();
-                    ZipReturn zr=fz.ZipFileOpen(f.FullName, f.LastWriteTime, true);
+                    ZipReturn zr = fz.ZipFileOpen(f.FullName, f.LastWriteTime, true);
                     if (zr != ZipReturn.ZipGood)
                         continue;
 
@@ -230,7 +231,7 @@ namespace RomVaultX
                             ulong compressedSize;
                             ushort method;
                             Stream zds;
-                            
+
                             fz.ZipFileOpenReadStream(i, isZipTrrntzip, out zds, out compressedSize, out method);
                             gz.compressedSize = compressedSize;
 
@@ -246,7 +247,7 @@ namespace RomVaultX
 
                     if (delFiles && FileUsedCount == fz.LocalFilesCount())
                     {
-                        File.SetAttributes(f.FullName,FileAttributes.Normal);
+                        File.SetAttributes(f.FullName, FileAttributes.Normal);
                         File.Delete(f.FullName);
                     }
                 }
@@ -343,7 +344,7 @@ namespace RomVaultX
                 ScanADir(d.FullName);
             }
 
-            if (directory!=rootDir && IsDirectoryEmpty(directory))
+            if (directory != rootDir && IsDirectoryEmpty(directory))
                 Directory.Delete(directory);
         }
 
@@ -375,10 +376,10 @@ namespace RomVaultX
             // now check if needed in any ROMs
             if (FindInROMs.Execute(tFile))
                 return FindStatus.FileNeededInArchive;
-            
+
             if (FileHeaderReader.AltHeaderFile(tFile.AltType) && FindInROMs.ExecuteAlt(tFile))
                 return FindStatus.FileNeededInArchive;
-            
+
             return FindStatus.FileUnknown;
         }
     }

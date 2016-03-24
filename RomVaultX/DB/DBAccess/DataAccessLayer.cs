@@ -407,6 +407,15 @@ namespace RomVaultX.DB
             } while (nullcount > 0);
         }
 
+        public static void Begin()
+        {
+            ExecuteNonQuery("BEGIN");
+        }
+
+        public static void Commit()
+        {
+            ExecuteNonQuery("COMMIT");
+        }
 
         public static void ClearFoundDATs()
         {

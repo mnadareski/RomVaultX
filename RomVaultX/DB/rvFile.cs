@@ -164,7 +164,7 @@ namespace RomVaultX.DB
         }
         public void DBWrite()
         {
-            DataAccessLayer.ExecuteNonQuery("BEGIN");
+            DataAccessLayer.Begin();
 
             SqlWrite.Parameters["size"].Value = Size;
             SqlWrite.Parameters["compressedsize"].Value = CompressedSize;
@@ -208,7 +208,7 @@ namespace RomVaultX.DB
                 SqlUpdateZeroRom.Parameters["md5"].Value = VarFix.ToDBString(MD5);
                 SqlUpdateZeroRom.ExecuteNonQuery();                
             }
-            DataAccessLayer.ExecuteNonQuery("COMMIT");
+            DataAccessLayer.Commit();
 
         }
     }

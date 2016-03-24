@@ -148,9 +148,9 @@ namespace RomVaultX
                 if (DatReader.DatReader.ReadDat(f.FullName, f.LastWriteTime, _bgw, out rvDat))
                 {
                     rvDat.DirId = ParentId;
-                    DataAccessLayer.ExecuteNonQuery("BEGIN");
+                    DataAccessLayer.Begin();
                     rvDat.DbWrite();
-                    DataAccessLayer.ExecuteNonQuery("COMMIT");
+                    DataAccessLayer.Commit();
                 }
 
                 if (_bgw.CancellationPending)

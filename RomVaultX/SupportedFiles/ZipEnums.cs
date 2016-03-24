@@ -42,7 +42,8 @@ namespace RomVaultX.SupportedFiles
     {
         Closed,
         OpenRead,
-        OpenWrite
+        OpenWrite,
+        OpenFakeWrite
     }
 
     [Flags]
