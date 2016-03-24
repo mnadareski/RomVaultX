@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -958,6 +957,9 @@ namespace RomVaultX
         private VDrive di;
         private void startVDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Dokan.Unmount('r');
+
+
             di = new VDrive();
 
             Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.DebugMode,1); });
