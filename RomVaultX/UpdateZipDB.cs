@@ -51,7 +51,7 @@ namespace RomVaultX
                     FILES.size,
                     FILES.compressedsize,
                     FILES.crc
-                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId", DataAccessLayer.DBConnection);
+                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId ORDER BY ROM.name", DataAccessLayer.DBConnection);
             findRoms.Parameters.Add(new SQLiteParameter("GameId"));
 
             SQLiteCommand findGames = new SQLiteCommand(

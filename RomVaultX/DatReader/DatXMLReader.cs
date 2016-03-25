@@ -27,12 +27,20 @@ namespace RomVaultX.DatReader
             }
 
             XmlNodeList gameNodeList = doc.DocumentElement.SelectNodes("game");
-
             if (gameNodeList != null)
             {
                 for (int i = 0; i < gameNodeList.Count; i++)
                 {
                     LoadGameFromDat(rvDat, gameNodeList[i], "");
+                }
+            }
+
+            XmlNodeList machineNodeList = doc.DocumentElement.SelectNodes("machine");
+            if (machineNodeList != null)
+            {
+                for (int i = 0; i < machineNodeList.Count; i++)
+                {
+                    LoadGameFromDat(rvDat, machineNodeList[i], "");
                 }
             }
 
@@ -60,12 +68,21 @@ namespace RomVaultX.DatReader
             }
 
             XmlNodeList gameNodeList = doc.DocumentElement.SelectNodes("game");
-
             if (gameNodeList != null)
             {
                 for (int i = 0; i < gameNodeList.Count; i++)
                 {
                     LoadGameFromDat(rvDat, gameNodeList[i], "");
+                }
+            }
+
+
+            XmlNodeList machineNodeList = doc.DocumentElement.SelectNodes("machine");
+            if (machineNodeList != null)
+            {
+                for (int i = 0; i < machineNodeList.Count; i++)
+                {
+                    LoadGameFromDat(rvDat, machineNodeList[i], "");
                 }
             }
 
