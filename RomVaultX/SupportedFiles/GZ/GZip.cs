@@ -60,6 +60,17 @@ namespace RomVaultX.SupportedFiles.GZ
                     return ZipReturn.ZipFileLocked;
                 return ZipReturn.ZipErrorOpeningFile;
             }
+            return ReadBody(deepScan);
+        }
+
+        public ZipReturn ReadGZip(Stream gZipStream, bool deepScan)
+        {
+            _zipFs = gZipStream;
+            return ReadBody(deepScan);
+        }
+
+        private ZipReturn ReadBody(bool deepScan)
+        { 
             BinaryReader zipBr = new BinaryReader(_zipFs);
 
             byte ID1 = zipBr.ReadByte();
@@ -103,7 +114,7 @@ namespace RomVaultX.SupportedFiles.GZ
                     uncompressedSize = BitConverter.ToUInt64(bytes, 20);
                     altType = (FileType)bytes[28];
                     altmd5Hash = new byte[16]; Array.Copy(bytes, 29, altmd5Hash, 0, 16);
-                    altsha1Hash = new byte[20]; Array.Copy(bytes, 45, altmd5Hash, 0, 20);
+                    altsha1Hash = new byte[20]; Array.Copy(bytes, 45, altsha1Hash, 0, 20);
                     altcrc = new byte[4]; Array.Copy(bytes, 65, altcrc, 0, 4);
                     uncompressedAltSize = BitConverter.ToUInt64(bytes, 69);
                 }

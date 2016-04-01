@@ -8,6 +8,7 @@ using RomVaultX.DB;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.SupportedFiles.Zip;
 using RomVaultX.Util;
+using System.Windows.Forms;
 
 namespace RomVaultX
 {
@@ -55,7 +56,7 @@ namespace RomVaultX
             findRoms.Parameters.Add(new SQLiteParameter("GameId"));
 
             SQLiteCommand findGames = new SQLiteCommand(
-                @"SELECT GameId,name FROM game WHERE RomGot>0", DataAccessLayer.DBConnection);
+                @"SELECT GameId,name FROM game WHERE RomGot>0 AND CentralDirectory is null", DataAccessLayer.DBConnection);
 
             SQLiteDataReader drGame = findGames.ExecuteReader();
 
@@ -122,6 +123,9 @@ namespace RomVaultX
             drGame.Dispose();
 
             DataAccessLayer.Commit();
+
+            MessageBox.Show("Zip Header Database Update Complete");
+
 
         }
 

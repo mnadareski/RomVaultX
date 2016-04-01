@@ -45,7 +45,10 @@ namespace RomVaultX.DB
             SqlUpdateRom = new SQLiteCommand(
                 @"
                     UPDATE ROM SET 
-	                    FileId = @FileId
+	                    FileId = @FileId,
+                        LocalFileHeader = null,
+                        LocalFileHeaderOffset = null,
+                        LocalFileHeaderLength=null
                     WHERE
 	                    (                 sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
@@ -55,7 +58,10 @@ namespace RomVaultX.DB
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
-	                    FileId = @FileId
+	                    FileId = @FileId,
+                        LocalFileHeader = null,
+                        LocalFileHeaderOffset = null,
+                        LocalFileHeaderLength=null
                     WHERE
 	                    (                 md5  = @md5  ) AND 
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
@@ -65,7 +71,10 @@ namespace RomVaultX.DB
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
-	                    FileId = @FileId
+	                    FileId = @FileId,
+                        LocalFileHeader = null,
+                        LocalFileHeaderOffset = null,
+                        LocalFileHeaderLength=null
                     WHERE
 	                    (                 crc  = @crc  ) AND
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
@@ -83,7 +92,10 @@ namespace RomVaultX.DB
             SqlUpdateRomAlt = new SQLiteCommand(
     @"
                     UPDATE ROM SET 
-	                    FileId = @FileId
+	                    FileId = @FileId,
+                        LocalFileHeader = null,
+                        LocalFileHeaderOffset = null,
+                        LocalFileHeaderLength=null
                     WHERE
                         (              alttype = @alttype )
 	                    (                 sha1 = @sha1 ) AND
@@ -94,7 +106,10 @@ namespace RomVaultX.DB
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
-	                    FileId = @FileId
+	                    FileId = @FileId,
+                        LocalFileHeader = null,
+                        LocalFileHeaderOffset = null,
+                        LocalFileHeaderLength=null
                     WHERE
                         (              alttype = @alttype )
 	                    (                 md5  = @md5  ) AND 
@@ -105,7 +120,10 @@ namespace RomVaultX.DB
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
-	                    FileId = @FileId
+	                    FileId = @FileId,
+                        LocalFileHeader = null,
+                        LocalFileHeaderOffset = null,
+                        LocalFileHeaderLength=null
                     WHERE
                         (              alttype = @alttype )
 	                    (                 crc  = @crc  ) AND
@@ -127,7 +145,10 @@ namespace RomVaultX.DB
             SqlUpdateZeroRom = new SQLiteCommand(
                 @"
                     UPDATE ROM SET 
-	                    FileId = @FileId
+	                    FileId = @FileId,
+                        LocalFileHeader = null,
+                        LocalFileHeaderOffset = null,
+                        LocalFileHeaderLength=null
                     WHERE
 	                    ( Size=0 ) AND
 	                    ( crc  is NULL OR crc  = @crc  ) AND

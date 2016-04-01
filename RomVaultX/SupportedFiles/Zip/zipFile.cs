@@ -595,7 +595,7 @@ namespace RomVaultX.SupportedFiles.Zip
                 bw.Write(CRC[0]);
                 bw.Write(tCompressedSize);
                 bw.Write(tUncompressedSize);
-                
+
                 ushort fileNameLength = (ushort)bFileName.Length;
                 bw.Write(fileNameLength);
 
@@ -1109,6 +1109,26 @@ namespace RomVaultX.SupportedFiles.Zip
             if (!readHeaders)
                 return ZipReturn.ZipGood;
 
+            return ZipFileReadHeaders();
+        }
+
+        public ZipReturn ZipFileOpen(Stream zipFileStream)
+        {
+            ZipFileClose();
+            _pZipStatus = ZipStatus.None;
+            _zip64 = false;
+            _centerDirStart = 0;
+            _centerDirSize = 0;
+            _zipFileInfo = null;
+            _zipFs = zipFileStream;
+
+            ZipOpen = ZipOpenType.OpenRead;
+            return ZipFileReadHeaders();
+        }
+
+
+        private ZipReturn ZipFileReadHeaders()
+        {
 
             try
             {
@@ -1279,7 +1299,7 @@ namespace RomVaultX.SupportedFiles.Zip
 
             if (ZipOpen == ZipOpenType.OpenRead)
             {
-                if (_zipFs != null)
+                if (_zipFileInfo != null && _zipFs != null)
                 {
                     _zipFs.Close();
                     _zipFs.Dispose();
@@ -1342,9 +1362,9 @@ namespace RomVaultX.SupportedFiles.Zip
             _zip64 = false;
             bool lTrrntzip = true;
 
-            _zipFs=new MemoryStream();
+            _zipFs = new MemoryStream();
 
-            _centerDirStart =fileOffset;
+            _centerDirStart = fileOffset;
             if (_centerDirStart >= 0xffffffff)
                 _zip64 = true;
 
@@ -1375,7 +1395,7 @@ namespace RomVaultX.SupportedFiles.Zip
             }
             EndOfCentralDirWrite();
 
-            centeralDir =((MemoryStream)_zipFs).ToArray();
+            centeralDir = ((MemoryStream)_zipFs).ToArray();
             _zipFs.Close();
             _zipFs.Dispose();
             ZipOpen = ZipOpenType.Closed;
@@ -1466,7 +1486,7 @@ namespace RomVaultX.SupportedFiles.Zip
             return retVal;
         }
 
-        public ZipReturn ZipFileAddFake(string filename,ulong fileOffset, ulong uncompressedSize, ulong compressedSize, byte[] crc32,out byte[] localHeader)
+        public ZipReturn ZipFileAddFake(string filename, ulong fileOffset, ulong uncompressedSize, ulong compressedSize, byte[] crc32, out byte[] localHeader)
         {
             localHeader = null;
 
@@ -1477,7 +1497,7 @@ namespace RomVaultX.SupportedFiles.Zip
             _localFiles.Add(lf);
 
             MemoryStream ms = new MemoryStream();
-            lf.LocalFileHeaderFake(fileOffset,uncompressedSize, compressedSize, crc32,ms);
+            lf.LocalFileHeaderFake(fileOffset, uncompressedSize, compressedSize, crc32, ms);
 
             localHeader = ms.ToArray();
             ms.Close();

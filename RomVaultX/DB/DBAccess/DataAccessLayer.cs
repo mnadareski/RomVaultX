@@ -229,7 +229,13 @@ namespace RomVaultX.DB
                 AFTER DELETE ON [FILES] 
                 FOR EACH ROW 
                 BEGIN 
-                    UPDATE ROM SET FileId=null WHERE FileId=OLD.FileId;
+                    UPDATE ROM SET 
+                        FileId=null,
+                        LocalFileHeader=null,
+                        LocalFileHeaderOffset=null,
+                        LocalFileHeaderLength=null 
+                    WHERE 
+                        FileId=OLD.FileId;
                 END;
             ");
 
@@ -245,7 +251,10 @@ namespace RomVaultX.DB
                     UPDATE GAME SET
                         RomTotal = RomTotal + 1,
                         RomGot = RomGot + (IFNULL(New.FileId,0)>0),
-                        RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null,0))
+                        RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null,0)),
+                        CentralDirectory=null,
+                        CentralDirectoryOffset=null,
+                        CentralDirectoryLength=null
                     WHERE 
                         Game.GameId = New.GameId;
                 END;
@@ -260,7 +269,10 @@ namespace RomVaultX.DB
                     UPDATE GAME SET
                         RomTotal = RomTotal - 1,
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
-                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null,0))
+                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null,0)),
+                        CentralDirectory=null,
+                        CentralDirectoryOffset=null,
+                        CentralDirectoryLength=null
                     WHERE 
                         Game.GameId = Old.GameId;
                 END;
@@ -273,7 +285,10 @@ namespace RomVaultX.DB
                 FOR EACH ROW WHEN (IFNULL(Old.FileId,0)>0) != (IFNULL(New.FileId,0)>0)
                 BEGIN 
                     UPDATE GAME SET
-                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0) + (IFNULL(New.FileId,0)>0)
+                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0) + (IFNULL(New.FileId,0)>0),
+                        CentralDirectory=null,
+                        CentralDirectoryOffset=null,
+                        CentralDirectoryLength=null
                     WHERE 
                         Game.GameId = New.GameId;
                 END;
