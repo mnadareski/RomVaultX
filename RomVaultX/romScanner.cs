@@ -48,8 +48,9 @@ namespace RomVaultX
             Program.SyncCont = null;
         }
 
-        private static void ScanAFile(Stream fStream)
+        private static bool ScanAFile(Stream fStream)
         {
+            bool ret = false;
             int offset;
             FileType foundFileType = FileHeaderReader.GetType(fStream, out offset);
 
@@ -73,10 +74,13 @@ namespace RomVaultX
                 string outfile = Getfilename(tFile.SHA1);
                 fStream.Position = 0;
                 gz.WriteGZip(outfile, fStream, false);
-                
+
                 tFile.CompressedSize = gz.compressedSize;
                 tFile.DBWrite();
+                ret = true;
             }
+            else if (res == FindStatus.FoundFileInArchive)
+                ret = true;
 
             if (foundFileType == FileType.ZIP)
             {
@@ -84,10 +88,11 @@ namespace RomVaultX
                 fStream.Position = 0;
                 fz.ZipFileOpen(fStream);
 
+                bool allZipFound = true;
                 for (int i = 0; i < fz.LocalFilesCount(); i++)
                 {
                     // this needs to go back into the Zip library.
-                  
+
                     Stream stream;
                     ulong streamSize;
                     ushort compressionMethod;
@@ -99,8 +104,8 @@ namespace RomVaultX
                     {
                         byte[] tmpFile = new byte[streamSize];
                         stream.Read(tmpFile, 0, (int)streamSize);
-                        Stream memFS = new MemoryStream(tmpFile,false);
-                        ScanAFile(memFS);
+                        Stream memFS = new MemoryStream(tmpFile, false);
+                        allZipFound &= ScanAFile(memFS);
                         memFS.Close();
                         memFS.Dispose();
                     }
@@ -118,26 +123,28 @@ namespace RomVaultX
                             sizetogo -= (ulong)sizenow;
                         }
                         Fs.Close();
-                        stream.Close();
 
                         Stream fstreamNext;
                         int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
                         if (errorCode != 0)
-                            return;
+                            return false;
 
-                        ScanAFile(fstreamNext);
+                        allZipFound &= ScanAFile(fstreamNext);
                         fstreamNext.Close();
                         fstreamNext.Dispose();
                         File.Delete(file);
                     }
+                    fz.ZipFileCloseReadStream();
+
                 }
                 fz.ZipFileClose();
+                ret |= allZipFound;
             }
             if (foundFileType == FileType.GZ)
             {
                 GZip gz = new GZip();
                 fStream.Position = 0;
-                ZipReturn zr = gz.ReadGZip(fStream,false);
+                ZipReturn zr = gz.ReadGZip(fStream, false);
                 if (zr == ZipReturn.ZipGood)
                 {
                     ulong streamSize = gz.uncompressedSize;
@@ -145,34 +152,48 @@ namespace RomVaultX
                     {
                         Stream stream;
                         gz.GetStream(out stream);
-                        string file = @"C:\tmp\" + Guid.NewGuid();
-                        Stream Fs;
-                        IO.FileStream.OpenFileWrite(file, out Fs);
-                        ulong sizetogo = streamSize;
-                        while (sizetogo > 0)
+                        ulong memkeepSize = 1024 * 1024;
+                        if (streamSize <= memkeepSize)
                         {
-                            int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
-                            stream.Read(_buffer, 0, sizenow);
-                            Fs.Write(_buffer, 0, sizenow);
-                            sizetogo -= (ulong)sizenow;
+                            byte[] tmpFile = new byte[streamSize];
+                            stream.Read(tmpFile, 0, (int)streamSize);
+                            Stream memFS = new MemoryStream(tmpFile, false);
+                            ret |= ScanAFile(memFS);
+                            memFS.Close();
+                            memFS.Dispose();
                         }
-                        Fs.Close();
-                        stream.Close();
+                        else
+                        {
 
-                        Stream fstreamNext;
-                        int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
-                        if (errorCode != 0)
-                            return;
+                            string file = @"C:\tmp\" + Guid.NewGuid();
+                            Stream Fs;
+                            IO.FileStream.OpenFileWrite(file, out Fs);
+                            ulong sizetogo = streamSize;
+                            while (sizetogo > 0)
+                            {
+                                int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
+                                stream.Read(_buffer, 0, sizenow);
+                                Fs.Write(_buffer, 0, sizenow);
+                                sizetogo -= (ulong)sizenow;
+                            }
+                            Fs.Close();
+                            stream.Close();
 
-                        ScanAFile(fstreamNext);
-                        fstreamNext.Close();
-                        fstreamNext.Dispose();
-                        File.Delete(file);
+                            Stream fstreamNext;
+                            int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
+                            if (errorCode != 0)
+                                return false;
+
+                            ret |= ScanAFile(fstreamNext);
+                            fstreamNext.Close();
+                            fstreamNext.Dispose();
+                            File.Delete(file);
+                        }
                     }
                     // gz.Close(); do not close the Stream gZip
                 }
             }
-
+            return ret;
         }
 
         private static void ScanADirNew(string directory)
@@ -199,9 +220,11 @@ namespace RomVaultX
                 if (errorCode != 0)
                     return;
 
-                ScanAFile(fstreamNext);
+                bool FileFound = ScanAFile(fstreamNext);
                 fstreamNext.Close();
                 fstreamNext.Dispose();
+                if (FileFound)
+                   File.Delete(f.FullName);
             }
 
             DirectoryInfo[] childdi = di.GetDirectories();

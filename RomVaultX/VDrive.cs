@@ -444,7 +444,51 @@ namespace RomVaultX
 
         public NtStatus FindFiles(string fileName, out IList<FileInformation> files, DokanFileInfo info)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine("");
+            Debug.WriteLine("-----------FindFiles---------------------------------");
+            Debug.WriteLine("Filename : " + fileName);
+
+            // if (searchPattern != "*" && searchPattern !="DatRoot")
+            //     Debug.WriteLine("Unknown search pattern");
+
+            files = new List<FileInformation>();
+
+            VFile vfile = (VFile)info.Context;
+            if (vfile == null)
+                return NtStatus.NoSuchFile;
+            int dirId = vfile.DirId;
+
+            List<string> dirNames = GetDirectoryNames(dirId);
+            foreach (string dirName in dirNames)
+            {
+                FileInformation fi = new FileInformation
+                {
+                    FileName = dirName,
+                    Length = 0,
+                    Attributes = FileAttributes.Directory | FileAttributes.ReadOnly,
+                    CreationTime = _dt,
+                    LastAccessTime = _dt,
+                    LastWriteTime = _dt
+                };
+                files.Add(fi);
+            }
+
+            List<VFile> dFiles = GetFilesInDirectory(dirId);
+            foreach (VFile file in dFiles)
+            {
+                FileInformation fi = new FileInformation
+                {
+                    FileName = file.FileName + ".zip",
+                    Length = file.Length,
+                    Attributes = FileAttributes.Normal | FileAttributes.ReadOnly,
+                    CreationTime = _dt,
+                    LastAccessTime = _dt,
+                    LastWriteTime = _dt
+                };
+                files.Add(fi);
+            }
+
+            return NtStatus.Success;
         }
 
         public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
