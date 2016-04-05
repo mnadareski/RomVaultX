@@ -4,7 +4,6 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
-using System.Security.Cryptography;
 using DokanNet;
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles.GZ;
@@ -17,7 +16,7 @@ namespace RomVaultX
         public string FileName;
         public long Length;
         public bool IsDirectory;
-
+        public DateTime TimeStamp;
         public int DirId;
 
         public List<vGZFile> files;
@@ -39,8 +38,6 @@ namespace RomVaultX
 
     internal class VDrive : IDokanOperations
     {
-        private readonly DateTime _dt = DateTime.Now;
-
         private static long TotalBytes()
         {
             using (SQLiteCommand getTotalBytes = new SQLiteCommand(@"select sum(zipfilelength) from game", DataAccessLayer.DBConnection))
@@ -82,7 +79,7 @@ namespace RomVaultX
         private static List<VFile> GetFilesInDirectory(int dirId)
         {
             List<VFile> files = new List<VFile>();
-            using (SQLiteCommand getFilesInDirectory = new SQLiteCommand(@"select game.name,ZipFileLength from Dat,game where dat.DatId=game.datId and ZipFileLength>0 and dirId=@dirId", DataAccessLayer.DBConnection))
+            using (SQLiteCommand getFilesInDirectory = new SQLiteCommand(@"select game.name,ZipFileLength,ZipFileTimeStamp from Dat,game where dat.DatId=game.datId and ZipFileLength>0 and dirId=@dirId", DataAccessLayer.DBConnection))
             {
                 SQLiteParameter pDirId = new SQLiteParameter("DirId") { Value = dirId };
                 getFilesInDirectory.Parameters.Add(pDirId);
@@ -90,16 +87,16 @@ namespace RomVaultX
                 {
                     while (dr.Read())
                     {
-                        files.Add(new VFile { FileName = (string)dr["name"], Length = Convert.ToInt64(dr["ZipFileLength"]) });
+                        files.Add(new VFile { FileName = (string)dr["name"], Length = Convert.ToInt64(dr["ZipFileLength"]), TimeStamp=new DateTime(Convert.ToInt64(dr["ZipFileTimeStamp"])) });
                     }
                 }
             }
             return files;
         }
 
-        private bool GetFileInDirectory(int dirId, string filename, out int gameId, out long zipfileLength)
+        private bool GetFileInDirectory(int dirId, string filename, out int gameId, out long zipfileLength,out DateTime zipfileTimeStamp)
         {
-            using (SQLiteCommand getFileInDirectory = new SQLiteCommand(@"select GameId, ZipFileLength from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name", DataAccessLayer.DBConnection))
+            using (SQLiteCommand getFileInDirectory = new SQLiteCommand(@"select GameId, ZipFileLength,ZipFileTimeStamp from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name", DataAccessLayer.DBConnection))
             {
                 SQLiteParameter pDirId = new SQLiteParameter("DirId") { Value = dirId }; getFileInDirectory.Parameters.Add(pDirId);
                 SQLiteParameter pName = new SQLiteParameter("Name") { Value = filename }; getFileInDirectory.Parameters.Add(pName);
@@ -109,12 +106,14 @@ namespace RomVaultX
                     {
                         gameId = Convert.ToInt32(dr["GameId"]);
                         zipfileLength = Convert.ToInt64(dr["ZipFileLength"]);
+                        zipfileTimeStamp=new DateTime(Convert.ToInt64(dr["ZipFileTimeStamp"]));
                         return true;
                     }
                 }
             }
             gameId = -1;
             zipfileLength = 0;
+            zipfileTimeStamp=new DateTime();
             return false;
         }
 
@@ -242,7 +241,8 @@ namespace RomVaultX
 
             int gameId;
             long zipfilelength;
-            if (!GetFileInDirectory((int)dirId, filePart, out gameId, out zipfilelength))
+            DateTime zipfileTimeStamp;
+            if (!GetFileInDirectory((int)dirId, filePart, out gameId, out zipfilelength,out zipfileTimeStamp))
                 return NtStatus.NoSuchFile;
 
             vfile = new VFile
@@ -250,6 +250,7 @@ namespace RomVaultX
                 FileName = fileName,
                 Length = zipfilelength,
                 IsDirectory = false, // finding a file.
+                TimeStamp = zipfileTimeStamp,
                 DirId = (int)dirId,
             };
 
@@ -434,9 +435,9 @@ namespace RomVaultX
             fileInfo = new FileInformation();
             fileInfo.FileName = vfile.FileName;
             fileInfo.Length = vfile.Length;
-            fileInfo.CreationTime = _dt;
-            fileInfo.LastAccessTime = _dt;
-            fileInfo.LastWriteTime = _dt;
+            fileInfo.CreationTime = vfile.TimeStamp;
+            fileInfo.LastAccessTime = vfile.TimeStamp;
+            fileInfo.LastWriteTime = vfile.TimeStamp;
             fileInfo.Attributes = vfile.IsDirectory ? FileAttributes.Directory : FileAttributes.Normal;
             return NtStatus.Success;
 
@@ -466,9 +467,9 @@ namespace RomVaultX
                     FileName = dirName,
                     Length = 0,
                     Attributes = FileAttributes.Directory | FileAttributes.ReadOnly,
-                    CreationTime = _dt,
-                    LastAccessTime = _dt,
-                    LastWriteTime = _dt
+                    CreationTime = vfile.TimeStamp,
+                    LastAccessTime = vfile.TimeStamp,
+                    LastWriteTime = vfile.TimeStamp
                 };
                 files.Add(fi);
             }
@@ -481,9 +482,9 @@ namespace RomVaultX
                     FileName = file.FileName + ".zip",
                     Length = file.Length,
                     Attributes = FileAttributes.Normal | FileAttributes.ReadOnly,
-                    CreationTime = _dt,
-                    LastAccessTime = _dt,
-                    LastWriteTime = _dt
+                    CreationTime = file.TimeStamp,
+                    LastAccessTime = file.TimeStamp,
+                    LastWriteTime = file.TimeStamp
                 };
                 files.Add(fi);
             }
@@ -517,9 +518,9 @@ namespace RomVaultX
                     FileName = dirName,
                     Length = 0,
                     Attributes = FileAttributes.Directory | FileAttributes.ReadOnly,
-                    CreationTime = _dt,
-                    LastAccessTime = _dt,
-                    LastWriteTime = _dt
+                    CreationTime = vfile.TimeStamp,
+                    LastAccessTime = vfile.TimeStamp,
+                    LastWriteTime = vfile.TimeStamp
                 };
                 files.Add(fi);
             }
@@ -533,9 +534,9 @@ namespace RomVaultX
                     FileName = file.FileName + ".zip",
                     Length = file.Length,
                     Attributes = FileAttributes.Normal | FileAttributes.ReadOnly,
-                    CreationTime = _dt,
-                    LastAccessTime = _dt,
-                    LastWriteTime = _dt
+                    CreationTime = file.TimeStamp,
+                    LastAccessTime = file.TimeStamp,
+                    LastWriteTime = file.TimeStamp
                 };
                 files.Add(fi);
             }
@@ -649,9 +650,9 @@ namespace RomVaultX
             fileInfo = new FileInformation();
             fileInfo.FileName = vfile.FileName;
             fileInfo.Length = vfile.Length;
-            fileInfo.CreationTime = _dt;
-            fileInfo.LastAccessTime = _dt;
-            fileInfo.LastWriteTime = _dt;
+            fileInfo.CreationTime = vfile.TimeStamp;
+            fileInfo.LastAccessTime = vfile.TimeStamp;
+            fileInfo.LastWriteTime = vfile.TimeStamp;
             fileInfo.Attributes = vfile.IsDirectory ? FileAttributes.Directory : FileAttributes.Normal;
 
             streams.Add(fileInfo);

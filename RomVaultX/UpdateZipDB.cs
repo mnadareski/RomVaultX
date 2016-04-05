@@ -32,12 +32,14 @@ namespace RomVaultX
             SQLiteCommand writeCentralDirToGame = new SQLiteCommand(
                 @"UPDATE GAME SET 
                     ZipFileLength=@zipFileLength,
+                    ZipFileTimeStamp=@zipFileTimeStamp,
                     CentralDirectory=@centralDirectory,
                     CentralDirectoryOffset=@centralDirectoryOffset,
                     CentralDirectoryLength=@centralDirectoryLength
                 WHERE
                     GameId=@gameID", DataAccessLayer.DBConnection);
             writeCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileLength"));
+            writeCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileTimeStamp"));
             writeCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectory", DbType.Binary));
             writeCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryOffset"));
             writeCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryLength"));
@@ -56,7 +58,7 @@ namespace RomVaultX
             findRoms.Parameters.Add(new SQLiteParameter("GameId"));
 
             SQLiteCommand findGames = new SQLiteCommand(
-                @"SELECT GameId,name FROM game WHERE RomGot>0 AND CentralDirectory is null", DataAccessLayer.DBConnection);
+                @"SELECT GameId,name FROM game WHERE RomGot>0 AND ZipFileLength is null", DataAccessLayer.DBConnection);
 
             SQLiteDataReader drGame = findGames.ExecuteReader();
 
@@ -105,6 +107,7 @@ namespace RomVaultX
                 memZip.ZipFileCloseFake(fileOffset, out centeralDir);
 
                 writeCentralDirToGame.Parameters["zipFileLength"].Value = fileOffset+(ulong)centeralDir.Length;
+                writeCentralDirToGame.Parameters["zipFileTimeStamp"].Value = DateTime.UtcNow.Ticks;
                 writeCentralDirToGame.Parameters["centralDirectory"].Value = centeralDir;
                 writeCentralDirToGame.Parameters["centralDirectoryOffset"].Value = fileOffset;
                 writeCentralDirToGame.Parameters["centralDirectoryLength"].Value = centeralDir.Length;

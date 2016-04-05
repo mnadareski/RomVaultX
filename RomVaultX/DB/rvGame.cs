@@ -124,6 +124,7 @@ namespace RomVaultX.DB
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
                     [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
                     [ZipFileLength] INTEGER NULL, 
+                    [ZipFileTimeStamp] INTEGER NULL,
                     [CentralDirectory] BLOB NULL,
                     [CentralDirectoryOffset] INTEGER NULL,
                     [CentralDirectoryLength] INTEGER NULL,

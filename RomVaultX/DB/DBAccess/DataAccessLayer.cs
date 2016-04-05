@@ -252,6 +252,8 @@ namespace RomVaultX.DB
                         RomTotal = RomTotal + 1,
                         RomGot = RomGot + (IFNULL(New.FileId,0)>0),
                         RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null,0)),
+                        ZipFileLength=null,
+                        ZipFileTimeStamp=null,
                         CentralDirectory=null,
                         CentralDirectoryOffset=null,
                         CentralDirectoryLength=null
@@ -270,6 +272,8 @@ namespace RomVaultX.DB
                         RomTotal = RomTotal - 1,
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
                         RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null,0)),
+                        ZipFileLength=null,
+                        ZipFileTimeStamp=null,
                         CentralDirectory=null,
                         CentralDirectoryOffset=null,
                         CentralDirectoryLength=null
@@ -286,6 +290,8 @@ namespace RomVaultX.DB
                 BEGIN 
                     UPDATE GAME SET
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0) + (IFNULL(New.FileId,0)>0),
+                        ZipFileLength=null,
+                        ZipFileTimeStamp=null,
                         CentralDirectory=null,
                         CentralDirectoryOffset=null,
                         CentralDirectoryLength=null
