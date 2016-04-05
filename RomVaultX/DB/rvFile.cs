@@ -218,7 +218,7 @@ namespace RomVaultX.DB
                     SqlUpdateRomAlt.Parameters["crc"].Value = VarFix.ToDBString(AltCRC);
                     SqlUpdateRomAlt.Parameters["sha1"].Value = VarFix.ToDBString(AltSHA1);
                     SqlUpdateRomAlt.Parameters["md5"].Value = VarFix.ToDBString(AltMD5);
-                    SqlUpdateRom.ExecuteNonQuery();
+                    SqlUpdateRomAlt.ExecuteNonQuery();
                 }
             }
             else

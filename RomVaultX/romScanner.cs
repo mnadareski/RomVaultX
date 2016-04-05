@@ -111,7 +111,9 @@ namespace RomVaultX
                     }
                     else
                     {
-                        string file = @"C:\tmp\" + Guid.NewGuid();
+                        string file = @"tmp\" + Guid.NewGuid();
+                        if (!Directory.Exists("tmp"))
+                            Directory.CreateDirectory("tmp");
                         Stream Fs;
                         IO.FileStream.OpenFileWrite(file, out Fs);
                         ulong sizetogo = streamSize;
@@ -165,7 +167,9 @@ namespace RomVaultX
                         else
                         {
 
-                            string file = @"C:\tmp\" + Guid.NewGuid();
+                            string file = @"tmp\" + Guid.NewGuid();
+                            if (!Directory.Exists("tmp"))
+                                Directory.CreateDirectory("tmp");
                             Stream Fs;
                             IO.FileStream.OpenFileWrite(file, out Fs);
                             ulong sizetogo = streamSize;
@@ -224,7 +228,7 @@ namespace RomVaultX
                 fstreamNext.Close();
                 fstreamNext.Dispose();
                 if (FileFound)
-                   File.Delete(f.FullName);
+                    File.Delete(f.FullName);
             }
 
             DirectoryInfo[] childdi = di.GetDirectories();

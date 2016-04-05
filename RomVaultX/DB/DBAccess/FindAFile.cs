@@ -11,6 +11,10 @@ namespace RomVaultX.DB.DBAccess
         private static readonly SQLiteCommand CommandCRC;
         private static readonly SQLiteCommand CommandSize;
 
+        private static readonly SQLiteCommand CommandSHA1Alt;
+        private static readonly SQLiteCommand CommandMD5Alt;
+        private static readonly SQLiteCommand CommandCRCAlt;
+
 
 
         static FindAFile()
@@ -31,6 +35,27 @@ namespace RomVaultX.DB.DBAccess
             CommandSHA1.Parameters.Add(new SQLiteParameter("crc"));
             CommandSHA1.Parameters.Add(new SQLiteParameter("size"));
 
+
+            CommandSHA1Alt = new SQLiteCommand(
+                @"
+                       select FileId from memdb.FILESMEM
+                            WHERE
+                                        (               @alttype = alttype ) AND
+	                                    (                  @sha1 = altsha1 ) AND
+	                                    ( @md5  is NULL OR @md5  = altmd5  ) AND
+	                                    ( @crc  is NULL OR @crc  = altcrc  ) AND
+	                                    ( @size is NULL OR @size = altSize )
+                            limit 1
+                ", DataAccessLayer.DBConnection);
+
+            CommandSHA1Alt.Parameters.Add(new SQLiteParameter("alttype"));
+            CommandSHA1Alt.Parameters.Add(new SQLiteParameter("sha1"));
+            CommandSHA1Alt.Parameters.Add(new SQLiteParameter("md5"));
+            CommandSHA1Alt.Parameters.Add(new SQLiteParameter("crc"));
+            CommandSHA1Alt.Parameters.Add(new SQLiteParameter("size"));
+
+
+
             CommandMD5 = new SQLiteCommand(
                 @"
                        select FileId from memdb.FILESMEM
@@ -45,6 +70,23 @@ namespace RomVaultX.DB.DBAccess
             CommandMD5.Parameters.Add(new SQLiteParameter("crc"));
             CommandMD5.Parameters.Add(new SQLiteParameter("size"));
 
+            CommandMD5Alt = new SQLiteCommand(
+                @"
+                       select FileId from memdb.FILESMEM
+                            WHERE
+                                        (               @alttype = alttype ) AND
+	                                    (                  @md5  = altmd5  ) AND
+	                                    ( @crc  is NULL OR @crc  = altcrc  ) AND
+	                                    ( @size is NULL OR @size = altSize )
+                            limit 1
+                ", DataAccessLayer.DBConnection);
+
+            CommandMD5Alt.Parameters.Add(new SQLiteParameter("alttype"));
+            CommandMD5Alt.Parameters.Add(new SQLiteParameter("md5"));
+            CommandMD5Alt.Parameters.Add(new SQLiteParameter("crc"));
+            CommandMD5Alt.Parameters.Add(new SQLiteParameter("size"));
+
+
             CommandCRC = new SQLiteCommand(
                 @"
                        select FileId from memdb.FILESMEM
@@ -56,6 +98,21 @@ namespace RomVaultX.DB.DBAccess
 
             CommandCRC.Parameters.Add(new SQLiteParameter("crc"));
             CommandCRC.Parameters.Add(new SQLiteParameter("size"));
+
+            CommandCRCAlt = new SQLiteCommand(
+    @"
+                       select FileId from memdb.FILESMEM
+                            WHERE
+                                        (               @alttype = alttype ) AND
+	                                    (                  @crc  = altcrc  ) AND
+	                                    ( @size is NULL OR @size = altSize )
+                            limit 1
+                ", DataAccessLayer.DBConnection);
+
+            CommandCRCAlt.Parameters.Add(new SQLiteParameter("crc"));
+            CommandCRCAlt.Parameters.Add(new SQLiteParameter("size"));
+
+
 
             CommandSize = new SQLiteCommand(
                 @"
@@ -77,7 +134,12 @@ namespace RomVaultX.DB.DBAccess
                     [size] INTEGER NOT NULL,
                     [crc] VARCHAR(8) NULL,
                     [sha1] VARCHAR(40) NULL,
-                    [md5] VARCHAR(32) NULL
+                    [md5] VARCHAR(32) NULL,
+                    [alttype] VARCHAR(8) NULL,
+                    [altsize] INTEGER NULL,
+                    [altcrc] VARCHAR(8) NULL,
+                    [altsha1] VARCHAR(40) NULL,
+                    [altmd5] VARCHAR(32) NULL
                 );");
 
             DataAccessLayer.ExecuteNonQuery(@"
@@ -91,7 +153,7 @@ namespace RomVaultX.DB.DBAccess
                 CREATE INDEX IF NOT EXISTS memdb.memFILESize ON FILESMEM ([size] ASC);");
 
             DataAccessLayer.ExecuteNonQuery(@"
-                INSERT INTO memdb.FILESMEM SELECT FileId,size,crc,sha1,md5 FROM FILES");
+                INSERT INTO memdb.FILESMEM SELECT FileId,size,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5 FROM FILES");
 
             SQLiteCommand count = new SQLiteCommand("SELECT COUNT(1) FROM memdb.FILESMEM LIMIT 1", DataAccessLayer.DBConnection);
             object res = count.ExecuteScalar();
@@ -115,6 +177,20 @@ namespace RomVaultX.DB.DBAccess
                     return null;
                 return (uint?)Convert.ToInt32(res);
             }
+            if (tFile.SHA1 != null && FileHeaderReader.AltHeaderFile(tFile.altType))
+            {
+                CommandSHA1Alt.Parameters["alttype"].Value = (int)tFile.altType;
+                CommandSHA1Alt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
+                CommandSHA1Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+                CommandSHA1Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandSHA1Alt.Parameters["size"].Value = tFile.Size;
+
+                object res = CommandSHA1Alt.ExecuteScalar();
+
+                if (res == null || res == DBNull.Value)
+                    return null;
+                return (uint?)Convert.ToInt32(res);
+            }
             if (tFile.MD5 != null)
             {
                 CommandMD5.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
@@ -127,6 +203,21 @@ namespace RomVaultX.DB.DBAccess
                     return null;
                 return (uint?)Convert.ToInt32(res);
             }
+            if (tFile.MD5 != null && FileHeaderReader.AltHeaderFile(tFile.altType))
+            {
+                CommandMD5Alt.Parameters["alttype"].Value = (int)tFile.altType;
+                CommandMD5Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+                CommandMD5Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandMD5Alt.Parameters["size"].Value = tFile.Size;
+
+                object res = CommandMD5Alt.ExecuteScalar();
+
+                if (res == null || res == DBNull.Value)
+                    return null;
+                return (uint?)Convert.ToInt32(res);
+            }
+
+
             if (tFile.CRC != null)
             {
                 CommandCRC.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
@@ -138,6 +229,20 @@ namespace RomVaultX.DB.DBAccess
                     return null;
                 return (uint?)Convert.ToInt32(res);
             }
+            if (tFile.CRC != null && FileHeaderReader.AltHeaderFile(tFile.altType))
+            {
+                CommandCRCAlt.Parameters["alttype"].Value = (int)tFile.altType;
+                CommandCRCAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandCRCAlt.Parameters["size"].Value = tFile.Size;
+
+                object res = CommandCRCAlt.ExecuteScalar();
+
+                if (res == null || res == DBNull.Value)
+                    return null;
+                return (uint?)Convert.ToInt32(res);
+            }
+
+
             if (tFile.Size != null && tFile.Size == 0)
             {
                 CommandSize.Parameters["size"].Value = tFile.Size;
