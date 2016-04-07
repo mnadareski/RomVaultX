@@ -92,6 +92,11 @@ namespace RomVaultX
                     tFile.MD5 = gZipTest.md5Hash;
                     tFile.SHA1 = gZipTest.sha1Hash;
                     tFile.Size = gZipTest.uncompressedSize;
+                    tFile.AltType = gZipTest.altType;
+                    tFile.AltCRC = gZipTest.altcrc;
+                    tFile.AltMD5 = gZipTest.altmd5Hash;
+                    tFile.AltSHA1 = gZipTest.altsha1Hash;
+                    tFile.AltSize = gZipTest.uncompressedAltSize;
                     tFile.CompressedSize = gZipTest.compressedSize;
 
                     FindStatus res = fileneededTest(tFile);

@@ -136,7 +136,7 @@ namespace RomVaultX.DB.DBAccess
 
         public static bool ExecuteAlt(RvFile tFile)
         {
-            CommandAlt.Parameters["type"].Value = tFile.AltType;
+            CommandAlt.Parameters["type"].Value =(int) tFile.AltType;
             CommandAlt.Parameters["size"].Value = tFile.AltSize;
             CommandAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.AltCRC);
             CommandAlt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.AltSHA1);

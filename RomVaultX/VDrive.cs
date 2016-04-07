@@ -87,14 +87,14 @@ namespace RomVaultX
                 {
                     while (dr.Read())
                     {
-                        files.Add(new VFile { FileName = (string)dr["name"], Length = Convert.ToInt64(dr["ZipFileLength"]), TimeStamp=new DateTime(Convert.ToInt64(dr["ZipFileTimeStamp"])) });
+                        files.Add(new VFile { FileName = (string)dr["name"], Length = Convert.ToInt64(dr["ZipFileLength"]), TimeStamp = new DateTime(Convert.ToInt64(dr["ZipFileTimeStamp"])) });
                     }
                 }
             }
             return files;
         }
 
-        private bool GetFileInDirectory(int dirId, string filename, out int gameId, out long zipfileLength,out DateTime zipfileTimeStamp)
+        private bool GetFileInDirectory(int dirId, string filename, out int gameId, out long zipfileLength, out DateTime zipfileTimeStamp)
         {
             using (SQLiteCommand getFileInDirectory = new SQLiteCommand(@"select GameId, ZipFileLength,ZipFileTimeStamp from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name", DataAccessLayer.DBConnection))
             {
@@ -106,14 +106,14 @@ namespace RomVaultX
                     {
                         gameId = Convert.ToInt32(dr["GameId"]);
                         zipfileLength = Convert.ToInt64(dr["ZipFileLength"]);
-                        zipfileTimeStamp=new DateTime(Convert.ToInt64(dr["ZipFileTimeStamp"]));
+                        zipfileTimeStamp = new DateTime(Convert.ToInt64(dr["ZipFileTimeStamp"]));
                         return true;
                     }
                 }
             }
             gameId = -1;
             zipfileLength = 0;
-            zipfileTimeStamp=new DateTime();
+            zipfileTimeStamp = new DateTime();
             return false;
         }
 
@@ -199,6 +199,12 @@ namespace RomVaultX
             Debug.WriteLine("DokanInfo IsDirectory : " + info.IsDirectory);
             VFile vfile;
 
+            //Valid Returns:    DokanResult.PathNotFound
+            //                  DokanResult.FileNotFound
+            //                  DokanResult.FileExists  <-- trying to create a directory or file that already exists
+            //                  DokanResult.AccessDenied
+            //                  DokanResult.Success
+
             if (fileName == "\\")
             {
                 vfile = new VFile
@@ -242,7 +248,7 @@ namespace RomVaultX
             int gameId;
             long zipfilelength;
             DateTime zipfileTimeStamp;
-            if (!GetFileInDirectory((int)dirId, filePart, out gameId, out zipfilelength,out zipfileTimeStamp))
+            if (!GetFileInDirectory((int)dirId, filePart, out gameId, out zipfilelength, out zipfileTimeStamp))
                 return NtStatus.NoSuchFile;
 
             vfile = new VFile
@@ -432,13 +438,15 @@ namespace RomVaultX
             if (vfile == null)
                 return NtStatus.NoSuchFile;
 
-            fileInfo = new FileInformation();
-            fileInfo.FileName = vfile.FileName;
-            fileInfo.Length = vfile.Length;
-            fileInfo.CreationTime = vfile.TimeStamp;
-            fileInfo.LastAccessTime = vfile.TimeStamp;
-            fileInfo.LastWriteTime = vfile.TimeStamp;
-            fileInfo.Attributes = vfile.IsDirectory ? FileAttributes.Directory : FileAttributes.Normal;
+            fileInfo = new FileInformation
+            {
+                FileName = vfile.FileName,
+                Length = vfile.Length,
+                CreationTime = vfile.TimeStamp,
+                LastAccessTime = vfile.TimeStamp,
+                LastWriteTime = vfile.TimeStamp,
+                Attributes = vfile.IsDirectory ? FileAttributes.Directory : FileAttributes.Normal
+            };
             return NtStatus.Success;
 
         }
@@ -449,47 +457,8 @@ namespace RomVaultX
             Debug.WriteLine("-----------FindFiles---------------------------------");
             Debug.WriteLine("Filename : " + fileName);
 
-            // if (searchPattern != "*" && searchPattern !="DatRoot")
-            //     Debug.WriteLine("Unknown search pattern");
+            return FindFilesWithPattern(fileName, "*", out files, info);
 
-            files = new List<FileInformation>();
-
-            VFile vfile = (VFile)info.Context;
-            if (vfile == null)
-                return NtStatus.NoSuchFile;
-            int dirId = vfile.DirId;
-
-            List<string> dirNames = GetDirectoryNames(dirId);
-            foreach (string dirName in dirNames)
-            {
-                FileInformation fi = new FileInformation
-                {
-                    FileName = dirName,
-                    Length = 0,
-                    Attributes = FileAttributes.Directory | FileAttributes.ReadOnly,
-                    CreationTime = vfile.TimeStamp,
-                    LastAccessTime = vfile.TimeStamp,
-                    LastWriteTime = vfile.TimeStamp
-                };
-                files.Add(fi);
-            }
-
-            List<VFile> dFiles = GetFilesInDirectory(dirId);
-            foreach (VFile file in dFiles)
-            {
-                FileInformation fi = new FileInformation
-                {
-                    FileName = file.FileName + ".zip",
-                    Length = file.Length,
-                    Attributes = FileAttributes.Normal | FileAttributes.ReadOnly,
-                    CreationTime = file.TimeStamp,
-                    LastAccessTime = file.TimeStamp,
-                    LastWriteTime = file.TimeStamp
-                };
-                files.Add(fi);
-            }
-
-            return NtStatus.Success;
         }
 
         public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
@@ -541,8 +510,19 @@ namespace RomVaultX
                 files.Add(fi);
             }
 
+            GetEmptyDirectoryDefaultFiles(fileName, ref files);
+
             return NtStatus.Success;
         }
+
+        private void GetEmptyDirectoryDefaultFiles(string fileName, ref IList<FileInformation> files)
+        {
+            if (fileName == "\\")
+                return;
+            files.Add(new FileInformation() { FileName = ".", Attributes = FileAttributes.Directory, CreationTime = DateTime.Today, LastWriteTime = DateTime.Today, LastAccessTime = DateTime.Today });
+            files.Add(new FileInformation() { FileName = "..", Attributes = FileAttributes.Directory, CreationTime = DateTime.Today, LastWriteTime = DateTime.Today, LastAccessTime = DateTime.Today });
+        }
+
 
         public NtStatus SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info)
         {
@@ -640,6 +620,7 @@ namespace RomVaultX
             Debug.WriteLine("-----------FindStreams---------------------------------");
             Debug.WriteLine("Filename : " + fileName);
 
+            /*
             streams = new List<FileInformation>();
             FileInformation fileInfo = new FileInformation();
 
@@ -656,6 +637,10 @@ namespace RomVaultX
             fileInfo.Attributes = vfile.IsDirectory ? FileAttributes.Directory : FileAttributes.Normal;
 
             streams.Add(fileInfo);
+            */
+
+
+            streams = new FileInformation[0];
             return NtStatus.Success;
 
         }

@@ -97,7 +97,7 @@ namespace RomVaultX.DB
                         LocalFileHeaderOffset = null,
                         LocalFileHeaderLength=null
                     WHERE
-                        (              alttype = @alttype )
+                        (                 type = @type ) AND
 	                    (                 sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( crc  is NULL OR crc  = @crc  ) AND
@@ -111,7 +111,7 @@ namespace RomVaultX.DB
                         LocalFileHeaderOffset = null,
                         LocalFileHeaderLength=null
                     WHERE
-                        (              alttype = @alttype )
+                        (                 type = @type ) AND
 	                    (                 md5  = @md5  ) AND 
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( crc  is NULL OR crc  = @crc  ) AND
@@ -125,7 +125,7 @@ namespace RomVaultX.DB
                         LocalFileHeaderOffset = null,
                         LocalFileHeaderLength=null
                     WHERE
-                        (              alttype = @alttype )
+                        (                 type = @type ) AND
 	                    (                 crc  = @crc  ) AND
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
@@ -134,7 +134,7 @@ namespace RomVaultX.DB
                         FileId IS NULL;
                 ", DataAccessLayer.DBConnection);
             SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("FileId"));
-            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("alttype"));
+            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("type"));
             SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("size"));
             SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("crc"));
             SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("sha1"));
@@ -213,7 +213,7 @@ namespace RomVaultX.DB
                 if (FileHeaderReader.AltHeaderFile(AltType))
                 {
                     SqlUpdateRomAlt.Parameters["FileId"].Value = fileId;
-                    SqlUpdateRomAlt.Parameters["alttype"].Value = AltType;
+                    SqlUpdateRomAlt.Parameters["type"].Value = AltType;
                     SqlUpdateRomAlt.Parameters["size"].Value = AltSize;
                     SqlUpdateRomAlt.Parameters["crc"].Value = VarFix.ToDBString(AltCRC);
                     SqlUpdateRomAlt.Parameters["sha1"].Value = VarFix.ToDBString(AltSHA1);
