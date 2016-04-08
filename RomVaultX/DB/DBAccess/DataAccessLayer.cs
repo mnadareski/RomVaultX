@@ -63,7 +63,6 @@ GameUpdate trigger will update the DAT table:
 
 */
 
-
 using System;
 using System.Data.SQLite;
 using RomVaultX.IO;
@@ -82,8 +81,9 @@ namespace RomVaultX.DB
         private static readonly SQLiteCommand CmdCountDATs;
 
         private const int DBVersion = 6;
-        private static readonly string DirFilename = @"rom" + DBVersion + ".db3";
+        private static readonly string DirFilename;
         //private static readonly string DirFilename = @":memory:";
+
 
 
         public static SQLiteConnection DBConnection
@@ -93,6 +93,15 @@ namespace RomVaultX.DB
 
         static DataAccessLayer()
         {
+            DirFilename = AppSettings.ReadSetting("DBFileName");
+            if (DirFilename == null)
+            {
+                AppSettings.AddUpdateAppSettings("DBFileName", "rom");
+                DirFilename = AppSettings.ReadSetting("DBFileName");
+            }
+
+
+            DirFilename += DBVersion + ".db3";
 
             bool datFound = File.Exists(DirFilename);
 

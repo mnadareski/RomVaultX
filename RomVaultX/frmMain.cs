@@ -962,7 +962,7 @@ namespace RomVaultX
 
             di = new VDrive();
 
-            Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.DebugMode,5); });
+            Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.DebugMode,1); });
             t2.Start();
         }
 
