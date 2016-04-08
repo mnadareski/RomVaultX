@@ -42,6 +42,8 @@ namespace RomVaultX
         {
             using (SQLiteCommand getTotalBytes = new SQLiteCommand(@"select sum(zipfilelength) from game", DataAccessLayer.DBConnection))
             {
+
+                return 95906406250;
                 return Convert.ToInt64(getTotalBytes.ExecuteScalar());
             }
         }
@@ -211,6 +213,7 @@ namespace RomVaultX
                 {
                     FileName = fileName,
                     IsDirectory = true,
+                    TimeStamp = DateTime.Now,
                     DirId = 0
                 };
                 info.Context = vfile;
@@ -224,6 +227,7 @@ namespace RomVaultX
                 {
                     FileName = fileName,
                     IsDirectory = true,
+                    TimeStamp=DateTime.Now,
                     DirId = (int)dirId
                 };
                 info.Context = vfile;
@@ -476,6 +480,9 @@ namespace RomVaultX
             VFile vfile = (VFile)info.Context;
             if (vfile == null)
                 return NtStatus.NoSuchFile;
+
+            GetEmptyDirectoryDefaultFiles(fileName, ref files);
+
             int dirId = vfile.DirId;
 
             List<string> dirNames = GetDirectoryNames(dirId);
@@ -509,8 +516,6 @@ namespace RomVaultX
                 };
                 files.Add(fi);
             }
-
-            GetEmptyDirectoryDefaultFiles(fileName, ref files);
 
             return NtStatus.Success;
         }
@@ -619,26 +624,6 @@ namespace RomVaultX
             Debug.WriteLine("");
             Debug.WriteLine("-----------FindStreams---------------------------------");
             Debug.WriteLine("Filename : " + fileName);
-
-            /*
-            streams = new List<FileInformation>();
-            FileInformation fileInfo = new FileInformation();
-
-            VFile vfile = (VFile)info.Context;
-            if (vfile == null)
-                return NtStatus.NoSuchFile;
-
-            fileInfo = new FileInformation();
-            fileInfo.FileName = vfile.FileName;
-            fileInfo.Length = vfile.Length;
-            fileInfo.CreationTime = vfile.TimeStamp;
-            fileInfo.LastAccessTime = vfile.TimeStamp;
-            fileInfo.LastWriteTime = vfile.TimeStamp;
-            fileInfo.Attributes = vfile.IsDirectory ? FileAttributes.Directory : FileAttributes.Normal;
-
-            streams.Add(fileInfo);
-            */
-
 
             streams = new FileInformation[0];
             return NtStatus.Success;

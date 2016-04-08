@@ -96,7 +96,7 @@ namespace RomVaultX.DB
             DirFilename = AppSettings.ReadSetting("DBFileName");
             if (DirFilename == null)
             {
-                AppSettings.AddUpdateAppSettings("DBFileName", "rom");
+                AppSettings.AddUpdateAppSettings("DBFileName", "C:\\RomVaultX\\rom");
                 DirFilename = AppSettings.ReadSetting("DBFileName");
             }
 
