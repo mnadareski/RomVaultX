@@ -68,7 +68,9 @@ namespace RomVaultX
                 _datsProcessed = 0;
 
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
+                DataAccessLayer.Begin();
                 ReadDats(DirId, datRoot, "DatRoot");
+                DataAccessLayer.Commit();
 
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
                 DataAccessLayer.RemoveNotFoundDATs();
@@ -148,9 +150,11 @@ namespace RomVaultX
                 if (DatReader.DatReader.ReadDat(f.FullName, f.LastWriteTime, _bgw, out rvDat))
                 {
                     rvDat.DirId = ParentId;
+                    DataAccessLayer.Commit();
                     DataAccessLayer.Begin();
                     rvDat.DbWrite();
                     DataAccessLayer.Commit();
+                    DataAccessLayer.Begin();
                 }
 
                 if (_bgw.CancellationPending)

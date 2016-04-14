@@ -86,61 +86,65 @@ namespace RomVaultX
             {
                 ZipFile fz = new ZipFile();
                 fStream.Position = 0;
-                fz.ZipFileOpen(fStream);
-
-                bool allZipFound = true;
-                for (int i = 0; i < fz.LocalFilesCount(); i++)
+                ZipReturn zp= fz.ZipFileOpen(fStream);
+                if (zp == ZipReturn.ZipGood)
                 {
-                    // this needs to go back into the Zip library.
-
-                    Stream stream;
-                    ulong streamSize;
-                    ushort compressionMethod;
-                    fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
-
-                    // test keep in memory if less than 1024*1024
-                    ulong memkeepSize = 1024 * 1024;
-                    if (streamSize <= memkeepSize)
+                    bool allZipFound = true;
+                    for (int i = 0; i < fz.LocalFilesCount(); i++)
                     {
-                        byte[] tmpFile = new byte[streamSize];
-                        stream.Read(tmpFile, 0, (int)streamSize);
-                        Stream memFS = new MemoryStream(tmpFile, false);
-                        allZipFound &= ScanAFile(memFS);
-                        memFS.Close();
-                        memFS.Dispose();
-                    }
-                    else
-                    {
-                        string file = @"tmp\" + Guid.NewGuid();
-                        if (!Directory.Exists("tmp"))
-                            Directory.CreateDirectory("tmp");
-                        Stream Fs;
-                        IO.FileStream.OpenFileWrite(file, out Fs);
-                        ulong sizetogo = streamSize;
-                        while (sizetogo > 0)
+                        // this needs to go back into the Zip library.
+
+                        Stream stream;
+                        ulong streamSize;
+                        ushort compressionMethod;
+                        fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
+
+                        // test keep in memory if less than 1024*1024
+                        ulong memkeepSize = 1024*1024;
+                        if (streamSize <= memkeepSize)
                         {
-                            int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
-                            stream.Read(_buffer, 0, sizenow);
-                            Fs.Write(_buffer, 0, sizenow);
-                            sizetogo -= (ulong)sizenow;
+                            byte[] tmpFile = new byte[streamSize];
+                            stream.Read(tmpFile, 0, (int) streamSize);
+                            Stream memFS = new MemoryStream(tmpFile, false);
+                            allZipFound &= ScanAFile(memFS);
+                            memFS.Close();
+                            memFS.Dispose();
                         }
-                        Fs.Close();
+                        else
+                        {
+                            string file = @"tmp\" + Guid.NewGuid();
+                            if (!Directory.Exists("tmp"))
+                                Directory.CreateDirectory("tmp");
+                            Stream Fs;
+                            IO.FileStream.OpenFileWrite(file, out Fs);
+                            ulong sizetogo = streamSize;
+                            while (sizetogo > 0)
+                            {
+                                int sizenow = sizetogo > (ulong) Buffersize ? Buffersize : (int) sizetogo;
+                                stream.Read(_buffer, 0, sizenow);
+                                Fs.Write(_buffer, 0, sizenow);
+                                sizetogo -= (ulong) sizenow;
+                            }
+                            Fs.Close();
 
-                        Stream fstreamNext;
-                        int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
-                        if (errorCode != 0)
-                            return false;
+                            Stream fstreamNext;
+                            int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
+                            if (errorCode != 0)
+                                return false;
 
-                        allZipFound &= ScanAFile(fstreamNext);
-                        fstreamNext.Close();
-                        fstreamNext.Dispose();
-                        File.Delete(file);
+                            allZipFound &= ScanAFile(fstreamNext);
+                            fstreamNext.Close();
+                            fstreamNext.Dispose();
+                            File.Delete(file);
+                        }
+                        fz.ZipFileCloseReadStream();
+
                     }
-                    fz.ZipFileCloseReadStream();
-
+                    fz.ZipFileClose();
+                    ret |= allZipFound;
                 }
-                fz.ZipFileClose();
-                ret |= allZipFound;
+                else
+                    ret = false;
             }
             if (foundFileType == FileType.GZ)
             {

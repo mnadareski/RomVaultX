@@ -28,6 +28,8 @@ namespace RomVaultX
                 return;
             }
 
+
+
             ScanRomRoot(@"RomRoot");
 
             DataAccessLayer.UpdateGotTotal();
