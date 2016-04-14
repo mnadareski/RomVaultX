@@ -1,19 +1,19 @@
-﻿using System.Data.SQLite;
+﻿using System.Data.Common;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB.DBAccess
 {
     public static class GetFile
     {
-        private static readonly SQLiteCommand Command;
+        private static readonly DbCommand Command;
 
         static GetFile()
         {
-            Command = new SQLiteCommand(
+            Command = Program.db.Command(
               @"
                     SELECT sha1 FROM FILES WHERE
-                        fileId=@fileId", DataAccessLayer.DBConnection);
-            Command.Parameters.Add(new SQLiteParameter("fileId"));
+                        fileId=@fileId");
+            Command.Parameters.Add(Program.db.Parameter("fileId"));
         }
 
         public static byte[] Execute(uint fileId)
@@ -21,7 +21,7 @@ namespace RomVaultX.DB.DBAccess
             Command.Parameters["fileId"].Value = fileId;
 
             byte[] sha1=null;
-            using (SQLiteDataReader dr = Command.ExecuteReader())
+            using (DbDataReader dr = Command.ExecuteReader())
             {
                 while (dr.Read())
                 {

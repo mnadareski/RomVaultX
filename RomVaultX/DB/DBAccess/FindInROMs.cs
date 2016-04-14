@@ -1,18 +1,19 @@
 ﻿using System;
-using System.Data.SQLite;
+using System.Data.Common;
+using System.Data.Common;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB.DBAccess
 {
     public static class FindInROMs
     {
-        private static readonly SQLiteCommand Command;
-        private static readonly SQLiteCommand CommandAlt;
-        private static readonly SQLiteCommand CommandZero;
+        private static readonly DbCommand Command;
+        private static readonly DbCommand CommandAlt;
+        private static readonly DbCommand CommandZero;
 
         static FindInROMs()
         {
-            Command = new SQLiteCommand(
+            Command = Program.db.Command(
                @"
                         SELECT
                         (
@@ -40,13 +41,13 @@ namespace RomVaultX.DB.DBAccess
                                 ( status!='nodump' or status is NULL)
                         ) 
                         AS TotalFound"
-               , DataAccessLayer.DBConnection);
-            Command.Parameters.Add(new SQLiteParameter("size"));
-            Command.Parameters.Add(new SQLiteParameter("crc"));
-            Command.Parameters.Add(new SQLiteParameter("sha1"));
-            Command.Parameters.Add(new SQLiteParameter("md5"));
+               );
+            Command.Parameters.Add(Program.db.Parameter("size"));
+            Command.Parameters.Add(Program.db.Parameter("crc"));
+            Command.Parameters.Add(Program.db.Parameter("sha1"));
+            Command.Parameters.Add(Program.db.Parameter("md5"));
 
-            CommandAlt = new SQLiteCommand(
+            CommandAlt = Program.db.Command(
               @"
                         SELECT
                         (
@@ -77,15 +78,15 @@ namespace RomVaultX.DB.DBAccess
                                 ( status!='nodump' or status is NULL)
                         ) 
                         AS TotalFound"
-              , DataAccessLayer.DBConnection);
-            CommandAlt.Parameters.Add(new SQLiteParameter("type"));
-            CommandAlt.Parameters.Add(new SQLiteParameter("size"));
-            CommandAlt.Parameters.Add(new SQLiteParameter("crc"));
-            CommandAlt.Parameters.Add(new SQLiteParameter("sha1"));
-            CommandAlt.Parameters.Add(new SQLiteParameter("md5"));
+              );
+            CommandAlt.Parameters.Add(Program.db.Parameter("type"));
+            CommandAlt.Parameters.Add(Program.db.Parameter("size"));
+            CommandAlt.Parameters.Add(Program.db.Parameter("crc"));
+            CommandAlt.Parameters.Add(Program.db.Parameter("sha1"));
+            CommandAlt.Parameters.Add(Program.db.Parameter("md5"));
 
 
-            CommandZero = new SQLiteCommand(
+            CommandZero = Program.db.Command(
                @"
                     SELECT count(1) AS TotalFound FROM ROM WHERE
                         ( sha1=@SHA1 OR sha1 is NULL ) AND 
@@ -93,10 +94,10 @@ namespace RomVaultX.DB.DBAccess
                         ( crc=@CRC OR crc is NULL ) AND
                         ( size=0 ) AND
                         ( status!='nodump' or status is NULL)"
-               , DataAccessLayer.DBConnection);
-            CommandZero.Parameters.Add(new SQLiteParameter("crc"));
-            CommandZero.Parameters.Add(new SQLiteParameter("sha1"));
-            CommandZero.Parameters.Add(new SQLiteParameter("md5"));
+               );
+            CommandZero.Parameters.Add(Program.db.Parameter("crc"));
+            CommandZero.Parameters.Add(Program.db.Parameter("sha1"));
+            CommandZero.Parameters.Add(Program.db.Parameter("md5"));
 
         }
 

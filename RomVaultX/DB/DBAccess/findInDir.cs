@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SQLite;
+using System.Data.Common;
 
 namespace RomVaultX.DB.DBAccess
 {
@@ -8,12 +8,12 @@ namespace RomVaultX.DB.DBAccess
 
         private static class FindInDir
         {
-            private static readonly SQLiteCommand Command;
+            private static readonly DbCommand Command;
 
             static FindInDir()
             {
-                Command = new SQLiteCommand(@"SELECT DirId FROM dir WHERE fullname=@fullname LIMIT 1", DataAccessLayer.DBConnection);
-                Command.Parameters.Add(new SQLiteParameter("fullname"));
+                Command = Program.db.Command(@"SELECT DirId FROM dir WHERE fullname=@fullname LIMIT 1");
+                Command.Parameters.Add(Program.db.Parameter("fullname"));
             }
 
             public static uint? Execute(string fullname)
@@ -29,13 +29,13 @@ namespace RomVaultX.DB.DBAccess
 
         private static class SetDirFound
         {
-            private static readonly SQLiteCommand Command;
+            private static readonly DbCommand Command;
 
             static SetDirFound()
             {
-                Command = new SQLiteCommand(
-                    @"Update Dir SET Found=1 WHERE DirId=@DirId", DataAccessLayer.DBConnection);
-                Command.Parameters.Add(new SQLiteParameter("DirId"));
+                Command = Program.db.Command(
+                    @"Update Dir SET Found=1 WHERE DirId=@DirId");
+                Command.Parameters.Add(Program.db.Parameter("DirId"));
             }
 
             public static void Execute(uint foundDatId)
@@ -49,19 +49,19 @@ namespace RomVaultX.DB.DBAccess
 
         private static class InsertIntoDir
         {
-            private static readonly SQLiteCommand Command;
+            private static readonly DbCommand Command;
 
             static InsertIntoDir()
             {
-                Command = new SQLiteCommand(
+                Command = Program.db.Command(
                     @"INSERT INTO DIR (ParentDirId,Name,FullName)
                          VALUES (@ParentDirId,@Name,@FullName);
 
-                         SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
+                         SELECT last_insert_rowid();");
 
-                Command.Parameters.Add(new SQLiteParameter("ParentDirId"));
-                Command.Parameters.Add(new SQLiteParameter("Name"));
-                Command.Parameters.Add(new SQLiteParameter("FullName"));
+                Command.Parameters.Add(Program.db.Parameter("ParentDirId"));
+                Command.Parameters.Add(Program.db.Parameter("Name"));
+                Command.Parameters.Add(Program.db.Parameter("FullName"));
             }
 
             public static uint Execute(uint parentDirId, string name, string fullName)

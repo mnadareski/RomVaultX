@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Data;
-using System.Data.SQLite;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.SupportedFiles.Zip;
@@ -17,19 +16,19 @@ namespace RomVaultX
 
         public static void UpdateDB()
         {
-            SQLiteCommand writeLocalHeaderToRom = new SQLiteCommand(
+            DbCommand writeLocalHeaderToRom = Program.db.Command(
                 @"UPDATE ROM SET 
                     LocalFileHeader=@localFileHeader,
                     LocalFileHeaderOffset=@localFileHeaderOffset,
                     LocalFileHeaderLength=@localFileHeaderLength
                 WHERE
-                    RomId=@romID", DataAccessLayer.DBConnection);
-            writeLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeader", DbType.Binary));
-            writeLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderOffset"));
-            writeLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderLength"));
-            writeLocalHeaderToRom.Parameters.Add(new SQLiteParameter("RomId"));
+                    RomId=@romID");
+            writeLocalHeaderToRom.Parameters.Add(Program.db.Parameter("localFileHeader", DbType.Binary));
+            writeLocalHeaderToRom.Parameters.Add(Program.db.Parameter("localFileHeaderOffset"));
+            writeLocalHeaderToRom.Parameters.Add(Program.db.Parameter("localFileHeaderLength"));
+            writeLocalHeaderToRom.Parameters.Add(Program.db.Parameter("RomId"));
 
-            SQLiteCommand writeCentralDirToGame = new SQLiteCommand(
+            DbCommand writeCentralDirToGame = Program.db.Command(
                 @"UPDATE GAME SET 
                     ZipFileLength=@zipFileLength,
                     ZipFileTimeStamp=@zipFileTimeStamp,
@@ -37,30 +36,30 @@ namespace RomVaultX
                     CentralDirectoryOffset=@centralDirectoryOffset,
                     CentralDirectoryLength=@centralDirectoryLength
                 WHERE
-                    GameId=@gameID", DataAccessLayer.DBConnection);
-            writeCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileLength"));
-            writeCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileTimeStamp"));
-            writeCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectory", DbType.Binary));
-            writeCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryOffset"));
-            writeCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryLength"));
-            writeCentralDirToGame.Parameters.Add(new SQLiteParameter("GameId"));
+                    GameId=@gameID");
+            writeCentralDirToGame.Parameters.Add(Program.db.Parameter("zipFileLength"));
+            writeCentralDirToGame.Parameters.Add(Program.db.Parameter("zipFileTimeStamp"));
+            writeCentralDirToGame.Parameters.Add(Program.db.Parameter("centralDirectory", DbType.Binary));
+            writeCentralDirToGame.Parameters.Add(Program.db.Parameter("centralDirectoryOffset"));
+            writeCentralDirToGame.Parameters.Add(Program.db.Parameter("centralDirectoryLength"));
+            writeCentralDirToGame.Parameters.Add(Program.db.Parameter("GameId"));
 
 
 
-            SQLiteCommand findRoms = new SQLiteCommand(
+            DbCommand findRoms = Program.db.Command(
                 @"SELECT
                     ROM.RomId, 
                     ROM.name,
                     FILES.size,
                     FILES.compressedsize,
                     FILES.crc
-                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId ORDER BY ROM.name", DataAccessLayer.DBConnection);
-            findRoms.Parameters.Add(new SQLiteParameter("GameId"));
+                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId ORDER BY ROM.name");
+            findRoms.Parameters.Add(Program.db.Parameter("GameId"));
 
-            SQLiteCommand findGames = new SQLiteCommand(
-                @"SELECT GameId,name FROM game WHERE RomGot>0 AND ZipFileLength is null", DataAccessLayer.DBConnection);
+            DbCommand findGames = Program.db.Command(
+                @"SELECT GameId,name FROM game WHERE RomGot>0 AND ZipFileLength is null");
 
-            SQLiteDataReader drGame = findGames.ExecuteReader();
+            DbDataReader drGame = findGames.ExecuteReader();
 
             int commitCount = 0;
             DataAccessLayer.Begin();
@@ -75,7 +74,7 @@ namespace RomVaultX
                 memZip.ZipCreateFake();
 
                 findRoms.Parameters["GameId"].Value = GameId;
-                SQLiteDataReader drRom = findRoms.ExecuteReader();
+                DbDataReader drRom = findRoms.ExecuteReader();
 
                 ulong fileOffset = 0;
 
@@ -136,16 +135,16 @@ namespace RomVaultX
 
         public static void WriteOutZips()
         {
-            SQLiteCommand findRoms = new SQLiteCommand(
+            DbCommand findRoms = Program.db.Command(
                 @"SELECT
                     FILES.sha1,
                     LocalFileHeader,
                     LocalFileHeaderOffset,
                     LocalFileHeaderLength
-                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId", DataAccessLayer.DBConnection);
-            findRoms.Parameters.Add(new SQLiteParameter("GameId"));
+                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId");
+            findRoms.Parameters.Add(Program.db.Parameter("GameId"));
 
-            SQLiteCommand findGames = new SQLiteCommand(
+            DbCommand findGames = Program.db.Command(
                 @"select 
                     gameid,
                     fullname,
@@ -153,9 +152,9 @@ namespace RomVaultX
                     CentralDirectory,
                     CentralDirectoryOffset,
                     CentralDirectoryLength
-                from game,dat,dir where game.RomGot>0 and game.DatId=dat.DatId and dat.DirId=dir.dirid", DataAccessLayer.DBConnection);
+                from game,dat,dir where game.RomGot>0 and game.DatId=dat.DatId and dat.DirId=dir.dirid");
 
-            SQLiteDataReader drGame = findGames.ExecuteReader();
+            DbDataReader drGame = findGames.ExecuteReader();
 
             int commitCount = 0;
             DataAccessLayer.Begin();
@@ -173,7 +172,7 @@ namespace RomVaultX
                 IO.FileStream.OpenFileWrite(outZipFilename, out _zipFs);
 
                 findRoms.Parameters["GameId"].Value = GameId;
-                SQLiteDataReader drRom = findRoms.ExecuteReader();
+                DbDataReader drRom = findRoms.ExecuteReader();
 
                 while (drRom.Read())
                 {

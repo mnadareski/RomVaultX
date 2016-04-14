@@ -2,18 +2,20 @@
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using RomVaultX.DB.NewDB;
 
 namespace RomVaultX
 {
     static class Program
     {
-
+        public static iDB db;
         public static readonly Encoding Enc = Encoding.GetEncoding(28591);
         public static SynchronizationContext SyncCont;
         [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
+            db = new DBSqlite();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new frmMain());
         }

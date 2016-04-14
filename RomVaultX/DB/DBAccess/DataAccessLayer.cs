@@ -64,6 +64,7 @@ GameUpdate trigger will update the DAT table:
 */
 
 using System;
+using System.Data.Common;
 using System.Data.SQLite;
 using RomVaultX.IO;
 using Convert = System.Convert;
@@ -72,24 +73,16 @@ namespace RomVaultX.DB
 {
     public static class DataAccessLayer
     {
-        private static readonly SQLiteConnection Connection;
+        private static readonly DbCommand CmdClearfoundDirDATs;
 
-        private static readonly SQLiteCommand CmdClearfoundDirDATs;
+        private static readonly DbCommand CmdCleanupNotFoundDATs;
 
-        private static readonly SQLiteCommand CmdCleanupNotFoundDATs;
-
-        private static readonly SQLiteCommand CmdCountDATs;
+        private static readonly DbCommand CmdCountDATs;
 
         private const int DBVersion = 6;
         private static readonly string DirFilename;
         //private static readonly string DirFilename = @":memory:";
 
-
-
-        public static SQLiteConnection DBConnection
-        {
-            get { return Connection; }
-        }
 
         static DataAccessLayer()
         {
@@ -105,8 +98,8 @@ namespace RomVaultX.DB
 
             bool datFound = File.Exists(DirFilename);
 
-            Connection = new SQLiteConnection(@"data source=" + DirFilename + ";Version=3");
-            Connection.Open();
+            Program.db.Connection = new SQLiteConnection(@"data source=" + DirFilename + ";Version=3");
+            Program.db.Connection.Open();
 
             CheckDbVersion(ref datFound);
 
@@ -123,13 +116,13 @@ namespace RomVaultX.DB
 
 
 
-            CmdClearfoundDirDATs = new SQLiteCommand(
+            CmdClearfoundDirDATs = Program.db.Command(
                 @"
                     UPDATE DIR SET Found=0;
                     UPDATE DAT SET Found=0;
-                ", Connection);
+                ");
 
-            CmdCleanupNotFoundDATs = new SQLiteCommand(
+            CmdCleanupNotFoundDATs = Program.db.Command(
                 @"
                 delete from rom where rom.GameId in
                 (
@@ -147,19 +140,19 @@ namespace RomVaultX.DB
                 delete from dat where found=0;
 
                 delete from dir where found=0;
-            ", Connection);
+            ");
 
 
-            CmdCountDATs = new SQLiteCommand(@"select count(1) from dat", Connection);
+            CmdCountDATs = Program.db.Command(@"select count(1) from dat");
         }
 
 
         public static void ExecuteNonQuery(string query, params object[] args)
         {
-            using (SQLiteCommand command = new SQLiteCommand(query, Connection))
+            using (DbCommand command = Program.db.Command(query))
             {
                 for (int i = 0; i < args.Length; i += 2)
-                    command.Parameters.Add(new SQLiteParameter(args[i].ToString(), args[i + 1]));
+                    command.Parameters.Add(Program.db.Parameter(args[i].ToString(), args[i + 1]));
 
                 command.ExecuteNonQuery();
             }
@@ -174,7 +167,7 @@ namespace RomVaultX.DB
             try
             {
 
-                SQLiteCommand dbVersionCommand = new SQLiteCommand(@"SELECT version from version limit 1", Connection);
+                DbCommand dbVersionCommand = Program.db.Command(@"SELECT version from version limit 1");
                 object res = dbVersionCommand.ExecuteScalar();
 
                 if (res != null && res != DBNull.Value)
@@ -187,9 +180,9 @@ namespace RomVaultX.DB
             {
             }
 
-            Connection.Close();
+            Program.db.Connection.Close();
             File.Delete(DirFilename);
-            Connection.Open();
+            Program.db.Connection.Open();
             datFound = false;
         }
 
@@ -417,7 +410,7 @@ namespace RomVaultX.DB
             (select count(1) from dat       where dat.DirId=dir.dirid)=0;");
 
 
-            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", Connection);
+            DbCommand sqlNullCount = Program.db.Command(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null");
 
             int nullcount;
             do

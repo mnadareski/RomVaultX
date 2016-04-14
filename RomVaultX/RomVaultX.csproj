@@ -114,6 +114,8 @@
     <Compile Include="DB\DBAccess\FindInDir.cs" />
     <Compile Include="DB\DBAccess\FindInROMs.cs" />
     <Compile Include="DB\DBAccess\GetFile.cs" />
+    <Compile Include="DB\NewDB\DBSqlite.cs" />
+    <Compile Include="DB\NewDB\iDB.cs" />
     <Compile Include="DB\rvDat.cs" />
     <Compile Include="DB\rvFile.cs" />
     <Compile Include="DB\RvGameGridRow.cs" />

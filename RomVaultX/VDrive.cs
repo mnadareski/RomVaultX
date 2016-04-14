@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.Common;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
@@ -40,7 +41,7 @@ namespace RomVaultX
     {
         private static long TotalBytes()
         {
-            using (SQLiteCommand getTotalBytes = new SQLiteCommand(@"select sum(zipfilelength) from game", DataAccessLayer.DBConnection))
+            using (DbCommand getTotalBytes = Program.db.Command(@"select sum(zipfilelength) from game"))
             {
 
                 return 95906406250;
@@ -50,9 +51,9 @@ namespace RomVaultX
 
         private static int? GetDirectoryId(string directoryName)
         {
-            using (SQLiteCommand getDirectoryId = new SQLiteCommand(@"select DirId From DIR where fullname=@FName", DataAccessLayer.DBConnection))
+            using (DbCommand getDirectoryId = Program.db.Command(@"select DirId From DIR where fullname=@FName"))
             {
-                SQLiteParameter pFName = new SQLiteParameter("FName") { Value = directoryName };
+                DbParameter pFName = Program.db.Parameter("FName", directoryName);
                 getDirectoryId.Parameters.Add(pFName);
 
                 object ret = getDirectoryId.ExecuteScalar();
@@ -63,11 +64,11 @@ namespace RomVaultX
         private static List<string> GetDirectoryNames(int parentDirId)
         {
             List<string> directoryNames = new List<string>();
-            using (SQLiteCommand getDirectory = new SQLiteCommand(@"select name From DIR where ParentDirId=@ParentId", DataAccessLayer.DBConnection))
+            using (DbCommand getDirectory = Program.db.Command(@"select name From DIR where ParentDirId=@ParentId"))
             {
-                SQLiteParameter pParentDirId = new SQLiteParameter("ParentId") { Value = parentDirId };
+                DbParameter pParentDirId = Program.db.Parameter("ParentId", parentDirId);
                 getDirectory.Parameters.Add(pParentDirId);
-                using (SQLiteDataReader dr = getDirectory.ExecuteReader())
+                using (DbDataReader dr = getDirectory.ExecuteReader())
                 {
                     while (dr.Read())
                     {
@@ -81,11 +82,11 @@ namespace RomVaultX
         private static List<VFile> GetFilesInDirectory(int dirId)
         {
             List<VFile> files = new List<VFile>();
-            using (SQLiteCommand getFilesInDirectory = new SQLiteCommand(@"select game.name,ZipFileLength,ZipFileTimeStamp from Dat,game where dat.DatId=game.datId and ZipFileLength>0 and dirId=@dirId", DataAccessLayer.DBConnection))
+            using (DbCommand getFilesInDirectory = Program.db.Command(@"select game.name,ZipFileLength,ZipFileTimeStamp from Dat,game where dat.DatId=game.datId and ZipFileLength>0 and dirId=@dirId"))
             {
-                SQLiteParameter pDirId = new SQLiteParameter("DirId") { Value = dirId };
+                DbParameter pDirId = Program.db.Parameter("DirId", dirId);
                 getFilesInDirectory.Parameters.Add(pDirId);
-                using (SQLiteDataReader dr = getFilesInDirectory.ExecuteReader())
+                using (DbDataReader dr = getFilesInDirectory.ExecuteReader())
                 {
                     while (dr.Read())
                     {
@@ -98,11 +99,11 @@ namespace RomVaultX
 
         private bool GetFileInDirectory(int dirId, string filename, out int gameId, out long zipfileLength, out DateTime zipfileTimeStamp)
         {
-            using (SQLiteCommand getFileInDirectory = new SQLiteCommand(@"select GameId, ZipFileLength,ZipFileTimeStamp from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name", DataAccessLayer.DBConnection))
+            using (DbCommand getFileInDirectory = Program.db.Command(@"select GameId, ZipFileLength,ZipFileTimeStamp from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name"))
             {
-                SQLiteParameter pDirId = new SQLiteParameter("DirId") { Value = dirId }; getFileInDirectory.Parameters.Add(pDirId);
-                SQLiteParameter pName = new SQLiteParameter("Name") { Value = filename }; getFileInDirectory.Parameters.Add(pName);
-                using (SQLiteDataReader dr = getFileInDirectory.ExecuteReader())
+                DbParameter pDirId = Program.db.Parameter("DirId", dirId); getFileInDirectory.Parameters.Add(pDirId);
+                DbParameter pName = Program.db.Parameter("Name", filename); getFileInDirectory.Parameters.Add(pName);
+                using (DbDataReader dr = getFileInDirectory.ExecuteReader())
                 {
                     while (dr.Read())
                     {
@@ -124,7 +125,7 @@ namespace RomVaultX
 
             vfile.files = new List<vGZFile>();
 
-            using (SQLiteCommand getRoms = new SQLiteCommand(
+            using (DbCommand getRoms = Program.db.Command(
                 @"SELECT
                     FILES.sha1,
                     FILES.compressedsize,
@@ -132,11 +133,11 @@ namespace RomVaultX
                     LocalFileHeaderOffset,
                     LocalFileHeaderLength
                  FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId 
-                 ORDER BY name", DataAccessLayer.DBConnection))
+                 ORDER BY name"))
             {
-                SQLiteParameter pGameId = new SQLiteParameter("GameId") { Value = gameId };
+                DbParameter pGameId = Program.db.Parameter("GameId", gameId );
                 getRoms.Parameters.Add(pGameId);
-                using (SQLiteDataReader dr = getRoms.ExecuteReader())
+                using (DbDataReader dr = getRoms.ExecuteReader())
                 {
                     while (dr.Read())
                     {
@@ -157,16 +158,16 @@ namespace RomVaultX
 
 
             // the central directory is now added on to the end of the file list, like is another file with zero bytes of compressed data.
-            using (SQLiteCommand getCentralDir = new SQLiteCommand(
+            using (DbCommand getCentralDir = Program.db.Command(
                @"select 
                     CentralDirectory, 
                     CentralDirectoryOffset, 
                     CentralDirectoryLength 
-                 from game where GameId=@gameId", DataAccessLayer.DBConnection))
+                 from game where GameId=@gameId"))
             {
-                SQLiteParameter pGameId = new SQLiteParameter("GameId") { Value = gameId };
+                DbParameter pGameId = Program.db.Parameter("GameId", gameId );
                 getCentralDir.Parameters.Add(pGameId);
-                using (SQLiteDataReader dr = getCentralDir.ExecuteReader())
+                using (DbDataReader dr = getCentralDir.ExecuteReader())
                 {
                     if (!dr.Read())
                         return false;
@@ -227,7 +228,7 @@ namespace RomVaultX
                 {
                     FileName = fileName,
                     IsDirectory = true,
-                    TimeStamp=DateTime.Now,
+                    TimeStamp = DateTime.Now,
                     DirId = (int)dirId
                 };
                 info.Context = vfile;

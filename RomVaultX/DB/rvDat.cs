@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.Common;
 
 namespace RomVaultX.DB
 {
@@ -24,37 +24,37 @@ namespace RomVaultX.DB
 
         public List<RvGame> Games = null; 
 
-        private static readonly SQLiteCommand SqlWrite;
-        private static readonly SQLiteCommand SqlRead;
+        private static readonly DbCommand SqlWrite;
+        private static readonly DbCommand SqlRead;
 
         static RvDat()
         {
-            SqlWrite = new SQLiteCommand(
+            SqlWrite = Program.db.Command(
                @"INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,DatTimeStamp)
                 VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@DatTimeStamp);
 
-                SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
+                SELECT last_insert_rowid();");
 
-            SqlWrite.Parameters.Add(new SQLiteParameter("DirId"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("Filename"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("name"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("rootdir"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("description"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("category"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("version"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("date"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("author"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("email"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("homepage"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("url"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("comment"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("DirId"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("Filename"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("name"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("rootdir"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("description"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("category"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("version"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("date"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("author"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("email"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("homepage"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("url"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("comment"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("DatTimeStamp"));
 
 
-            SqlRead = new SQLiteCommand(
+            SqlRead = Program.db.Command(
              @"SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment 
-                FROM DAT WHERE DatId=@datId ORDER BY Filename", DataAccessLayer.DBConnection);
-            SqlRead.Parameters.Add(new SQLiteParameter("datId"));
+                FROM DAT WHERE DatId=@datId ORDER BY Filename");
+            SqlRead.Parameters.Add(Program.db.Parameter("datId"));
 
         }
       
@@ -91,7 +91,7 @@ namespace RomVaultX.DB
         {
             SqlRead.Parameters["DatID"].Value = datId;
 
-            using (SQLiteDataReader dr = SqlRead.ExecuteReader())
+            using (DbDataReader dr = SqlRead.ExecuteReader())
             {
                 if (dr.Read())
                 {

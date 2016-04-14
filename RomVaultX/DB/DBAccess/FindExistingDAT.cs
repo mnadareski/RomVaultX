@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SQLite;
+using System.Data.Common;
 
 namespace RomVaultX.DB.DBAccess
 {
@@ -8,15 +8,15 @@ namespace RomVaultX.DB.DBAccess
 
         private static class FindExistingDat
         {
-            private static readonly SQLiteCommand Command;
+            private static readonly DbCommand Command;
 
             static FindExistingDat()
             {
-                Command = new SQLiteCommand(
-           @"SELECT DatId FROM Dat,Dir WHERE Dat.DirId=Dir.DirId AND fullname=@fullname AND Filename=@filename AND DatTimeStamp=@DatTimeStamp", DataAccessLayer.DBConnection);
-                Command.Parameters.Add(new SQLiteParameter("fullname"));
-                Command.Parameters.Add(new SQLiteParameter("filename"));
-                Command.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
+                Command = Program.db.Command(
+           @"SELECT DatId FROM Dat,Dir WHERE Dat.DirId=Dir.DirId AND fullname=@fullname AND Filename=@filename AND DatTimeStamp=@DatTimeStamp");
+                Command.Parameters.Add(Program.db.Parameter("fullname"));
+                Command.Parameters.Add(Program.db.Parameter("filename"));
+                Command.Parameters.Add(Program.db.Parameter("DatTimeStamp"));
             }
 
             public static uint? Execute(string fulldir, string filename, long DatTimeStamp)
@@ -36,13 +36,13 @@ namespace RomVaultX.DB.DBAccess
 
         public static class SetDatFound
         {
-            private static readonly SQLiteCommand Command;
+            private static readonly DbCommand Command;
 
             static SetDatFound()
             {
-                Command = new SQLiteCommand(
-                     @"Update Dat SET Found=1 WHERE DatId=@DatId", DataAccessLayer.DBConnection);
-                Command.Parameters.Add(new SQLiteParameter("DatId"));
+                Command = Program.db.Command(
+                     @"Update Dat SET Found=1 WHERE DatId=@DatId");
+                Command.Parameters.Add(Program.db.Parameter("DatId"));
 
             }
 

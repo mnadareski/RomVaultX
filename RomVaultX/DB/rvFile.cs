@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SQLite;
+using System.Data.Common;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
@@ -18,31 +18,31 @@ namespace RomVaultX.DB
         public byte[] AltSHA1;
         public byte[] AltMD5;
 
-        private static readonly SQLiteCommand SqlWrite;
-        private static readonly SQLiteCommand SqlUpdateRom;
-        private static readonly SQLiteCommand SqlUpdateRomAlt;
-        private static readonly SQLiteCommand SqlUpdateZeroRom;
+        private static readonly DbCommand SqlWrite;
+        private static readonly DbCommand SqlUpdateRom;
+        private static readonly DbCommand SqlUpdateRomAlt;
+        private static readonly DbCommand SqlUpdateZeroRom;
 
         static RvFile()
         {
-            SqlWrite = new SQLiteCommand(
+            SqlWrite = Program.db.Command(
                 @"INSERT INTO FILES (size,compressedsize,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5)
                         VALUES (@Size,@compressedsize,@CRC,@SHA1,@MD5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
 
-                SELECT last_insert_rowid();",DataAccessLayer.DBConnection);
+                SELECT last_insert_rowid();");
 
-            SqlWrite.Parameters.Add(new SQLiteParameter("size"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("compressedsize"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("crc"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("sha1"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("md5"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("alttype"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("altsize"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("altcrc"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("altsha1"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("altmd5"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("size"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("compressedsize"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("crc"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("sha1"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("md5"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("alttype"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("altsize"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("altcrc"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("altsha1"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("altmd5"));
 
-            SqlUpdateRom = new SQLiteCommand(
+            SqlUpdateRom = Program.db.Command(
                 @"
                     UPDATE ROM SET 
 	                    FileId = @FileId,
@@ -82,15 +82,15 @@ namespace RomVaultX.DB
 	                    ( size is NULL OR size = @Size ) AND
 	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
-                ", DataAccessLayer.DBConnection);
-            SqlUpdateRom.Parameters.Add(new SQLiteParameter("FileId"));
-            SqlUpdateRom.Parameters.Add(new SQLiteParameter("size"));
-            SqlUpdateRom.Parameters.Add(new SQLiteParameter("crc"));
-            SqlUpdateRom.Parameters.Add(new SQLiteParameter("sha1"));
-            SqlUpdateRom.Parameters.Add(new SQLiteParameter("md5"));
+                ");
+            SqlUpdateRom.Parameters.Add(Program.db.Parameter("FileId"));
+            SqlUpdateRom.Parameters.Add(Program.db.Parameter("size"));
+            SqlUpdateRom.Parameters.Add(Program.db.Parameter("crc"));
+            SqlUpdateRom.Parameters.Add(Program.db.Parameter("sha1"));
+            SqlUpdateRom.Parameters.Add(Program.db.Parameter("md5"));
 
-            SqlUpdateRomAlt = new SQLiteCommand(
-    @"
+            SqlUpdateRomAlt = Program.db.Command(
+                @"
                     UPDATE ROM SET 
 	                    FileId = @FileId,
                         LocalFileHeader = null,
@@ -132,17 +132,17 @@ namespace RomVaultX.DB
 	                    ( size is NULL OR size = @Size ) AND
 	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
-                ", DataAccessLayer.DBConnection);
-            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("FileId"));
-            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("type"));
-            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("size"));
-            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("crc"));
-            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("sha1"));
-            SqlUpdateRomAlt.Parameters.Add(new SQLiteParameter("md5"));
+                ");
+            SqlUpdateRomAlt.Parameters.Add(Program.db.Parameter("FileId"));
+            SqlUpdateRomAlt.Parameters.Add(Program.db.Parameter("type"));
+            SqlUpdateRomAlt.Parameters.Add(Program.db.Parameter("size"));
+            SqlUpdateRomAlt.Parameters.Add(Program.db.Parameter("crc"));
+            SqlUpdateRomAlt.Parameters.Add(Program.db.Parameter("sha1"));
+            SqlUpdateRomAlt.Parameters.Add(Program.db.Parameter("md5"));
 
 
 
-            SqlUpdateZeroRom = new SQLiteCommand(
+            SqlUpdateZeroRom = Program.db.Command(
                 @"
                     UPDATE ROM SET 
 	                    FileId = @FileId,
@@ -156,11 +156,11 @@ namespace RomVaultX.DB
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
-                ", DataAccessLayer.DBConnection);
-            SqlUpdateZeroRom.Parameters.Add(new SQLiteParameter("FileId"));
-            SqlUpdateZeroRom.Parameters.Add(new SQLiteParameter("crc"));
-            SqlUpdateZeroRom.Parameters.Add(new SQLiteParameter("sha1"));
-            SqlUpdateZeroRom.Parameters.Add(new SQLiteParameter("md5"));
+                ");
+            SqlUpdateZeroRom.Parameters.Add(Program.db.Parameter("FileId"));
+            SqlUpdateZeroRom.Parameters.Add(Program.db.Parameter("crc"));
+            SqlUpdateZeroRom.Parameters.Add(Program.db.Parameter("sha1"));
+            SqlUpdateZeroRom.Parameters.Add(Program.db.Parameter("md5"));
 
         }
 

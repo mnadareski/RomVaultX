@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.Common;
 
 namespace RomVaultX.DB
 {
@@ -13,14 +13,14 @@ namespace RomVaultX.DB
         public int RomTotal;
         public int RomNoDump;
 
-        private static readonly SQLiteCommand SQLRead;
+        private static readonly DbCommand SQLRead;
 
         static RvGameGridRow()
         {
-            SQLRead = new SQLiteCommand(
+            SQLRead = Program.db.Command(
                 @"
-                    SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name",DataAccessLayer.DBConnection);
-            SQLRead.Parameters.Add(new SQLiteParameter("datId"));
+                    SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name");
+            SQLRead.Parameters.Add(Program.db.Parameter("datId"));
 
         }
 
@@ -29,7 +29,7 @@ namespace RomVaultX.DB
             List<RvGameGridRow> rows = new List<RvGameGridRow>();
             SQLRead.Parameters["DatId"].Value = datId;
 
-            using (SQLiteDataReader dr = SQLRead.ExecuteReader())
+            using (DbDataReader dr = SQLRead.ExecuteReader())
             {
                 while (dr.Read())
                 {

@@ -1,23 +1,23 @@
 ﻿using System;
-using System.Data.SQLite;
+using System.Data.Common;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB.DBAccess
 {
     public static class FindInFiles
     {
-        private static readonly SQLiteCommand Command;
+        private static readonly DbCommand Command;
 
         static FindInFiles()
         {
-            Command = new SQLiteCommand(
+            Command = Program.db.Command(
               @"
                     SELECT COUNT(1) FROM FILES WHERE
-                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5", DataAccessLayer.DBConnection);
-            Command.Parameters.Add(new SQLiteParameter("size"));
-            Command.Parameters.Add(new SQLiteParameter("crc"));
-            Command.Parameters.Add(new SQLiteParameter("sha1"));
-            Command.Parameters.Add(new SQLiteParameter("md5"));
+                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5");
+            Command.Parameters.Add(Program.db.Parameter("size"));
+            Command.Parameters.Add(Program.db.Parameter("crc"));
+            Command.Parameters.Add(Program.db.Parameter("sha1"));
+            Command.Parameters.Add(Program.db.Parameter("md5"));
         }
 
         public static bool Execute(RvFile tFile)

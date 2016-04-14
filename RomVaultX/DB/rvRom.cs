@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.Common;
 using RomVaultX.DB.DBAccess;
 using RomVaultX.Util;
 
@@ -27,29 +27,29 @@ namespace RomVaultX.DB
         public byte[] fileMD5;
 
 
-        private static readonly SQLiteCommand SqlWrite;
-        private static readonly SQLiteCommand SqlRead;
+        private static readonly DbCommand SqlWrite;
+        private static readonly DbCommand SqlRead;
 
         static RvRom()
         {
-            SqlWrite = new SQLiteCommand(
+            SqlWrite = Program.db.Command(
                 @"INSERT INTO ROM  ( GameId, name,type, size, crc, sha1, md5, merge, status,FileId)
                             VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
 
-                SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
+                SELECT last_insert_rowid();");
 
-            SqlWrite.Parameters.Add(new SQLiteParameter("GameId"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("Name"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("Type"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("Size"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("CRC"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("SHA1"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("MD5"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("Merge"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("Status"));
-            SqlWrite.Parameters.Add(new SQLiteParameter("FileId"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("GameId"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("Name"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("Type"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("Size"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("CRC"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("SHA1"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("MD5"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("Merge"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("Status"));
+            SqlWrite.Parameters.Add(Program.db.Parameter("FileId"));
 
-            SqlRead = new SQLiteCommand(
+            SqlRead = Program.db.Command(
                 @"SELECT RomId,name,
                     type,
                     rom.size,
@@ -63,8 +63,8 @@ namespace RomVaultX.DB
                     files.crc as filecrc,
                     files.sha1 as filesha1,
                     files.md5 as filemd5
-                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY name", DataAccessLayer.DBConnection);
-            SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
+                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY name");
+            SqlRead.Parameters.Add(Program.db.Parameter("GameId"));
         }
 
         public static void MakeDB()
@@ -96,7 +96,7 @@ namespace RomVaultX.DB
             List<RvRom> roms = new List<RvRom>();
             SqlRead.Parameters["GameId"].Value = gameId;
 
-            using (SQLiteDataReader dr = SqlRead.ExecuteReader())
+            using (DbDataReader dr = SqlRead.ExecuteReader())
             {
                 while (dr.Read())
                 {

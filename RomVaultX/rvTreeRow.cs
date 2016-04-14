@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.Common;
 using System.Drawing;
 using RomVaultX.DB;
 
@@ -30,12 +30,12 @@ namespace RomVaultX
         public Rectangle RIcon;
         public Rectangle RText;
 
-        private static readonly SQLiteCommand CmdReadTree;
-        private static readonly SQLiteCommand CmdSetTreeExpanded;
+        private static readonly DbCommand CmdReadTree;
+        private static readonly DbCommand CmdSetTreeExpanded;
 
         static RvTreeRow()
         {
-            CmdReadTree = new SQLiteCommand(@"
+            CmdReadTree = Program.db.Command(@"
                     SELECT 
                         dir.DirId as DirId,
                         dir.name as dirname,
@@ -51,20 +51,20 @@ namespace RomVaultX
                         dat.RomGot,
                         dat.RomNoDump
                     FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
-                    ORDER BY dir.Fullname,dat.Filename", DataAccessLayer.DBConnection);
+                    ORDER BY dir.Fullname,dat.Filename");
 
-            CmdSetTreeExpanded = new SQLiteCommand(
+            CmdSetTreeExpanded = Program.db.Command(
             @"
-                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId", DataAccessLayer.DBConnection);
-            CmdSetTreeExpanded.Parameters.Add(new SQLiteParameter("expanded"));
-            CmdSetTreeExpanded.Parameters.Add(new SQLiteParameter("dirId"));
+                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId");
+            CmdSetTreeExpanded.Parameters.Add(Program.db.Parameter("expanded"));
+            CmdSetTreeExpanded.Parameters.Add(Program.db.Parameter("dirId"));
 
         }
         public static List<RvTreeRow> ReadTreeFromDB()
         {
             List<RvTreeRow> rows = new List<RvTreeRow>();
 
-            using (SQLiteDataReader dr = CmdReadTree.ExecuteReader())
+            using (DbDataReader dr = CmdReadTree.ExecuteReader())
             {
                 bool multiDatDirFound = false;
 
@@ -151,8 +151,8 @@ namespace RomVaultX
         }
         public static void SetTreeExpandedChildren(uint DirId)
         {
-            SQLiteCommand getStatus = new SQLiteCommand(@"SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1",DataAccessLayer.DBConnection);
-            getStatus.Parameters.Add(new SQLiteParameter("DirId"));
+            DbCommand getStatus = Program.db.Command(@"SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1");
+            getStatus.Parameters.Add(Program.db.Parameter("DirId"));
             getStatus.Parameters["DirId"].Value = DirId;
 
             Object res = getStatus.ExecuteScalar();
@@ -170,12 +170,12 @@ namespace RomVaultX
             {
                 string inJoin = string.Join(",", todo);
                 todo.Clear();
-                SQLiteCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + inJoin + ")", DataAccessLayer.DBConnection);
+                DbCommand SetStatus = Program.db.Command(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + inJoin + ")");
                 SetStatus.ExecuteNonQuery();
 
 
-                SQLiteCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + inJoin + ")", DataAccessLayer.DBConnection);
-                SQLiteDataReader dr = GetChild.ExecuteReader();
+                DbCommand GetChild = Program.db.Command(@"select DirId from dir where ParentDirId in (" + inJoin + ")");
+                DbDataReader dr = GetChild.ExecuteReader();
                 while (dr.Read())
                 {
                     uint id = Convert.ToUInt32(dr["DirId"]);
@@ -190,7 +190,7 @@ namespace RomVaultX
         {
             List<RvTreeRow> rows = new List<RvTreeRow>();
             
-            using (SQLiteDataReader dr = CmdReadTree.ExecuteReader())
+            using (DbDataReader dr = CmdReadTree.ExecuteReader())
             {
                 bool multiDatDirFound = false;
 

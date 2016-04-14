@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.Common;
 
 namespace RomVaultX.DB
 {
@@ -37,56 +37,56 @@ namespace RomVaultX.DB
 
         public List<RvRom> Roms = null;
 
-        private static readonly SQLiteCommand SqlWrite;
-        private static readonly SQLiteCommand SqlRead;
-        private static readonly SQLiteCommand SqlReadGames;
+        private static readonly DbCommand SqlWrite;
+        private static readonly DbCommand SqlRead;
+        private static readonly DbCommand SqlReadGames;
 
         static RvGame()
         {
-            SqlWrite = new SQLiteCommand(
+            SqlWrite = Program.db.Command(
               @"INSERT INTO GAME ( DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber)
                           VALUES (@DatId,@Name,@Description,@Manufacturer,@CloneOf,@RomOf,@SourceFile,@IsBios,@Board,@Year,@IsTrurip,@Publisher,@Developer,@Edition,@Version,@Type,@Media,@Language,@Players,@Ratings,@Genre,@Peripheral,@BarCode,@MediaCatalogNumber);
 
-                SELECT last_insert_rowid();", DataAccessLayer.DBConnection);
+                SELECT last_insert_rowid();");
 
-            SqlWrite.Parameters.Add(new SQLiteParameter("DatId")); //DatId;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Name")); //Name;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Description")); //Description;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Manufacturer")); //Manufacturer;
+            SqlWrite.Parameters.Add(Program.db.Parameter("DatId")); //DatId;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Name")); //Name;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Description")); //Description;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Manufacturer")); //Manufacturer;
 
-            SqlWrite.Parameters.Add(new SQLiteParameter("CloneOf")); //CloneOf;
-            SqlWrite.Parameters.Add(new SQLiteParameter("RomOf")); //RomOf;
-            SqlWrite.Parameters.Add(new SQLiteParameter("SampleOf")); //SampleOf;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Sourcefile")); //SourceFile;
-            SqlWrite.Parameters.Add(new SQLiteParameter("IsBios")); //IsBios;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Board")); //Board;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Year")); //Year;
+            SqlWrite.Parameters.Add(Program.db.Parameter("CloneOf")); //CloneOf;
+            SqlWrite.Parameters.Add(Program.db.Parameter("RomOf")); //RomOf;
+            SqlWrite.Parameters.Add(Program.db.Parameter("SampleOf")); //SampleOf;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Sourcefile")); //SourceFile;
+            SqlWrite.Parameters.Add(Program.db.Parameter("IsBios")); //IsBios;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Board")); //Board;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Year")); //Year;
 
-            SqlWrite.Parameters.Add(new SQLiteParameter("IsTrurip")); //IsTrurip;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Publisher")); //Publisher;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Developer")); //Developer;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Edition")); //Edition;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Version")); //Version;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Type")); //Type;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Media")); //Media;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Language")); //Language;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Players")); //Players;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Ratings")); //Ratings;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Genre")); //Genre;
-            SqlWrite.Parameters.Add(new SQLiteParameter("Peripheral")); //Peripheral;
-            SqlWrite.Parameters.Add(new SQLiteParameter("BarCode")); //BarCode;
-            SqlWrite.Parameters.Add(new SQLiteParameter("MediaCatalogNumber")); //MediaCatalogNumber;        
+            SqlWrite.Parameters.Add(Program.db.Parameter("IsTrurip")); //IsTrurip;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Publisher")); //Publisher;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Developer")); //Developer;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Edition")); //Edition;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Version")); //Version;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Type")); //Type;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Media")); //Media;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Language")); //Language;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Players")); //Players;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Ratings")); //Ratings;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Genre")); //Genre;
+            SqlWrite.Parameters.Add(Program.db.Parameter("Peripheral")); //Peripheral;
+            SqlWrite.Parameters.Add(Program.db.Parameter("BarCode")); //BarCode;
+            SqlWrite.Parameters.Add(Program.db.Parameter("MediaCatalogNumber")); //MediaCatalogNumber;        
 
 
-            SqlRead = new SQLiteCommand(
+            SqlRead = Program.db.Command(
                 @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE GameId=@GameId ORDER BY name", DataAccessLayer.DBConnection);
-            SqlRead.Parameters.Add(new SQLiteParameter("GameId"));
+                    FROM GAME WHERE GameId=@GameId ORDER BY name");
+            SqlRead.Parameters.Add(Program.db.Parameter("GameId"));
 
-            SqlReadGames = new SQLiteCommand(
+            SqlReadGames = Program.db.Command(
                 @"SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE DatId=@DatId ORDER BY name", DataAccessLayer.DBConnection);
-            SqlReadGames.Parameters.Add(new SQLiteParameter("DatId"));
+                    FROM GAME WHERE DatId=@DatId ORDER BY name");
+            SqlReadGames.Parameters.Add(Program.db.Parameter("DatId"));
 
         }
 
@@ -136,7 +136,7 @@ namespace RomVaultX.DB
         {
             SqlRead.Parameters["GameId"].Value = gameId;
 
-            using (SQLiteDataReader dr = SqlRead.ExecuteReader())
+            using (DbDataReader dr = SqlRead.ExecuteReader())
             {
                 if (dr.Read())
                 {
@@ -151,7 +151,7 @@ namespace RomVaultX.DB
             List<RvGame> games = new List<RvGame>();
             SqlReadGames.Parameters["DatId"].Value = DatId;
 
-            using (SQLiteDataReader dr = SqlReadGames.ExecuteReader())
+            using (DbDataReader dr = SqlReadGames.ExecuteReader())
             {
                 while (dr.Read())
                 {
@@ -165,7 +165,7 @@ namespace RomVaultX.DB
             return games;
         }
 
-        private void ReadFromReader(SQLiteDataReader dr, bool readRoms = false)
+        private void ReadFromReader(DbDataReader dr, bool readRoms = false)
         {
             GameId = Convert.ToUInt32(dr["GameId"]);
             DatId = Convert.ToUInt32(dr["DatId"]);
