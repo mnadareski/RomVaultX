@@ -103,7 +103,7 @@ namespace RomVaultX.DB.NewDB
                     [expanded] BOOLEAN DEFAULT 1 NOT NULL,
                     [found] BOOLEAN DEFAULT 1,
                     [RomTotal] INTEGER NULL,
-                    [RomGot] iNTEGER NULL,
+                    [RomGot] INTEGER NULL,
                     [RomNoDump] INTEGER NULL
                 );
              
@@ -128,7 +128,7 @@ namespace RomVaultX.DB.NewDB
                     [comment] NVARCHAR(10) NULL,
                     [RomTotal] INTEGER DEFAULT 0 NOT NULL,
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
-                    [RomNoDump] INTERGER DEFAULT 0 NOT NULL,
+                    [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
                     [DatTimeStamp] NVARCHAR(20)  NOT NULL,
                     [found] BOOLEAN DEFAULT 1,            
                     FOREIGN KEY(DirId) REFERENCES DIR(DirId)
@@ -148,7 +148,7 @@ namespace RomVaultX.DB.NewDB
                     [isbios] NVARCHAR(20) NULL,
                     [board] NVARCHAR(20) NULL,
                     [year] NVARCHAR(20) NULL,
-                    [istrurip] BOOLEAN DEFAULT '0' NOT NULL,
+                    [istrurip] BOOLEAN DEFAULT 0 NOT NULL,
                     [publisher] NVARCHAR(20) NULL,
                     [developer] NVARCHAR(20) NULL,
                     [edition] NVARCHAR(20) NULL,
@@ -174,6 +174,22 @@ namespace RomVaultX.DB.NewDB
                 );");
 
             ExecuteNonQuery(@"
+                CREATE TABLE IF NOT EXISTS [FILES] (
+                    [FileId] INTEGER PRIMARY KEY NOT NULL,
+                    [size] INTEGER NOT NULL,
+                    [compressedsize] INTEGER NULL,
+                    [crc] VARCHAR(8) NULL,
+                    [sha1] VARCHAR(40) NULL,
+                    [md5] VARCHAR(32) NULL,
+                    [alttype] VARCHAR(8) NULL,
+                    [altsize] INTEGER NULL,
+                    [altcrc] VARCHAR(8) NULL,
+                    [altsha1] VARCHAR(40) NULL,
+                    [altmd5] VARCHAR(32) NULL
+                );
+            ");
+
+            ExecuteNonQuery(@"
                CREATE TABLE IF NOT EXISTS [ROM] (
                     [RomId] INTEGER PRIMARY KEY NOT NULL,
                     [GameId] INTEGER NOT NULL,
@@ -190,24 +206,8 @@ namespace RomVaultX.DB.NewDB
                     [LocalFileHeaderOffset] INTEGER NULL,
                     [LocalFileHeaderLength] INTEGER NULL,
                     FOREIGN KEY(GameId) REFERENCES Game(GameId),
-                    FOREIGN KEY(FileId) REFERENCES File(FileId)
+                    FOREIGN KEY(FileId) REFERENCES Files(FileId)
                 );");
-
-            ExecuteNonQuery(@"
-                CREATE TABLE IF NOT EXISTS [FILES] (
-                    [FileId] INTEGER PRIMARY KEY NOT NULL,
-                    [size] INTEGER NOT NULL,
-                    [compressedsize] INTEGER NULL,
-                    [crc] VARCHAR(8) NULL,
-                    [sha1] VARCHAR(40) NULL,
-                    [md5] VARCHAR(32) NULL,
-                    [alttype] VARCHAR(8) NULL,
-                    [altsize] INTEGER NULL,
-                    [altcrc] VARCHAR(8) NULL,
-                    [altsha1] VARCHAR(40) NULL,
-                    [altmd5] VARCHAR(32) NULL
-                );
-            ");
 
             /******** Create Triggers ***********/
 
