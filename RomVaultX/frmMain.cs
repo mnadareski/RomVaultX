@@ -41,7 +41,8 @@ namespace RomVaultX
         {
             InitializeComponent();
             addGameGrid();
-            DataAccessLayer.UpdateGotTotal();
+            Program.db.ConnectToDB();
+            Program.db.UpdateGotTotal();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
@@ -946,34 +947,31 @@ namespace RomVaultX
 
         private void updateZipDBToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UpdateZipDB.UpdateDB();
+           // UpdateZipDB.UpdateDB();
         }
 
         private void writeOutZipsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UpdateZipDB.WriteOutZips();
+           // UpdateZipDB.WriteOutZips();
         }
 
-        private VDrive di;
+        //private VDrive di;
         private void startVDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Dokan.Unmount('r');
-
-
-            di = new VDrive();
-
-            Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.DebugMode,1); });
-            t2.Start();
+            //Dokan.Unmount('r');
+            //di = new VDrive();
+            //Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.DebugMode,1); });
+            //t2.Start();
         }
 
         private void closeVDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Dokan.Unmount('r');
+            //Dokan.Unmount('r');
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-           Dokan.Unmount('r');
+           //Dokan.Unmount('r');
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 namespace RomVaultX
 {
+    /*
     public static class UpdateZipDB
     {
 
@@ -226,4 +227,5 @@ namespace RomVaultX
 
         }
     }
+    */
 }

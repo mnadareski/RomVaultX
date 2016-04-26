@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using RomVaultX.DB.DBAccess;
-using RomVaultX.Util;
+﻿using System.Collections.Generic;
 
 namespace RomVaultX.DB
 {
@@ -26,127 +22,17 @@ namespace RomVaultX.DB
         public byte[] fileSHA1;
         public byte[] fileMD5;
 
-
-        private static readonly DbCommand SqlWrite;
-        private static readonly DbCommand SqlRead;
-
-        static RvRom()
-        {
-            SqlWrite = Program.db.Command(
-                @"INSERT INTO ROM  ( GameId, name,type, size, crc, sha1, md5, merge, status,FileId)
-                            VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
-
-                SELECT last_insert_rowid();");
-
-            SqlWrite.Parameters.Add(Program.db.Parameter("GameId"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("Name"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("Type"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("Size"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("CRC"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("SHA1"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("MD5"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("Merge"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("Status"));
-            SqlWrite.Parameters.Add(Program.db.Parameter("FileId"));
-
-            SqlRead = Program.db.Command(
-                @"SELECT RomId,name,
-                    type,
-                    rom.size,
-                    rom.crc,
-                    rom.sha1,
-                    rom.md5,
-                    merge,status,
-                    rom.FileId,
-                    files.size as fileSize,
-                    files.compressedsize as fileCompressedSize,
-                    files.crc as filecrc,
-                    files.sha1 as filesha1,
-                    files.md5 as filemd5
-                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY name");
-            SqlRead.Parameters.Add(Program.db.Parameter("GameId"));
-        }
-
-        public static void MakeDB()
-        {
-
-            DataAccessLayer.ExecuteNonQuery(@"
-               CREATE TABLE IF NOT EXISTS [ROM] (
-                    [RomId] INTEGER PRIMARY KEY NOT NULL,
-                    [GameId] INTEGER NOT NULL,
-                    [name] NVARCHAR(320) NOT NULL,
-                    [type] INTEGER NULL,
-                    [size] INTEGER NULL,
-                    [crc] VARCHAR(8) NULL,
-                    [sha1] VARCHAR(40) NULL,
-                    [md5] VARCHAR(32) NULL,
-                    [merge] VARCHAR(20) NULL,
-                    [status] VARCHAR(20) NULL,
-                    [FileId] INTEGER NULL,
-                    [LocalFileHeader] BLOB NULL,
-                    [LocalFileHeaderOffset] INTEGER NULL,
-                    [LocalFileHeaderLength] INTEGER NULL,
-                    FOREIGN KEY(GameId) REFERENCES Game(GameId),
-                    FOREIGN KEY(FileId) REFERENCES File(FileId)
-                );");
-        }
+    
 
         public static List<RvRom> ReadRoms(uint gameId)
         {
-            List<RvRom> roms = new List<RvRom>();
-            SqlRead.Parameters["GameId"].Value = gameId;
-
-            using (DbDataReader dr = SqlRead.ExecuteReader())
-            {
-                while (dr.Read())
-                {
-                    RvRom row = new RvRom
-                    {
-                        RomId = Convert.ToUInt32(dr["RomId"]),
-                        GameId = gameId,
-                        Name = dr["name"].ToString(),
-                        altType = (FileType)FixLong(dr["type"]),
-                        Size = FixLong(dr["size"]),
-                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8),
-                        SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
-                        MD5 = VarFix.CleanMD5SHA1(dr["MD5"].ToString(), 32),
-                        Merge = dr["merge"].ToString(),
-                        Status = dr["status"].ToString(),
-                        FileId = FixLong(dr["FileId"]),
-                        fileSize = FixLong(dr["fileSize"]),
-                        fileCompressedSize = FixLong(dr["fileCompressedSize"]),
-                        fileCRC = VarFix.CleanMD5SHA1(dr["fileCRC"].ToString(), 8),
-                        fileSHA1 = VarFix.CleanMD5SHA1(dr["fileSHA1"].ToString(), 40),
-                        fileMD5 = VarFix.CleanMD5SHA1(dr["fileMD5"].ToString(), 32)
-                    };
-
-                    roms.Add(row);
-                }
-                dr.Close();
-            }
-            return roms;
-        }
-
-        private static ulong? FixLong(object v)
-        {
-            return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
+            return Program.db.RvRomsRead(gameId);
         }
 
         public void DBWrite()
         {
-            FileId = DatUpdate.NoFilesInDB ? null : FindAFile.Execute(this);
-
-            SqlWrite.Parameters["GameId"].Value = GameId;
-            SqlWrite.Parameters["name"].Value = Name;
-            SqlWrite.Parameters["type"].Value = (int)altType;
-            SqlWrite.Parameters["size"].Value = Size;
-            SqlWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
-            SqlWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
-            SqlWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
-            SqlWrite.Parameters["merge"].Value = Merge;
-            SqlWrite.Parameters["status"].Value = Status;
-            SqlWrite.Parameters["FileID"].Value = FileId;
-            SqlWrite.ExecuteNonQuery();
+            FileId = DatUpdate.NoFilesInDB ? null : Program.db.FindAFile(this);
+            Program.db.RvRomWrite(this);
         }
     }
 }

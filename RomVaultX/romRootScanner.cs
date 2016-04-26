@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using RomVaultX.DB;
-using RomVaultX.DB.DBAccess;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
@@ -32,7 +31,7 @@ namespace RomVaultX
 
             ScanRomRoot(@"RomRoot");
 
-            DataAccessLayer.UpdateGotTotal();
+            Program.db.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
             _bgw = null;
             Program.SyncCont = null;
@@ -52,7 +51,7 @@ namespace RomVaultX
 
             ScanRomRoot(@"RomRoot");
 
-            DataAccessLayer.UpdateGotTotal();
+            Program.db.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
             _bgw = null;
             Program.SyncCont = null;
@@ -129,7 +128,7 @@ namespace RomVaultX
         private static FindStatus fileneededTest(RvFile tFile)
         {
             // first check to see if we already have it in the file table
-            bool inFileDB = FindInFiles.Execute(tFile); // returns true if found in File table
+            bool inFileDB = Program.db.FindInFiles(tFile); // returns true if found in File table
             return inFileDB ? FindStatus.FoundFileInArchive : FindStatus.FileNeededInArchive;
         }
 

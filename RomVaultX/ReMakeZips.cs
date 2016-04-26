@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using RomVaultX.DB;
-using RomVaultX.DB.DBAccess;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.SupportedFiles.Zip;
@@ -163,7 +162,7 @@ namespace RomVaultX
                 {
                     GZip sourceGZip = new GZip();
 
-                    string sha1 = Getfilename(GetFile.Execute((uint)tRom.FileId));
+                    string sha1 = Getfilename(Program.db.GetFile((uint)tRom.FileId));
 
                     zr = sourceGZip.ReadGZip(sha1, false);
 

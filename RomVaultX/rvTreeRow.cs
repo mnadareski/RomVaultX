@@ -30,41 +30,12 @@ namespace RomVaultX
         public Rectangle RIcon;
         public Rectangle RText;
 
-        private static readonly DbCommand CmdReadTree;
-        private static readonly DbCommand CmdSetTreeExpanded;
 
-        static RvTreeRow()
-        {
-            CmdReadTree = Program.db.Command(@"
-                    SELECT 
-                        dir.DirId as DirId,
-                        dir.name as dirname,
-                        dir.fullname,
-                        dir.expanded,
-                        dir.RomTotal as dirRomTotal,
-                        dir.RomGot as dirRomGot,
-                        dir.RomNoDump as dirNoDump,
-                        dat.DatId,
-                        dat.name as datname,
-                        dat.description,
-                        dat.RomTotal,
-                        dat.RomGot,
-                        dat.RomNoDump
-                    FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
-                    ORDER BY dir.Fullname,dat.Filename");
-
-            CmdSetTreeExpanded = Program.db.Command(
-            @"
-                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId");
-            CmdSetTreeExpanded.Parameters.Add(Program.db.Parameter("expanded"));
-            CmdSetTreeExpanded.Parameters.Add(Program.db.Parameter("dirId"));
-
-        }
         public static List<RvTreeRow> ReadTreeFromDB()
         {
             List<RvTreeRow> rows = new List<RvTreeRow>();
 
-            using (DbDataReader dr = CmdReadTree.ExecuteReader())
+            using (DbDataReader dr = Program.db.CommandReadTreeGetReader())
             {
                 bool multiDatDirFound = false;
 
@@ -143,45 +114,22 @@ namespace RomVaultX
 
             return rows;
         }
-        public static void SetTreeExpanded(uint DirId, bool expanded)
-        {
-            CmdSetTreeExpanded.Parameters["dirId"].Value = DirId;
-            CmdSetTreeExpanded.Parameters["expanded"].Value = expanded;
-            CmdSetTreeExpanded.ExecuteNonQuery();
-        }
+       
         public static void SetTreeExpandedChildren(uint DirId)
         {
-            DbCommand getStatus = Program.db.Command(@"SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1");
-            getStatus.Parameters.Add(Program.db.Parameter("DirId"));
-            getStatus.Parameters["DirId"].Value = DirId;
-
-            Object res = getStatus.ExecuteScalar();
-
-            int value;
-            if (res != null && res != DBNull.Value)
-                value = 1 - Convert.ToInt32(res);
-            else
+            int? value = Program.db.GetFirstExpanded(DirId);
+            if (value == null)
                 return;
+            value = 1 - value;
 
             List<uint> todo = new List<uint>();
             todo.Add(DirId);
 
             while (todo.Count > 0)
             {
-                string inJoin = string.Join(",", todo);
-                todo.Clear();
-                DbCommand SetStatus = Program.db.Command(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + inJoin + ")");
-                SetStatus.ExecuteNonQuery();
+                Program.db.UpdateSelectedFromList(todo,(int)value);
+                todo = Program.db.UpdateSelectedGetChildList(todo);
 
-
-                DbCommand GetChild = Program.db.Command(@"select DirId from dir where ParentDirId in (" + inJoin + ")");
-                DbDataReader dr = GetChild.ExecuteReader();
-                while (dr.Read())
-                {
-                    uint id = Convert.ToUInt32(dr["DirId"]);
-                    todo.Add(id);
-                }
-                dr.Close();
             }
         }
 
@@ -190,7 +138,7 @@ namespace RomVaultX
         {
             List<RvTreeRow> rows = new List<RvTreeRow>();
             
-            using (DbDataReader dr = CmdReadTree.ExecuteReader())
+            using (DbDataReader dr = Program.db.CommandReadTreeGetReader())
             {
                 bool multiDatDirFound = false;
 

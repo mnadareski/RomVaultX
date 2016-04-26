@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Threading;
 using RomVaultX.DB;
-using RomVaultX.DB.DBAccess;
 using RomVaultX.IO;
 
 namespace RomVaultX
@@ -41,19 +40,19 @@ namespace RomVaultX
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Clearing Found DAT List"));
-                DataAccessLayer.ClearFoundDATs();
+                Program.db.ClearFoundDATs();
 
                 const string datRoot = @"";
-                uint DirId = FindOrInsert.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
+                uint DirId = Program.db.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
                 _bgw.ReportProgress(0, new bgwText("Pull File DB into memory"));
-                NoFilesInDB = FindAFile.copyDBtoMem();
+                NoFilesInDB = Program.db.SetUpFindAFile();
 
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
                 DatCount(datRoot, "DatRoot");
 
-                int dbDatCount = DataAccessLayer.DatDBCount();
+                int dbDatCount = Program.db.DatDBCount();
                 bool dropIndex = false;
 
                 dropIndex = (_datCount - dbDatCount > 10);
@@ -61,28 +60,28 @@ namespace RomVaultX
                 if (dropIndex)
                 {
                     _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
-                    DataAccessLayer.DropIndex();
+                    Program.db.DropIndex();
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
                 _datsProcessed = 0;
 
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
-                DataAccessLayer.Begin();
+                Program.db.Begin();
                 ReadDats(DirId, datRoot, "DatRoot");
-                DataAccessLayer.Commit();
+                Program.db.Commit();
 
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
-                DataAccessLayer.RemoveNotFoundDATs();
+                Program.db.RemoveNotFoundDATs();
 
                 if (dropIndex)
                 {
                     _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
-                    DataAccessLayer.MakeIndex();
+                    Program.db.MakeIndex();
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
-                DataAccessLayer.UpdateGotTotal();
+                Program.db.UpdateGotTotal();
 
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
@@ -120,7 +119,7 @@ namespace RomVaultX
             DirectoryInfo[] dis = di.GetDirectories();
             foreach (DirectoryInfo d in dis)
             {
-                uint DirId = FindOrInsert.FindOrInsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name) + "\\");
+                uint DirId = Program.db.FindOrInsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name) + "\\");
                 ReadDats(DirId, datRoot, Path.Combine(subPath, d.Name));
                 if (_bgw.CancellationPending)
                     return;
@@ -140,9 +139,12 @@ namespace RomVaultX
                 _datsProcessed++;
                 _bgw.ReportProgress(_datsProcessed);
 
-                uint datId = FindDAT.Execute(subPath, f.Name, f.LastWriteTime);
-                if (datId > 0)
+                uint? datId = Program.db.FindDat(subPath,f.Name,f.LastWriteTime);
+                if (datId != null)
+                {
+                    Program.db.SetDatFound((uint) datId);
                     continue;
+                }
 
                 _bgw.ReportProgress(0, new bgwText("Dat : " + subPath + @"\" + f.Name));
 
@@ -150,11 +152,11 @@ namespace RomVaultX
                 if (DatReader.DatReader.ReadDat(f.FullName, f.LastWriteTime, _bgw, out rvDat))
                 {
                     rvDat.DirId = ParentId;
-                    DataAccessLayer.Commit();
-                    DataAccessLayer.Begin();
+                    Program.db.Commit();
+                    Program.db.Begin();
                     rvDat.DbWrite();
-                    DataAccessLayer.Commit();
-                    DataAccessLayer.Begin();
+                    Program.db.Commit();
+                    Program.db.Begin();
                 }
 
                 if (_bgw.CancellationPending)

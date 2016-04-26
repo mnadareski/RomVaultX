@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using RomVaultX.DB;
 
 namespace RomVaultX
 {
@@ -255,7 +254,7 @@ namespace RomVaultX
         {
             if (mouseB == MouseButtons.Left)
             {
-                RvTreeRow.SetTreeExpanded(pTree.DirId, !pTree.Expanded);
+                Program.db.SetTreeExpanded(pTree.DirId, !pTree.Expanded);
                 Setup(RvTreeRow.ReadTreeFromDB());
             }
             else

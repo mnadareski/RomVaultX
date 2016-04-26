@@ -12,6 +12,7 @@ using RomVaultX.Util;
 
 namespace RomVaultX
 {
+    /*
     public class VFile
     {
         public string FileName;
@@ -631,4 +632,5 @@ namespace RomVaultX
 
         }
     }
+    */
 }
