@@ -378,7 +378,7 @@ namespace RomVaultX.DB.NewDB
             ExecuteNonQuery(@"if not exists (select * from sys.indexes where name='DATDIRID')       CREATE INDEX  [DATDIRID]       ON [DAT]   ([DirId]       ASC);");
             ExecuteNonQuery(@"if not exists (select * from sys.indexes where name='DIRPARENTDIRID') CREATE INDEX  [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);");
         }
-        
+
         public void DropIndex()
         {
             /*
@@ -1058,11 +1058,11 @@ namespace RomVaultX.DB.NewDB
             CommandRvDatWrite.Parameters["DirId"].Value = dat.DirId;
             CommandRvDatWrite.Parameters["Filename"].Value = dat.Filename;
             CommandRvDatWrite.Parameters["name"].Value = dat.Name;
-            CommandRvDatWrite.Parameters["rootdir"].Value =dbnull( dat.RootDir);
+            CommandRvDatWrite.Parameters["rootdir"].Value = dbnull(dat.RootDir);
             CommandRvDatWrite.Parameters["description"].Value = dbnull(dat.Description);
             CommandRvDatWrite.Parameters["category"].Value = dbnull(dat.Category);
             CommandRvDatWrite.Parameters["version"].Value = dat.Version;
-            CommandRvDatWrite.Parameters["date"].Value =dbnull( dat.Date);
+            CommandRvDatWrite.Parameters["date"].Value = dbnull(dat.Date);
             CommandRvDatWrite.Parameters["author"].Value = dbnull(dat.Author);
             CommandRvDatWrite.Parameters["email"].Value = dbnull(dat.Email);
             CommandRvDatWrite.Parameters["homepage"].Value = dbnull(dat.Homepage);
@@ -1382,15 +1382,13 @@ namespace RomVaultX.DB.NewDB
 
             ExecuteNonQuery(@"
                 INSERT INTO memdb.FILESMEM SELECT FileId,size,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5 FROM FILES");
-
-            SqlCommand count = new SqlCommand("SELECT COUNT(1) FROM memdb.FILESMEM LIMIT 1", Connection);
+            */
+            SqlCommand count = new SqlCommand("SELECT TOP(1) COUNT(1) FROM FILES", Connection);
             object res = count.ExecuteScalar();
             count.Dispose();
             if (res == null || res == DBNull.Value)
                 return true;
             return Convert.ToInt32(res) == 0;
-        */
-            return false;
         }
 
         public uint? FindAFile(RvRom tFile)
@@ -1426,7 +1424,7 @@ namespace RomVaultX.DB.NewDB
             {
                 CommandMD5.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
                 CommandMD5.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
-                CommandMD5.Parameters["size"].Value =dbnull( tFile.Size);
+                CommandMD5.Parameters["size"].Value = dbnull(tFile.Size);
 
                 object res = CommandMD5.ExecuteScalar();
 
@@ -1663,7 +1661,7 @@ namespace RomVaultX.DB.NewDB
         public void UpdateSelectedFromList(List<uint> todo, int value)
         {
             string todoList = string.Join(",", todo);
-            using (DbCommand setStatus = new SqlCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")",Connection))
+            using (DbCommand setStatus = new SqlCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")", Connection))
             {
                 setStatus.ExecuteNonQuery();
             }

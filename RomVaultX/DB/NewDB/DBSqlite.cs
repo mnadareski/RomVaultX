@@ -1406,15 +1406,13 @@ namespace RomVaultX.DB.NewDB
 
             ExecuteNonQuery(@"
                 INSERT INTO memdb.FILESMEM SELECT FileId,size,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5 FROM FILES");
-
-            SQLiteCommand count = new SQLiteCommand("SELECT COUNT(1) FROM memdb.FILESMEM LIMIT 1", Connection);
+            */
+            SQLiteCommand count = new SQLiteCommand("SELECT COUNT(1) FROM FILES LIMIT 1", Connection);
             object res = count.ExecuteScalar();
             count.Dispose();
             if (res == null || res == DBNull.Value)
                 return true;
             return Convert.ToInt32(res) == 0;
-            */
-            return false;
         }
 
         public uint? FindAFile(RvRom tFile)
