@@ -20,10 +20,10 @@ namespace RomVaultX.DB
         public string Comment;
         public long DatTimeStamp;
 
-        public List<RvGame> Games = null; 
+        public List<RvGame> Games; 
 
         
-        public void DBRead(uint datId,bool readGames=false)
+        public void DbRead(uint datId,bool readGames=false)
         {
             Program.db.RvDatRead(datId, this);
 

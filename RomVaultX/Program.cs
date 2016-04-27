@@ -15,8 +15,8 @@ namespace RomVaultX
         static void Main()
         {
             Application.EnableVisualStyles();
-            db = new DBSqlServer();
-            //db=new DBSqlite();
+            //db = new DBSqlServer();
+            db=new DBSqlite();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new frmMain());
         }

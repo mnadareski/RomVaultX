@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
-using DokanNet;
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;

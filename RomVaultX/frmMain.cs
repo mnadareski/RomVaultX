@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using DokanNet;
 using RomVaultX.DB;
 using RomVaultX.Util;
 
@@ -253,7 +252,7 @@ namespace RomVaultX
             if (tr.DatId != null)
             {
                 RvDat tDat = new RvDat();
-                tDat.DBRead((uint)tr.DatId);
+                tDat.DbRead((uint)tr.DatId);
                 lblDITDescription.Text = tDat.Description;
                 lblDITCategory.Text = tDat.Category;
                 lblDITVersion.Text = tDat.Version;

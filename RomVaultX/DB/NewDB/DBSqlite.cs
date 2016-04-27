@@ -1651,7 +1651,7 @@ namespace RomVaultX.DB.NewDB
         public void UpdateSelectedFromList( List<uint> todo,int value)
         {
             string todoList = string.Join(",", todo);
-            using (DbCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")"))
+            using (DbCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")",Connection))
             {
                 SetStatus.ExecuteNonQuery();
             }
@@ -1661,7 +1661,7 @@ namespace RomVaultX.DB.NewDB
         {
             string todoList = string.Join(",", todo);
             List<uint> retList=new List<uint>();
-            using (DbCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + todoList + ")"))
+            using (DbCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + todoList + ")",Connection))
             {
                 using (DbDataReader dr = GetChild.ExecuteReader())
                 {

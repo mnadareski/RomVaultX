@@ -16,7 +16,7 @@ namespace RomVaultX.DB.NewDB
         public void ConnectToDB()
         {
             Connection = new SqlConnection();
-            Connection.ConnectionString = "Data Source=GORDONS-PC\\SQLEXPRESS; Initial Catalog=RomVaultX1; User id=sa; Password=Welcome1; Connection Timeout=60;";
+            Connection.ConnectionString = "Data Source=10.0.1.11\\SQLEXPRESS; Initial Catalog=RomVaultX1; User id=sa; Password=Welcome1; Connection Timeout=60;";
             Connection.Open();
 
             bool datFound = true;
@@ -41,7 +41,7 @@ namespace RomVaultX.DB.NewDB
                 object res = dbVersionCommand.ExecuteScalar();
 
                 if (res != null && res != DBNull.Value)
-                    testVersion = System.Convert.ToInt32(res);
+                    testVersion = Convert.ToInt32(res);
 
                 if (testVersion == DBVersion)
                     return;
@@ -1170,7 +1170,7 @@ namespace RomVaultX.DB.NewDB
             return games;
         }
 
-        private void RvGameReadFromReader(DbDataReader dr, RvGame game)
+        private static void RvGameReadFromReader(DbDataReader dr, RvGame game)
         {
             game.GameId = Convert.ToUInt32(dr["GameId"]);
             game.DatId = Convert.ToUInt32(dr["DatId"]);
@@ -1507,7 +1507,7 @@ namespace RomVaultX.DB.NewDB
         }
 
 
-        public uint? FindInDir(string fullname)
+        private uint? FindInDir(string fullname)
         {
             CommandFindInDir.Parameters["FullName"].Value = fullname;
             object resFind = CommandFindInDir.ExecuteScalar();
@@ -1518,13 +1518,13 @@ namespace RomVaultX.DB.NewDB
         }
 
 
-        public void SetDirFound(uint foundDatId)
+        private void SetDirFound(uint foundDatId)
         {
             CommandSetDirFound.Parameters["DirId"].Value = foundDatId;
             CommandSetDirFound.ExecuteNonQuery();
         }
 
-        public uint InsertIntoDir(uint parentDirId, string name, string fullName)
+        private uint InsertIntoDir(uint parentDirId, string name, string fullName)
         {
             CommandInsertIntoDir.Parameters["ParentDirId"].Value = parentDirId;
             CommandInsertIntoDir.Parameters["Name"].Value = name;
@@ -1660,9 +1660,9 @@ namespace RomVaultX.DB.NewDB
         public void UpdateSelectedFromList(List<uint> todo, int value)
         {
             string todoList = string.Join(",", todo);
-            using (DbCommand SetStatus = new SqlCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")",Connection))
+            using (DbCommand setStatus = new SqlCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")",Connection))
             {
-                SetStatus.ExecuteNonQuery();
+                setStatus.ExecuteNonQuery();
             }
         }
 

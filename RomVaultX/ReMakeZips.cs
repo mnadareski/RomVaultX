@@ -102,7 +102,7 @@ namespace RomVaultX
                 buffer = new byte[BufferSize];
 
             RvDat tDat = new RvDat();
-            tDat.DBRead(datId, true);
+            tDat.DbRead(datId, true);
 
             _bgw.ReportProgress(0, new bgwSetRange(tDat.Games.Count));
 
