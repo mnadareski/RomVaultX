@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Data.SQLite;
 using RomVaultX.IO;
@@ -15,7 +16,7 @@ namespace RomVaultX.DB.NewDB
         private string DirFilename;
         private SQLiteConnection Connection;
 
-        public void ConnectToDB()
+        public string ConnectToDB()
         {
             DirFilename = AppSettings.ReadSetting("DBFileName");
             if (DirFilename == null)
@@ -32,6 +33,21 @@ namespace RomVaultX.DB.NewDB
             Connection = new SQLiteConnection(@"data source=" + DirFilename + ";Version=3");
             Connection.Open();
 
+            ExecuteNonQuery("PRAGMA temp_store = MEMORY");
+            ExecuteNonQuery("PRAGMA cache_size = -8000000");
+            //ExecuteNonQuery("PRAGMA journal_mode = MEMORY");
+            ExecuteNonQuery("PRAGMA journal_mode = PERSIST");
+            ExecuteNonQuery("PRAGMA threads = 7");
+            //ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
+
+            DbCommand dbCheck = new SQLiteCommand(@"PRAGMA quick_check;", Connection);
+            object res = dbCheck.ExecuteScalar();
+            string sRes = res.ToString();
+
+            if (sRes != "ok")
+                return sRes;
+
+
             CheckDbVersion(ref datFound);
 
             InitializeSqlCommands();
@@ -39,9 +55,9 @@ namespace RomVaultX.DB.NewDB
             if (!datFound)
                 MakeDB();
 
-            ExecuteNonQuery("PRAGMA temp_store = MEMORY");
-            //ExecuteNonQuery("PRAGMA journal_mode= MEMORY");
-            ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
+            MakeIndex();
+
+            return null;
         }
 
         private void CheckDbVersion(ref bool datFound)
@@ -75,7 +91,7 @@ namespace RomVaultX.DB.NewDB
 
         private void ExecuteNonQuery(string query, params object[] args)
         {
-            using (SQLiteCommand command = new SQLiteCommand(query,Connection))
+            using (SQLiteCommand command = new SQLiteCommand(query, Connection))
             {
                 for (int i = 0; i < args.Length; i += 2)
                     command.Parameters.Add(new SQLiteParameter(args[i].ToString(), args[i + 1]));
@@ -140,28 +156,28 @@ namespace RomVaultX.DB.NewDB
                     [DatId] INTEGER NOT NULL,
                     [name] NVARCHAR(200) NOT NULL,
                     [description] NVARCHAR(220) NULL,
-                    [manufacturer] NVARCHAR(20) NULL,
-                    [cloneof] NVARCHAR(20) NULL,
-                    [romof] NVARCHAR(20) NULL,
-                    [sampleof] NVARCHAR(20) NULL,
-                    [sourcefile] NVARCHAR(20) NULL,
-                    [isbios] NVARCHAR(20) NULL,
-                    [board] NVARCHAR(20) NULL,
-                    [year] NVARCHAR(20) NULL,
+                    [manufacturer] NVARCHAR(200) NULL,
+                    [cloneof] NVARCHAR(200) NULL,
+                    [romof] NVARCHAR(200) NULL,
+                    [sampleof] NVARCHAR(200) NULL,
+                    [sourcefile] NVARCHAR(200) NULL,
+                    [isbios] NVARCHAR(200) NULL,
+                    [board] NVARCHAR(200) NULL,
+                    [year] NVARCHAR(200) NULL,
                     [istrurip] BOOLEAN DEFAULT 0 NOT NULL,
-                    [publisher] NVARCHAR(20) NULL,
-                    [developer] NVARCHAR(20) NULL,
-                    [edition] NVARCHAR(20) NULL,
-                    [version] NVARCHAR(20) NULL,
-                    [type] NVARCHAR(20) NULL,
-                    [media] NVARCHAR(20) NULL,
-                    [language] NVARCHAR(20) NULL,
-                    [players] NVARCHAR(20) NULL,
-                    [ratings] NVARCHAR(20) NULL,
-                    [genre] NVARCHAR(20) NULL,
-                    [peripheral] NVARCHAR(20) NULL,
-                    [barcode] NVARCHAR(20) NULL,
-                    [mediacatalognumber] NVARCHAR(20),
+                    [publisher] NVARCHAR(200) NULL,
+                    [developer] NVARCHAR(200) NULL,
+                    [edition] NVARCHAR(200) NULL,
+                    [version] NVARCHAR(200) NULL,
+                    [type] NVARCHAR(200) NULL,
+                    [media] NVARCHAR(200) NULL,
+                    [language] NVARCHAR(200) NULL,
+                    [players] NVARCHAR(200) NULL,
+                    [ratings] NVARCHAR(200) NULL,
+                    [genre] NVARCHAR(200) NULL,
+                    [peripheral] NVARCHAR(200) NULL,
+                    [barcode] NVARCHAR(200) NULL,
+                    [mediacatalognumber] NVARCHAR(200),
                     [RomTotal] INTEGER DEFAULT 0 NOT NULL,
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
                     [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
@@ -344,31 +360,43 @@ namespace RomVaultX.DB.NewDB
                 END;
             ");
 
-            MakeIndex();
         }
 
-        public void MakeIndex()
+        public void MakeIndex(BackgroundWorker bgw = null)
         {
-            ExecuteNonQuery(@"
-                CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]        ASC);
-                CREATE INDEX IF NOT EXISTS [ROMMD5Index]    ON [ROM]   ([md5]         ASC);
-                CREATE INDEX IF NOT EXISTS [ROMCRCIndex]    ON [ROM]   ([crc]         ASC);
-                CREATE INDEX IF NOT EXISTS [ROMSizeIndex]   ON [ROM]   ([size]        ASC);
-                CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]   ([FileId]      ASC);
-                CREATE INDEX IF NOT EXISTS [ROMGameId]      ON [ROM]   ([GameId]      ASC,[name] ASC);
+            if (bgw != null) { bgw.ReportProgress(0, new bgwRange2Visible(true)); bgw.ReportProgress(0, new bgwSetRange2(6)); };
+            if (bgw != null) { bgw.ReportProgress(0, new bgwValue2(0)); bgw.ReportProgress(0, new bgwText2("Creating Index ROM-SHA1")); }
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]        ASC);");
 
-                CREATE INDEX IF NOT EXISTS [GameDatId]      ON [GAME]  ([DatId]       ASC,[name] ASC);
+            if (bgw != null) { bgw.ReportProgress(0, new bgwValue2(1)); bgw.ReportProgress(0, new bgwText2("Creating Index ROM-MD5")); }
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMMD5Index]    ON [ROM]   ([md5]         ASC); ");
 
-                CREATE INDEX IF NOT EXISTS [FILESHA1]       ON [FILES] ([sha1]        ASC);
-                CREATE INDEX IF NOT EXISTS [FILEMD5]        ON [FILES] ([md5]         ASC);
-                CREATE INDEX IF NOT EXISTS [FILECRC]        ON [FILES] ([crc]         ASC);
+            if (bgw != null) { bgw.ReportProgress(0, new bgwValue2(2)); bgw.ReportProgress(0, new bgwText2("Creating Index ROM-CRC")); }
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMCRCIndex]    ON [ROM]   ([crc]         ASC); ");
 
-                CREATE INDEX IF NOT EXISTS [DATDIRID]       ON [DAT]   ([DirId]       ASC);
-                CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);
-            ");
+            if (bgw != null) { bgw.ReportProgress(0, new bgwValue2(3)); bgw.ReportProgress(0, new bgwText2("Creating Index ROM-Size")); }
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSizeIndex]   ON [ROM]   ([size]        ASC); ");
+
+            if (bgw != null) { bgw.ReportProgress(0, new bgwValue2(4)); bgw.ReportProgress(0, new bgwText2("Creating Index ROM-FileId")); }
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]   ([FileId]      ASC); ");
+
+            if (bgw != null) { bgw.ReportProgress(0, new bgwValue2(5)); bgw.ReportProgress(0, new bgwText2("Creating Index ROM-GameId-Name")); }
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMGameId]      ON [ROM]   ([GameId]      ASC,[name] ASC);");
+
+            if (bgw != null) { bgw.ReportProgress(0, new bgwValue2(6)); bgw.ReportProgress(0, new bgwText2("Indexing Complete")); }
+
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [GameDatId]      ON [GAME]  ([DatId]       ASC,[name] ASC);");
+
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILESHA1]       ON [FILES] ([sha1]        ASC);");
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILEMD5]        ON [FILES] ([md5]         ASC);");
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILECRC]        ON [FILES] ([crc]         ASC);");
+
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DATDIRID]       ON [DAT]   ([DirId]       ASC);");
+            ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);");
         }
         public void DropIndex()
         {
+            
             ExecuteNonQuery(@"
                 DROP INDEX IF EXISTS [ROMSHA1Index];
                 DROP INDEX IF EXISTS [ROMMD5Index];
@@ -376,17 +404,18 @@ namespace RomVaultX.DB.NewDB
                 DROP INDEX IF EXISTS [ROMSizeIndex];
                 DROP INDEX IF EXISTS [ROMFileIdIndex];
                 DROP INDEX IF EXISTS [ROMGameId];");
+                
         }
 
 
         public void Begin()
         {
-            ExecuteNonQuery("BEGIN");
+            ExecuteNonQuery("BEGIN TRANSACTION");
         }
 
         public void Commit()
         {
-            ExecuteNonQuery("COMMIT");
+            ExecuteNonQuery("COMMIT TRANSACTION");
         }
 
         public void UpdateGotTotal()
@@ -417,7 +446,7 @@ namespace RomVaultX.DB.NewDB
             (select count(1) from dat       where dat.DirId=dir.dirid)=0;");
 
 
-            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null",Connection);
+            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", Connection);
 
             int nullcount;
             do
@@ -500,7 +529,7 @@ namespace RomVaultX.DB.NewDB
                 INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,DatTimeStamp)
                 VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@DatTimeStamp);
 
-                SELECT last_insert_rowid();",Connection);
+                SELECT last_insert_rowid();", Connection);
 
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("DirId"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("Filename"));
@@ -520,7 +549,7 @@ namespace RomVaultX.DB.NewDB
 
             CommandRvDatRead = new SQLiteCommand(@"
                 SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment 
-                FROM DAT WHERE DatId=@datId ORDER BY Filename",Connection);
+                FROM DAT WHERE DatId=@datId ORDER BY Filename", Connection);
             CommandRvDatRead.Parameters.Add(new SQLiteParameter("datId"));
 
 
@@ -528,7 +557,7 @@ namespace RomVaultX.DB.NewDB
                 INSERT INTO GAME ( DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber)
                           VALUES (@DatId,@Name,@Description,@Manufacturer,@CloneOf,@RomOf,@SourceFile,@IsBios,@Board,@Year,@IsTrurip,@Publisher,@Developer,@Edition,@Version,@Type,@Media,@Language,@Players,@Ratings,@Genre,@Peripheral,@BarCode,@MediaCatalogNumber);
 
-                SELECT last_insert_rowid();",Connection);
+                SELECT last_insert_rowid();", Connection);
 
             CommandRvGameWrite.Parameters.Add(new SQLiteParameter("DatId")); //DatId;
             CommandRvGameWrite.Parameters.Add(new SQLiteParameter("Name")); //Name;
@@ -561,12 +590,12 @@ namespace RomVaultX.DB.NewDB
 
             CommandRvGameRead = new SQLiteCommand(@"
                 SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE GameId=@GameId ORDER BY name",Connection);
+                    FROM GAME WHERE GameId=@GameId ORDER BY name", Connection);
             CommandRvGameRead.Parameters.Add(new SQLiteParameter("GameId"));
 
             CommandRvGameReadDatGames = new SQLiteCommand(@"
                 SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE DatId=@DatId ORDER BY name",Connection);
+                    FROM GAME WHERE DatId=@DatId ORDER BY name", Connection);
             CommandRvGameReadDatGames.Parameters.Add(new SQLiteParameter("DatId"));
 
 
@@ -574,7 +603,7 @@ namespace RomVaultX.DB.NewDB
                 INSERT INTO ROM  ( GameId, name,type, size, crc, sha1, md5, merge, status,FileId)
                             VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
 
-                SELECT last_insert_rowid();",Connection);
+                SELECT last_insert_rowid();", Connection);
 
             CommandRvRomWrite.Parameters.Add(new SQLiteParameter("GameId"));
             CommandRvRomWrite.Parameters.Add(new SQLiteParameter("Name"));
@@ -601,7 +630,7 @@ namespace RomVaultX.DB.NewDB
                     files.crc as filecrc,
                     files.sha1 as filesha1,
                     files.md5 as filemd5
-                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY name",Connection);
+                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY name", Connection);
             CommandRvRomReader.Parameters.Add(new SQLiteParameter("GameId"));
 
 
@@ -609,7 +638,7 @@ namespace RomVaultX.DB.NewDB
     @"INSERT INTO FILES (size,compressedsize,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5)
                         VALUES (@Size,@compressedsize,@CRC,@SHA1,@MD5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
 
-                SELECT last_insert_rowid();",Connection);
+                SELECT last_insert_rowid();", Connection);
 
             CommandRvFileWrite.Parameters.Add(new SQLiteParameter("size"));
             CommandRvFileWrite.Parameters.Add(new SQLiteParameter("compressedsize"));
@@ -662,7 +691,7 @@ namespace RomVaultX.DB.NewDB
 	                    ( size is NULL OR size = @Size ) AND
 	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
-                ",Connection);
+                ", Connection);
             CommandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("FileId"));
             CommandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("size"));
             CommandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("crc"));
@@ -712,7 +741,7 @@ namespace RomVaultX.DB.NewDB
 	                    ( size is NULL OR size = @Size ) AND
 	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
-                ",Connection);
+                ", Connection);
             CommandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("FileId"));
             CommandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("type"));
             CommandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("size"));
@@ -736,7 +765,7 @@ namespace RomVaultX.DB.NewDB
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
-                ",Connection);
+                ", Connection);
             CommandRvFileUpdateZeroRom.Parameters.Add(new SQLiteParameter("FileId"));
             CommandRvFileUpdateZeroRom.Parameters.Add(new SQLiteParameter("crc"));
             CommandRvFileUpdateZeroRom.Parameters.Add(new SQLiteParameter("sha1"));
@@ -744,7 +773,7 @@ namespace RomVaultX.DB.NewDB
 
 
             CommandRvGameGridRowRead = new SQLiteCommand(@"
-                    SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name",Connection);
+                    SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name", Connection);
             CommandRvGameGridRowRead.Parameters.Add(new SQLiteParameter("datId"));
 
 
@@ -780,8 +809,9 @@ namespace RomVaultX.DB.NewDB
             ", Connection);
 
 
+            //memdb.FILESMEM
             CommandSHA1 = new SQLiteCommand(@"
-                       select FileId from memdb.FILESMEM
+                       select FileId from FILES
                             WHERE
 	                                    (                  @sha1 = sha1 ) AND
 	                                    ( @md5  is NULL OR @md5  = md5  ) AND
@@ -796,8 +826,9 @@ namespace RomVaultX.DB.NewDB
             CommandSHA1.Parameters.Add(new SQLiteParameter("size"));
 
 
+            //memdb.FILESMEM
             CommandSHA1Alt = new SQLiteCommand(@"
-                       select FileId from memdb.FILESMEM
+                       select FileId from FILES
                             WHERE
                                         (               @alttype = alttype ) AND
 	                                    (                  @sha1 = altsha1 ) AND
@@ -814,9 +845,9 @@ namespace RomVaultX.DB.NewDB
             CommandSHA1Alt.Parameters.Add(new SQLiteParameter("size"));
 
 
-
+            //memdb.FILESMEM
             CommandMD5 = new SQLiteCommand(@"
-                       select FileId from memdb.FILESMEM
+                       select FileId from FILES
                             WHERE
 	                                    (                  @md5  = md5  ) AND
 	                                    ( @crc  is NULL OR @crc  = crc  ) AND
@@ -828,8 +859,9 @@ namespace RomVaultX.DB.NewDB
             CommandMD5.Parameters.Add(new SQLiteParameter("crc"));
             CommandMD5.Parameters.Add(new SQLiteParameter("size"));
 
+            //memdb.FILESMEM
             CommandMD5Alt = new SQLiteCommand(@"
-                       select FileId from memdb.FILESMEM
+                       select FileId from FILES
                             WHERE
                                         (               @alttype = alttype ) AND
 	                                    (                  @md5  = altmd5  ) AND
@@ -843,9 +875,9 @@ namespace RomVaultX.DB.NewDB
             CommandMD5Alt.Parameters.Add(new SQLiteParameter("crc"));
             CommandMD5Alt.Parameters.Add(new SQLiteParameter("size"));
 
-
+            //memdb.FILESMEM
             CommandCRC = new SQLiteCommand(@"
-                       select FileId from memdb.FILESMEM
+                       select FileId from FILES
                             WHERE
 	                                    (                  @crc  = crc  ) AND
 	                                    ( @size is NULL OR @size = Size )
@@ -855,8 +887,9 @@ namespace RomVaultX.DB.NewDB
             CommandCRC.Parameters.Add(new SQLiteParameter("crc"));
             CommandCRC.Parameters.Add(new SQLiteParameter("size"));
 
+            //memdb.FILESMEM
             CommandCRCAlt = new SQLiteCommand(@"
-                       select FileId from memdb.FILESMEM
+                       select FileId from FILES
                             WHERE
                                         (               @alttype = alttype ) AND
 	                                    (                  @crc  = altcrc  ) AND
@@ -868,9 +901,9 @@ namespace RomVaultX.DB.NewDB
             CommandCRCAlt.Parameters.Add(new SQLiteParameter("size"));
 
 
-
+            //memdb.FILESMEM
             CommandSize = new SQLiteCommand(@"
-                       select FileId from memdb.FILESMEM
+                       select FileId from FILES
                             WHERE
 	                                    ( @size = Size )
                             limit 1
@@ -882,7 +915,7 @@ namespace RomVaultX.DB.NewDB
 
             CommandFindDat = new SQLiteCommand(@"
                 SELECT DatId FROM Dat,Dir WHERE Dat.DirId=Dir.DirId AND fullname=@fullname AND Filename=@filename AND DatTimeStamp=@DatTimeStamp
-            ",Connection);
+            ", Connection);
             CommandFindDat.Parameters.Add(new SQLiteParameter("fullname"));
             CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
             CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
@@ -890,15 +923,15 @@ namespace RomVaultX.DB.NewDB
 
             CommandSetDatFound = new SQLiteCommand(@"
                 Update Dat SET Found=1 WHERE DatId=@DatId
-            ",Connection);
+            ", Connection);
             CommandSetDatFound.Parameters.Add(new SQLiteParameter("DatId"));
 
 
 
-            CommandFindInDir = new SQLiteCommand(@"SELECT DirId FROM dir WHERE fullname=@fullname LIMIT 1",Connection);
+            CommandFindInDir = new SQLiteCommand(@"SELECT DirId FROM dir WHERE fullname=@fullname LIMIT 1", Connection);
             CommandFindInDir.Parameters.Add(new SQLiteParameter("fullname"));
 
-            CommandSetDirFound = new SQLiteCommand(@"Update Dir SET Found=1 WHERE DirId=@DirId",Connection);
+            CommandSetDirFound = new SQLiteCommand(@"Update Dir SET Found=1 WHERE DirId=@DirId", Connection);
             CommandSetDirFound.Parameters.Add(new SQLiteParameter("DirId"));
 
             CommandInsertIntoDir = new SQLiteCommand(@"
@@ -906,7 +939,7 @@ namespace RomVaultX.DB.NewDB
                          VALUES (@ParentDirId,@Name,@FullName);
 
                          SELECT last_insert_rowid();
-                    ",Connection);
+                    ", Connection);
 
             CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("ParentDirId"));
             CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("Name"));
@@ -915,7 +948,7 @@ namespace RomVaultX.DB.NewDB
 
             CommandFindInFiles = new SQLiteCommand(@"
                     SELECT COUNT(1) FROM FILES WHERE
-                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5",Connection);
+                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5", Connection);
             CommandFindInFiles.Parameters.Add(new SQLiteParameter("size"));
             CommandFindInFiles.Parameters.Add(new SQLiteParameter("crc"));
             CommandFindInFiles.Parameters.Add(new SQLiteParameter("sha1"));
@@ -951,7 +984,7 @@ namespace RomVaultX.DB.NewDB
                                 ( size=@size OR size is NULL ) AND
                                 ( status!='nodump' or status is NULL)
                         ) 
-                        AS TotalFound",Connection);
+                        AS TotalFound", Connection);
             CommandFindInROMs.Parameters.Add(new SQLiteParameter("size"));
             CommandFindInROMs.Parameters.Add(new SQLiteParameter("crc"));
             CommandFindInROMs.Parameters.Add(new SQLiteParameter("sha1"));
@@ -986,7 +1019,7 @@ namespace RomVaultX.DB.NewDB
                                 ( size=@size OR size is NULL ) AND
                                 ( status!='nodump' or status is NULL)
                         ) 
-                        AS TotalFound",Connection);
+                        AS TotalFound", Connection);
             CommandFindInROMsAlt.Parameters.Add(new SQLiteParameter("type"));
             CommandFindInROMsAlt.Parameters.Add(new SQLiteParameter("size"));
             CommandFindInROMsAlt.Parameters.Add(new SQLiteParameter("crc"));
@@ -1000,14 +1033,14 @@ namespace RomVaultX.DB.NewDB
                         ( md5=@MD5 OR md5 is NULL) AND
                         ( crc=@CRC OR crc is NULL ) AND
                         ( size=0 ) AND
-                        ( status!='nodump' or status is NULL)",Connection);
+                        ( status!='nodump' or status is NULL)", Connection);
             CommandFindInROMsZero.Parameters.Add(new SQLiteParameter("crc"));
             CommandFindInROMsZero.Parameters.Add(new SQLiteParameter("sha1"));
             CommandFindInROMsZero.Parameters.Add(new SQLiteParameter("md5"));
 
             CommandGetFile = new SQLiteCommand(@"
                     SELECT sha1 FROM FILES WHERE
-                        fileId=@fileId",Connection);
+                        fileId=@fileId", Connection);
             CommandGetFile.Parameters.Add(new SQLiteParameter("fileId"));
 
 
@@ -1028,17 +1061,17 @@ namespace RomVaultX.DB.NewDB
                         dat.RomGot,
                         dat.RomNoDump
                     FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
-                    ORDER BY dir.Fullname,dat.Filename",Connection);
+                    ORDER BY dir.Fullname,dat.Filename", Connection);
 
             CommandSetTreeExpanded = new SQLiteCommand(@"
-                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId",Connection);
+                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId", Connection);
             CommandSetTreeExpanded.Parameters.Add(new SQLiteParameter("expanded"));
             CommandSetTreeExpanded.Parameters.Add(new SQLiteParameter("dirId"));
 
 
-            CommandGetFirstExpanded=new SQLiteCommand(@"
+            CommandGetFirstExpanded = new SQLiteCommand(@"
                 SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1
-            ",Connection);
+            ", Connection);
             CommandGetFirstExpanded.Parameters.Add(new SQLiteParameter("DirId"));
         }
 
@@ -1347,6 +1380,7 @@ namespace RomVaultX.DB.NewDB
 
         public bool SetUpFindAFile()
         {
+            /*
             ExecuteNonQuery(@"
               CREATE TABLE IF NOT EXISTS memdb.FILESMEM (
                     [FileId] INTEGER NOT NULL,
@@ -1379,6 +1413,8 @@ namespace RomVaultX.DB.NewDB
             if (res == null || res == DBNull.Value)
                 return true;
             return Convert.ToInt32(res) == 0;
+            */
+            return false;
         }
 
         public uint? FindAFile(RvRom tFile)
@@ -1648,10 +1684,10 @@ namespace RomVaultX.DB.NewDB
             return Convert.ToInt32(res);
         }
 
-        public void UpdateSelectedFromList( List<uint> todo,int value)
+        public void UpdateSelectedFromList(List<uint> todo, int value)
         {
             string todoList = string.Join(",", todo);
-            using (DbCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")",Connection))
+            using (DbCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")", Connection))
             {
                 SetStatus.ExecuteNonQuery();
             }
@@ -1660,8 +1696,8 @@ namespace RomVaultX.DB.NewDB
         public List<uint> UpdateSelectedGetChildList(List<uint> todo)
         {
             string todoList = string.Join(",", todo);
-            List<uint> retList=new List<uint>();
-            using (DbCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + todoList + ")",Connection))
+            List<uint> retList = new List<uint>();
+            using (DbCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + todoList + ")", Connection))
             {
                 using (DbDataReader dr = GetChild.ExecuteReader())
                 {

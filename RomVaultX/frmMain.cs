@@ -40,7 +40,14 @@ namespace RomVaultX
         {
             InitializeComponent();
             addGameGrid();
-            Program.db.ConnectToDB();
+            string res=Program.db.ConnectToDB();
+
+            if (!string.IsNullOrEmpty(res))
+            {
+                MessageBox.Show("res", "DB Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
+
             Program.db.UpdateGotTotal();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }

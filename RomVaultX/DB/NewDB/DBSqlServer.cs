@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -13,7 +14,7 @@ namespace RomVaultX.DB.NewDB
 
         private SqlConnection Connection;
 
-        public void ConnectToDB()
+        public string ConnectToDB()
         {
             Connection = new SqlConnection();
             Connection.ConnectionString = "Data Source=10.0.1.11\\SQLEXPRESS; Initial Catalog=RomVaultX1; User id=sa; Password=Welcome1; Connection Timeout=60;";
@@ -24,9 +25,12 @@ namespace RomVaultX.DB.NewDB
 
             InitializeSqlCommands();
 
-            //if (!datFound)
+            if (!datFound)
                 MakeDB();
 
+            MakeIndex();
+
+            return "";
         }
         private void CheckDbVersion(ref bool datFound)
         {
@@ -218,7 +222,6 @@ namespace RomVaultX.DB.NewDB
 
 
 
-            MakeIndex();
             return;
 
             /******** Create Triggers ***********/
@@ -357,7 +360,7 @@ namespace RomVaultX.DB.NewDB
             ");
 
         }
-        public void MakeIndex()
+        public void MakeIndex(BackgroundWorker bgw = null)
         {
             ExecuteNonQuery(@"if not exists (select * from sys.indexes where name='ROMSHA1Index')   CREATE INDEX  [ROMSHA1Index]   ON [ROM]   ([sha1]        ASC);");
             ExecuteNonQuery(@"if not exists (select * from sys.indexes where name='ROMMD5Index')    CREATE INDEX  [ROMMD5Index]    ON [ROM]   ([md5]         ASC);");

@@ -74,11 +74,8 @@ namespace RomVaultX
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
                 Program.db.RemoveNotFoundDATs();
 
-                if (dropIndex)
-                {
-                    _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
-                    Program.db.MakeIndex();
-                }
+                _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
+                Program.db.MakeIndex(_bgw);
 
                 _bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
                 Program.db.UpdateGotTotal();
@@ -139,10 +136,10 @@ namespace RomVaultX
                 _datsProcessed++;
                 _bgw.ReportProgress(_datsProcessed);
 
-                uint? datId = Program.db.FindDat(subPath,f.Name,f.LastWriteTime);
+                uint? datId = Program.db.FindDat(subPath, f.Name, f.LastWriteTime);
                 if (datId != null)
                 {
-                    Program.db.SetDatFound((uint) datId);
+                    Program.db.SetDatFound((uint)datId);
                     continue;
                 }
 

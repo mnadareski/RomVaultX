@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 
 namespace RomVaultX.DB.NewDB
 {
     interface iDB
     {
-
-        void ConnectToDB();
+        string ConnectToDB();
 
         void Begin();
         void Commit();
@@ -14,7 +14,7 @@ namespace RomVaultX.DB.NewDB
 
         void UpdateGotTotal();
 
-        void MakeIndex();
+        void MakeIndex(BackgroundWorker bgw=null);
         void DropIndex();
 
 
