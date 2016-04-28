@@ -69,5 +69,16 @@ namespace RomVaultX.DB.NewDB
 
         void UpdateSelectedFromList(List<uint> todo, int value);
         List<uint> UpdateSelectedGetChildList(List<uint> todo);
+
+
+
+        void ZipSetLocalFileHeader(int RomId, byte[] localHeader, ulong fileOffset);
+        void ZipSetCentralFileHeader(int GameId, ulong zipFileLength, long timestamp, byte[] centeralDir, ulong fileOffset);
+
+        DbDataReader ZipSetGetAllGames();
+        DbDataReader ZipSetGetRomsInGame(int GameId);
+
+        DbCommand Command(string command);
+        DbParameter Parameter(string param, object value);
     }
 }

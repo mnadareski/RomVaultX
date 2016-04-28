@@ -1686,6 +1686,36 @@ namespace RomVaultX.DB.NewDB
             return retList;
         }
 
+        public void ZipSetLocalFileHeader(int RomId, byte[] localHeader, ulong fileOffset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ZipSetCentralFileHeader(int GameId, ulong zipFileLength, long timestamp, byte[] centeralDir, ulong fileOffset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DbDataReader ZipSetGetAllGames()
+        {
+            throw new NotImplementedException();
+        }
+
+        public DbDataReader ZipSetGetRomsInGame(int GameId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DbCommand Command(string command)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DbParameter Parameter(string param, object value)
+        {
+            throw new NotImplementedException();
+        }
+
         private object dbnull(object value)
         {
             if (value == null) return DBNull.Value;
