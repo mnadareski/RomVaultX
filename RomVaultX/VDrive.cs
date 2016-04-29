@@ -9,6 +9,38 @@ using RomVaultX.DB;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
 
+
+/*
+ * 
+select * from (
+
+select
+    dirId,
+    dir.ParentDirId,
+    CASE WHEN (select count(1) from Dat as d1 where d1.Dirid=Dir.Dirid)=1
+    then (select d2.DatId from Dat as d2 where d2.Dirid=Dir.Dirid limit 1)
+    else 0
+    end as datid,
+    dir.fullname as dirname
+from
+    dir
+
+union
+
+select
+    Dir.dirId,
+    Dir.dirId,
+    Dat.DatId,
+    Dir.fullname || ifnull(Dat.description,'-missing-') || '\' as dirname
+from
+    DIR left join DAT on Dir.DirId=DAT.DirID
+where
+    (select count(1) from Dat as d1 where d1.Dirid=Dir.Dirid)>1
+               )
+    order by dirname
+ * 
+ */
+
 namespace RomVaultX
 {
     
@@ -41,10 +73,9 @@ namespace RomVaultX
     {
         private static long TotalBytes()
         {
+            return 95906406250;
             using (DbCommand getTotalBytes = Program.db.Command(@"select sum(zipfilelength) from game"))
             {
-
-                return 95906406250;
                 return Convert.ToInt64(getTotalBytes.ExecuteScalar());
             }
         }

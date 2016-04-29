@@ -967,7 +967,7 @@ namespace RomVaultX
         {
             Dokan.Unmount('r');
             di = new VDrive();
-            Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.DebugMode,1); });
+            Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.FixedDrive,10); });
             t2.Start();
         }
 
