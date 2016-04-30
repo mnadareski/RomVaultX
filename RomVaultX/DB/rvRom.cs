@@ -31,7 +31,7 @@ namespace RomVaultX.DB
 
         public void DBWrite()
         {
-            FileId = DatUpdate.NoFilesInDB ? null : Program.db.FindAFile(this);
+            FileId = DatUpdate.NoFilesInDb ? null : Program.db.FindAFile(this);
             Program.db.RvRomWrite(this);
         }
     }

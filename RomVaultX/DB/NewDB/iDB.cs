@@ -47,7 +47,7 @@ namespace RomVaultX.DB.NewDB
         bool SetUpFindAFile();
         uint? FindAFile(RvRom tFile);
 
-        uint? FindDat(string fulldir, string filename, long DatTimeStamp);
+        uint? FindDat(string fulldir, string filename, long DatTimeStamp,bool ExtraDir);
 
         void SetDatFound(uint datId);
 

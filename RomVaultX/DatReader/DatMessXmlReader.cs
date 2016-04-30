@@ -11,11 +11,11 @@ namespace RomVaultX.DatReader
     {
         private static int _indexContinue;
 
-        public static bool ReadDat(XmlDocument doc, string strFilename, long fileTimeStamp, out RvDat rvDat)
+        public static bool ReadDat(XmlDocument doc, string strFilename,  out RvDat rvDat)
         {
             rvDat = new RvDat();
             string filename = IO.Path.GetFileName(strFilename);
-            if (!LoadHeaderFromDat(doc, rvDat, filename, fileTimeStamp))
+            if (!LoadHeaderFromDat(doc, rvDat, filename))
                 return false;
 
             if (doc.DocumentElement == null)
@@ -32,7 +32,7 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename, long fileTimeStamp)
+        private static bool LoadHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename)
         {
             XmlNodeList head = doc.SelectNodes("softwarelist");
             if (head == null)
@@ -45,7 +45,6 @@ namespace RomVaultX.DatReader
                 return false;
 
             rvDat.Filename = filename;
-            rvDat.DatTimeStamp = fileTimeStamp;
             rvDat.Name= VarFix.CleanFileName(head[0].Attributes.GetNamedItem("name"));
             rvDat.Description= VarFix.String(head[0].Attributes.GetNamedItem("description"));
 

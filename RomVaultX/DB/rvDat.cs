@@ -18,7 +18,9 @@ namespace RomVaultX.DB
         public string Homepage;
         public string URL;
         public string Comment;
+        public string Path;
         public long DatTimeStamp;
+        public bool ExtraDir;
 
         public List<RvGame> Games; 
 
@@ -53,6 +55,13 @@ namespace RomVaultX.DB
                 Games=new List<RvGame>();
 
             Games.Add(rvGame);
+        }
+
+        public string GetExtraDirName()
+        {
+            if (!string.IsNullOrWhiteSpace(Description))
+                return Description;
+            return "-unknown-";
         }
     }
 }

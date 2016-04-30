@@ -1486,11 +1486,12 @@ namespace RomVaultX.DB.NewDB
         }
 
 
-        public uint? FindDat(string fulldir, string filename, long DatTimeStamp)
+        public uint? FindDat(string fulldir, string filename, long DatTimeStamp,bool ExtraDir)
         {
             CommandFindDat.Parameters["fullname"].Value = fulldir + "\\";
             CommandFindDat.Parameters["filename"].Value = filename;
             CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
 
             object res = CommandFindDat.ExecuteScalar();
 

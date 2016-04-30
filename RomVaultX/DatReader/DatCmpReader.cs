@@ -8,7 +8,7 @@ namespace RomVaultX.DatReader
 {
     public static class DatCmpReader
     {
-        public static bool ReadDat(string strFilename, long fileTimeStamp, out RvDat rvDat)
+        public static bool ReadDat(string strFilename, out RvDat rvDat)
         {
             FileType datFileType = FileType.Nothing;
             rvDat = new RvDat();
@@ -27,14 +27,14 @@ namespace RomVaultX.DatReader
             if (DatFileLoader.Next.ToLower() == "clrmamepro")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(Filename, fileTimeStamp, rvDat, out datFileType))
+                if (!LoadHeaderFromDat(Filename, rvDat, out datFileType))
                     return false;
                 DatFileLoader.Gn();
             }
             if (DatFileLoader.Next.ToLower() == "romvault")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(Filename, fileTimeStamp, rvDat, out datFileType))
+                if (!LoadHeaderFromDat(Filename, rvDat, out datFileType))
                     return false;
                 DatFileLoader.Gn();
             }
@@ -45,19 +45,19 @@ namespace RomVaultX.DatReader
                 {
                     case "dir":
                         DatFileLoader.Gn();
-                        if (!LoadDirFromDat(rvDat,"", datFileType))
+                        if (!LoadDirFromDat(rvDat, "", datFileType))
                             return false;
                         DatFileLoader.Gn();
                         break;
                     case "game":
                         DatFileLoader.Gn();
-                        if (!LoadGameFromDat(rvDat,"", datFileType))
+                        if (!LoadGameFromDat(rvDat, "", datFileType))
                             return false;
                         DatFileLoader.Gn();
                         break;
                     case "resource":
                         DatFileLoader.Gn();
-                        if (!LoadGameFromDat(rvDat,"", datFileType))
+                        if (!LoadGameFromDat(rvDat, "", datFileType))
                             return false;
                         DatFileLoader.Gn();
                         break;
@@ -80,7 +80,7 @@ namespace RomVaultX.DatReader
         }
 
 
-        private static bool LoadHeaderFromDat(string filename, long fileTimeStamp, RvDat rvDat, out FileType datFileType)
+        private static bool LoadHeaderFromDat(string filename, RvDat rvDat, out FileType datFileType)
         {
             datFileType = FileType.Nothing;
 
@@ -92,7 +92,6 @@ namespace RomVaultX.DatReader
             DatFileLoader.Gn();
 
             rvDat.Filename = filename;
-            rvDat.DatTimeStamp = fileTimeStamp;
 
             while (DatFileLoader.Next != ")")
             {
@@ -147,7 +146,7 @@ namespace RomVaultX.DatReader
 
 
 
-        private static bool LoadDirFromDat(RvDat rvDat,string rootName, FileType datFileType)
+        private static bool LoadDirFromDat(RvDat rvDat, string rootName, FileType datFileType)
         {
             if (DatFileLoader.Next != "(")
             {

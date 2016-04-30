@@ -11,7 +11,7 @@ namespace RomVaultX.DatReader
 
         private static BackgroundWorker _bgw;
 
-        public static bool ReadDat(string fullname, long fileTimeStamp, BackgroundWorker bgw, out RvDat rvDat)
+        public static bool ReadDat(string fullname, BackgroundWorker bgw, out RvDat rvDat)
         {
             _bgw = bgw;
 
@@ -41,13 +41,13 @@ namespace RomVaultX.DatReader
 
             if (strLine.ToLower().IndexOf("xml", StringComparison.Ordinal) >= 0)
             {
-                if (!ReadXMLDat(fullname, fileTimeStamp, out rvDat))
+                if (!ReadXMLDat(fullname, out rvDat))
                     return false;
             }
 
             else if (strLine.ToLower().IndexOf("clrmamepro", StringComparison.Ordinal) >= 0 || strLine.ToLower().IndexOf("romvault", StringComparison.Ordinal) >= 0 || strLine.ToLower().IndexOf("game", StringComparison.Ordinal) >= 0)
             {
-                if (!DatCmpReader.ReadDat(fullname, fileTimeStamp, out rvDat))
+                if (!DatCmpReader.ReadDat(fullname,  out rvDat))
                     return false;
             }
             else if (strLine.ToLower().IndexOf("doscenter", StringComparison.Ordinal) >= 0)
@@ -67,7 +67,7 @@ namespace RomVaultX.DatReader
 
 
 
-        private static bool ReadXMLDat(string fullname, long fileTimeStamp, out RvDat rvDat)
+        private static bool ReadXMLDat(string fullname, out RvDat rvDat)
         {
             rvDat = null;
             Stream fs;
@@ -98,18 +98,18 @@ namespace RomVaultX.DatReader
 
             XmlNode mame = doc.SelectSingleNode("mame");
             if (mame != null)
-                return DatXmlReader.ReadMameDat(doc, fullname, fileTimeStamp, out rvDat);
+                return DatXmlReader.ReadMameDat(doc, fullname,  out rvDat);
 
             if (doc.DocumentElement != null)
             {
                 XmlNode head = doc.DocumentElement.SelectSingleNode("header");
                 if (head != null)
-                    return DatXmlReader.ReadDat(doc, fullname, fileTimeStamp, out rvDat);
+                    return DatXmlReader.ReadDat(doc, fullname, out rvDat);
             }
 
             XmlNodeList headList = doc.SelectNodes("softwarelist");
             if (headList != null)
-                return DatMessXmlReader.ReadDat(doc, fullname, fileTimeStamp, out rvDat);
+                return DatMessXmlReader.ReadDat(doc, fullname,  out rvDat);
 
             return false;
         }

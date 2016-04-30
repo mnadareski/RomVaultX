@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading;
 using RomVaultX.DB;
 using RomVaultX.IO;
+using RomVaultX.Util;
 
 namespace RomVaultX
 {
@@ -11,17 +12,16 @@ namespace RomVaultX
         private static int _datCount;
         private static int _datsProcessed;
         private static BackgroundWorker _bgw;
-        public static bool NoFilesInDB;
+        public static bool NoFilesInDb;
 
         public static void ShowDat(string message, string filename)
         {
-            if (_bgw != null)
-                _bgw.ReportProgress(0, new bgwShowError(filename, message));
+            _bgw?.ReportProgress(0, new bgwShowError(filename, message));
         }
+
         public static void SendAndShowDat(string message, string filename)
         {
-            if (_bgw != null)
-                _bgw.ReportProgress(0, new bgwShowError(filename, message));
+            _bgw?.ReportProgress(0, new bgwShowError(filename, message));
         }
 
 
@@ -43,19 +43,18 @@ namespace RomVaultX
                 Program.db.ClearFoundDATs();
 
                 const string datRoot = @"";
-                uint DirId = Program.db.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
+                uint dirId = Program.db.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
                 _bgw.ReportProgress(0, new bgwText("Pull File DB into memory"));
-                NoFilesInDB = Program.db.SetUpFindAFile();
+                NoFilesInDb = Program.db.SetUpFindAFile();
 
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
                 DatCount(datRoot, "DatRoot");
 
                 int dbDatCount = Program.db.DatDBCount();
-                bool dropIndex = false;
 
-                dropIndex = (_datCount - dbDatCount > 10);
+                bool dropIndex = (_datCount - dbDatCount > 10);
 
                 if (dropIndex)
                 {
@@ -68,7 +67,7 @@ namespace RomVaultX
 
                 _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
                 Program.db.Begin();
-                ReadDats(DirId, datRoot, "DatRoot");
+                ScanDirs(dirId, datRoot, "DatRoot");
                 Program.db.Commit();
 
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
@@ -109,34 +108,36 @@ namespace RomVaultX
             _datCount += fis.Length;
         }
 
-        private static void ReadDats(uint ParentId, string datRoot, string subPath)
+        private static void ScanDirs(uint dirId, string datRoot, string subPath)
         {
             DirectoryInfo di = new DirectoryInfo(Path.Combine(datRoot, subPath));
 
             DirectoryInfo[] dis = di.GetDirectories();
             foreach (DirectoryInfo d in dis)
             {
-                uint DirId = Program.db.FindOrInsertIntoDir(ParentId, d.Name, Path.Combine(subPath, d.Name) + "\\");
-                ReadDats(DirId, datRoot, Path.Combine(subPath, d.Name));
+                uint nextDirId = Program.db.FindOrInsertIntoDir(dirId, d.Name, Path.Combine(subPath, d.Name) + "\\");
+                ScanDirs(nextDirId, datRoot, Path.Combine(subPath, d.Name));
                 if (_bgw.CancellationPending)
                     return;
             }
 
-            FileInfo[] fis = di.GetFiles("*.DAT");
-            ReadDat(fis, subPath, ParentId);
+            FileInfo[] fisDat = di.GetFiles("*.DAT");
+            FileInfo[] fisXml = di.GetFiles("*.XML");
+            int datcount = fisDat.Length + fisXml.Length;
 
-            fis = di.GetFiles("*.XML");
-            ReadDat(fis, subPath, ParentId);
+            ReadDat(fisDat, subPath, dirId, datcount > 1);
+
+            ReadDat(fisXml, subPath, dirId, datcount > 1);
         }
 
-        private static void ReadDat(FileInfo[] fis, string subPath, uint ParentId)
+        private static void ReadDat(FileInfo[] fis, string subPath, uint dirId, bool extraDir)
         {
             foreach (FileInfo f in fis)
             {
                 _datsProcessed++;
                 _bgw.ReportProgress(_datsProcessed);
 
-                uint? datId = Program.db.FindDat(subPath, f.Name, f.LastWriteTime);
+                uint? datId = Program.db.FindDat(subPath, f.Name, f.LastWriteTime, extraDir);
                 if (datId != null)
                 {
                     Program.db.SetDatFound((uint)datId);
@@ -146,9 +147,19 @@ namespace RomVaultX
                 _bgw.ReportProgress(0, new bgwText("Dat : " + subPath + @"\" + f.Name));
 
                 RvDat rvDat;
-                if (DatReader.DatReader.ReadDat(f.FullName, f.LastWriteTime, _bgw, out rvDat))
+                if (DatReader.DatReader.ReadDat(f.FullName, _bgw, out rvDat))
                 {
-                    rvDat.DirId = ParentId;
+                    uint nextDirId = dirId;
+                    if (extraDir)
+                    {
+                        string extraDirName=VarFix.CleanFileName(rvDat.GetExtraDirName()); // read this from dat.
+                        nextDirId = Program.db.FindOrInsertIntoDir(dirId, extraDirName, Path.Combine(subPath, extraDirName) + "\\");
+                    }
+
+                    rvDat.DirId = nextDirId;
+                    rvDat.ExtraDir = extraDir;
+                    rvDat.Path = subPath;
+                    rvDat.DatTimeStamp = f.LastWriteTime;
                     Program.db.Commit();
                     Program.db.Begin();
                     rvDat.DbWrite();

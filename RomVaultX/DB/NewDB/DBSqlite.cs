@@ -145,7 +145,9 @@ namespace RomVaultX.DB.NewDB
                     [RomTotal] INTEGER DEFAULT 0 NOT NULL,
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
                     [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
+                    [Path] NVARCHAR(10)  NOT NULL,
                     [DatTimeStamp] NVARCHAR(20)  NOT NULL,
+                    [ExtraDir] BOOLEAN DEFAULT 0,
                     [found] BOOLEAN DEFAULT 1,            
                     FOREIGN KEY(DirId) REFERENCES DIR(DirId)
                 );");
@@ -532,8 +534,8 @@ namespace RomVaultX.DB.NewDB
         private void InitializeSqlCommands()
         {
             CommandRvDatWrite = new SQLiteCommand(@"
-                INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,DatTimeStamp)
-                VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@DatTimeStamp);
+                INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,Path, DatTimeStamp,ExtraDir)
+                VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@Path, @DatTimeStamp,@ExtraDir);
 
                 SELECT last_insert_rowid();", Connection);
 
@@ -550,7 +552,9 @@ namespace RomVaultX.DB.NewDB
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("homepage"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("url"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("comment"));
+            CommandRvDatWrite.Parameters.Add(new SQLiteParameter("Path"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
+            CommandRvDatWrite.Parameters.Add(new SQLiteParameter("ExtraDir"));
 
 
             CommandRvDatRead = new SQLiteCommand(@"
@@ -920,15 +924,16 @@ namespace RomVaultX.DB.NewDB
 
 
             CommandFindDat = new SQLiteCommand(@"
-                SELECT DatId FROM Dat,Dir WHERE Dat.DirId=Dir.DirId AND fullname=@fullname AND Filename=@filename AND DatTimeStamp=@DatTimeStamp
+                SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND DatTimeStamp=@DatTimeStamp AND ExtraDir=@ExtraDir
             ", Connection);
-            CommandFindDat.Parameters.Add(new SQLiteParameter("fullname"));
+            CommandFindDat.Parameters.Add(new SQLiteParameter("path"));
             CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
             CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
-
+            CommandFindDat.Parameters.Add(new SQLiteParameter("ExtraDir"));
 
             CommandSetDatFound = new SQLiteCommand(@"
-                Update Dat SET Found=1 WHERE DatId=@DatId
+                Update Dat SET Found=1 WHERE DatId=@DatId;
+                Update Dir SET Found=1 WHERE DirId=(select DirId from Dat WHERE DatId=@DatId);
             ", Connection);
             CommandSetDatFound.Parameters.Add(new SQLiteParameter("DatId"));
 
@@ -1144,7 +1149,9 @@ namespace RomVaultX.DB.NewDB
             CommandRvDatWrite.Parameters["homepage"].Value = dat.Homepage;
             CommandRvDatWrite.Parameters["url"].Value = dat.URL;
             CommandRvDatWrite.Parameters["comment"].Value = dat.Comment;
+            CommandRvDatWrite.Parameters["path"].Value = dat.Path;
             CommandRvDatWrite.Parameters["DatTimeStamp"].Value = dat.DatTimeStamp.ToString();
+            CommandRvDatWrite.Parameters["ExtraDir"].Value = dat.ExtraDir;
             object res = CommandRvDatWrite.ExecuteScalar();
 
             if (res == null || res == DBNull.Value)
@@ -1562,11 +1569,12 @@ namespace RomVaultX.DB.NewDB
         }
 
 
-        public uint? FindDat(string fulldir, string filename, long DatTimeStamp)
+        public uint? FindDat(string fulldir, string filename, long DatTimeStamp,bool ExtraDir)
         {
-            CommandFindDat.Parameters["fullname"].Value = fulldir + "\\";
+            CommandFindDat.Parameters["path"].Value = fulldir;
             CommandFindDat.Parameters["filename"].Value = filename;
             CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
 
             object res = CommandFindDat.ExecuteScalar();
 

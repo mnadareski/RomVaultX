@@ -6,12 +6,12 @@ namespace RomVaultX.DatReader
 {
     public static class DatXmlReader
     {
-        public static bool ReadDat(XmlDocument doc, string strFilename,long fileTimeStamp,out RvDat rvDat)
+        public static bool ReadDat(XmlDocument doc, string strFilename,  out RvDat rvDat)
         {
-            rvDat=new RvDat();
+            rvDat = new RvDat();
             string filename = IO.Path.GetFileName(strFilename);
 
-            if (!LoadHeaderFromDat(doc, rvDat, filename,fileTimeStamp))
+            if (!LoadHeaderFromDat(doc, rvDat, filename))
                 return false;
 
             if (doc.DocumentElement == null)
@@ -47,12 +47,12 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        public static bool ReadMameDat(XmlDocument doc, string strFilename,long fileTimeStamp,out RvDat rvDat)
+        public static bool ReadMameDat(XmlDocument doc, string strFilename, out RvDat rvDat)
         {
-            rvDat=new RvDat();
+            rvDat = new RvDat();
             string filename = IO.Path.GetFileName(strFilename);
 
-            if (!LoadMameHeaderFromDat(doc, rvDat, filename,fileTimeStamp))
+            if (!LoadMameHeaderFromDat(doc, rvDat, filename))
                 return false;
 
             if (doc.DocumentElement == null)
@@ -91,14 +91,13 @@ namespace RomVaultX.DatReader
 
 
 
-        private static bool LoadHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename,long fileTimeStamp)
+        private static bool LoadHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename)
         {
             if (doc.DocumentElement == null)
                 return false;
             XmlNode head = doc.DocumentElement.SelectSingleNode("header");
 
             rvDat.Filename = filename;
-            rvDat.DatTimeStamp = fileTimeStamp;
 
             if (head == null)
                 return false;
@@ -117,7 +116,7 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadMameHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename,long fileTimeStamp)
+        private static bool LoadMameHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename)
         {
             if (doc.DocumentElement == null)
                 return false;
@@ -129,7 +128,6 @@ namespace RomVaultX.DatReader
             rvDat.Filename = filename;
             rvDat.Name = VarFix.CleanFileName(head.Attributes.GetNamedItem("build"));
             rvDat.Description = VarFix.String(head.Attributes.GetNamedItem("build"));
-            rvDat.DatTimeStamp = fileTimeStamp;
 
             return true;
         }
@@ -166,7 +164,7 @@ namespace RomVaultX.DatReader
             if (gameNode.Attributes == null)
                 return;
 
-            RvGame rvGame=new RvGame();
+            RvGame rvGame = new RvGame();
             rvGame.Name = VarFix.CleanFullFileName(gameNode.Attributes.GetNamedItem("name"));
             rvGame.RomOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("romof"));
             rvGame.CloneOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof"));
@@ -197,7 +195,7 @@ namespace RomVaultX.DatReader
                 rvGame.BarCode = VarFix.String(trurip.SelectSingleNode("barcode"));
             }
 
-            rvGame.Name = IO.Path.Combine(rootDir,rvGame.Name);
+            rvGame.Name = IO.Path.Combine(rootDir, rvGame.Name);
 
             rvDat.AddGame(rvGame);
 
@@ -217,7 +215,7 @@ namespace RomVaultX.DatReader
             if (romNode.Attributes == null)
                 return;
 
-            RvRom rvRom=new RvRom();
+            RvRom rvRom = new RvRom();
             rvRom.Name = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("name"));
             rvRom.Size = VarFix.ULong(romNode.Attributes.GetNamedItem("size"));
             rvRom.CRC = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("crc"), 8);
