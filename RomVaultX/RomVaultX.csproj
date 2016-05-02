@@ -156,6 +156,10 @@
       <DependentUpon>rvTree.cs</DependentUpon>
     </Compile>
     <Compile Include="rvTreeRow.cs" />
+    <Compile Include="SupportedFiles\Files\ThreadCRC.cs" />
+    <Compile Include="SupportedFiles\Files\ThreadLoadBuffer.cs" />
+    <Compile Include="SupportedFiles\Files\ThreadMD5.cs" />
+    <Compile Include="SupportedFiles\Files\ThreadSHA1.cs" />
     <Compile Include="SupportedFiles\Files\UnCompFiles.cs" />
     <Compile Include="SupportedFiles\GZ\GZip.cs" />
     <Compile Include="SupportedFiles\ZipEnums.cs" />
