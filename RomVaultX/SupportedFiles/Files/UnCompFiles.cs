@@ -6,7 +6,6 @@
 
 using System.IO;
 using RomVaultX.DB;
-using CheckSumBuffers;
 
 namespace RomVaultX.SupportedFiles.Files
 {
