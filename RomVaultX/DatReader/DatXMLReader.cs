@@ -6,7 +6,7 @@ namespace RomVaultX.DatReader
 {
     public static class DatXmlReader
     {
-        public static bool ReadDat(XmlDocument doc, string strFilename,  out RvDat rvDat)
+        public static bool ReadDat(XmlDocument doc, string strFilename, out RvDat rvDat)
         {
             rvDat = new RvDat();
             string filename = IO.Path.GetFileName(strFilename);
@@ -112,6 +112,12 @@ namespace RomVaultX.DatReader
             rvDat.Homepage = VarFix.String(head.SelectSingleNode("homepage"));
             rvDat.URL = VarFix.String(head.SelectSingleNode("url"));
             rvDat.Comment = VarFix.String(head.SelectSingleNode("comment"));
+
+
+            XmlNode packingNode = head.SelectSingleNode("romvault") ?? head.SelectSingleNode("clrmamepro");
+
+            if (packingNode?.Attributes != null)
+                rvDat.MergeType = VarFix.String(packingNode.Attributes.GetNamedItem("forcemerging")).ToLower();
 
             return true;
         }

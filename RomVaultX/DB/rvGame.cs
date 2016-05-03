@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
@@ -77,7 +78,9 @@ namespace RomVaultX.DB
             if (Roms == null)
                 Roms = new List<RvRom>();
 
-            Roms.Add(rvRom);
+            int index;
+            ChildNameSearch(rvRom.Name, out index);
+            Roms.Insert(index, rvRom);
             return Roms.Count - 1;
         }
 
@@ -89,6 +92,47 @@ namespace RomVaultX.DB
         public RvRom Get(int index)
         {
             return Roms[index];
+        }
+
+
+
+
+        public int ChildNameSearch(string lRomName, out int index)
+        {
+            int intBottom = 0;
+            int intTop = Roms.Count;
+            int intMid = 0;
+            int intRes = -1;
+
+            //Binary chop to find the closest match
+            while (intBottom < intTop && intRes != 0)
+            {
+                intMid = (intBottom + intTop) / 2;
+
+                intRes = VarFix.CompareName(lRomName, Roms[intMid].Name);
+                if (intRes < 0)
+                    intTop = intMid;
+                else if (intRes > 0)
+                    intBottom = intMid + 1;
+            }
+            index = intMid;
+
+            // if match was found check up the list for the first match
+            if (intRes == 0)
+            {
+                int intRes1 = 0;
+                while (index > 0 && intRes1 == 0)
+                {
+                    intRes1 = VarFix.CompareName(lRomName, Roms[index - 1].Name);
+                    if (intRes1 == 0)
+                        index--;
+                }
+            }
+            // if the search is greater than the closest match move one up the list
+            else if (intRes > 0)
+                index++;
+
+            return intRes;
         }
     }
 

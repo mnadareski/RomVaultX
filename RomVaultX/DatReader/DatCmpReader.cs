@@ -111,7 +111,7 @@ namespace RomVaultX.DatReader
                     case "header": datFileType = FileHeaderReader.GetFileTypeFromHeader(DatFileLoader.GnRest()); DatFileLoader.Gn(); break;
                     case "forcezipping": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "forcepacking": DatFileLoader.GnRest(); DatFileLoader.Gn(); break; // incorrect usage
-                    case "forcemerging": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
+                    case "forcemerging": rvDat.MergeType= DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "forcenodump": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     case "dir": DatFileLoader.GnRest(); DatFileLoader.Gn(); break;
                     default:

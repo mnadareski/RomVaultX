@@ -163,8 +163,8 @@ namespace RomVaultX
                     LocalFileHeader,
                     LocalFileHeaderOffset,
                     LocalFileHeaderLength
-                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId 
-                 ORDER BY name"))
+                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND putinzip
+                 ORDER BY Rom.RomId"))
             {
                 DbParameter pGameId = Program.db.Parameter("GameId", gameId );
                 getRoms.Parameters.Add(pGameId);

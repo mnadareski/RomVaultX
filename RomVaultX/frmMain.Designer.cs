@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle16 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.btnUpdateDats = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.btnScanRoms = new System.Windows.Forms.Button();
@@ -63,6 +63,7 @@
             this.lblDITDescription = new System.Windows.Forms.Label();
             this.lblDITName = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.DirTree = new RomVaultX.RvTree();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.chkBoxShowMissing = new System.Windows.Forms.CheckBox();
             this.chkBoxShowCorrect = new System.Windows.Forms.CheckBox();
@@ -75,15 +76,6 @@
             this.CCorrect = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CMissing = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RomGrid = new System.Windows.Forms.DataGridView();
-            this.CGot = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CRom = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CCompressSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CMerge = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CCRC32 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CSHA1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CMD5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,9 +86,18 @@
             this.scanADirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateZipDBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.writeOutZipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.DirTree = new RomVaultX.RvTree();
             this.startVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CGot = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CRom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CCompressSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CMerge = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CCRC32 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CSHA1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CMD5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CInZip = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -428,6 +429,16 @@
             this.label8.Text = "ROMs Missing :";
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // DirTree
+            // 
+            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DirTree.Location = new System.Drawing.Point(0, 0);
+            this.DirTree.Name = "DirTree";
+            this.DirTree.Size = new System.Drawing.Size(533, 585);
+            this.DirTree.TabIndex = 0;
+            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
+            // 
             // splitContainer4
             // 
             this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -510,14 +521,14 @@
             this.GameGrid.AllowUserToDeleteRows = false;
             this.GameGrid.AllowUserToResizeRows = false;
             this.GameGrid.BackgroundColor = System.Drawing.Color.White;
-            dataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle13.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle13.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle13.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle13.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle13.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.GameGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle13;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.GameGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.GameGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.GameGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Type,
@@ -525,28 +536,28 @@
             this.CDescription,
             this.CCorrect,
             this.CMissing});
-            dataGridViewCellStyle14.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle14.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle14.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle14.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle14.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle14.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.GameGrid.DefaultCellStyle = dataGridViewCellStyle14;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.GameGrid.DefaultCellStyle = dataGridViewCellStyle2;
             this.GameGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GameGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.GameGrid.Location = new System.Drawing.Point(0, 0);
             this.GameGrid.MultiSelect = false;
             this.GameGrid.Name = "GameGrid";
             this.GameGrid.ReadOnly = true;
-            dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle15.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle15.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle15.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle15.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle15.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.GameGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle15;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.GameGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.GameGrid.RowHeadersVisible = false;
             this.GameGrid.RowTemplate.Height = 17;
             this.GameGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
@@ -602,14 +613,14 @@
             this.RomGrid.AllowUserToDeleteRows = false;
             this.RomGrid.AllowUserToResizeRows = false;
             this.RomGrid.BackgroundColor = System.Drawing.Color.White;
-            dataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle16.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle16.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle16.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle16.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle16.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle16.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.RomGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle16;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.RomGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.RomGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.RomGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.CGot,
@@ -620,29 +631,30 @@
             this.CCRC32,
             this.CSHA1,
             this.CMD5,
-            this.CStatus});
-            dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle17.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle17.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle17.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle17.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle17.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle17.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.RomGrid.DefaultCellStyle = dataGridViewCellStyle17;
+            this.CStatus,
+            this.CInZip});
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.RomGrid.DefaultCellStyle = dataGridViewCellStyle5;
             this.RomGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RomGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.RomGrid.Location = new System.Drawing.Point(0, 0);
             this.RomGrid.MultiSelect = false;
             this.RomGrid.Name = "RomGrid";
             this.RomGrid.ReadOnly = true;
-            dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle18.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle18.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle18.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle18.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle18.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle18.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.RomGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle18;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.RomGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.RomGrid.RowHeadersVisible = false;
             this.RomGrid.RowTemplate.Height = 19;
             this.RomGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
@@ -651,71 +663,8 @@
             this.RomGrid.ShowRowErrors = false;
             this.RomGrid.Size = new System.Drawing.Size(643, 305);
             this.RomGrid.TabIndex = 22;
+            this.RomGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.RomGrid_CellContentClick);
             this.RomGrid.SelectionChanged += new System.EventHandler(this.RomGrid_SelectionChanged);
-            // 
-            // CGot
-            // 
-            this.CGot.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.CGot.HeaderText = "Got";
-            this.CGot.Name = "CGot";
-            this.CGot.ReadOnly = true;
-            this.CGot.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.CGot.Width = 65;
-            // 
-            // CRom
-            // 
-            this.CRom.HeaderText = "ROM (File)";
-            this.CRom.Name = "CRom";
-            this.CRom.ReadOnly = true;
-            this.CRom.Width = 150;
-            // 
-            // CSize
-            // 
-            this.CSize.HeaderText = "Size";
-            this.CSize.Name = "CSize";
-            this.CSize.ReadOnly = true;
-            this.CSize.Width = 60;
-            // 
-            // CCompressSize
-            // 
-            this.CCompressSize.HeaderText = "ZipSize";
-            this.CCompressSize.Name = "CCompressSize";
-            this.CCompressSize.ReadOnly = true;
-            this.CCompressSize.Width = 60;
-            // 
-            // CMerge
-            // 
-            this.CMerge.HeaderText = "Merge";
-            this.CMerge.Name = "CMerge";
-            this.CMerge.ReadOnly = true;
-            this.CMerge.Width = 60;
-            // 
-            // CCRC32
-            // 
-            this.CCRC32.HeaderText = "CRC32";
-            this.CCRC32.Name = "CCRC32";
-            this.CCRC32.ReadOnly = true;
-            // 
-            // CSHA1
-            // 
-            this.CSHA1.HeaderText = "SHA1";
-            this.CSHA1.Name = "CSHA1";
-            this.CSHA1.ReadOnly = true;
-            this.CSHA1.Width = 150;
-            // 
-            // CMD5
-            // 
-            this.CMD5.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.CMD5.HeaderText = "MD5";
-            this.CMD5.Name = "CMD5";
-            this.CMD5.ReadOnly = true;
-            this.CMD5.Width = 150;
-            // 
-            // CStatus
-            // 
-            this.CStatus.HeaderText = "Status";
-            this.CStatus.Name = "CStatus";
-            this.CStatus.ReadOnly = true;
             // 
             // menuStrip1
             // 
@@ -801,16 +750,6 @@
             this.writeOutZipsToolStripMenuItem.Text = "WriteOutZips";
             this.writeOutZipsToolStripMenuItem.Click += new System.EventHandler(this.writeOutZipsToolStripMenuItem_Click);
             // 
-            // DirTree
-            // 
-            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DirTree.Location = new System.Drawing.Point(0, 0);
-            this.DirTree.Name = "DirTree";
-            this.DirTree.Size = new System.Drawing.Size(533, 585);
-            this.DirTree.TabIndex = 0;
-            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
-            // 
             // startVDriveToolStripMenuItem
             // 
             this.startVDriveToolStripMenuItem.Name = "startVDriveToolStripMenuItem";
@@ -824,6 +763,76 @@
             this.closeVDriveToolStripMenuItem.Size = new System.Drawing.Size(88, 20);
             this.closeVDriveToolStripMenuItem.Text = "Close V Drive";
             this.closeVDriveToolStripMenuItem.Click += new System.EventHandler(this.closeVDriveToolStripMenuItem_Click);
+            // 
+            // CGot
+            // 
+            this.CGot.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.CGot.HeaderText = "Got";
+            this.CGot.Name = "CGot";
+            this.CGot.ReadOnly = true;
+            this.CGot.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.CGot.Width = 65;
+            // 
+            // CRom
+            // 
+            this.CRom.HeaderText = "ROM (File)";
+            this.CRom.Name = "CRom";
+            this.CRom.ReadOnly = true;
+            this.CRom.Width = 150;
+            // 
+            // CSize
+            // 
+            this.CSize.HeaderText = "Size";
+            this.CSize.Name = "CSize";
+            this.CSize.ReadOnly = true;
+            this.CSize.Width = 60;
+            // 
+            // CCompressSize
+            // 
+            this.CCompressSize.HeaderText = "ZipSize";
+            this.CCompressSize.Name = "CCompressSize";
+            this.CCompressSize.ReadOnly = true;
+            this.CCompressSize.Width = 60;
+            // 
+            // CMerge
+            // 
+            this.CMerge.HeaderText = "Merge";
+            this.CMerge.Name = "CMerge";
+            this.CMerge.ReadOnly = true;
+            this.CMerge.Width = 60;
+            // 
+            // CCRC32
+            // 
+            this.CCRC32.HeaderText = "CRC32";
+            this.CCRC32.Name = "CCRC32";
+            this.CCRC32.ReadOnly = true;
+            // 
+            // CSHA1
+            // 
+            this.CSHA1.HeaderText = "SHA1";
+            this.CSHA1.Name = "CSHA1";
+            this.CSHA1.ReadOnly = true;
+            this.CSHA1.Width = 150;
+            // 
+            // CMD5
+            // 
+            this.CMD5.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.CMD5.HeaderText = "MD5";
+            this.CMD5.Name = "CMD5";
+            this.CMD5.ReadOnly = true;
+            this.CMD5.Width = 150;
+            // 
+            // CStatus
+            // 
+            this.CStatus.HeaderText = "Status";
+            this.CStatus.Name = "CStatus";
+            this.CStatus.ReadOnly = true;
+            // 
+            // CInZip
+            // 
+            this.CInZip.HeaderText = "In Zip";
+            this.CInZip.Name = "CInZip";
+            this.CInZip.ReadOnly = true;
             // 
             // frmMain
             // 
@@ -911,15 +920,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CCorrect;
         private System.Windows.Forms.DataGridViewTextBoxColumn CMissing;
         private System.Windows.Forms.ToolStripMenuItem createZIPsToolStripMenuItem;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CGot;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CRom;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CSize;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CCompressSize;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CMerge;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CCRC32;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CSHA1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CMD5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CStatus;
         private System.Windows.Forms.Label lblDITRomsNoDump;
         private System.Windows.Forms.Label lblDIRomsNoDump;
         private System.Windows.Forms.CheckBox chkBoxShowMissing;
@@ -932,6 +932,16 @@
         private System.Windows.Forms.ToolStripMenuItem writeOutZipsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startVDriveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeVDriveToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CGot;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CRom;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CSize;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CCompressSize;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CMerge;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CCRC32;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CSHA1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CMD5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CInZip;
     }
 }
 

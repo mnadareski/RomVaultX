@@ -12,7 +12,7 @@ namespace RomVaultX.DB.NewDB
 
     public class DBSqlite : iDB
     {
-        private const int DBVersion = 6;
+        private const int DBVersion = 7;
         private string DirFilename;
         private SQLiteConnection Connection;
 
@@ -142,6 +142,7 @@ namespace RomVaultX.DB.NewDB
                     [homepage] NVARCHAR(10)  NULL,
                     [url] NVARCHAR(10)  NULL,
                     [comment] NVARCHAR(10) NULL,
+                    [mergetype] NVARCHAR(10) NULL,
                     [RomTotal] INTEGER DEFAULT 0 NOT NULL,
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
                     [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
@@ -219,6 +220,7 @@ namespace RomVaultX.DB.NewDB
                     [md5] VARCHAR(32) NULL,
                     [merge] VARCHAR(20) NULL,
                     [status] VARCHAR(20) NULL,
+                    [putinzip] BOOLEAN,
                     [FileId] INTEGER NULL,
                     [LocalFileHeader] BLOB NULL,
                     [LocalFileHeaderOffset] INTEGER NULL,
@@ -534,8 +536,8 @@ namespace RomVaultX.DB.NewDB
         private void InitializeSqlCommands()
         {
             CommandRvDatWrite = new SQLiteCommand(@"
-                INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment,Path, DatTimeStamp,ExtraDir)
-                VALUES            (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@Path, @DatTimeStamp,@ExtraDir);
+                INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment, MergeType, Path, DatTimeStamp,ExtraDir)
+                VALUES          (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@MergeType,@Path, @DatTimeStamp,@ExtraDir);
 
                 SELECT last_insert_rowid();", Connection);
 
@@ -552,13 +554,14 @@ namespace RomVaultX.DB.NewDB
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("homepage"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("url"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("comment"));
+            CommandRvDatWrite.Parameters.Add(new SQLiteParameter("mergetype"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("Path"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
             CommandRvDatWrite.Parameters.Add(new SQLiteParameter("ExtraDir"));
 
 
             CommandRvDatRead = new SQLiteCommand(@"
-                SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment 
+                SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment,mergetype
                 FROM DAT WHERE DatId=@datId ORDER BY Filename", Connection);
             CommandRvDatRead.Parameters.Add(new SQLiteParameter("datId"));
 
@@ -610,8 +613,8 @@ namespace RomVaultX.DB.NewDB
 
 
             CommandRvRomWrite = new SQLiteCommand(@"
-                INSERT INTO ROM  ( GameId, name,type, size, crc, sha1, md5, merge, status,FileId)
-                            VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@FileId);
+                INSERT INTO ROM  ( GameId, name, type, size, crc, sha1, md5, merge, status, putinzip, FileId)
+                          VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@PutInZip,@FileId);
 
                 SELECT last_insert_rowid();", Connection);
 
@@ -624,6 +627,7 @@ namespace RomVaultX.DB.NewDB
             CommandRvRomWrite.Parameters.Add(new SQLiteParameter("MD5"));
             CommandRvRomWrite.Parameters.Add(new SQLiteParameter("Merge"));
             CommandRvRomWrite.Parameters.Add(new SQLiteParameter("Status"));
+            CommandRvRomWrite.Parameters.Add(new SQLiteParameter("PutInZip"));
             CommandRvRomWrite.Parameters.Add(new SQLiteParameter("FileId"));
 
             CommandRvRomReader = new SQLiteCommand(
@@ -633,7 +637,7 @@ namespace RomVaultX.DB.NewDB
                     rom.crc,
                     rom.sha1,
                     rom.md5,
-                    merge,status,
+                    merge,status,putinzip,
                     rom.FileId,
                     files.size as fileSize,
                     files.compressedsize as fileCompressedSize,
@@ -1127,7 +1131,7 @@ namespace RomVaultX.DB.NewDB
                     FILES.size,
                     FILES.compressedsize,
                     FILES.crc
-                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId ORDER BY ROM.name", Connection);
+                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND ROM.PutInZip ORDER BY ROM.RomId", Connection);
             CommandFindRomsInGame.Parameters.Add(new SQLiteParameter("GameId"));
 
         }
@@ -1149,6 +1153,7 @@ namespace RomVaultX.DB.NewDB
             CommandRvDatWrite.Parameters["homepage"].Value = dat.Homepage;
             CommandRvDatWrite.Parameters["url"].Value = dat.URL;
             CommandRvDatWrite.Parameters["comment"].Value = dat.Comment;
+            CommandRvDatWrite.Parameters["mergetype"].Value = dat.MergeType;
             CommandRvDatWrite.Parameters["path"].Value = dat.Path;
             CommandRvDatWrite.Parameters["DatTimeStamp"].Value = dat.DatTimeStamp.ToString();
             CommandRvDatWrite.Parameters["ExtraDir"].Value = dat.ExtraDir;
@@ -1181,6 +1186,7 @@ namespace RomVaultX.DB.NewDB
                     dat.Homepage = dr["homepage"].ToString();
                     dat.URL = dr["url"].ToString();
                     dat.Comment = dr["comment"].ToString();
+                    dat.MergeType = dr["mergetype"].ToString();
                 }
                 dr.Close();
             }
@@ -1297,6 +1303,7 @@ namespace RomVaultX.DB.NewDB
             CommandRvRomWrite.Parameters["md5"].Value = VarFix.ToDBString(rom.MD5);
             CommandRvRomWrite.Parameters["merge"].Value = rom.Merge;
             CommandRvRomWrite.Parameters["status"].Value = rom.Status;
+            CommandRvRomWrite.Parameters["putinzip"].Value = rom.PutInZip;
             CommandRvRomWrite.Parameters["FileID"].Value = rom.FileId;
             CommandRvRomWrite.ExecuteNonQuery();
         }
@@ -1323,6 +1330,8 @@ namespace RomVaultX.DB.NewDB
                         MD5 = VarFix.CleanMD5SHA1(dr["MD5"].ToString(), 32),
                         Merge = dr["merge"].ToString(),
                         Status = dr["status"].ToString(),
+                        PutInZip = (bool)dr["putinzip"],
+
                         FileId = FixLong(dr["FileId"]),
                         fileSize = FixLong(dr["fileSize"]),
                         fileCompressedSize = FixLong(dr["fileCompressedSize"]),
@@ -1399,12 +1408,12 @@ namespace RomVaultX.DB.NewDB
                 while (dr.Read())
                 {
                     RvGameGridRow gridRow = new RvGameGridRow();
-                    gridRow.GameId = System.Convert.ToInt32(dr["GameID"]); ;
+                    gridRow.GameId = Convert.ToInt32(dr["GameID"]); ;
                     gridRow.Name = dr["name"].ToString();
                     gridRow.Description = dr["description"].ToString();
-                    gridRow.RomGot = System.Convert.ToInt32(dr["RomGot"]);
-                    gridRow.RomTotal = System.Convert.ToInt32(dr["RomTotal"]);
-                    gridRow.RomNoDump = System.Convert.ToInt32(dr["RomNoDump"]);
+                    gridRow.RomGot = Convert.ToInt32(dr["RomGot"]);
+                    gridRow.RomTotal = Convert.ToInt32(dr["RomTotal"]);
+                    gridRow.RomNoDump = Convert.ToInt32(dr["RomNoDump"]);
                     rows.Add(gridRow);
                 }
                 dr.Close();
@@ -1569,7 +1578,7 @@ namespace RomVaultX.DB.NewDB
         }
 
 
-        public uint? FindDat(string fulldir, string filename, long DatTimeStamp,bool ExtraDir)
+        public uint? FindDat(string fulldir, string filename, long DatTimeStamp, bool ExtraDir)
         {
             CommandFindDat.Parameters["path"].Value = fulldir;
             CommandFindDat.Parameters["filename"].Value = filename;

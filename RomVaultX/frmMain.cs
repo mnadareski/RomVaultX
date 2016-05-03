@@ -88,15 +88,15 @@ namespace RomVaultX
             DialogResult result = sortDir.ShowDialog();
             if (result != DialogResult.OK)
                 return;
-            romScanner.rootDir = sortDir.SelectedPath;
-            romScanner.delFiles = false;
+            romScanner.RootDir = sortDir.SelectedPath;
+            romScanner.DelFiles = false;
             DoScan();
         }
 
         private void ToSortScanDir()
         {
-            romScanner.rootDir = @"ToSort";
-            romScanner.delFiles = true;      
+            romScanner.RootDir = @"ToSort";
+            romScanner.DelFiles = true;      
             DoScan();
         }
 
@@ -908,11 +908,14 @@ namespace RomVaultX
                     RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.fileMD5);
                 }
                 RomGrid.Rows[iRow].Cells[8].Value = rom.Status;
+                RomGrid.Rows[iRow].Cells[9].Value = rom.PutInZip;
 
-                if (rom.Status == "nodump" && rom.CRC == null && rom.SHA1 == null && rom.MD5 == null && rom.FileId == null)
+                if (rom.Status == "nodump" && rom.CRC == null && rom.SHA1 == null && rom.MD5 == null && rom.FileId == null || !rom.PutInZip)
                     RomGrid.Rows[iRow].DefaultCellStyle.BackColor = CGray;
                 else
                     RomGrid.Rows[iRow].DefaultCellStyle.BackColor = rom.FileId != null ? CGreen : CRed;
+
+
             }
 
         }
@@ -979,6 +982,11 @@ namespace RomVaultX
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
            Dokan.Unmount('r');
+        }
+
+        private void RomGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

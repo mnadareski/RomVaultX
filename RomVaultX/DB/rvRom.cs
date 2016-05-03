@@ -14,6 +14,7 @@ namespace RomVaultX.DB
         public byte[] MD5;
         public string Merge;
         public string Status;
+        public bool PutInZip;
         public ulong? FileId;
 
         public ulong? fileSize;
@@ -21,6 +22,7 @@ namespace RomVaultX.DB
         public byte[] fileCRC;
         public byte[] fileSHA1;
         public byte[] fileMD5;
+
 
     
 

@@ -177,6 +177,7 @@
     <Compile Include="SupportedFiles\Zip\ZLib\ZlibConstants.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\ZlibStream.cs" />
     <Compile Include="UpdateZipDB.cs" />
+    <Compile Include="Util\ArrByte.cs" />
     <Compile Include="Util\VarFix.cs" />
     <Compile Include="VDrive.cs" />
     <EmbeddedResource Include="frmMain.resx">

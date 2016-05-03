@@ -179,12 +179,50 @@ namespace RomVaultX.Util
         }
         public static string ToString(byte b)
         {
-            return ToString(new [] {b});
+            return ToString(new[] { b });
         }
 
         public static object ToDBString(Byte[] b)
         {
-            return b == null ? DBNull.Value :(object) BitConverter.ToString(b).ToLower().Replace("-", "");            
+            return b == null ? DBNull.Value : (object)BitConverter.ToString(b).ToLower().Replace("-", "");
+        }
+
+
+
+
+        public static int CompareName(string var1, string var2)
+        {
+            int retv = TrrntZipStringCompare(var1, var2);
+            return retv;
+
+        }
+
+        private static int TrrntZipStringCompare(string string1, string string2)
+        {
+            char[] bytes1 = string1.ToCharArray();
+            char[] bytes2 = string2.ToCharArray();
+
+            int pos1 = 0;
+            int pos2 = 0;
+
+            for (;;)
+            {
+                if (pos1 == bytes1.Length)
+                    return ((pos2 == bytes2.Length) ? 0 : -1);
+                if (pos2 == bytes2.Length)
+                    return 1;
+
+                int byte1 = bytes1[pos1++];
+                int byte2 = bytes2[pos2++];
+
+                if (byte1 >= 65 && byte1 <= 90) byte1 += 0x20;
+                if (byte2 >= 65 && byte2 <= 90) byte2 += 0x20;
+
+                if (byte1 < byte2)
+                    return -1;
+                if (byte1 > byte2)
+                    return 1;
+            }
         }
     }
 }

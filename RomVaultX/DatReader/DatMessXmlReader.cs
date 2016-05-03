@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Xml;
+﻿using System.Xml;
 using RomVaultX.DB;
 using RomVaultX.Util;
 
@@ -47,23 +44,7 @@ namespace RomVaultX.DatReader
             rvDat.Filename = filename;
             rvDat.Name= VarFix.CleanFileName(head[0].Attributes.GetNamedItem("name"));
             rvDat.Description= VarFix.String(head[0].Attributes.GetNamedItem("description"));
-
-            /*
-            string val = VarFix.String(head[0].Attributes.GetNamedItem("forcemerging")).ToLower();
-            switch (val.ToLower())
-            {
-                case "split":
-                    rvDat.MergeType= "split";
-                    break;
-                case "full":
-                    rvDat.MergeType= "full";
-                    break;
-                default:
-                    rvDat.MergeType= "split";
-                    break;
-            }
-            */
-
+            
             return true;
         }
 

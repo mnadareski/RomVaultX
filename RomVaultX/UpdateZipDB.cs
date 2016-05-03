@@ -27,6 +27,7 @@ namespace RomVaultX
 
                     ulong fileOffset = 0;
 
+                    int romCount = 0;
                     using (DbDataReader drRom = Program.db.ZipSetGetRomsInGame(GameId))
                     {
 
@@ -46,13 +47,15 @@ namespace RomVaultX
 
                             fileOffset += (ulong)localHeader.Length + compressedSize;
                             commitCount += 1;
+                            romCount += 1;
                         }
                     }
 
                     byte[] centeralDir;
                     memZip.ZipFileCloseFake(fileOffset, out centeralDir);
 
-                    Program.db.ZipSetCentralFileHeader(GameId, fileOffset + (ulong)centeralDir.Length, DateTime.UtcNow.Ticks, centeralDir, fileOffset);
+                    if (romCount > 0)
+                        Program.db.ZipSetCentralFileHeader(GameId, fileOffset + (ulong)centeralDir.Length, DateTime.UtcNow.Ticks, centeralDir, fileOffset);
 
                     if (commitCount >= 100)
                     {
