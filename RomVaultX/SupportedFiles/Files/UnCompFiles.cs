@@ -32,15 +32,10 @@ namespace RomVaultX.SupportedFiles.Files
             ThreadMD5 md5 = new ThreadMD5();
             ThreadSHA1 sha1 = new ThreadSHA1();
 
-            ThreadCRC altCrc32 = null;
-            ThreadMD5 altMd5 = null;
-            ThreadSHA1 altSha1 = null;
-            if (offset > 0)
-            {
-                altCrc32 = new ThreadCRC();
-                altMd5 = new ThreadMD5();
-                altSha1 = new ThreadSHA1();
-            }
+            ThreadCRC altCrc32 = offset > 0 ? new ThreadCRC() : null;
+            ThreadMD5 altMd5 = offset > 0 ? new ThreadMD5() : null;
+            ThreadSHA1 altSha1 = offset > 0 ? new ThreadSHA1() : null;
+
 
             file.Size = (ulong)ds.Length;
             long sizetogo = ds.Length;
@@ -67,8 +62,7 @@ namespace RomVaultX.SupportedFiles.Files
             int sizebuffer = sizeNext;
             sizetogo -= sizeNext;
             bool whichBuffer = true;
-
-
+            
             while (sizebuffer > 0)
             {
                 // trigger the buffer loading worker
@@ -95,7 +89,7 @@ namespace RomVaultX.SupportedFiles.Files
                 altCrc32?.Wait();
                 altMd5?.Wait();
                 altSha1?.Wait();
-                
+
                 // setup next loop around
                 sizebuffer = sizeNext;
                 sizetogo -= sizeNext;
@@ -107,29 +101,18 @@ namespace RomVaultX.SupportedFiles.Files
             crc32.Finish();
             md5.Finish();
             sha1.Finish();
+            altCrc32?.Finish();
+            altMd5?.Finish();
+            altSha1?.Finish();
 
             // get the results
             file.CRC = crc32.Hash;
             file.MD5 = md5.Hash;
             file.SHA1 = sha1.Hash;
-
-            if (offset > 0)
-            {
-                altCrc32?.Finish();
-                altMd5?.Finish();
-                altSha1?.Finish();
-                file.AltSize = (ulong?)(ds.Length - offset);
-                file.AltCRC = altCrc32?.Hash;
-                file.AltMD5 = altMd5?.Hash;
-                file.AltSHA1 = altSha1?.Hash;
-            }
-            else
-            {
-                file.AltSize = null;
-                file.AltCRC = null;
-                file.AltSHA1 = null;
-                file.AltMD5 = null;
-            }
+            file.AltSize = offset > 0 ? (ulong?)(ds.Length - offset) : null;
+            file.AltCRC = altCrc32?.Hash;
+            file.AltMD5 = altMd5?.Hash;
+            file.AltSHA1 = altSha1?.Hash;
 
             // cleanup
             lbuffer.Dispose();
