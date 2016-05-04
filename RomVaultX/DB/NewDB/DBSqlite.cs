@@ -40,6 +40,7 @@ namespace RomVaultX.DB.NewDB
             ExecuteNonQuery("PRAGMA threads = 7");
             //ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
 
+            
             DbCommand dbCheck = new SQLiteCommand(@"PRAGMA quick_check;", Connection);
             object res = dbCheck.ExecuteScalar();
             string sRes = res.ToString();
@@ -428,42 +429,30 @@ namespace RomVaultX.DB.NewDB
 
             UPDATE DIR SET RomTotal=null, ROMGot=null,RomNoDump=null;
 
-            UPDATE DIR SET
-                romtotal = (SELECT SUM(romtotal) FROM dat WHERE dat.dirid=dir.dirid)
+            UPDATE DIR SET 
+                RomTotal = (SELECT SUM(RomTotal) FROM Dat WHERE dat.dirid=dir.dirid) ,
+                RomGot = (SELECT SUM(RomGot) FROM dat WHERE dat.dirid=dir.dirid) , 
+                RomNoDump = (SELECT SUM(RomNoDump) FROM dat WHERE dat.dirid=dir.dirid)
             WHERE
-                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;
+                (SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirId=dir.dirid)=0;
+            ");
 
-            UPDATE DIR SET
-                romgot = (SELECT SUM(romgot) FROM dat WHERE dat.dirid=dir.dirid)
-            WHERE
-                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;
-
-            UPDATE DIR SET
-                romnodump = (SELECT SUM(romnodump) FROM dat WHERE dat.dirid=dir.dirid)
-            WHERE
-                (SELECT COUNT(1) FROM dat WHERE dat.dirid=dir.dirid)>0;
-
-
-            UPDATE DIR SET romtotal=0, romgot=0, romnodump=0
-            WHERE
-            (select count(1) from dir as p1 where p1.parentdirid=dir.dirid)=0 and
-            (select count(1) from dat       where dat.DirId=dir.dirid)=0;");
-
+            SQLiteCommand sqlUpdateCounts = new SQLiteCommand(@"
+                    UPDATE dir SET
+                        romTotal =(IFNULL((SELECT SUM(dir1.romTotal ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomTotal ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
+                        romGot   =(IFNULL((SELECT SUM(dir1.romGot   ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomGot   ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
+                        romNodump=(IFNULL((SELECT SUM(dir1.romNodump) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomNoDump) FROM Dat WHERE dat.dirid=dir.dirid),0))
+                    WHERE
+                        romtotal IS null AND
+                        (SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid AND dir1.romtotal IS null) = 0;", Connection);
 
             SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", Connection);
 
             int nullcount;
             do
             {
-                ExecuteNonQuery(@"
-                    UPDATE dir SET
-                        romtotal  =(SELECT SUM(p1.romtotal ) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid),
-                        romGot    =(SELECT SUM(p1.romgot   ) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid),
-                        romnodump =(SELECT SUM(p1.romnodump) FROM dir AS p1 WHERE p1.parentdirid=dir.dirid)
-                    WHERE
-                        romtotal IS null AND
-                        (SELECT COUNT(1) FROM dir AS p WHERE p.romtotal IS null AND p.parentdirid=dir.dirid)=0");
-
+                sqlUpdateCounts.ExecuteNonQuery();
+              
                 object res = sqlNullCount.ExecuteScalar();
                 nullcount = Convert.ToInt32(res);
 

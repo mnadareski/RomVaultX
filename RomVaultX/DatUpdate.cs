@@ -60,7 +60,7 @@ namespace RomVaultX
                 if (dropIndex)
                 {
                     _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
-                    Program.db.DropIndex();
+                     Program.db.DropIndex();
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
@@ -301,7 +301,15 @@ namespace RomVaultX
                 return;
 
             int intIndex;
-            int intResult = parentDir.ChildNameSearch(searchGame.RomOf, out intIndex);
+            string searchRom = searchGame.RomOf;
+            if (searchRom == searchGame.Name)
+                searchRom = searchGame.CloneOf;
+            if (String.IsNullOrEmpty(searchRom))
+                return;
+            if (searchRom == searchGame.Name)
+                return;
+
+            int intResult = parentDir.ChildNameSearch(searchRom, out intIndex);
             if (intResult == 0)
             {
                 RvGame parentGame = parentDir.Games[intIndex];
