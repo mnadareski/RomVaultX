@@ -40,14 +40,14 @@ namespace RomVaultX.DB.NewDB
             ExecuteNonQuery("PRAGMA threads = 7");
             //ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
 
-            
+            /*
             DbCommand dbCheck = new SQLiteCommand(@"PRAGMA quick_check;", Connection);
             object res = dbCheck.ExecuteScalar();
             string sRes = res.ToString();
 
             if (sRes != "ok")
                 return sRes;
-
+            */
 
             CheckDbVersion(ref datFound);
 
