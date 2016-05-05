@@ -18,7 +18,7 @@ using FileInfo = RomVaultX.IO.FileInfo;
 namespace RomVaultX
 {
 
-    public static class romScanner
+    public static class RomScanner
     {
         private static BackgroundWorker _bgw;
 
@@ -28,8 +28,22 @@ namespace RomVaultX
         private const int Buffersize = 1024*1024;
         private static readonly byte[] Buffer = new byte[Buffersize];
 
+        private static ulong inMemorySize;
+
+
         public static void ScanFiles(object sender, DoWorkEventArgs e)
         {
+            string sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
+            if (sInMemorySize == null)
+            {
+                // I use 1000000
+                AppSettings.AddUpdateAppSettings("ScanInMemorySize", "1000000");
+                sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
+            }
+
+            if (!ulong.TryParse(sInMemorySize, out inMemorySize))
+                inMemorySize = 1000000;
+            
             _bgw = sender as BackgroundWorker;
             Program.SyncCont = e.Argument as SynchronizationContext;
             if (Program.SyncCont == null)
@@ -95,9 +109,7 @@ namespace RomVaultX
                         ushort compressionMethod;
                         fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
 
-                        // test keep in memory if less than 1024*1024
-                        ulong memkeepSize = 1024*1024;
-                        if (streamSize <= memkeepSize)
+                        if (streamSize <= inMemorySize)
                         {
                             byte[] tmpFile = new byte[streamSize];
                             stream.Read(tmpFile, 0, (int) streamSize);

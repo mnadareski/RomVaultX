@@ -13,41 +13,58 @@ namespace RomVaultX.DB.NewDB
     public class DBSqlite : iDB
     {
         private const int DBVersion = 7;
-        private string DirFilename;
+        private string DBFilename;
         private SQLiteConnection Connection;
 
         public string ConnectToDB()
         {
-            DirFilename = AppSettings.ReadSetting("DBFileName");
-            if (DirFilename == null)
+            DBFilename = AppSettings.ReadSetting("DBFileName");
+            if (DBFilename == null)
             {
-                AppSettings.AddUpdateAppSettings("DBFileName", "C:\\RomVaultX\\rom");
-                DirFilename = AppSettings.ReadSetting("DBFileName");
+                AppSettings.AddUpdateAppSettings("DBFileName", "rom");
+                
+                DBFilename = AppSettings.ReadSetting("DBFileName");
+            }
+            string dbMemCacheSize = AppSettings.ReadSetting("DBMemCacheSize");
+            if (dbMemCacheSize == null)
+            {
+                // I use 8000000
+                AppSettings.AddUpdateAppSettings("DBMemCacheSize", "2000");
+                dbMemCacheSize = AppSettings.ReadSetting("DBMemCacheSize");
             }
 
 
-            DirFilename += DBVersion + ".db3";
+            DBFilename += DBVersion + ".db3";
 
-            bool datFound = File.Exists(DirFilename);
+            bool datFound = File.Exists(DBFilename);
 
-            Connection = new SQLiteConnection(@"data source=" + DirFilename + ";Version=3");
+            Connection = new SQLiteConnection(@"data source=" + DBFilename + ";Version=3");
             Connection.Open();
 
             ExecuteNonQuery("PRAGMA temp_store = MEMORY");
-            ExecuteNonQuery("PRAGMA cache_size = -8000000");
+            ExecuteNonQuery("PRAGMA cache_size = -"+dbMemCacheSize);
             //ExecuteNonQuery("PRAGMA journal_mode = MEMORY");
             ExecuteNonQuery("PRAGMA journal_mode = PERSIST");
             ExecuteNonQuery("PRAGMA threads = 7");
             //ExecuteNonQuery("Attach Database ':memory:' AS 'memdb'");
 
-            /*
-            DbCommand dbCheck = new SQLiteCommand(@"PRAGMA quick_check;", Connection);
-            object res = dbCheck.ExecuteScalar();
-            string sRes = res.ToString();
 
-            if (sRes != "ok")
-                return sRes;
-            */
+            string dbCheckOnStartup= AppSettings.ReadSetting("DBCheckOnStartup");
+            if (dbCheckOnStartup == null)
+            {
+                AppSettings.AddUpdateAppSettings("DBCheckOnStartup", "false");
+                dbCheckOnStartup = AppSettings.ReadSetting("DBCheckOnStartup");
+            }
+
+            if (dbCheckOnStartup.ToLower() == "true")
+            {
+                DbCommand dbCheck = new SQLiteCommand(@"PRAGMA quick_check;", Connection);
+                object res = dbCheck.ExecuteScalar();
+                string sRes = res.ToString();
+
+                if (sRes != "ok")
+                    return sRes;
+            }
 
             CheckDbVersion(ref datFound);
 
@@ -84,7 +101,7 @@ namespace RomVaultX.DB.NewDB
             }
 
             Connection.Close();
-            File.Delete(DirFilename);
+            File.Delete(DBFilename);
             Connection.Open();
             datFound = false;
         }

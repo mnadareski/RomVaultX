@@ -88,22 +88,22 @@ namespace RomVaultX
             DialogResult result = sortDir.ShowDialog();
             if (result != DialogResult.OK)
                 return;
-            romScanner.RootDir = sortDir.SelectedPath;
-            romScanner.DelFiles = false;
+            RomScanner.RootDir = sortDir.SelectedPath;
+            RomScanner.DelFiles = false;
             DoScan();
         }
 
         private void ToSortScanDir()
         {
-            romScanner.RootDir = @"ToSort";
-            romScanner.DelFiles = true;      
+            RomScanner.RootDir = @"ToSort";
+            RomScanner.DelFiles = true;      
             DoScan();
         }
 
         private void DoScan()
         {
 
-            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", romScanner.ScanFiles);
+            FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning Files", RomScanner.ScanFiles);
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
