@@ -683,7 +683,6 @@ namespace RomVaultX.DB.NewDB
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( crc  is NULL OR crc  = @crc  ) AND
 	                    ( size is NULL OR size = @Size ) AND
-	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -696,7 +695,6 @@ namespace RomVaultX.DB.NewDB
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( crc  is NULL OR crc  = @crc  ) AND
 	                    ( size is NULL OR size = @Size ) AND
-	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -709,7 +707,6 @@ namespace RomVaultX.DB.NewDB
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( size is NULL OR size = @Size ) AND
-	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
                 ", Connection);
             CommandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("FileId"));
@@ -731,7 +728,6 @@ namespace RomVaultX.DB.NewDB
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( crc  is NULL OR crc  = @crc  ) AND
 	                    ( size is NULL OR size = @Size ) AND
-	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -745,7 +741,6 @@ namespace RomVaultX.DB.NewDB
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( crc  is NULL OR crc  = @crc  ) AND
 	                    ( size is NULL OR size = @Size ) AND
-	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -759,7 +754,6 @@ namespace RomVaultX.DB.NewDB
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( size is NULL OR size = @Size ) AND
-	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
                 ", Connection);
             CommandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("FileId"));
@@ -783,7 +777,6 @@ namespace RomVaultX.DB.NewDB
 	                    ( crc  is NULL OR crc  = @crc  ) AND
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
-	                    ( status != 'nodump' OR status is NULL) AND 
                         FileId IS NULL;
                 ", Connection);
             CommandRvFileUpdateZeroRom.Parameters.Add(new SQLiteParameter("FileId"));
@@ -986,24 +979,21 @@ namespace RomVaultX.DB.NewDB
                                 ( sha1=@SHA1 ) AND 
                                 ( md5=@MD5 OR md5 is NULL) AND
                                 ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL ) AND
-                                ( status!='nodump' or status is NULL)
+                                ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
                                 ( md5=@MD5 ) AND
                                 ( sha1=@SHA1 OR sha1 is NULL ) AND 
                                 ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL ) AND
-                                ( status!='nodump' or status is NULL)
+                                ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
                                 ( crc=@CRC ) AND
                                 ( sha1=@SHA1 OR sha1 is NULL ) AND 
                                 ( md5=@MD5 OR md5 is NULL) AND
-                                ( size=@size OR size is NULL ) AND
-                                ( status!='nodump' or status is NULL)
+                                ( size=@size OR size is NULL )
                         ) 
                         AS TotalFound", Connection);
             CommandFindInROMs.Parameters.Add(new SQLiteParameter("size"));
@@ -1019,8 +1009,7 @@ namespace RomVaultX.DB.NewDB
                                 ( sha1=@SHA1 ) AND 
                                 ( md5=@MD5 OR md5 is NULL) AND
                                 ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL ) AND
-                                ( status!='nodump' or status is NULL)
+                                ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
@@ -1028,8 +1017,7 @@ namespace RomVaultX.DB.NewDB
                                 ( md5=@MD5 ) AND
                                 ( sha1=@SHA1 OR sha1 is NULL ) AND 
                                 ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL ) AND
-                                ( status!='nodump' or status is NULL)
+                                ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
@@ -1037,8 +1025,7 @@ namespace RomVaultX.DB.NewDB
                                 ( crc=@CRC ) AND
                                 ( sha1=@SHA1 OR sha1 is NULL ) AND 
                                 ( md5=@MD5 OR md5 is NULL) AND
-                                ( size=@size OR size is NULL ) AND
-                                ( status!='nodump' or status is NULL)
+                                ( size=@size OR size is NULL )
                         ) 
                         AS TotalFound", Connection);
             CommandFindInROMsAlt.Parameters.Add(new SQLiteParameter("type"));
@@ -1053,8 +1040,7 @@ namespace RomVaultX.DB.NewDB
                         ( sha1=@SHA1 OR sha1 is NULL ) AND 
                         ( md5=@MD5 OR md5 is NULL) AND
                         ( crc=@CRC OR crc is NULL ) AND
-                        ( size=0 ) AND
-                        ( status!='nodump' or status is NULL)", Connection);
+                        ( size=0 ) ", Connection);
             CommandFindInROMsZero.Parameters.Add(new SQLiteParameter("crc"));
             CommandFindInROMsZero.Parameters.Add(new SQLiteParameter("sha1"));
             CommandFindInROMsZero.Parameters.Add(new SQLiteParameter("md5"));

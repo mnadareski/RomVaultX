@@ -60,7 +60,7 @@ namespace RomVaultX
                 if (dropIndex)
                 {
                     _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
-                     Program.db.DropIndex();
+                    Program.db.DropIndex();
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
@@ -169,7 +169,7 @@ namespace RomVaultX
                     DatSetRenameAndRemoveDups(rvDat);
 
 
-                    if ((rvDat.MergeType??"full").ToLower() == "full")
+                    if ((rvDat.MergeType ?? "").ToLower() == "full")
                         DatSetMergeSets(rvDat);
 
                     DatSetCheckCollect(rvDat);
@@ -216,8 +216,7 @@ namespace RomVaultX
             }
         }
 
-
-
+        
         private static void DatSetCheckParentSets(RvDat tDat)
         {
             // First we are going to try and fix any missing CRC information by checking for roms with the same names
@@ -240,6 +239,7 @@ namespace RomVaultX
                     // get a list of that ROM Sets parents.
                     RvGame mGame = tDat.Games[g];
 
+
                     List<RvGame> lstParentGames = new List<RvGame>();
                     FindParentSet(mGame, tDat, ref lstParentGames);
 
@@ -248,7 +248,7 @@ namespace RomVaultX
                         continue;
 
                     // now loop every ROM in the current set.
-                    for (int r = 0; r < mGame.RomCount; r++)
+                    for (int r = 0; r < mGame.Roms.Count; r++)
                     {
                         // and loop every ROM of every parent set of this current set.
                         // and see if anything can be fixed.
@@ -257,9 +257,16 @@ namespace RomVaultX
                         // loop the parent sets
                         foreach (RvGame romofGame in lstParentGames)
                         {
+                            if (romofGame.Roms == null)
+                                continue;
+
                             // loop the ROMs in the parent sets
-                            for (int r1 = 0; r1 < romofGame.RomCount; r1++)
+                            for (int r1 = 0; r1 < romofGame.Roms.Count; r1++)
                             {
+                                // don't search fixes for files marked as nodump
+                                if (mGame.Roms[r].Status == "nodump" || romofGame.Roms[r1].Status == "nodump")
+                                    continue;
+
                                 // only find fixes if the Name and the Size of the ROMs are the same
                                 if (mGame.Roms[r].Name != romofGame.Roms[r1].Name || mGame.Roms[r].Size != romofGame.Roms[r1].Size)
                                     continue;
@@ -274,12 +281,12 @@ namespace RomVaultX
 
                                 if (b1)
                                 {
-                                    mGame.Roms[r].CRC = romofGame.Roms[r1].CRC;
+                                    mGame.Roms[r].CRC = ArrByte.Copy(romofGame.Roms[r1].CRC);
                                     mGame.Roms[r].Status = "(CRCFound)";
                                 }
                                 else
                                 {
-                                    romofGame.Roms[r1].CRC = mGame.Roms[r].CRC;
+                                    romofGame.Roms[r1].CRC = ArrByte.Copy(mGame.Roms[r].CRC);
                                     romofGame.Roms[r1].Status = "(CRCFound)";
                                 }
 
@@ -295,21 +302,18 @@ namespace RomVaultX
             }
         }
 
+
         private static void FindParentSet(RvGame searchGame, RvDat parentDir, ref List<RvGame> lstParentGames)
         {
-            if (String.IsNullOrEmpty(searchGame.RomOf))
+
+            string parentName = searchGame.RomOf;
+            if (String.IsNullOrEmpty(parentName) || parentName == searchGame.Name)
+                parentName = searchGame.CloneOf;
+            if (String.IsNullOrEmpty(parentName) || parentName == searchGame.Name)
                 return;
 
             int intIndex;
-            string searchRom = searchGame.RomOf;
-            if (searchRom == searchGame.Name)
-                searchRom = searchGame.CloneOf;
-            if (String.IsNullOrEmpty(searchRom))
-                return;
-            if (searchRom == searchGame.Name)
-                return;
-
-            int intResult = parentDir.ChildNameSearch(searchRom, out intIndex);
+            int intResult = parentDir.ChildNameSearch(parentName, out intIndex);
             if (intResult == 0)
             {
                 RvGame parentGame = parentDir.Games[intIndex];
@@ -360,7 +364,7 @@ namespace RomVaultX
 
                 List<RvGame> lstParentGames = new List<RvGame>();
                 FindParentSet(mGame, tDat, ref lstParentGames);
-                while (lstParentGames.Count > 0 && (lstParentGames[lstParentGames.Count - 1].IsBios??"").ToLower() == "yes")
+                while (lstParentGames.Count > 0 && (lstParentGames[lstParentGames.Count - 1].IsBios ?? "").ToLower() == "yes")
                     lstParentGames.RemoveAt(lstParentGames.Count - 1);
 
                 if (lstParentGames.Count <= 0) continue;
@@ -375,9 +379,11 @@ namespace RomVaultX
 
                     for (int r1 = 0; r1 < romofGame.RomCount; r1++)
                     {
-                        if ((name == romofGame.Roms[r1].Name || mergename == romofGame.Roms[r1].Name) &&
-                             ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) != 0 ||
-                             mGame.Roms[r].Size != romofGame.Roms[r1].Size)
+                        if (
+                            (name == romofGame.Roms[r1].Name.ToLower() || mergename == romofGame.Roms[r1].Name.ToLower())
+                            &&
+                            (ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) != 0 || (mGame.Roms[r].Size != romofGame.Roms[r1].Size))
+                           )
                             founderror = true;
 
                     }
@@ -396,9 +402,11 @@ namespace RomVaultX
                     bool found = false;
                     for (int r1 = 0; r1 < romofGame.RomCount; r1++)
                     {
-                        if ((name == romofGame.Roms[r1].Name || mergename == romofGame.Roms[r1].Name) &&
-                            ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) == 0 &&
-                            mGame.Roms[r].Size == romofGame.Roms[r1].Size)
+                        if (
+                            (name == romofGame.Roms[r1].Name.ToLower() || mergename == romofGame.Roms[r1].Name.ToLower())
+                            &&
+                            ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) == 0 && mGame.Roms[r].Size == romofGame.Roms[r1].Size
+                            )
                         {
                             found = true;
                             break;
@@ -437,10 +445,26 @@ namespace RomVaultX
                         {
                             for (int r1 = 0; r1 < romofGame.RomCount; r1++)
                             {
-                                if (mGame.Roms[r].Name != romofGame.Roms[r1].Name ||
-                                    !ArrByte.bCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) ||
-                                    mGame.Roms[r].Size != romofGame.Roms[r1].Size)
-                                    continue;
+                                if (mGame.Roms[r].Name.ToLower() != romofGame.Roms[r1].Name.ToLower()) continue;
+
+                                ulong? Size0 = mGame.Roms[r].Size;
+                                ulong? Size1 = romofGame.Roms[r1].Size;
+                                if (Size0 != null && Size1 != null && Size0 != Size1) continue;
+
+                                byte[] CRC0 = mGame.Roms[r].CRC;
+                                byte[] CRC1 = romofGame.Roms[r1].CRC;
+                                if (CRC0 != null && CRC1 != null && !ArrByte.bCompare(CRC0, CRC1)) continue;
+
+                                byte[] SHA0 = mGame.Roms[r].SHA1;
+                                byte[] SHA1 = romofGame.Roms[r1].SHA1;
+                                if (SHA0 != null && SHA1 != null && !ArrByte.bCompare(SHA0, SHA1)) continue;
+
+                                byte[] MD50 = mGame.Roms[r].MD5;
+                                byte[] MD51 = romofGame.Roms[r1].MD5;
+                                if (MD50 != null && MD51 != null && !ArrByte.bCompare(MD50, MD51)) continue;
+
+                                // don't merge if only one of the ROM is nodump
+                                if ((romofGame.Roms[r1].Status == "nodump") != (mGame.Roms[r].Status == "nodump")) continue;
 
                                 found = true;
                                 break;
@@ -468,12 +492,6 @@ namespace RomVaultX
             if (!string.IsNullOrEmpty(tRom.Merge))
                 tRom.Merge = "(No-Merge) " + tRom.Merge;
 
-            if (tRom.Status == "nodump")
-            {
-                tRom.CRC = null;
-                tRom.PutInZip = false;
-                return;
-            }
 
             if (ArrByte.bCompare(tRom.CRC, new byte[] { 0, 0, 0, 0 }) && tRom.Size == 0)
             {
@@ -481,14 +499,6 @@ namespace RomVaultX
                 return;
             }
 
-            /*
-            if (ArrByte.bCompare(tRom.CRC, new byte[] { 0, 0, 0, 0 }) || (tRom.CRC.Length != 8))
-            {
-                tRom.CRC = null;
-                tRom.DatStatus = DatStatus.InDatBad;
-                return;
-            }
-            */
 
             tRom.PutInZip = true;
         }

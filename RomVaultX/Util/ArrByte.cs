@@ -5,6 +5,15 @@ namespace RomVaultX.Util
 {
     public static class ArrByte
     {
+        public static byte[] Copy(byte[] b)
+        {
+            if (b == null) return null;
+            byte[] retB = new byte[b.Length];
+            for (int i = 0; i < b.Length; i++)
+                retB[i] = b[i];
+            return retB;
+        }
+
         public static bool bCompare(byte[] b1, byte[] b2)
         {
             if (b1 == null || b2 == null) return false;
