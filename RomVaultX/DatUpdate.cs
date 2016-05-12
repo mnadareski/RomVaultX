@@ -247,6 +247,9 @@ namespace RomVaultX
                     if (lstParentGames.Count == 0)
                         continue;
 
+                    if (mGame.Roms == null)
+                        continue;
+
                     // now loop every ROM in the current set.
                     for (int r = 0; r < mGame.Roms.Count; r++)
                     {

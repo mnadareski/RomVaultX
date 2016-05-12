@@ -8,7 +8,7 @@ namespace RomVaultX
 {
     static class Program
     {
-        public static iDB db;
+        public static DBSqlite db;
         public static readonly Encoding Enc = Encoding.GetEncoding(28591);
         public static SynchronizationContext SyncCont;
         [STAThread]

@@ -128,63 +128,7 @@ namespace RomVaultX
         }
 
         private FolderBrowserDialog outputDir;
-
-        private void createDATZipsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RvTreeRow selected = DirTree.Selected;
-            if (selected == null)
-                return;
-
-            if (outputDir == null)
-                outputDir = new FolderBrowserDialog();
-
-            DialogResult result = outputDir.ShowDialog();
-            if (result != DialogResult.OK)
-                return;
-
-            ReMakeZips.SetDatZipInfo(selected, outputDir.SelectedPath);
-
-            FrmProgressWindow progress = new FrmProgressWindow(this, "Extracting File To Zips", ReMakeZips.MakeDatZips);
-            progress.ShowDialog(this);
-            progress.Dispose();
-        }
-
-        private void createGameZipToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RvTreeRow selected = DirTree.Selected;
-            if (selected == null)
-                return;
-
-            if (selected.DatId == null)
-            {
-                MessageBox.Show("Select a DAT to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            if (GameGrid.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Select a Game to remake", "RomVaultX", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            };
-
-             int GameId = (int)GameGrid.SelectedRows[0].Tag;
-
-            if (outputDir == null)
-                outputDir = new FolderBrowserDialog();
-
-            DialogResult result = outputDir.ShowDialog();
-            if (result != DialogResult.OK)
-                return;
-
-            ReMakeZips.SetDatZipInfo(GameId, outputDir.SelectedPath);
-
-            FrmProgressWindow progress = new FrmProgressWindow(this, "Extracting File To Zips", ReMakeZips.MakeDatZips);
-            progress.ShowDialog(this);
-            progress.Dispose();
-
-        }
-
-
-
+        
 
         private void DirTree_RvSelected(object sender, MouseEventArgs e)
         {
@@ -958,11 +902,6 @@ namespace RomVaultX
         private void updateZipDBToolStripMenuItem_Click(object sender, EventArgs e)
         {
            UpdateZipDB.UpdateDB();
-        }
-
-        private void writeOutZipsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-           // UpdateZipDB.WriteOutZips();
         }
 
         private VDrive di;

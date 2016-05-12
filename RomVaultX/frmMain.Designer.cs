@@ -76,18 +76,6 @@
             this.CCorrect = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CMissing = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RomGrid = new System.Windows.Forms.DataGridView();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deepReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createZIPsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createDATZipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createGameZipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.scanADirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.updateZipDBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.writeOutZipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.startVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CGot = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CRom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -98,6 +86,14 @@
             this.CMD5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CInZip = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.romRootScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deepReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.scanADirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateZipDBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -666,104 +662,6 @@
             this.RomGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.RomGrid_CellContentClick);
             this.RomGrid.SelectionChanged += new System.EventHandler(this.RomGrid_SelectionChanged);
             // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.romRootScanToolStripMenuItem,
-            this.createZIPsToolStripMenuItem,
-            this.scanADirToolStripMenuItem,
-            this.updateZipDBToolStripMenuItem,
-            this.writeOutZipsToolStripMenuItem,
-            this.startVDriveToolStripMenuItem,
-            this.closeVDriveToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1264, 24);
-            this.menuStrip1.TabIndex = 5;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // romRootScanToolStripMenuItem
-            // 
-            this.romRootScanToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.quickReScanToolStripMenuItem,
-            this.deepReScanToolStripMenuItem});
-            this.romRootScanToolStripMenuItem.Name = "romRootScanToolStripMenuItem";
-            this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
-            this.romRootScanToolStripMenuItem.Text = "RomRoot";
-            this.romRootScanToolStripMenuItem.Click += new System.EventHandler(this.romRootScanToolStripMenuItem_Click);
-            // 
-            // quickReScanToolStripMenuItem
-            // 
-            this.quickReScanToolStripMenuItem.Name = "quickReScanToolStripMenuItem";
-            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
-            this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
-            this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
-            // 
-            // deepReScanToolStripMenuItem
-            // 
-            this.deepReScanToolStripMenuItem.Name = "deepReScanToolStripMenuItem";
-            this.deepReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
-            this.deepReScanToolStripMenuItem.Text = "Deep ReScan";
-            this.deepReScanToolStripMenuItem.Click += new System.EventHandler(this.deepReScanToolStripMenuItem_Click);
-            // 
-            // createZIPsToolStripMenuItem
-            // 
-            this.createZIPsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.createDATZipsToolStripMenuItem,
-            this.createGameZipToolStripMenuItem});
-            this.createZIPsToolStripMenuItem.Name = "createZIPsToolStripMenuItem";
-            this.createZIPsToolStripMenuItem.Size = new System.Drawing.Size(78, 20);
-            this.createZIPsToolStripMenuItem.Text = "Create ZIPs";
-            // 
-            // createDATZipsToolStripMenuItem
-            // 
-            this.createDATZipsToolStripMenuItem.Name = "createDATZipsToolStripMenuItem";
-            this.createDATZipsToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
-            this.createDATZipsToolStripMenuItem.Text = "Create DAT Zips";
-            this.createDATZipsToolStripMenuItem.Click += new System.EventHandler(this.createDATZipsToolStripMenuItem_Click);
-            // 
-            // createGameZipToolStripMenuItem
-            // 
-            this.createGameZipToolStripMenuItem.Name = "createGameZipToolStripMenuItem";
-            this.createGameZipToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
-            this.createGameZipToolStripMenuItem.Text = "Create Game Zip";
-            this.createGameZipToolStripMenuItem.Click += new System.EventHandler(this.createGameZipToolStripMenuItem_Click);
-            // 
-            // scanADirToolStripMenuItem
-            // 
-            this.scanADirToolStripMenuItem.Name = "scanADirToolStripMenuItem";
-            this.scanADirToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
-            this.scanADirToolStripMenuItem.Text = "Scan A Dir";
-            this.scanADirToolStripMenuItem.Click += new System.EventHandler(this.scanADirToolStripMenuItem_Click);
-            // 
-            // updateZipDBToolStripMenuItem
-            // 
-            this.updateZipDBToolStripMenuItem.Name = "updateZipDBToolStripMenuItem";
-            this.updateZipDBToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
-            this.updateZipDBToolStripMenuItem.Text = "UpdateZipDB";
-            this.updateZipDBToolStripMenuItem.Click += new System.EventHandler(this.updateZipDBToolStripMenuItem_Click);
-            // 
-            // writeOutZipsToolStripMenuItem
-            // 
-            this.writeOutZipsToolStripMenuItem.Name = "writeOutZipsToolStripMenuItem";
-            this.writeOutZipsToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
-            this.writeOutZipsToolStripMenuItem.Text = "WriteOutZips";
-            this.writeOutZipsToolStripMenuItem.Click += new System.EventHandler(this.writeOutZipsToolStripMenuItem_Click);
-            // 
-            // startVDriveToolStripMenuItem
-            // 
-            this.startVDriveToolStripMenuItem.Name = "startVDriveToolStripMenuItem";
-            this.startVDriveToolStripMenuItem.Size = new System.Drawing.Size(83, 20);
-            this.startVDriveToolStripMenuItem.Text = "Start V Drive";
-            this.startVDriveToolStripMenuItem.Click += new System.EventHandler(this.startVDriveToolStripMenuItem_Click);
-            // 
-            // closeVDriveToolStripMenuItem
-            // 
-            this.closeVDriveToolStripMenuItem.Name = "closeVDriveToolStripMenuItem";
-            this.closeVDriveToolStripMenuItem.Size = new System.Drawing.Size(88, 20);
-            this.closeVDriveToolStripMenuItem.Text = "Close V Drive";
-            this.closeVDriveToolStripMenuItem.Click += new System.EventHandler(this.closeVDriveToolStripMenuItem_Click);
-            // 
             // CGot
             // 
             this.CGot.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
@@ -833,6 +731,72 @@
             this.CInZip.HeaderText = "In Zip";
             this.CInZip.Name = "CInZip";
             this.CInZip.ReadOnly = true;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.romRootScanToolStripMenuItem,
+            this.scanADirToolStripMenuItem,
+            this.updateZipDBToolStripMenuItem,
+            this.startVDriveToolStripMenuItem,
+            this.closeVDriveToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1264, 24);
+            this.menuStrip1.TabIndex = 5;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // romRootScanToolStripMenuItem
+            // 
+            this.romRootScanToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.quickReScanToolStripMenuItem,
+            this.deepReScanToolStripMenuItem});
+            this.romRootScanToolStripMenuItem.Name = "romRootScanToolStripMenuItem";
+            this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
+            this.romRootScanToolStripMenuItem.Text = "RomRoot";
+            this.romRootScanToolStripMenuItem.Click += new System.EventHandler(this.romRootScanToolStripMenuItem_Click);
+            // 
+            // quickReScanToolStripMenuItem
+            // 
+            this.quickReScanToolStripMenuItem.Name = "quickReScanToolStripMenuItem";
+            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
+            this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
+            // 
+            // deepReScanToolStripMenuItem
+            // 
+            this.deepReScanToolStripMenuItem.Name = "deepReScanToolStripMenuItem";
+            this.deepReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.deepReScanToolStripMenuItem.Text = "Deep ReScan";
+            this.deepReScanToolStripMenuItem.Click += new System.EventHandler(this.deepReScanToolStripMenuItem_Click);
+            // 
+            // scanADirToolStripMenuItem
+            // 
+            this.scanADirToolStripMenuItem.Name = "scanADirToolStripMenuItem";
+            this.scanADirToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
+            this.scanADirToolStripMenuItem.Text = "Scan A Dir";
+            this.scanADirToolStripMenuItem.Click += new System.EventHandler(this.scanADirToolStripMenuItem_Click);
+            // 
+            // updateZipDBToolStripMenuItem
+            // 
+            this.updateZipDBToolStripMenuItem.Name = "updateZipDBToolStripMenuItem";
+            this.updateZipDBToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
+            this.updateZipDBToolStripMenuItem.Text = "UpdateZipDB";
+            this.updateZipDBToolStripMenuItem.Click += new System.EventHandler(this.updateZipDBToolStripMenuItem_Click);
+            // 
+            // startVDriveToolStripMenuItem
+            // 
+            this.startVDriveToolStripMenuItem.Name = "startVDriveToolStripMenuItem";
+            this.startVDriveToolStripMenuItem.Size = new System.Drawing.Size(83, 20);
+            this.startVDriveToolStripMenuItem.Text = "Start V Drive";
+            this.startVDriveToolStripMenuItem.Click += new System.EventHandler(this.startVDriveToolStripMenuItem_Click);
+            // 
+            // closeVDriveToolStripMenuItem
+            // 
+            this.closeVDriveToolStripMenuItem.Name = "closeVDriveToolStripMenuItem";
+            this.closeVDriveToolStripMenuItem.Size = new System.Drawing.Size(88, 20);
+            this.closeVDriveToolStripMenuItem.Text = "Close V Drive";
+            this.closeVDriveToolStripMenuItem.Click += new System.EventHandler(this.closeVDriveToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -919,17 +883,13 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CDescription;
         private System.Windows.Forms.DataGridViewTextBoxColumn CCorrect;
         private System.Windows.Forms.DataGridViewTextBoxColumn CMissing;
-        private System.Windows.Forms.ToolStripMenuItem createZIPsToolStripMenuItem;
         private System.Windows.Forms.Label lblDITRomsNoDump;
         private System.Windows.Forms.Label lblDIRomsNoDump;
         private System.Windows.Forms.CheckBox chkBoxShowMissing;
         private System.Windows.Forms.CheckBox chkBoxShowCorrect;
         private System.Windows.Forms.ToolStripMenuItem scanADirToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem createDATZipsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem createGameZipToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deepReScanToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem updateZipDBToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem writeOutZipsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startVDriveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeVDriveToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn CGot;

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SQLite;
 
 namespace RomVaultX.DB
 {
@@ -12,10 +15,37 @@ namespace RomVaultX.DB
         public int RomTotal;
         public int RomNoDump;
 
-        
+        private static SQLiteCommand _commandRvGameGridRowRead;
+
         public static List<RvGameGridRow> ReadGames(int datId)
         {
-            return Program.db.ReadGames(datId);
+            if (_commandRvGameGridRowRead == null)
+            {
+                _commandRvGameGridRowRead = new SQLiteCommand(@"
+                    SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name"
+                    , Program.db.Connection);
+                _commandRvGameGridRowRead.Parameters.Add(new SQLiteParameter("datId"));
+            }
+
+            List<RvGameGridRow> rows = new List<RvGameGridRow>();
+            _commandRvGameGridRowRead.Parameters["DatId"].Value = datId;
+
+            using (DbDataReader dr = _commandRvGameGridRowRead.ExecuteReader())
+            {
+                while (dr.Read())
+                {
+                    RvGameGridRow gridRow = new RvGameGridRow();
+                    gridRow.GameId = Convert.ToInt32(dr["GameID"]); ;
+                    gridRow.Name = dr["name"].ToString();
+                    gridRow.Description = dr["description"].ToString();
+                    gridRow.RomGot = Convert.ToInt32(dr["RomGot"]);
+                    gridRow.RomTotal = Convert.ToInt32(dr["RomTotal"]);
+                    gridRow.RomNoDump = Convert.ToInt32(dr["RomNoDump"]);
+                    rows.Add(gridRow);
+                }
+                dr.Close();
+            }
+            return rows;
         }
 
         public bool HasCorrect()

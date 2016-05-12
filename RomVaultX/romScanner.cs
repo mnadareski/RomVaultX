@@ -77,7 +77,7 @@ namespace RomVaultX
             }
 
             // test if needed.
-            FindStatus res = FileneededTest(tFile);
+            FindStatus res = RvRomFileMatchup.FileneededTest(tFile);
 
             if (res == FindStatus.FileNeededInArchive)
             {
@@ -273,26 +273,6 @@ namespace RomVaultX
 
         }
 
-        private enum FindStatus
-        {
-            FileUnknown,
-            FoundFileInArchive,
-            FileNeededInArchive,
-        };
-        private static FindStatus FileneededTest(RvFile tFile)
-        {
-            // first check to see if we already have it in the file table
-            bool inFileDB = Program.db.FindInFiles(tFile); // returns true if found in File table
-            if (inFileDB) return FindStatus.FoundFileInArchive;
-
-            // now check if needed in any ROMs
-            if (Program.db.FindInROMs(tFile))
-                return FindStatus.FileNeededInArchive;
-
-            if (FileHeaderReader.AltHeaderFile(tFile.AltType) && Program.db.FindInROMsAlt(tFile))
-                return FindStatus.FileNeededInArchive;
-
-            return FindStatus.FileUnknown;
-        }
+      
     }
 }

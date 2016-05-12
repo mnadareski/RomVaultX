@@ -128,7 +128,7 @@ namespace RomVaultX
         private static FindStatus fileneededTest(RvFile tFile)
         {
             // first check to see if we already have it in the file table
-            bool inFileDB = Program.db.FindInFiles(tFile); // returns true if found in File table
+            bool inFileDB = RvRomFileMatchup.FindInFiles(tFile); // returns true if found in File table
             return inFileDB ? FindStatus.FoundFileInArchive : FindStatus.FileNeededInArchive;
         }
 

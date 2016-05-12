@@ -17,7 +17,7 @@ namespace RomVaultX.Util
 
         public static ulong? ULong(string n)
         {
-            if (string.IsNullOrEmpty(n))
+            if (System.String.IsNullOrEmpty(n))
                 return null;
 
             if (n == "-")
@@ -78,7 +78,7 @@ namespace RomVaultX.Util
         }
         public static byte[] CleanMD5SHA1(string checksum, int length)
         {
-            if (string.IsNullOrEmpty(checksum)) return null;
+            if (System.String.IsNullOrEmpty(checksum)) return null;
 
             checksum = checksum.ToLower().Trim();
 
@@ -87,7 +87,7 @@ namespace RomVaultX.Util
                     checksum = checksum.Substring(2);
 
 
-            if (string.IsNullOrEmpty(checksum)) return null;
+            if (System.String.IsNullOrEmpty(checksum)) return null;
 
             if (checksum == "-") return null;
 
@@ -187,7 +187,10 @@ namespace RomVaultX.Util
             return b == null ? DBNull.Value : (object)BitConverter.ToString(b).ToLower().Replace("-", "");
         }
 
-
+        public static ulong? FixLong(object v)
+        {
+            return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
+        }
 
 
         public static int CompareName(string var1, string var2)

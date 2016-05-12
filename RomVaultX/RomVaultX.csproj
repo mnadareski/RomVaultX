@@ -110,9 +110,8 @@
     <Compile Include="DatReader\DatXMLReader.cs" />
     <Compile Include="DatUpdate.cs" />
     <Compile Include="DB\NewDB\DBSqlite.cs" />
-    <Compile Include="DB\NewDB\DBSqlServer.cs" />
-    <Compile Include="DB\NewDB\iDB.cs" />
     <Compile Include="DB\rvDat.cs" />
+    <Compile Include="DB\rvDir.cs" />
     <Compile Include="DB\rvFile.cs" />
     <Compile Include="DB\RvGameGridRow.cs" />
     <Compile Include="DB\rvRom.cs" />
@@ -139,7 +138,6 @@
     <Compile Include="IO\Win32Native.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReMakeZips.cs" />
     <Compile Include="ReportError.cs" />
     <Compile Include="DB\rvGame.cs" />
     <Compile Include="romRootScanner.cs" />
@@ -150,6 +148,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>rvImages1.resx</DependentUpon>
     </Compile>
+    <Compile Include="rvRomFileMatchup.cs" />
     <Compile Include="rvTree.cs">
       <SubType>UserControl</SubType>
     </Compile>

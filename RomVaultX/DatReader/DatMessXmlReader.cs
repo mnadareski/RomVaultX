@@ -127,7 +127,7 @@ namespace RomVaultX.DatReader
             }
             else if (loadflag.ToLower() == "continue")
             {
-                RvRom tROM = rvGame.Get(_indexContinue);
+                RvRom tROM = rvGame.Roms[_indexContinue];
                 tROM.Size += VarFix.ULong(romNode.Attributes.GetNamedItem("size"));
             }
 
