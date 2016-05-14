@@ -22,6 +22,7 @@ namespace RomVaultX.DB
 
 
         private static SQLiteCommand _commandRvFileWrite;
+        private static SQLiteCommand _commandCheckForAnyFiles;
 
         public static void CreateTable()
         {
@@ -88,6 +89,18 @@ namespace RomVaultX.DB
             FileId = Convert.ToUInt32(res);
         }
 
+
+
+        public static bool FilesinDBCheck()
+        {
+            if (_commandCheckForAnyFiles == null)
+                _commandCheckForAnyFiles = new SQLiteCommand("SELECT COUNT(1) FROM FILES LIMIT 1", Program.db.Connection);
+
+            object res = _commandCheckForAnyFiles.ExecuteScalar();
+            if (res == null || res == DBNull.Value)
+                return true;
+            return Convert.ToInt32(res) == 0;
+        }
 
 
     }

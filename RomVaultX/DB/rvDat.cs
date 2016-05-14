@@ -28,9 +28,7 @@ namespace RomVaultX.DB
         public string MergeType;
 
         public List<RvGame> Games;
-
-
-
+        
         private static SQLiteCommand _commandRvDatWrite;
         private static SQLiteCommand _commandRvDatRead;
 
@@ -72,7 +70,7 @@ namespace RomVaultX.DB
             {
                 _commandRvDatRead = new SQLiteCommand(@"
                 SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment,mergetype
-                FROM DAT WHERE DatId=@datId ORDER BY Filename",Program.db.Connection);
+                FROM DAT WHERE DatId=@datId ORDER BY Filename", Program.db.Connection);
                 _commandRvDatRead.Parameters.Add(new SQLiteParameter("datId"));
             }
 
@@ -224,5 +222,10 @@ namespace RomVaultX.DB
 
             return intRes;
         }
+
+
+
+
+
     }
 }

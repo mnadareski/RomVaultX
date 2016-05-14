@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.SQLite;
 using System.Drawing;
 using RomVaultX.DB;
 
@@ -31,11 +32,34 @@ namespace RomVaultX
         public Rectangle RText;
 
 
+        private static SQLiteCommand CommandReadTree;
+
         public static List<RvTreeRow> ReadTreeFromDB()
         {
+            if (CommandReadTree == null)
+            {
+                CommandReadTree = new SQLiteCommand(@"
+                    SELECT 
+                        dir.DirId as DirId,
+                        dir.name as dirname,
+                        dir.fullname,
+                        dir.expanded,
+                        dir.RomTotal as dirRomTotal,
+                        dir.RomGot as dirRomGot,
+                        dir.RomNoDump as dirNoDump,
+                        dat.DatId,
+                        dat.name as datname,
+                        dat.description,
+                        dat.RomTotal,
+                        dat.RomGot,
+                        dat.RomNoDump
+                    FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
+                    ORDER BY dir.Fullname,dat.Filename", Program.db.Connection);
+            }
+
             List<RvTreeRow> rows = new List<RvTreeRow>();
 
-            using (DbDataReader dr = Program.db.CommandReadTreeGetReader())
+            using (DbDataReader dr = CommandReadTree.ExecuteReader())
             {
                 bool multiDatDirFound = false;
 
@@ -114,10 +138,10 @@ namespace RomVaultX
 
             return rows;
         }
-       
+
         public static void SetTreeExpandedChildren(uint DirId)
         {
-            int? value = Program.db.GetFirstExpanded(DirId);
+            int? value = GetFirstExpanded(DirId);
             if (value == null)
                 return;
             value = 1 - value;
@@ -127,81 +151,62 @@ namespace RomVaultX
 
             while (todo.Count > 0)
             {
-                Program.db.UpdateSelectedFromList(todo,(int)value);
-                todo = Program.db.UpdateSelectedGetChildList(todo);
-
+                UpdateSelectedFromList(todo, (int)value);
+                todo = UpdateSelectedGetChildList(todo);
             }
         }
 
 
-        public static List<RvTreeRow> ReadTreeFromDBZipRebuild(string baseDir)
+        private static SQLiteCommand _commandGetFirstExpanded;
+
+        private static int? GetFirstExpanded(uint DirId)
         {
-            List<RvTreeRow> rows = new List<RvTreeRow>();
-            
-            using (DbDataReader dr = Program.db.CommandReadTreeGetReader())
+            if (_commandGetFirstExpanded == null)
             {
-                bool multiDatDirFound = false;
+                _commandGetFirstExpanded = new SQLiteCommand(@"
+                SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1", Program.db.Connection);
+                _commandGetFirstExpanded.Parameters.Add(new SQLiteParameter("DirId"));
+            }
 
-                RvTreeRow lastTree = null;
-                while (dr.Read())
+            _commandGetFirstExpanded.Parameters["DirId"].Value = DirId;
+            object res = _commandGetFirstExpanded.ExecuteScalar();
+            if (res == null || res == DBNull.Value)
+                return null;
+            return Convert.ToInt32(res);
+        }
+
+
+
+
+        private static void UpdateSelectedFromList(List<uint> todo, int value)
+        {
+            string todoList = string.Join(",", todo);
+            using (DbCommand SetStatus = new SQLiteCommand(@"UPDATE dir SET expanded=" + value + " WHERE ParentDirId in (" + todoList + ")", Program.db.Connection))
+            {
+                SetStatus.ExecuteNonQuery();
+            }
+        }
+
+        private static List<uint> UpdateSelectedGetChildList(List<uint> todo)
+        {
+            string todoList = string.Join(",", todo);
+            List<uint> retList = new List<uint>();
+            using (DbCommand GetChild = new SQLiteCommand(@"select DirId from dir where ParentDirId in (" + todoList + ")", Program.db.Connection))
+            {
+                using (DbDataReader dr = GetChild.ExecuteReader())
                 {
-                    string dirName = dr["fullname"].ToString();
-                    if (dirName.Length < baseDir.Length)
-                        continue;
-                    if (dirName.Substring(0, baseDir.Length) != baseDir)
-                        continue;
-
-                    // a single DAT in a directory is just displayed in the tree at the same level as the directory
-                    RvTreeRow pTree = new RvTreeRow
+                    while (dr.Read())
                     {
-                        DirId = Convert.ToUInt32(dr["DirId"]),
-                        dirName = dr["dirname"].ToString(),
-                        dirFullName = dr["fullname"].ToString(),
-                        Expanded = Convert.ToBoolean(dr["expanded"]),
-                        DatId = dr["DatId"] == DBNull.Value ? null : (uint?)Convert.ToUInt32(dr["DatId"]),
-                        datName = dr["datname"] == DBNull.Value ? null : dr["datname"].ToString(),
-                        description = dr["description"] == DBNull.Value ? null : dr["description"].ToString(),
-                        RomTotal = dr["RomTotal"] == DBNull.Value ? Convert.ToInt32(dr["dirRomTotal"]) : Convert.ToInt32(dr["RomTotal"]),
-                        RomGot = dr["RomGot"] == DBNull.Value ? Convert.ToInt32(dr["dirRomGot"]) : Convert.ToInt32(dr["RomGot"]),
-                        RomNoDump = dr["RomNoDump"] == DBNull.Value ? Convert.ToInt32(dr["dirNoDump"]) : Convert.ToInt32(dr["RomNoDump"]),
-                    };
-
-                    rows.Add(pTree);
-
-                    if (lastTree != null)
-                    {
-                        // if multiple DAT's are in the same directory then we should add another level in the tree to display the directory
-                        bool thisMultiDatDirFound = (lastTree.DirId == pTree.DirId);
-                        if (thisMultiDatDirFound && !multiDatDirFound)
-                        {
-                            // found a new multidat
-                            RvTreeRow dirTree = new RvTreeRow
-                            {
-                                DirId = lastTree.DirId,
-                                dirName = lastTree.dirName,
-                                dirFullName = lastTree.dirFullName,
-                                Expanded = lastTree.Expanded,
-                                DatId = null,
-                                datName = null,
-                                RomTotal = Convert.ToInt32(dr["dirRomTotal"]),
-                                RomGot = Convert.ToInt32(dr["dirRomGot"]),
-                                RomNoDump = Convert.ToInt32(dr["dirNoDump"])
-                            };
-                            rows.Insert(rows.Count - 2, dirTree);
-                            lastTree.MultiDatDir = true;
-                        }
-                        if (thisMultiDatDirFound)
-                            pTree.MultiDatDir = true;
-
-                        multiDatDirFound = thisMultiDatDirFound;
+                        uint id = Convert.ToUInt32(dr["DirId"]);
+                        retList.Add(id);
                     }
-
-                    lastTree = pTree;
+                    dr.Close();
                 }
             }
-
-            return rows;
+            return retList;
         }
+
+
     }
 
 }

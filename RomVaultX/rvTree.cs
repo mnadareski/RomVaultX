@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -9,8 +10,6 @@ namespace RomVaultX
 
     public partial class RvTree : UserControl
     {
-        private RvTreeRow _lSelected;
-
         public event MouseEventHandler RvSelected;
 
         private List<RvTreeRow> _rows;
@@ -148,10 +147,9 @@ namespace RomVaultX
 
                 Bitmap bm;
                 //if (pTree.Dat == null && pTree.DirDatCount != 1) // Directory above DAT's in Tree
-                if (string.IsNullOrEmpty(pTree.datName))
-                    bm = RvImages.GetBitmap("DirectoryTree" + icon);
-                else
-                    bm = RvImages.GetBitmap("Tree" + icon);
+                bm = string.IsNullOrEmpty(pTree.datName) ?
+                    RvImages.GetBitmap("DirectoryTree" + icon) :
+                    RvImages.GetBitmap("Tree" + icon);
 
                 if (bm != null)
                 {
@@ -177,7 +175,7 @@ namespace RomVaultX
                 {
                     thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (pTree.RomTotal - pTree.RomGot - pTree.RomNoDump).ToString("#,0") + " )";
                 }
-                if (_lSelected == pTree)
+                if (Selected == pTree)
                 {
                     g.FillRectangle(new SolidBrush(Color.FromArgb(51, 153, 255)), RSub(recBackGround, _hScroll, _vScroll));
                     g.DrawString(thistxt, new Font("Microsoft Sans Serif", 8), Brushes.White, pTree.RText.Left - _hScroll, pTree.RText.Top + 1 - _vScroll);
@@ -208,14 +206,12 @@ namespace RomVaultX
             int y = mevent.Y + VerticalScroll.Value;
 
             if (_rows != null)
-                for (int i = 0; i < _rows.Count; i++)
+                foreach (RvTreeRow tDir in _rows)
                 {
-                    RvTreeRow tDir = _rows[i];
-                    if (CheckMouseDown(tDir, x, y, mevent))
-                    {
-                        mousehit = true;
-                        break;
-                    }
+                    if (!CheckMouseDown(tDir, x, y, mevent)) continue;
+
+                    mousehit = true;
+                    break;
                 }
 
             if (mousehit) return;
@@ -234,10 +230,9 @@ namespace RomVaultX
             if (pTree.RText.Contains(x, y))
             {
 
-                if (RvSelected != null)
-                    RvSelected(pTree, mevent);
+                RvSelected?.Invoke(pTree, mevent);
 
-                _lSelected = pTree;
+                Selected = pTree;
                 Refresh();
                 return true;
             }
@@ -245,16 +240,13 @@ namespace RomVaultX
             return false;
         }
 
-        public RvTreeRow Selected
-        {
-            get { return _lSelected; }
-        }
+        public RvTreeRow Selected { get; private set; }
 
         private void SetExpanded(RvTreeRow pTree, MouseButtons mouseB)
         {
             if (mouseB == MouseButtons.Left)
             {
-                Program.db.SetTreeExpanded(pTree.DirId, !pTree.Expanded);
+                SetTreeExpanded(pTree.DirId, !pTree.Expanded);
                 Setup(RvTreeRow.ReadTreeFromDB());
             }
             else
@@ -262,6 +254,23 @@ namespace RomVaultX
                 RvTreeRow.SetTreeExpandedChildren(pTree.DirId);
                 Setup(RvTreeRow.ReadTreeFromDB());
             }
+        }
+
+
+        private static SQLiteCommand _commandSetTreeExpanded;
+
+        private static void SetTreeExpanded(uint DirId, bool expanded)
+        {
+            if (_commandSetTreeExpanded == null)
+            {
+                _commandSetTreeExpanded = new SQLiteCommand(@"
+                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId", Program.db.Connection);
+                _commandSetTreeExpanded.Parameters.Add(new SQLiteParameter("expanded"));
+                _commandSetTreeExpanded.Parameters.Add(new SQLiteParameter("dirId"));
+            }
+            _commandSetTreeExpanded.Parameters["dirId"].Value = DirId;
+            _commandSetTreeExpanded.Parameters["expanded"].Value = expanded;
+            _commandSetTreeExpanded.ExecuteNonQuery();
         }
 
         #endregion

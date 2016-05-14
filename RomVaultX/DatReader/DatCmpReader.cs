@@ -19,7 +19,7 @@ namespace RomVaultX.DatReader
                 return false;
             }
 
-            string Filename = IO.Path.GetFileName(strFilename);
+            string filename = IO.Path.GetFileName(strFilename);
 
             DatFileLoader.Gn();
             if (DatFileLoader.EndOfStream())
@@ -27,14 +27,14 @@ namespace RomVaultX.DatReader
             if (DatFileLoader.Next.ToLower() == "clrmamepro")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(Filename, rvDat, out datFileType))
+                if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
                     return false;
                 DatFileLoader.Gn();
             }
             if (DatFileLoader.Next.ToLower() == "romvault")
             {
                 DatFileLoader.Gn();
-                if (!LoadHeaderFromDat(Filename, rvDat, out datFileType))
+                if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
                     return false;
                 DatFileLoader.Gn();
             }
@@ -228,8 +228,7 @@ namespace RomVaultX.DatReader
 
             DatFileLoader.Gn();
 
-            RvGame rvGame = new RvGame();
-            rvGame.Name = name;
+            RvGame rvGame = new RvGame {Name = name};
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
@@ -304,9 +303,11 @@ namespace RomVaultX.DatReader
             }
 
 
-            RvRom rvRom = new RvRom();
-            rvRom.Name = VarFix.CleanFullFileName(DatFileLoader.Gn());
-            rvRom.altType = datFileType;
+            RvRom rvRom = new RvRom
+            {
+                Name = VarFix.CleanFullFileName(DatFileLoader.Gn()),
+                AltType = datFileType
+            };
             DatFileLoader.Gn();
 
 
@@ -339,7 +340,6 @@ namespace RomVaultX.DatReader
 
         private static bool LoadDiskFromDat(RvGame rvGame)
         {
-
             if (DatFileLoader.Next != "(")
             {
                 DatUpdate.SendAndShowDat("( not found after rom", DatFileLoader.Filename);

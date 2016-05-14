@@ -12,7 +12,7 @@ namespace RomVaultX.DB
         public uint GameId;
         public string Name;
         public ulong? Size;
-        public FileType altType;
+        public FileType AltType;
         public byte[] CRC;
         public byte[] SHA1;
         public byte[] MD5;
@@ -21,11 +21,11 @@ namespace RomVaultX.DB
         public bool PutInZip;
         public ulong? FileId;
 
-        public ulong? fileSize;
-        public ulong? fileCompressedSize;
-        public byte[] fileCRC;
-        public byte[] fileSHA1;
-        public byte[] fileMD5;
+        public ulong? FileSize;
+        public ulong? FileCompressedSize;
+        public byte[] FileCRC;
+        public byte[] FileSHA1;
+        public byte[] FileMD5;
 
 
 
@@ -93,7 +93,7 @@ namespace RomVaultX.DB
                         RomId = Convert.ToUInt32(dr["RomId"]),
                         GameId = gameId,
                         Name = dr["name"].ToString(),
-                        altType = (FileType)VarFix.FixLong(dr["type"]),
+                        AltType = VarFix.FixFileType(dr["type"]),
                         Size = VarFix.FixLong(dr["size"]),
                         CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8),
                         SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
@@ -103,11 +103,11 @@ namespace RomVaultX.DB
                         PutInZip = (bool)dr["putinzip"],
 
                         FileId = VarFix.FixLong(dr["FileId"]),
-                        fileSize = VarFix.FixLong(dr["fileSize"]),
-                        fileCompressedSize = VarFix.FixLong(dr["fileCompressedSize"]),
-                        fileCRC = VarFix.CleanMD5SHA1(dr["fileCRC"].ToString(), 8),
-                        fileSHA1 = VarFix.CleanMD5SHA1(dr["fileSHA1"].ToString(), 40),
-                        fileMD5 = VarFix.CleanMD5SHA1(dr["fileMD5"].ToString(), 32)
+                        FileSize = VarFix.FixLong(dr["fileSize"]),
+                        FileCompressedSize = VarFix.FixLong(dr["fileCompressedSize"]),
+                        FileCRC = VarFix.CleanMD5SHA1(dr["fileCRC"].ToString(), 8),
+                        FileSHA1 = VarFix.CleanMD5SHA1(dr["fileSHA1"].ToString(), 40),
+                        FileMD5 = VarFix.CleanMD5SHA1(dr["fileMD5"].ToString(), 32)
                     };
 
                     roms.Add(row);
@@ -144,7 +144,7 @@ namespace RomVaultX.DB
             FileId = DatUpdate.NoFilesInDb ? null : RvRomFileMatchup.FindAFile(this);
             _commandRvRomWrite.Parameters["GameId"].Value = GameId;
             _commandRvRomWrite.Parameters["name"].Value = Name;
-            _commandRvRomWrite.Parameters["type"].Value = (int)altType;
+            _commandRvRomWrite.Parameters["type"].Value = (int)AltType;
             _commandRvRomWrite.Parameters["size"].Value = Size;
             _commandRvRomWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
             _commandRvRomWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);

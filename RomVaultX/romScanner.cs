@@ -54,7 +54,7 @@ namespace RomVaultX
 
             ScanADirNew(RootDir);
 
-            Program.db.UpdateGotTotal();
+            DatUpdate.UpdateGotTotal();
             _bgw?.ReportProgress(0, new bgwText("Scanning Files Complete"));
             _bgw = null;
             Program.SyncCont = null;

@@ -79,7 +79,9 @@ namespace RomVaultX.DB
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
                     [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
                     [ZipFileLength] INTEGER NULL, 
-                    [ZipFileTimeStamp] INTEGER NULL,
+                    [LastWriteTime] INTEGER NULL,
+                    [CreationTime] INTEGER NULL,
+                    [LastAccessTime] INTEGER NULL,
                     [CentralDirectory] BLOB NULL,
                     [CentralDirectoryOffset] INTEGER NULL,
                     [CentralDirectoryLength] INTEGER NULL,
@@ -112,7 +114,7 @@ namespace RomVaultX.DB
                 Roms = RvRom.ReadRoms(GameId);
         }
 
-        public static List<RvGame> ReadGames(uint DatId, bool readRoms = false)
+        public static List<RvGame> ReadGames(uint datId, bool readRoms = false)
         {
             if (_commandRvGameReadDatGames == null)
             {
@@ -123,7 +125,7 @@ namespace RomVaultX.DB
             }
 
             List<RvGame> games = new List<RvGame>();
-            _commandRvGameReadDatGames.Parameters["DatId"].Value = DatId;
+            _commandRvGameReadDatGames.Parameters["DatId"].Value = datId;
 
             using (DbDataReader dr = _commandRvGameReadDatGames.ExecuteReader())
             {

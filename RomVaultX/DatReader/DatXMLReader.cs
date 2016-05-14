@@ -128,7 +128,7 @@ namespace RomVaultX.DatReader
                 return false;
             XmlNode head = doc.SelectSingleNode("mame");
 
-            if (head == null || head.Attributes == null)
+            if (head?.Attributes == null)
                 return false;
 
             rvDat.Filename = filename;
@@ -170,17 +170,19 @@ namespace RomVaultX.DatReader
             if (gameNode.Attributes == null)
                 return;
 
-            RvGame rvGame = new RvGame();
-            rvGame.Name = VarFix.CleanFullFileName(gameNode.Attributes.GetNamedItem("name"));
-            rvGame.RomOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("romof"));
-            rvGame.CloneOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof"));
-            rvGame.SampleOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("sampleof"));
-            rvGame.Description = VarFix.String(gameNode.SelectSingleNode("description"));
-            rvGame.SourceFile = VarFix.String(gameNode.Attributes.GetNamedItem("sourcefile"));
-            rvGame.IsBios = VarFix.String(gameNode.Attributes.GetNamedItem("isbios"));
-            rvGame.Board = VarFix.String(gameNode.Attributes.GetNamedItem("board"));
-            rvGame.Year = VarFix.String(gameNode.SelectSingleNode("year"));
-            rvGame.Manufacturer = VarFix.String(gameNode.SelectSingleNode("manufacturer"));
+            RvGame rvGame = new RvGame
+            {
+                Name = VarFix.CleanFullFileName(gameNode.Attributes.GetNamedItem("name")),
+                RomOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("romof")),
+                CloneOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof")),
+                SampleOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("sampleof")),
+                Description = VarFix.String(gameNode.SelectSingleNode("description")),
+                SourceFile = VarFix.String(gameNode.Attributes.GetNamedItem("sourcefile")),
+                IsBios = VarFix.String(gameNode.Attributes.GetNamedItem("isbios")),
+                Board = VarFix.String(gameNode.Attributes.GetNamedItem("board")),
+                Year = VarFix.String(gameNode.SelectSingleNode("year")),
+                Manufacturer = VarFix.String(gameNode.SelectSingleNode("manufacturer"))
+            };
 
             XmlNode trurip = gameNode.SelectSingleNode("trurip");
             if (trurip != null)
@@ -221,14 +223,16 @@ namespace RomVaultX.DatReader
             if (romNode.Attributes == null)
                 return;
 
-            RvRom rvRom = new RvRom();
-            rvRom.Name = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("name"));
-            rvRom.Size = VarFix.ULong(romNode.Attributes.GetNamedItem("size"));
-            rvRom.CRC = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("crc"), 8);
-            rvRom.SHA1 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40);
-            rvRom.MD5 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("md5"), 32);
-            rvRom.Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge"));
-            rvRom.Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status"));
+            RvRom rvRom = new RvRom
+            {
+                Name = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("name")),
+                Size = VarFix.ULong(romNode.Attributes.GetNamedItem("size")),
+                CRC = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("crc"), 8),
+                SHA1 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40),
+                MD5 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("md5"), 32),
+                Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge")),
+                Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status"))
+            };
 
             rvGame.AddRom(rvRom);
         }

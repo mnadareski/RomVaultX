@@ -192,6 +192,10 @@ namespace RomVaultX.Util
             return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
         }
 
+        public static FileType FixFileType(object v)
+        {
+            return v == DBNull.Value ? FileType.Nothing : (FileType) Convert.ToInt32(v);
+        }
 
         public static int CompareName(string var1, string var2)
         {

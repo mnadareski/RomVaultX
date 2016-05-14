@@ -100,12 +100,9 @@ namespace RomVaultX.DatReader
             if (mame != null)
                 return DatXmlReader.ReadMameDat(doc, fullname,  out rvDat);
 
-            if (doc.DocumentElement != null)
-            {
-                XmlNode head = doc.DocumentElement.SelectSingleNode("header");
-                if (head != null)
-                    return DatXmlReader.ReadDat(doc, fullname, out rvDat);
-            }
+            XmlNode head = doc.DocumentElement?.SelectSingleNode("header");
+            if (head != null)
+                return DatXmlReader.ReadDat(doc, fullname, out rvDat);
 
             XmlNodeList headList = doc.SelectNodes("softwarelist");
             if (headList != null)

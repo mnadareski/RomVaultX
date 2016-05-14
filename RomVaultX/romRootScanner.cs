@@ -31,7 +31,7 @@ namespace RomVaultX
 
             ScanRomRoot(@"RomRoot");
 
-            Program.db.UpdateGotTotal();
+            DatUpdate.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
             _bgw = null;
             Program.SyncCont = null;
@@ -51,7 +51,7 @@ namespace RomVaultX
 
             ScanRomRoot(@"RomRoot");
 
-            Program.db.UpdateGotTotal();
+            DatUpdate.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
             _bgw = null;
             Program.SyncCont = null;
@@ -85,7 +85,7 @@ namespace RomVaultX
 
                     if (errorcode != ZipReturn.ZipGood)
                     {
-                        _bgw.ReportProgress(0,new bgwShowError(f.FullName,"gz File corrupt"));
+                        _bgw.ReportProgress(0, new bgwShowError(f.FullName, "gz File corrupt"));
                         continue;
                     }
                     RvFile tFile = new RvFile();

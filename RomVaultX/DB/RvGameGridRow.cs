@@ -6,7 +6,7 @@ using System.Data.SQLite;
 namespace RomVaultX.DB
 {
 
-    public class RvGameGridRow
+    public class rvGameGridRow
     {
         public int GameId;
         public string Name;
@@ -17,7 +17,7 @@ namespace RomVaultX.DB
 
         private static SQLiteCommand _commandRvGameGridRowRead;
 
-        public static List<RvGameGridRow> ReadGames(int datId)
+        public static List<rvGameGridRow> ReadGames(int datId)
         {
             if (_commandRvGameGridRowRead == null)
             {
@@ -27,20 +27,22 @@ namespace RomVaultX.DB
                 _commandRvGameGridRowRead.Parameters.Add(new SQLiteParameter("datId"));
             }
 
-            List<RvGameGridRow> rows = new List<RvGameGridRow>();
+            List<rvGameGridRow> rows = new List<rvGameGridRow>();
             _commandRvGameGridRowRead.Parameters["DatId"].Value = datId;
 
             using (DbDataReader dr = _commandRvGameGridRowRead.ExecuteReader())
             {
                 while (dr.Read())
                 {
-                    RvGameGridRow gridRow = new RvGameGridRow();
-                    gridRow.GameId = Convert.ToInt32(dr["GameID"]); ;
-                    gridRow.Name = dr["name"].ToString();
-                    gridRow.Description = dr["description"].ToString();
-                    gridRow.RomGot = Convert.ToInt32(dr["RomGot"]);
-                    gridRow.RomTotal = Convert.ToInt32(dr["RomTotal"]);
-                    gridRow.RomNoDump = Convert.ToInt32(dr["RomNoDump"]);
+                    rvGameGridRow gridRow = new rvGameGridRow
+                    {
+                        GameId = Convert.ToInt32(dr["GameID"]),
+                        Name = dr["name"].ToString(),
+                        Description = dr["description"].ToString(),
+                        RomGot = Convert.ToInt32(dr["RomGot"]),
+                        RomTotal = Convert.ToInt32(dr["RomTotal"]),
+                        RomNoDump = Convert.ToInt32(dr["RomNoDump"])
+                    };
                     rows.Add(gridRow);
                 }
                 dr.Close();

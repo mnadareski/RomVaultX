@@ -53,13 +53,15 @@ namespace RomVaultX.DatReader
             if (gameNode.Attributes == null)
                 return;
 
-            RvGame rvGame=new RvGame();
-            rvGame.Name = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("name"));
-            rvGame.Description= VarFix.String(gameNode.SelectSingleNode("description"));
-            rvGame.RomOf=VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof"));
-            rvGame.CloneOf=VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof"));
-            rvGame.Year= VarFix.CleanFileName(gameNode.SelectSingleNode("year"));
-            rvGame.Manufacturer=VarFix.CleanFileName(gameNode.SelectSingleNode("publisher"));
+            RvGame rvGame = new RvGame
+            {
+                Name = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("name")),
+                Description = VarFix.String(gameNode.SelectSingleNode("description")),
+                RomOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof")),
+                CloneOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof")),
+                Year = VarFix.CleanFileName(gameNode.SelectSingleNode("year")),
+                Manufacturer = VarFix.CleanFileName(gameNode.SelectSingleNode("publisher"))
+            };
 
             XmlNodeList partNodeList = gameNode.SelectNodes("part");
             if (partNodeList == null) return;
@@ -68,16 +70,16 @@ namespace RomVaultX.DatReader
             {
                 _indexContinue = -1;
                 XmlNodeList dataAreaNodeList = partNodeList[iP].SelectNodes("dataarea");
-                if (dataAreaNodeList != null)
-                    for (int iD = 0; iD < dataAreaNodeList.Count; iD++)
+                if (dataAreaNodeList == null) continue;
+                for (int iD = 0; iD < dataAreaNodeList.Count; iD++)
+                {
+                    XmlNodeList romNodeList = dataAreaNodeList[iD].SelectNodes("rom");
+                    if (romNodeList == null) continue;
+                    for (int iR = 0; iR < romNodeList.Count; iR++)
                     {
-                        XmlNodeList romNodeList = dataAreaNodeList[iD].SelectNodes("rom");
-                        if (romNodeList != null)
-                            for (int iR = 0; iR < romNodeList.Count; iR++)
-                            {
-                                LoadRomFromDat(rvGame, romNodeList[iR]);
-                            }
+                        LoadRomFromDat(rvGame, romNodeList[iR]);
                     }
+                }
             }
             
             /*

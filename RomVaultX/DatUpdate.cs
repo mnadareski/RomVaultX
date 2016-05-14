@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SQLite;
 using System.Threading;
 using RomVaultX.DB;
 using RomVaultX.IO;
 using RomVaultX.Util;
+using Convert = System.Convert;
 
 namespace RomVaultX
 {
@@ -41,19 +43,19 @@ namespace RomVaultX
                 }
 
                 _bgw.ReportProgress(0, new bgwText("Clearing Found DAT List"));
-                Program.db.ClearFoundDATs();
+                ClearFoundDATs();
 
                 const string datRoot = @"";
-                uint dirId = Program.db.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
+                uint dirId = RvDir.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
                 _bgw.ReportProgress(0, new bgwText("Pull File DB into memory"));
-                NoFilesInDb = Program.db.SetUpFindAFile();
+                NoFilesInDb =RvFile.FilesinDBCheck();
 
                 _bgw.ReportProgress(0, new bgwText("Finding Dats"));
                 _datCount = 0;
                 DatCount(datRoot, "DatRoot");
 
-                int dbDatCount = Program.db.DatDBCount();
+                int dbDatCount = DatDBCount();
 
                 bool dropIndex = (_datCount - dbDatCount > 10);
 
@@ -72,13 +74,13 @@ namespace RomVaultX
                 Program.db.Commit();
 
                 _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
-                Program.db.RemoveNotFoundDATs();
+                RemoveNotFoundDATs();
 
                 _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
                 Program.db.MakeIndex(_bgw);
 
                 _bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
-                Program.db.UpdateGotTotal();
+                UpdateGotTotal();
 
                 _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
                 _bgw = null;
@@ -116,7 +118,7 @@ namespace RomVaultX
             DirectoryInfo[] dis = di.GetDirectories();
             foreach (DirectoryInfo d in dis)
             {
-                uint nextDirId = Program.db.FindOrInsertIntoDir(dirId, d.Name, Path.Combine(subPath, d.Name) + "\\");
+                uint nextDirId = RvDir.FindOrInsertIntoDir(dirId, d.Name, Path.Combine(subPath, d.Name) + "\\");
                 ScanDirs(nextDirId, datRoot, Path.Combine(subPath, d.Name));
                 if (_bgw.CancellationPending)
                     return;
@@ -138,10 +140,10 @@ namespace RomVaultX
                 _datsProcessed++;
                 _bgw.ReportProgress(_datsProcessed);
 
-                uint? datId = Program.db.FindDat(subPath, f.Name, f.LastWriteTime, extraDir);
+                uint? datId = FindDat(subPath, f.Name, f.LastWriteTime, extraDir);
                 if (datId != null)
                 {
-                    Program.db.SetDatFound((uint)datId);
+                    SetDatFound((uint)datId);
                     continue;
                 }
 
@@ -154,7 +156,7 @@ namespace RomVaultX
                     if (extraDir)
                     {
                         string extraDirName = VarFix.CleanFileName(rvDat.GetExtraDirName()); // read this from dat.
-                        nextDirId = Program.db.FindOrInsertIntoDir(dirId, extraDirName, Path.Combine(subPath, extraDirName) + "\\");
+                        nextDirId = RvDir.FindOrInsertIntoDir(dirId, extraDirName, Path.Combine(subPath, extraDirName) + "\\");
                     }
 
                     rvDat.DirId = nextDirId;
@@ -216,7 +218,7 @@ namespace RomVaultX
             }
         }
 
-        
+
         private static void DatSetCheckParentSets(RvDat tDat)
         {
             // First we are going to try and fix any missing CRC information by checking for roms with the same names
@@ -505,6 +507,153 @@ namespace RomVaultX
 
             tRom.PutInZip = true;
         }
+
+        /*********************** dat DB Processing ************************/
+
+
+        private static SQLiteCommand _commandCountDaTs;
+        private static SQLiteCommand _commandClearfoundDirDATs;
+        private static SQLiteCommand CommandFindDat;
+        private static SQLiteCommand CommandSetDatFound;
+        private static SQLiteCommand _commandCleanupNotFoundDaTs;
+
+
+
+        private static int DatDBCount()
+        {
+            if (_commandCountDaTs == null)
+                _commandCountDaTs = new SQLiteCommand(@"select count(1) from dat", Program.db.Connection);
+
+            object res = _commandCountDaTs.ExecuteScalar();
+            if (res != null && res != DBNull.Value)
+                return Convert.ToInt32(res);
+            return 0;
+        }
+
+
+
+        private static void ClearFoundDATs()
+        {
+            if (_commandClearfoundDirDATs == null)
+            {
+                _commandClearfoundDirDATs = new SQLiteCommand(@"
+                    UPDATE DIR SET Found=0;
+                    UPDATE DAT SET Found=0;
+                ", Program.db.Connection);
+            }
+
+            _commandClearfoundDirDATs.ExecuteNonQuery();
+        }
+
+
+
+        private static uint? FindDat(string fulldir, string filename, long DatTimeStamp, bool ExtraDir)
+        {
+            if (CommandFindDat == null)
+            {
+                CommandFindDat = new SQLiteCommand(@"
+                            SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND DatTimeStamp=@DatTimeStamp AND ExtraDir=@ExtraDir
+                    ", Program.db.Connection);
+                CommandFindDat.Parameters.Add(new SQLiteParameter("path"));
+                CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
+                CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
+                CommandFindDat.Parameters.Add(new SQLiteParameter("ExtraDir"));
+            }
+
+            CommandFindDat.Parameters["path"].Value = fulldir;
+            CommandFindDat.Parameters["filename"].Value = filename;
+            CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
+
+            object res = CommandFindDat.ExecuteScalar();
+
+            if (res == null || res == DBNull.Value)
+                return null;
+            return Convert.ToUInt32(res);
+
+        }
+
+        private static void SetDatFound(uint datId)
+        {
+            if (CommandSetDatFound == null)
+            {
+                CommandSetDatFound = new SQLiteCommand(@"
+                        Update Dat SET Found=1 WHERE DatId=@DatId;
+                        Update Dir SET Found=1 WHERE DirId=(select DirId from Dat WHERE DatId=@DatId);
+                    ", Program.db.Connection);
+                CommandSetDatFound.Parameters.Add(new SQLiteParameter("DatId"));
+
+            }
+
+            CommandSetDatFound.Parameters["DatId"].Value = datId;
+            CommandSetDatFound.ExecuteNonQuery();
+        }
+        
+
+        private static void RemoveNotFoundDATs()
+        {
+            if (_commandCleanupNotFoundDaTs == null)
+            {
+                _commandCleanupNotFoundDaTs = new SQLiteCommand(@"
+                    delete from rom where rom.GameId in
+                    (
+                        select gameid from game where game.datid in
+                        (
+                            select datId from dat where found=0
+                        )
+                    );
+
+                    delete from game where game.datid in
+                    (
+                        select datId from dat where found=0
+                    );
+
+                    delete from dat where found=0;
+
+                    delete from dir where found=0;
+                ", Program.db.Connection);
+            }
+
+            _commandCleanupNotFoundDaTs.ExecuteNonQuery();
+        }
+        public static void UpdateGotTotal()
+        {
+            Program.db.ExecuteNonQuery(@"
+
+            UPDATE DIR SET RomTotal=null, ROMGot=null,RomNoDump=null;
+
+            UPDATE DIR SET 
+                RomTotal = (SELECT SUM(RomTotal) FROM Dat WHERE dat.dirid=dir.dirid) ,
+                RomGot = (SELECT SUM(RomGot) FROM dat WHERE dat.dirid=dir.dirid) , 
+                RomNoDump = (SELECT SUM(RomNoDump) FROM dat WHERE dat.dirid=dir.dirid)
+            WHERE
+                (SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirId=dir.dirid)=0;
+            ");
+
+            SQLiteCommand sqlUpdateCounts = new SQLiteCommand(@"
+                    UPDATE dir SET
+                        romTotal =(IFNULL((SELECT SUM(dir1.romTotal ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomTotal ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
+                        romGot   =(IFNULL((SELECT SUM(dir1.romGot   ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomGot   ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
+                        romNodump=(IFNULL((SELECT SUM(dir1.romNodump) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomNoDump) FROM Dat WHERE dat.dirid=dir.dirid),0))
+                    WHERE
+                        romtotal IS null AND
+                        (SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid AND dir1.romtotal IS null) = 0;", Program.db.Connection);
+
+            SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", Program.db.Connection);
+
+            int nullcount;
+            do
+            {
+                sqlUpdateCounts.ExecuteNonQuery();
+
+                object res = sqlNullCount.ExecuteScalar();
+                nullcount = Convert.ToInt32(res);
+
+            } while (nullcount > 0);
+            sqlNullCount.Dispose();
+        }
+
+
 
 
     }

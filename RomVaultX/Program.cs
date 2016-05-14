@@ -2,7 +2,7 @@
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using RomVaultX.DB.NewDB;
+using RomVaultX.DB;
 
 namespace RomVaultX
 {

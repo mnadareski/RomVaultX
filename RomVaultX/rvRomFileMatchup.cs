@@ -486,9 +486,9 @@ namespace RomVaultX
                     return null;
                 return (uint?)Convert.ToInt32(res);
             }
-            if (tFile.SHA1 != null && FileHeaderReader.AltHeaderFile(tFile.altType))
+            if (tFile.SHA1 != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
             {
-                _commandSHA1Alt.Parameters["alttype"].Value = (int)tFile.altType;
+                _commandSHA1Alt.Parameters["alttype"].Value = (int)tFile.AltType;
                 _commandSHA1Alt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
                 _commandSHA1Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
                 _commandSHA1Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
@@ -512,9 +512,9 @@ namespace RomVaultX
                     return null;
                 return (uint?)Convert.ToInt32(res);
             }
-            if (tFile.MD5 != null && FileHeaderReader.AltHeaderFile(tFile.altType))
+            if (tFile.MD5 != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
             {
-                _commandMD5Alt.Parameters["alttype"].Value = (int)tFile.altType;
+                _commandMD5Alt.Parameters["alttype"].Value = (int)tFile.AltType;
                 _commandMD5Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
                 _commandMD5Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
                 _commandMD5Alt.Parameters["size"].Value = tFile.Size;
@@ -538,9 +538,9 @@ namespace RomVaultX
                     return null;
                 return (uint?)Convert.ToInt32(res);
             }
-            if (tFile.CRC != null && FileHeaderReader.AltHeaderFile(tFile.altType))
+            if (tFile.CRC != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
             {
-                _commandCRCAlt.Parameters["alttype"].Value = (int)tFile.altType;
+                _commandCRCAlt.Parameters["alttype"].Value = (int)tFile.AltType;
                 _commandCRCAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
                 _commandCRCAlt.Parameters["size"].Value = tFile.Size;
 

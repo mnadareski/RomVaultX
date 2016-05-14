@@ -12,7 +12,7 @@ namespace RomVaultX.SupportedFiles.Files
 
         private byte[] _buffer;
         private int _size;
-        private Stream _ds;
+        private readonly Stream _ds;
         private bool _finished;
 
         public ThreadLoadBuffer(Stream ds)

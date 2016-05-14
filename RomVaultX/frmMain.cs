@@ -49,7 +49,7 @@ namespace RomVaultX
                 Close();
             }
 
-            Program.db.UpdateGotTotal();
+            DatUpdate.UpdateGotTotal();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
@@ -127,9 +127,7 @@ namespace RomVaultX
             DatSetSelected(DirTree.Selected);
         }
 
-        private FolderBrowserDialog outputDir;
-        
-
+      
         private void DirTree_RvSelected(object sender, MouseEventArgs e)
         {
             RvTreeRow tr = (RvTreeRow)sender;
@@ -514,9 +512,9 @@ namespace RomVaultX
             if (DatId == null)
                 return;
 
-            List<RvGameGridRow> rows = RvGameGridRow.ReadGames((int)DatId);
+            List<rvGameGridRow> rows = rvGameGridRow.ReadGames((int)DatId);
 
-            foreach (RvGameGridRow row in rows)
+            foreach (rvGameGridRow row in rows)
             {
                 bool gCorrect = row.HasCorrect();
                 bool gMissing = row.HasMissing();
@@ -815,41 +813,41 @@ namespace RomVaultX
                 RomGrid.Rows[iRow].Cells[1].Value = rom.Name;
                 if (rom.Size != null)
                     RomGrid.Rows[iRow].Cells[2].Value = rom.Size;
-                else if (rom.fileSize != null)
+                else if (rom.FileSize != null)
                 {
                     RomGrid.Rows[iRow].Cells[2].Style.ForeColor = Color.FromArgb(0, 0, 255);
                     RomGrid.Rows[iRow].Cells[2].Value = rom.Size;
                 }
 
-                if (rom.fileCompressedSize != null)
+                if (rom.FileCompressedSize != null)
                 {
                     RomGrid.Rows[iRow].Cells[3].Style.ForeColor = Color.FromArgb(0, 0, 255);
-                    RomGrid.Rows[iRow].Cells[3].Value = rom.fileCompressedSize;
+                    RomGrid.Rows[iRow].Cells[3].Value = rom.FileCompressedSize;
                 }
 
                 RomGrid.Rows[iRow].Cells[4].Value = rom.Merge;
 
                 if (rom.CRC != null)
                     RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.CRC);
-                else if (rom.fileCRC != null)
+                else if (rom.FileCRC != null)
                 {
                     RomGrid.Rows[iRow].Cells[5].Style.ForeColor = Color.FromArgb(0, 0, 255);
-                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.fileCRC);
+                    RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.FileCRC);
                 }
 
                 if (rom.SHA1 != null)
                     RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1);
-                else if (rom.fileSHA1 != null)
+                else if (rom.FileSHA1 != null)
                 {
                     RomGrid.Rows[iRow].Cells[6].Style.ForeColor = Color.FromArgb(0, 0, 255);
-                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.fileSHA1);
+                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.FileSHA1);
                 }
                 if (rom.MD5 != null)
                     RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5);
-                else if (rom.fileMD5 != null)
+                else if (rom.FileMD5 != null)
                 {
                     RomGrid.Rows[iRow].Cells[7].Style.ForeColor = Color.FromArgb(0, 0, 255);
-                    RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.fileMD5);
+                    RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.FileMD5);
                 }
                 RomGrid.Rows[iRow].Cells[8].Value = rom.Status;
                 RomGrid.Rows[iRow].Cells[9].Value = rom.PutInZip;
