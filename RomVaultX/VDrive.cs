@@ -7,39 +7,24 @@ using System.Security.AccessControl;
 using DokanNet;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
+using FileAccess = DokanNet.FileAccess;
 
 namespace RomVaultX
 {
 
-    public class VFile
-    {
-        public string FileName;
-        public long Length;
-        public int FileId;
-        public bool IsDirectory;
-        public DateTime CreationTime;
-        public DateTime LastAccessTime;
-        public DateTime LastWriteTime;
-
-        public List<VGzFile> Files;
-    }
-
-    public class VGzFile
-    {
-        public long LocalHeaderOffset;
-        public long LocalHeaderLength;
-        public byte[] LocalHeader;
-
-        public byte[] GZipSHA1;
-        public long CompressedDataOffset;
-        public long CompressedDataLength;
-
-        public GZip GZip;
-    }
 
 
     internal class VDrive : IDokanOperations
     {
+        private const FileAccess DataAccess = FileAccess.ReadData | FileAccess.WriteData | FileAccess.AppendData |
+                                           FileAccess.Execute |
+                                           FileAccess.GenericExecute | FileAccess.GenericWrite | FileAccess.GenericRead;
+
+        private const FileAccess DataWriteAccess = FileAccess.WriteData | FileAccess.AppendData |
+                                                   FileAccess.Delete |
+                                                   FileAccess.GenericWrite;
+
+
         private static long TotalBytes()
         {
             return 95906406250;
@@ -49,262 +34,92 @@ namespace RomVaultX
             }
         }
 
-        private static int? DirFind(string dirFullname)
+
+
+        public NtStatus CreateFile(string fileName, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
         {
-            string testName = dirFullname.Substring(1) + @"\";
-            using (DbCommand getDirectoryId = Program.db.Command(@"select DirId From DIR where fullname=@FName"))
+            Debug.WriteLine("");
+            Debug.WriteLine("-----------CreateFile---------------------------------");
+            Debug.WriteLine("Filename : " + fileName + " IsDirectory : " + info.IsDirectory);
+
+            VFile vDir;
+
+            //First check a DIR. (If we know it is a directory.)
+            if (info.IsDirectory)
             {
-                DbParameter pFName = Program.db.Parameter("FName", testName);
-                getDirectoryId.Parameters.Add(pFName);
-
-                object ret = getDirectoryId.ExecuteScalar();
-                if (ret == null || ret == DBNull.Value)
-                    return null;
-                return Convert.ToInt32(ret);
-            }
-        }
-
-        private static VFile DirInfo(string dirFullname)
-        {
-            string testName = dirFullname.Substring(1) + @"\";
-            using (DbCommand getDirectoryId = Program.db.Command(@"select DirId,CreationTime,LastAccessTime,LastWriteTime From DIR where fullname=@FName"))
-            {
-                DbParameter pFName = Program.db.Parameter("FName", testName);
-                getDirectoryId.Parameters.Add(pFName);
-
-                using (DbDataReader reader = getDirectoryId.ExecuteReader())
+                switch (mode)
                 {
-                    while (reader.Read())
-                    {
-                        VFile vDir = new VFile
+                    case FileMode.Open:
                         {
-                            FileName = dirFullname,
-                            IsDirectory = true,
-                            FileId = Convert.ToInt32(reader["DirId"]),
-                            CreationTime = new DateTime(Convert.ToInt64(reader["CreationTime"])),
-                            LastAccessTime = new DateTime(Convert.ToInt64(reader["LastAccessTime"])),
-                            LastWriteTime = new DateTime(Convert.ToInt64(reader["LastWriteTime"]))
-                        };
-                        return vDir;
-                    }
-                }
-                return null;
-            }
-        }
-
-        private static List<VFile> DirGetSubDirs(int dirId)
-        {
-            List<VFile> dirs = new List<VFile>();
-            using (DbCommand getDirectory = Program.db.Command(@"select DirId,name,CreationTime,LastAccessTime,LastWriteTime From DIR where ParentDirId=@ParentId"))
-            {
-                DbParameter pParentDirId = Program.db.Parameter("ParentId", dirId);
-                getDirectory.Parameters.Add(pParentDirId);
-                using (DbDataReader dr = getDirectory.ExecuteReader())
-                {
-                    while (dr.Read())
-                    {
-                        dirs.Add(
-                            new VFile
-                            {
-                                IsDirectory = true,
-                                FileId = Convert.ToInt32(dr["DirId"]),
-                                FileName = (string)dr["name"],
-                                CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
-                                LastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
-                                LastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
-                            }
-                            );
-                    }
-                }
-            }
-            return dirs;
-        }
-
-        private static List<VFile> DirGetFiles(int dirId)
-        {
-            List<VFile> files = new List<VFile>();
-            using (DbCommand getFilesInDirectory = Program.db.Command(@"select game.gameId, game.name,ZipFileLength,LastWriteTime,CreationTime,LastAccessTime from Dat,game where dat.DatId=game.datId and ZipFileLength>0 and dirId=@dirId"))
-            {
-                DbParameter pDirId = Program.db.Parameter("DirId", dirId);
-                getFilesInDirectory.Parameters.Add(pDirId);
-                using (DbDataReader dr = getFilesInDirectory.ExecuteReader())
-                {
-                    while (dr.Read())
-                    {
-                        files.Add(
-                            new VFile
-                            {
-                                IsDirectory = false,
-                                FileId = Convert.ToInt32(dr["GameId"]),
-                                FileName = (string)dr["name"],
-                                Length = Convert.ToInt64(dr["ZipFileLength"]),
-                                CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
-                                LastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
-                                LastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
-                            }
-                            );
-                    }
-                }
-            }
-            return files;
-        }
-
-        private static VFile DirGetFile(int dirId, string filename)
-        {
-            using (DbCommand getFileInDirectory = Program.db.Command(@"select game.gameId, ZipFileLength,LastWriteTime,CreationTime,LastAccessTime from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name"))
-            {
-                DbParameter pDirId = Program.db.Parameter("DirId", dirId); getFileInDirectory.Parameters.Add(pDirId);
-                DbParameter pName = Program.db.Parameter("Name", filename); getFileInDirectory.Parameters.Add(pName);
-                using (DbDataReader dr = getFileInDirectory.ExecuteReader())
-                {
-                    while (dr.Read())
-                    {
-                        VFile vFile = new VFile
+                            vDir = VFile.DirInfo(fileName);
+                            info.Context = vDir;
+                            return vDir != null ? DokanResult.Success : DokanResult.PathNotFound;
+                        }
+                    case FileMode.CreateNew:
                         {
-                            IsDirectory = false,
-                            FileId = Convert.ToInt32(dr["GameId"]),
-                            FileName = filename,
-                            Length = Convert.ToInt64(dr["ZipFileLength"]),
-                            LastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"])),
-                            CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
-                            LastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"]))
-                        };
-                        return vFile;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private bool LoadVFile(VFile vfile)
-        {
-
-            vfile.Files = new List<VGzFile>();
-
-            using (DbCommand getRoms = Program.db.Command(
-                @"SELECT
-                    FILES.sha1,
-                    FILES.compressedsize,
-                    LocalFileHeader,
-                    LocalFileHeaderOffset,
-                    LocalFileHeaderLength
-                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND putinzip
-                 ORDER BY Rom.RomId"))
-            {
-                DbParameter pGameId = Program.db.Parameter("GameId", vfile.FileId);
-                getRoms.Parameters.Add(pGameId);
-                using (DbDataReader dr = getRoms.ExecuteReader())
-                {
-                    while (dr.Read())
-                    {
-                        VGzFile gf = new VGzFile
+                            vDir = VFile.DirInfo(fileName);
+                            if (vDir != null)
+                                return DokanResult.FileExists;
+                            vDir = VFile.CreateDir(fileName);
+                            return vDir != null ? DokanResult.Success : DokanResult.PathNotFound;
+                        }
+                    default:
                         {
-                            LocalHeaderOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]),
-                            LocalHeaderLength = Convert.ToInt64(dr["LocalFileHeaderLength"]),
-                            LocalHeader = (byte[])dr["LocalFileHeader"],
-                            GZipSHA1 = VarFix.CleanMD5SHA1(dr["sha1"].ToString(), 20),
-                            CompressedDataOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]) + Convert.ToInt64(dr["LocalFileHeaderLength"]),
-                            CompressedDataLength = Convert.ToInt64(dr["compressedsize"]),
-                            GZip = null // opened as needed
-                        };
-                        vfile.Files.Add(gf);
-                    }
+                            throw new NotImplementedException("Missing Directory Mode " + mode);
+                        }
                 }
             }
 
-
-            // the central directory is now added on to the end of the file list, like is another file with zero bytes of compressed data.
-            using (DbCommand getCentralDir = Program.db.Command(
-               @"select 
-                    CentralDirectory, 
-                    CentralDirectoryOffset, 
-                    CentralDirectoryLength 
-                 from game where GameId=@gameId"))
+            //Check again for a DIR. (As we may not have know we have a directory.)
+            vDir = VFile.DirInfo(fileName);
+            if (vDir != null && vDir.IsDirectory)
             {
-                DbParameter pGameId = Program.db.Parameter("GameId", vfile.FileId);
-                getCentralDir.Parameters.Add(pGameId);
-                using (DbDataReader dr = getCentralDir.ExecuteReader())
+                switch (mode)
                 {
-                    if (!dr.Read())
-                        return false;
+                    case FileMode.Open:
+                        {
+                            info.IsDirectory = true;
+                            info.Context = vDir;
+                            return DokanResult.Success;
+                        }
+                    default:
+                        {
+                            throw new NotImplementedException("Missing Directory Mode " + mode);
+                        }
+                }
+            }
 
-                    VGzFile gf = new VGzFile
+            bool readWriteAttributes = (access & DataAccess) == 0;
+            bool readAccess = (access & DataWriteAccess) == 0;
+
+            switch (mode)
+            {
+                case FileMode.Open:
                     {
-                        LocalHeaderOffset = Convert.ToInt64(dr["CentralDirectoryOffset"]),
-                        LocalHeaderLength = Convert.ToInt64(dr["CentralDirectoryLength"]),
-                        LocalHeader = (byte[])dr["CentralDirectory"],
-                        GZipSHA1 = null,
-                        CompressedDataOffset = Convert.ToInt64(dr["CentralDirectoryOffset"]) + Convert.ToInt64(dr["CentralDirectoryLength"]),
-                        CompressedDataLength = 0,
-                        GZip = null  // not used
-                    };
-                    vfile.Files.Add(gf);
-                }
+                        VFile vfile = VFile.GetFile(fileName);
+                        if (vfile == null)
+                            return DokanResult.FileNotFound;
+
+                        if (readWriteAttributes)
+                        {
+                            info.Context = vfile;
+                            return DokanResult.Success;
+                        }
+                        if (readAccess)
+                        {
+                            if (!vfile.LoadVFile())
+                                return DokanResult.Error;
+                            info.Context = vfile;
+                            return DokanResult.Success;
+                        }
+                        // looks like we are trying to write to the file.
+                        return DokanResult.AccessDenied;
+                    }
+                default:
+                    {
+                        throw new NotImplementedException("Missing Directory Mode " + mode);
+                    }
             }
-
-
-            return true;
-        }
-
-        public NtStatus CreateFile(string fileName, DokanNet.FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
-        {
-            VFile vfile;
-            
-            if (fileName == "\\")
-            {
-                vfile = new VFile
-                {
-                    FileName = fileName,
-                    IsDirectory = true,
-                    CreationTime = DateTime.Today,
-                    LastWriteTime = DateTime.Today,
-                    LastAccessTime = DateTime.Today,
-                    FileId = 0
-                };
-                info.Context = vfile;
-                return NtStatus.Success;
-            }
-
-            vfile = DirInfo(fileName);
-            if (vfile != null)
-            {
-                info.Context = vfile;
-                return NtStatus.Success;
-            }
-
-            //not a directory so test for file
-            string dirPart = Path.GetDirectoryName(fileName);
-            string filePart = Path.GetFileNameWithoutExtension(fileName);
-
-            int? dirId;
-            if (string.IsNullOrEmpty(dirPart))
-            {
-                dirId = 0;
-            }
-            else
-            {
-                dirId = DirFind(dirPart);
-                if (dirId == null)
-                    return NtStatus.NoSuchFile;
-            }
-
-            vfile = DirGetFile((int)dirId, filePart);
-            if (vfile == null)
-                return NtStatus.NoSuchFile;
-
-            vfile.FileName = fileName;
-
-            if ((access & DokanNet.FileAccess.ReadData) != 0)
-            {
-                // opening file to read, so setup the rest of the data.
-                if (!LoadVFile(vfile))
-                    return NtStatus.NoSuchFile;
-            }
-
-            info.Context = vfile;
-
-            return NtStatus.Success;
-
         }
 
         public void Cleanup(string fileName, DokanFileInfo info)
@@ -321,17 +136,11 @@ namespace RomVaultX
             Debug.WriteLine("Filename : " + fileName);
 
             VFile vfile = (VFile)info.Context;
-            if (vfile == null)
+            if (vfile?.Files == null)
                 return;
 
-            if (vfile.Files == null)
-                return;
-
-            foreach (VGzFile gf in vfile.Files)
-            {
-                if (gf.GZip == null) continue;
-                gf.GZip.Close();
-            }
+            foreach (VFile.VZipFile gf in vfile.Files)
+                gf.GZip?.Close();
         }
 
 
@@ -368,7 +177,7 @@ namespace RomVaultX
         }
 
 
-        private void copyStream(VGzFile source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
+        private void copyStream(VFile.VZipFile source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
         {
             // this is where to start reading in the source array
             long sourceStart;
@@ -440,7 +249,7 @@ namespace RomVaultX
             if (offset + bytesRead > vfile.Length)
                 bytesRead = (int)(vfile.Length - offset);
 
-            foreach (VGzFile gf in vfile.Files)
+            foreach (VFile.VZipFile gf in vfile.Files)
             {
                 copyData(gf.LocalHeader, buffer, gf.LocalHeaderOffset, offset, gf.LocalHeaderLength, bytesRead);
                 copyStream(gf, buffer, gf.CompressedDataOffset, offset, gf.CompressedDataLength, bytesRead);
@@ -465,21 +274,16 @@ namespace RomVaultX
             Debug.WriteLine("-----------GetFileInformation---------------------------------");
             Debug.WriteLine("Filename : " + fileName);
 
-            fileInfo = new FileInformation();
 
             VFile vfile = (VFile)info.Context;
             if (vfile == null)
-                return NtStatus.NoSuchFile;
-
-            fileInfo = new FileInformation
             {
-                FileName = vfile.FileName,
-                Length = vfile.Length,
-                CreationTime = vfile.CreationTime,
-                LastAccessTime = vfile.LastAccessTime,
-                LastWriteTime = vfile.LastWriteTime,
-                Attributes = vfile.IsDirectory ? FileAttributes.Directory : FileAttributes.Normal
-            };
+                fileInfo = new FileInformation();
+                return NtStatus.NoSuchFile;
+            }
+
+            fileInfo = (FileInformation)vfile;
+
             return NtStatus.Success;
 
         }
@@ -512,37 +316,20 @@ namespace RomVaultX
 
             GetEmptyDirectoryDefaultFiles(fileName, ref files);
 
-            int dirId = vfile.FileId;
 
-            List<VFile> dirs = DirGetSubDirs(dirId);
+            List<VFile> dirs = VFile.DirGetSubDirs(vfile.FileId);
             foreach (VFile dir in dirs)
             {
                 if (searchPattern != "*" && searchPattern != dir.FileName) continue;
-                FileInformation fi = new FileInformation
-                {
-                    FileName = dir.FileName,
-                    Length = 0,
-                    Attributes = FileAttributes.Directory | FileAttributes.ReadOnly,
-                    CreationTime = dir.CreationTime,
-                    LastAccessTime = dir.LastAccessTime,
-                    LastWriteTime = dir.LastWriteTime
-                };
+                FileInformation fi = (FileInformation)dir;
                 files.Add(fi);
             }
 
-            List<VFile> dFiles = DirGetFiles(dirId);
+            List<VFile> dFiles = VFile.DirGetFiles(vfile.FileId);
             foreach (VFile file in dFiles)
             {
                 if (searchPattern != "*" && searchPattern != file.FileName + ".zip") continue;
-                FileInformation fi = new FileInformation
-                {
-                    FileName = file.FileName + ".zip",
-                    Length = file.Length,
-                    Attributes = FileAttributes.Normal | FileAttributes.ReadOnly,
-                    CreationTime = file.CreationTime,
-                    LastAccessTime = file.LastAccessTime,
-                    LastWriteTime = file.LastWriteTime
-                };
+                FileInformation fi = (FileInformation)file;
                 files.Add(fi);
             }
 
