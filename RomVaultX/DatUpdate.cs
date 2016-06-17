@@ -191,6 +191,9 @@ namespace RomVaultX
 
         private static void DatSetRemoveUnneededDirs(RvDat tDat)
         {
+            if (tDat.Games == null)
+                return;
+
             for (int g = 0; g < tDat.Games.Count; g++)
             {
                 RvGame tGame = tDat.Games[g];
@@ -221,6 +224,9 @@ namespace RomVaultX
 
         private static void DatSetCheckParentSets(RvDat tDat)
         {
+            if (tDat.Games == null)
+                return;
+
             // First we are going to try and fix any missing CRC information by checking for roms with the same names
             // in Parent and Child sets, and if the same named rom is found and one has a CRC and the other does not
             // then we will set the missing CRC by using the CRC in the other set.
@@ -233,7 +239,7 @@ namespace RomVaultX
             while (fix)
             {
                 fix = false;
-
+                
                 // loop around every ROM Set looking for fixes.
                 for (int g = 0; g < tDat.Games.Count; g++)
                 {
@@ -330,6 +336,9 @@ namespace RomVaultX
 
         private static void DatSetRenameAndRemoveDups(RvDat tDat)
         {
+            if (tDat.Games == null)
+                return;
+
             for (int g = 0; g < tDat.Games.Count; g++)
             {
                 RvGame tGame = tDat.Games[g];
@@ -427,6 +436,9 @@ namespace RomVaultX
 
         private static void DatSetCheckCollect(RvDat tDat)
         {
+            if (tDat.Games == null)
+                return;
+
             // now look for merged roms.
             // check if a rom exists in a parent set where the Name,Size and CRC all match.
 
@@ -436,7 +448,7 @@ namespace RomVaultX
                 List<RvGame> lstParentGames = new List<RvGame>();
                 FindParentSet(mGame, tDat, ref lstParentGames);
 
-                if (lstParentGames.Count == 0 || mGame.IsBios.ToLower() == "yes")
+                if (lstParentGames.Count == 0 || mGame.IsBios?.ToLower() == "yes")
                 {
                     for (int r = 0; r < mGame.RomCount; r++)
                         RomCheckCollect(mGame.Roms[r], false);

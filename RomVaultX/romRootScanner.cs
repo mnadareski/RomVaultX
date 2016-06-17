@@ -80,7 +80,7 @@ namespace RomVaultX
                 if (ext.ToLower() == ".gz")
                 {
                     GZip gZipTest = new GZip();
-                    ZipReturn errorcode = gZipTest.ReadGZip(f.FullName, true);
+                    ZipReturn errorcode = gZipTest.ReadGZip(f.FullName, deep);
                     gZipTest.sha1Hash = VarFix.CleanMD5SHA1(Path.GetFileNameWithoutExtension(f.Name), 40);
 
                     if (errorcode != ZipReturn.ZipGood)
