@@ -606,7 +606,6 @@ namespace RomVaultX.SupportedFiles.Zip
 
                 if (Zip64)
                 {
-                    _zipFs.Seek((long)_extraLocation, SeekOrigin.Begin);
                     bw.Write((ushort)0x0001); // id
                     bw.Write((ushort)16); // data length
                     bw.Write(UncompressedSize);
