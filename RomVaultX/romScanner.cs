@@ -25,7 +25,7 @@ namespace RomVaultX
         public static string RootDir = @"ToSort";
         public static bool DelFiles = true;
 
-        private const int Buffersize = 1024*1024;
+        private const int Buffersize = 1024 * 1024;
         private static readonly byte[] Buffer = new byte[Buffersize];
 
         private static ulong inMemorySize;
@@ -43,7 +43,7 @@ namespace RomVaultX
 
             if (!ulong.TryParse(sInMemorySize, out inMemorySize))
                 inMemorySize = 1000000;
-            
+
             _bgw = sender as BackgroundWorker;
             Program.SyncCont = e.Argument as SynchronizationContext;
             if (Program.SyncCont == null)
@@ -60,7 +60,7 @@ namespace RomVaultX
             Program.SyncCont = null;
         }
 
-        private static bool ScanAFile(Stream fStream)
+        private static bool ScanAFile(string filename, Stream fStream)
         {
             bool ret = false;
             int offset;
@@ -81,6 +81,7 @@ namespace RomVaultX
 
             if (res == FindStatus.FileNeededInArchive)
             {
+                _bgw?.ReportProgress(0, new bgwShowError(filename, "found"));
                 Debug.WriteLine("Reading file as " + tFile.SHA1);
                 GZip gz = new GZip(tFile);
                 string outfile = Getfilename(tFile.SHA1);
@@ -98,7 +99,7 @@ namespace RomVaultX
             {
                 ZipFile fz = new ZipFile();
                 fStream.Position = 0;
-                ZipReturn zp= fz.ZipFileOpen(fStream);
+                ZipReturn zp = fz.ZipFileOpen(fStream);
                 if (zp == ZipReturn.ZipGood)
                 {
                     bool allZipFound = true;
@@ -112,9 +113,9 @@ namespace RomVaultX
                         if (streamSize <= inMemorySize)
                         {
                             byte[] tmpFile = new byte[streamSize];
-                            stream.Read(tmpFile, 0, (int) streamSize);
+                            stream.Read(tmpFile, 0, (int)streamSize);
                             Stream memFs = new MemoryStream(tmpFile, false);
-                            allZipFound &= ScanAFile(memFs);
+                            allZipFound &= ScanAFile(fz.Filename(i), memFs);
                             memFs.Close();
                             memFs.Dispose();
                         }
@@ -128,10 +129,10 @@ namespace RomVaultX
                             ulong sizetogo = streamSize;
                             while (sizetogo > 0)
                             {
-                                int sizenow = sizetogo > (ulong) Buffersize ? Buffersize : (int) sizetogo;
+                                int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
                                 stream.Read(Buffer, 0, sizenow);
                                 fs.Write(Buffer, 0, sizenow);
-                                sizetogo -= (ulong) sizenow;
+                                sizetogo -= (ulong)sizenow;
                             }
                             fs.Close();
 
@@ -140,7 +141,7 @@ namespace RomVaultX
                             if (errorCode != 0)
                                 return false;
 
-                            allZipFound &= ScanAFile(fstreamNext);
+                            allZipFound &= ScanAFile(fz.Filename(i), fstreamNext);
                             fstreamNext.Close();
                             fstreamNext.Dispose();
                             File.Delete(file);
@@ -172,7 +173,7 @@ namespace RomVaultX
                             byte[] tmpFile = new byte[streamSize];
                             stream.Read(tmpFile, 0, (int)streamSize);
                             Stream memFs = new MemoryStream(tmpFile, false);
-                            ret |= ScanAFile(memFs);
+                            ret |= ScanAFile(filename, memFs);
                             memFs.Close();
                             memFs.Dispose();
                         }
@@ -200,7 +201,7 @@ namespace RomVaultX
                             if (errorCode != 0)
                                 return false;
 
-                            ret |= ScanAFile(fstreamNext);
+                            ret |= ScanAFile(filename, fstreamNext);
                             fstreamNext.Close();
                             fstreamNext.Dispose();
                             File.Delete(file);
@@ -236,7 +237,7 @@ namespace RomVaultX
                 if (errorCode != 0)
                     return;
 
-                bool fileFound = ScanAFile(fstreamNext);
+                bool fileFound = ScanAFile(f.FullName, fstreamNext);
                 fstreamNext.Close();
                 fstreamNext.Dispose();
                 if (fileFound)
@@ -259,7 +260,7 @@ namespace RomVaultX
         }
 
 
-        
+
         private static bool IsDirectoryEmpty(string path)
         {
             return !Directory.EnumerateFileSystemEntries(path).Any();
@@ -273,6 +274,6 @@ namespace RomVaultX
 
         }
 
-      
+
     }
 }

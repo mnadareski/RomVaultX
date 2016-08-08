@@ -131,10 +131,8 @@ namespace RomVaultX
                 int row = ErrorGrid.Rows.Count - 1;
 
                 ErrorGrid.Rows[row].Cells["CError"].Value = bgwSDE.error;
-                ErrorGrid.Rows[row].Cells["CError"].Style.ForeColor = Color.FromArgb(255, 0, 0);
 
                 ErrorGrid.Rows[row].Cells["CErrorFile"].Value = bgwSDE.filename;
-                ErrorGrid.Rows[row].Cells["CErrorFile"].Style.ForeColor = Color.FromArgb(255, 0, 0);
 
                 if (row >= 0) ErrorGrid.FirstDisplayedScrollingRowIndex = row;
 

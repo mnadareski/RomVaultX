@@ -6,7 +6,7 @@ using RomVaultX.DB;
 
 namespace RomVaultX
 {
-    static class Program
+    public static class Program
     {
         public static DBSqlite db;
         public static readonly Encoding Enc = Encoding.GetEncoding(28591);

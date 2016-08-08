@@ -180,6 +180,8 @@ namespace RomVaultX.DB
         {
             if (!string.IsNullOrWhiteSpace(Description))
                 return Description;
+            if (!string.IsNullOrWhiteSpace(Name))
+                return Name;
             return "-unknown-";
         }
 

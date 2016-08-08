@@ -14,7 +14,7 @@ namespace RomVaultX
 
 
 
-    internal class VDrive : IDokanOperations
+    public class VDrive : IDokanOperations
     {
         private const FileAccess DataAccess = FileAccess.ReadData | FileAccess.WriteData | FileAccess.AppendData |
                                            FileAccess.Execute |
@@ -221,9 +221,11 @@ namespace RomVaultX
 
             coms.Close();
         }
+
+        public static string romRoot = @"RomRoot";
         private static string Getfilename(byte[] SHA1)
         {
-            return @"RomRoot\" + VarFix.ToString(SHA1[0]) + @"\" +
+            return romRoot + @"\" + VarFix.ToString(SHA1[0]) + @"\" +
                          VarFix.ToString(SHA1[1]) + @"\" +
                          VarFix.ToString(SHA1) + ".gz";
 

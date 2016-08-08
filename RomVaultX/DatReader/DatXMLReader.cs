@@ -132,7 +132,7 @@ namespace RomVaultX.DatReader
                 return false;
 
             rvDat.Filename = filename;
-            rvDat.Name = VarFix.CleanFileName(head.Attributes.GetNamedItem("build"));
+            rvDat.Name = VarFix.CleanFileName(head.Attributes.GetNamedItem("build"));   /// ?? is this correct should it be Name & Descripition??
             rvDat.Description = VarFix.String(head.Attributes.GetNamedItem("build"));
 
             return true;
