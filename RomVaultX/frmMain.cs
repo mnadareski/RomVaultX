@@ -20,8 +20,10 @@ namespace RomVaultX
 
         private bool _updatingGameGrid;
 
-        private Single _scaleFactorX = 1;
-        private Single _scaleFactorY = 1;
+        private float _scaleFactorX = 1;
+        private float _scaleFactorY = 1;
+
+        private char vDriveLetter;
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
@@ -40,8 +42,18 @@ namespace RomVaultX
         public frmMain()
         {
             InitializeComponent();
+
+            string driveLetter = AppSettings.ReadSetting("vDriveLetter");
+            if (driveLetter == null)
+            {
+                AppSettings.AddUpdateAppSettings("vDriveLetter", "V");
+
+                driveLetter = AppSettings.ReadSetting("DBFileName");
+            }
+            vDriveLetter = driveLetter.ToCharArray()[0];
+
             addGameGrid();
-            string res=Program.db.ConnectToDB();
+            string res = Program.db.ConnectToDB();
 
             if (!string.IsNullOrEmpty(res))
             {
@@ -82,7 +94,7 @@ namespace RomVaultX
         {
             if (sortDir == null)
             {
-                sortDir = new FolderBrowserDialog {ShowNewFolderButton = false};
+                sortDir = new FolderBrowserDialog { ShowNewFolderButton = false };
             }
 
             DialogResult result = sortDir.ShowDialog();
@@ -96,7 +108,7 @@ namespace RomVaultX
         private void ToSortScanDir()
         {
             RomScanner.RootDir = @"ToSort";
-            RomScanner.DelFiles = true;      
+            RomScanner.DelFiles = true;
             DoScan();
         }
 
@@ -107,7 +119,7 @@ namespace RomVaultX
             progress.ShowDialog(this);
             progress.Dispose();
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
-            DatSetSelected(DirTree.Selected);            
+            DatSetSelected(DirTree.Selected);
         }
 
         private void quickReScanToolStripMenuItem_Click(object sender, EventArgs e)
@@ -127,7 +139,7 @@ namespace RomVaultX
             DatSetSelected(DirTree.Selected);
         }
 
-      
+
         private void DirTree_RvSelected(object sender, MouseEventArgs e)
         {
             RvTreeRow tr = (RvTreeRow)sender;
@@ -522,7 +534,7 @@ namespace RomVaultX
                 bool show = (chkBoxShowCorrect.Checked && gCorrect && !gMissing);
                 show = show || (chkBoxShowMissing.Checked && gMissing);
                 show = show || !(gCorrect || gMissing);
-                
+
                 if (!show) continue;
 
                 GameGrid.Rows.Add();
@@ -899,26 +911,26 @@ namespace RomVaultX
 
         private void updateZipDBToolStripMenuItem_Click(object sender, EventArgs e)
         {
-           UpdateZipDB.UpdateDB();
+            UpdateZipDB.UpdateDB();
         }
 
         private VDrive di;
         private void startVDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Dokan.Unmount('r');
+            Dokan.Unmount(vDriveLetter);
             di = new VDrive();
-            Thread t2 = new Thread(() => { di.Mount("r:\\", DokanOptions.DebugMode,1); });
+            Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.FixedDrive, 10); });
             t2.Start();
         }
 
         private void closeVDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Dokan.Unmount('r');
+            Dokan.Unmount(vDriveLetter);
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-           Dokan.Unmount('r');
+            Dokan.Unmount(vDriveLetter);
         }
 
         private void RomGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)

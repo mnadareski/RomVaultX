@@ -107,7 +107,7 @@ namespace RomVaultX
                 new Detector(FileType.CHD, 76, 0,"", new Data(0, new byte[] {(byte) 'M', (byte) 'C', (byte) 'o', (byte) 'm', (byte) 'p', (byte) 'r', (byte) 'H', (byte) 'D'})),
                 new Detector(FileType.A7800, 128, 128,"No-Intro_A7800.xml", new Data(1, new byte[] {0x41,0x54,0x41,0x52,0x49,0x37,0x38,0x30,0x30})),
                 new Detector(FileType.Lynx, 64, 64,"No-Intro_LNX.xml", new Data(0, new byte[] {0x4C, 0x59, 0x4E, 0x58})),
-                new Detector(FileType.NES, 16, 16,"No-Intro_FDS.xml", new Data(0, new byte[] {0x04E, 0x45, 0x53}))
+                new Detector(FileType.NES, 16, 16,"No-Intro_NES.xml", new Data(0, new byte[] {0x04E, 0x45, 0x53, 0x1A}))
             };
         }
 
@@ -127,7 +127,7 @@ namespace RomVaultX
 
         public static bool AltHeaderFile(FileType fileType)
         {
-            return fileType == FileType.A7800 || fileType== FileType.Lynx || fileType == FileType.NES;
+            return fileType == FileType.A7800 || fileType == FileType.Lynx || fileType == FileType.NES;
         }
 
         public static FileType GetType(Stream sIn, out int offset)

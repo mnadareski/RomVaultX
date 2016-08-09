@@ -62,7 +62,7 @@ namespace RomVaultX.SupportedFiles.Files
             int sizebuffer = sizeNext;
             sizetogo -= sizeNext;
             bool whichBuffer = true;
-            
+
             while (sizebuffer > 0)
             {
                 // trigger the buffer loading worker
