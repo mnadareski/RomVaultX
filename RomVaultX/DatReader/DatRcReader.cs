@@ -26,7 +26,25 @@ namespace RomVaultX.DatReader
 			{
 				return false;
 			}
-			if (DatFileLoader.Next.ToLower() == "[credits]" || DatFileLoader.Next.ToLower() == "[dat]" || DatFileLoader.Next.ToLower() == "[emulator]")
+			if (DatFileLoader.Next.ToLower() == "[credits]")
+			{
+				DatFileLoader.Gn();
+				if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
+				{
+					return false;
+				}
+				DatFileLoader.Gn();
+			}
+			else if (DatFileLoader.Next.ToLower() == "[dat]")
+			{
+				DatFileLoader.Gn();
+				if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
+				{
+					return false;
+				}
+				DatFileLoader.Gn();
+			}
+			else if (DatFileLoader.Next.ToLower() == "[emulator]")
 			{
 				DatFileLoader.Gn();
 				if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
