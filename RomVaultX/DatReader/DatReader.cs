@@ -72,8 +72,10 @@ namespace RomVaultX.DatReader
 			// DOSCenter DATs
 			else if (strLine.ToLower().IndexOf("doscenter", StringComparison.Ordinal) >= 0)
 			{
-				//    if (!DatDOSReader.ReadDat(datFullName))
-				//        return;
+				if (!DatDOSReader.ReadDat(fullname, out rvDat))
+				{
+					return false;
+				}
 			}
 
 			// RomCenter DATs

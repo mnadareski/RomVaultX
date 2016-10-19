@@ -18,6 +18,7 @@ namespace RomVaultX.DB
 		public byte[] MD5;
 		public string Merge;
 		public string Status;
+		public string Date;
 		public bool PutInZip;
 		public ulong? FileId;
 
