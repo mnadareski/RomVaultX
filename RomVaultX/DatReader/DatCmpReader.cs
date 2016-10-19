@@ -472,6 +472,5 @@ namespace RomVaultX.DatReader
 				return ret;
 			}
 		}
-
 	}
 }

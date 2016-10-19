@@ -105,6 +105,7 @@
     <Compile Include="BackGroundWorkerInterface.cs" />
     <Compile Include="DatReader\DatMessXmlReader.cs" />
     <Compile Include="DatReader\DatCmpReader.cs" />
+    <Compile Include="DatReader\DatRcReader.cs" />
     <Compile Include="DatReader\DatReader.cs" />
     <Compile Include="DatReader\DatXMLReader.cs" />
     <Compile Include="DatUpdate.cs" />
