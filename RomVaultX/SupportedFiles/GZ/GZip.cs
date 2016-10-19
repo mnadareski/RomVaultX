@@ -312,7 +312,7 @@ namespace RomVaultX.SupportedFiles.GZ
 			zipBw.Write((byte)0x04); // FLG = 0x04
 			zipBw.Write((UInt32)0);  // MTime = 0
 			zipBw.Write((byte)0x00); // XFL = 0x00
-			zipBw.Write((byte)0xff); // OS  = 0x00
+			zipBw.Write((byte)0x00); // OS  = 0x00
 
 			// writing FEXTRA
 			if (FileHeaderReader.AltHeaderFile(altType))
