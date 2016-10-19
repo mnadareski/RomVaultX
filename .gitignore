@@ -5,3 +5,7 @@
 /stage
 /RomVaultX/obj/Debug
 /RomVaultX.v12.suo
+/packages
+/RomVaultX/bin/debug
+/RomVaultX/obj/x64/Debug
+/.vs/RomVaultX/v14/.suo
