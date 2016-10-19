@@ -6,19 +6,19 @@ using RomVaultX.DB;
 
 namespace RomVaultX
 {
-    public static class Program
-    {
-        public static DBSqlite db;
-        public static readonly Encoding Enc = Encoding.GetEncoding(28591);
-        public static SynchronizationContext SyncCont;
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            //db = new DBSqlServer();
-            db=new DBSqlite();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmMain());
-        }
-    }
+	public static class Program
+	{
+		public static DBSqlite db;
+		public static readonly Encoding Enc = Encoding.GetEncoding(28591);
+		public static SynchronizationContext SyncCont;
+		[STAThread]
+		static void Main()
+		{
+			Application.EnableVisualStyles();
+			//db = new DBSqlServer();
+			db = new DBSqlite();
+			Application.SetCompatibleTextRenderingDefault(false);
+			Application.Run(new frmMain());
+		}
+	}
 }

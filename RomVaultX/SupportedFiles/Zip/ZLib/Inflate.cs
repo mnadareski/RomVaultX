@@ -61,7 +61,6 @@
 //
 // -----------------------------------------------------------------------
 
-
 using System;
 
 namespace RomVaultX.SupportedFiles.Zip.ZLib
@@ -141,7 +140,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return oldCheck;
         }
 
-
         internal int Process(int r)
         {
             int t; // temporary storage
@@ -161,7 +159,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 
             q = writeAt;
             m = (int)(q < readAt ? readAt - q - 1 : end - q);
-
 
             // process input based on current state
             while (true)
@@ -378,7 +375,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 
                         b >>= 14;
                         k -= 14;
-
 
                         index = 0;
                         mode = InflateBlockMode.BTREE;
@@ -639,7 +635,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                         writeAt = q;
                         return Flush(r);
 
-
                     default:
                         r = ZlibConstants.Z_STREAM_ERROR;
 
@@ -652,7 +647,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 }
             }
         }
-
 
         internal void Free()
         {
@@ -735,7 +729,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
     }
 
-
     internal static class InternalInflateConstants
     {
         // And'ing with mask[n] masks the lower n bits
@@ -745,7 +738,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff,
             0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff };
     }
-
 
     sealed class InflateCodes
     {
@@ -925,7 +917,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                         blocks.writeAt = q;
                         return blocks.Flush(r);
 
-
                     case LENEXT:  // i: getting length extra (have base)
                         j = bitsToGet;
 
@@ -1002,7 +993,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                         z.AvailableBytesIn = n; z.TotalBytesIn += p - z.NextIn; z.NextIn = p;
                         blocks.writeAt = q;
                         return blocks.Flush(r);
-
 
                     case DISTEXT:  // i: getting distance extra
                         j = bitsToGet;
@@ -1157,7 +1147,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         // Called with number of bytes left to write in window at least 258
         // (the maximum string length) and number of input bytes available
         // at least ten.  The ten bytes are six bytes for the longest length/
@@ -1217,7 +1206,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 }
                 do
                 {
-
                     b >>= (tp[tp_index_t_3 + 1]); k -= (tp[tp_index_t_3 + 1]);
 
                     if ((e & 16) != 0)
@@ -1243,7 +1231,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 
                         do
                         {
-
                             b >>= (tp[tp_index_t_3 + 1]); k -= (tp[tp_index_t_3 + 1]);
 
                             if ((e & 16) != 0)
@@ -1402,7 +1389,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
     }
 
-
     internal sealed class InflateManager
     {
         // preset dictionary flag in zlib header
@@ -1510,7 +1496,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return ZlibConstants.Z_OK;
         }
 
-
         internal int Inflate(FlushType flush)
         {
             int b;
@@ -1551,7 +1536,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                         }
                         mode = InflateManagerMode.FLAG;
                         break;
-
 
                     case InflateManagerMode.FLAG:
                         if (_codec.AvailableBytesIn == 0) return r;
@@ -1601,7 +1585,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                         mode = InflateManagerMode.DICT1;
                         break;
 
-
                     case InflateManagerMode.DICT1:
                         if (_codec.AvailableBytesIn == 0) return r;
                         r = f;
@@ -1611,13 +1594,11 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                         mode = InflateManagerMode.DICT0;
                         return ZlibConstants.Z_NEED_DICT;
 
-
                     case InflateManagerMode.DICT0:
                         mode = InflateManagerMode.BAD;
                         _codec.Message = "need dictionary";
                         marker = 0; // can try inflateSync
                         return ZlibConstants.Z_STREAM_ERROR;
-
 
                     case InflateManagerMode.BLOCKS:
                         r = blocks.Process(r);
@@ -1697,8 +1678,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
-
         internal int SetDictionary(byte[] dictionary)
         {
             int index = 0;
@@ -1722,7 +1701,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             mode = InflateManagerMode.BLOCKS;
             return ZlibConstants.Z_OK;
         }
-
 
         private static readonly byte[] mark = new byte[] { 0, 0, 0xff, 0xff };
 
@@ -1781,7 +1759,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             mode = InflateManagerMode.BLOCKS;
             return ZlibConstants.Z_OK;
         }
-
 
         // Returns true if inflate is currently at the end of a block generated
         // by Z_SYNC_FLUSH or Z_FULL_FLUSH. This function is used by one PPP

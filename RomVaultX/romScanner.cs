@@ -17,263 +17,281 @@ using FileInfo = RomVaultX.IO.FileInfo;
 
 namespace RomVaultX
 {
+	public static class RomScanner
+	{
+		private static BackgroundWorker _bgw;
 
-    public static class RomScanner
-    {
-        private static BackgroundWorker _bgw;
+		public static string RootDir = @"ToSort";
+		public static bool DelFiles = true;
 
-        public static string RootDir = @"ToSort";
-        public static bool DelFiles = true;
+		private const int Buffersize = 1024 * 1024;
+		private static readonly byte[] Buffer = new byte[Buffersize];
 
-        private const int Buffersize = 1024 * 1024;
-        private static readonly byte[] Buffer = new byte[Buffersize];
+		private static ulong inMemorySize;
 
-        private static ulong inMemorySize;
+		public static void ScanFiles(object sender, DoWorkEventArgs e)
+		{
+			string sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
+			if (sInMemorySize == null)
+			{
+				// I use 1000000
+				AppSettings.AddUpdateAppSettings("ScanInMemorySize", "1000000");
+				sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
+			}
 
+			if (!ulong.TryParse(sInMemorySize, out inMemorySize))
+				inMemorySize = 1000000;
 
-        public static void ScanFiles(object sender, DoWorkEventArgs e)
-        {
-            string sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
-            if (sInMemorySize == null)
-            {
-                // I use 1000000
-                AppSettings.AddUpdateAppSettings("ScanInMemorySize", "1000000");
-                sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
-            }
+			_bgw = sender as BackgroundWorker;
+			Program.SyncCont = e.Argument as SynchronizationContext;
+			if (Program.SyncCont == null)
+			{
+				_bgw = null;
+				return;
+			}
 
-            if (!ulong.TryParse(sInMemorySize, out inMemorySize))
-                inMemorySize = 1000000;
+			ScanADirNew(RootDir);
 
-            _bgw = sender as BackgroundWorker;
-            Program.SyncCont = e.Argument as SynchronizationContext;
-            if (Program.SyncCont == null)
-            {
-                _bgw = null;
-                return;
-            }
+			DatUpdate.UpdateGotTotal();
+			_bgw?.ReportProgress(0, new bgwText("Scanning Files Complete"));
+			_bgw = null;
+			Program.SyncCont = null;
+		}
 
-            ScanADirNew(RootDir);
+		private static bool ScanAFile(string filename, Stream fStream)
+		{
+			bool ret = false;
+			int offset;
+			FileType foundFileType = FileHeaderReader.GetType(fStream, out offset);
 
-            DatUpdate.UpdateGotTotal();
-            _bgw?.ReportProgress(0, new bgwText("Scanning Files Complete"));
-            _bgw = null;
-            Program.SyncCont = null;
-        }
+			fStream.Position = 0;
+			RvFile tFile = UnCompFiles.CheckSumRead(fStream, offset);
+			tFile.AltType = foundFileType;
 
-        private static bool ScanAFile(string filename, Stream fStream)
-        {
-            bool ret = false;
-            int offset;
-            FileType foundFileType = FileHeaderReader.GetType(fStream, out offset);
+			if (foundFileType == FileType.CHD)
+			{
+				// read altheader values from CHD file.
+			}
 
-            fStream.Position = 0;
-            RvFile tFile = UnCompFiles.CheckSumRead(fStream, offset);
-            tFile.AltType = foundFileType;
+			// test if needed.
+			FindStatus res = RvRomFileMatchup.FileneededTest(tFile);
 
+			if (res == FindStatus.FileNeededInArchive)
+			{
+				_bgw?.ReportProgress(0, new bgwShowError(filename, "found"));
+				Debug.WriteLine("Reading file as " + tFile.SHA1);
+				GZip gz = new GZip(tFile);
+				string outfile = GetFilename(tFile.SHA1);
+				fStream.Position = 0;
+				gz.WriteGZip(outfile, fStream, false);
 
-            if (foundFileType == FileType.CHD)
-            {
-                // read altheader values from CHD file.
-            }
+				tFile.CompressedSize = gz.compressedSize;
+				tFile.DBWrite();
+				ret = true;
+			}
+			else if (res == FindStatus.FoundFileInArchive)
+				ret = true;
 
-            // test if needed.
-            FindStatus res = RvRomFileMatchup.FileneededTest(tFile);
+			if (foundFileType == FileType.ZIP)
+			{
+				ZipFile fz = new ZipFile();
+				fStream.Position = 0;
+				ZipReturn zp = fz.ZipFileOpen(fStream);
+				if (zp == ZipReturn.ZipGood)
+				{
+					bool allZipFound = true;
+					for (int i = 0; i < fz.LocalFilesCount(); i++)
+					{
+						Stream stream;
+						ulong streamSize;
+						ushort compressionMethod;
+						fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
 
-            if (res == FindStatus.FileNeededInArchive)
-            {
-                _bgw?.ReportProgress(0, new bgwShowError(filename, "found"));
-                Debug.WriteLine("Reading file as " + tFile.SHA1);
-                GZip gz = new GZip(tFile);
-                string outfile = Getfilename(tFile.SHA1);
-                fStream.Position = 0;
-                gz.WriteGZip(outfile, fStream, false);
+						if (streamSize <= inMemorySize)
+						{
+							byte[] tmpFile = new byte[streamSize];
+							stream.Read(tmpFile, 0, (int)streamSize);
+							Stream memFs = new MemoryStream(tmpFile, false);
+							allZipFound &= ScanAFile(fz.Filename(i), memFs);
+							memFs.Close();
+							memFs.Dispose();
+						}
+						else
+						{
+							string file = @"tmp\" + Guid.NewGuid();
+							if (!Directory.Exists("tmp"))
+								Directory.CreateDirectory("tmp");
+							Stream fs;
+							IO.FileStream.OpenFileWrite(file, out fs);
+							ulong sizetogo = streamSize;
+							while (sizetogo > 0)
+							{
+								int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
+								stream.Read(Buffer, 0, sizenow);
+								fs.Write(Buffer, 0, sizenow);
+								sizetogo -= (ulong)sizenow;
+							}
+							fs.Close();
 
-                tFile.CompressedSize = gz.compressedSize;
-                tFile.DBWrite();
-                ret = true;
-            }
-            else if (res == FindStatus.FoundFileInArchive)
-                ret = true;
+							Stream fstreamNext;
+							int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
+							if (errorCode != 0)
+								return false;
 
-            if (foundFileType == FileType.ZIP)
-            {
-                ZipFile fz = new ZipFile();
-                fStream.Position = 0;
-                ZipReturn zp = fz.ZipFileOpen(fStream);
-                if (zp == ZipReturn.ZipGood)
-                {
-                    bool allZipFound = true;
-                    for (int i = 0; i < fz.LocalFilesCount(); i++)
-                    {
-                        Stream stream;
-                        ulong streamSize;
-                        ushort compressionMethod;
-                        fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
+							allZipFound &= ScanAFile(fz.Filename(i), fstreamNext);
+							fstreamNext.Close();
+							fstreamNext.Dispose();
+							File.Delete(file);
+						}
+						fz.ZipFileCloseReadStream();
 
-                        if (streamSize <= inMemorySize)
-                        {
-                            byte[] tmpFile = new byte[streamSize];
-                            stream.Read(tmpFile, 0, (int)streamSize);
-                            Stream memFs = new MemoryStream(tmpFile, false);
-                            allZipFound &= ScanAFile(fz.Filename(i), memFs);
-                            memFs.Close();
-                            memFs.Dispose();
-                        }
-                        else
-                        {
-                            string file = @"tmp\" + Guid.NewGuid();
-                            if (!Directory.Exists("tmp"))
-                                Directory.CreateDirectory("tmp");
-                            Stream fs;
-                            IO.FileStream.OpenFileWrite(file, out fs);
-                            ulong sizetogo = streamSize;
-                            while (sizetogo > 0)
-                            {
-                                int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
-                                stream.Read(Buffer, 0, sizenow);
-                                fs.Write(Buffer, 0, sizenow);
-                                sizetogo -= (ulong)sizenow;
-                            }
-                            fs.Close();
+					}
+					fz.ZipFileClose();
+					ret |= allZipFound;
+				}
+				else
+					ret = false;
+			}
+			if (foundFileType == FileType.GZ)
+			{
+				GZip gz = new GZip();
+				fStream.Position = 0;
+				ZipReturn zr = gz.ReadGZip(fStream, false);
+				if (zr == ZipReturn.ZipGood)
+				{
+					ulong streamSize = gz.uncompressedSize;
+					if (streamSize > 0)
+					{
+						Stream stream;
+						gz.GetStream(out stream);
+						ulong memkeepSize = 1024 * 1024;
+						if (streamSize <= memkeepSize)
+						{
+							byte[] tmpFile = new byte[streamSize];
+							stream.Read(tmpFile, 0, (int)streamSize);
+							Stream memFs = new MemoryStream(tmpFile, false);
+							ret |= ScanAFile(filename, memFs);
+							memFs.Close();
+							memFs.Dispose();
+						}
+						else
+						{
+							string file = @"tmp\" + Guid.NewGuid();
+							if (!Directory.Exists("tmp"))
+								Directory.CreateDirectory("tmp");
+							Stream fs;
+							IO.FileStream.OpenFileWrite(file, out fs);
+							ulong sizetogo = streamSize;
+							while (sizetogo > 0)
+							{
+								int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
+								stream.Read(Buffer, 0, sizenow);
+								fs.Write(Buffer, 0, sizenow);
+								sizetogo -= (ulong)sizenow;
+							}
+							fs.Close();
+							stream.Close();
 
-                            Stream fstreamNext;
-                            int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
-                            if (errorCode != 0)
-                                return false;
+							Stream fstreamNext;
+							int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
+							if (errorCode != 0)
+								return false;
 
-                            allZipFound &= ScanAFile(fz.Filename(i), fstreamNext);
-                            fstreamNext.Close();
-                            fstreamNext.Dispose();
-                            File.Delete(file);
-                        }
-                        fz.ZipFileCloseReadStream();
+							ret |= ScanAFile(filename, fstreamNext);
+							fstreamNext.Close();
+							fstreamNext.Dispose();
+							File.Delete(file);
+						}
+					}
+					// gz.Close(); do not close the Stream gZip
+				}
+			}
+			return ret;
+		}
 
-                    }
-                    fz.ZipFileClose();
-                    ret |= allZipFound;
-                }
-                else
-                    ret = false;
-            }
-            if (foundFileType == FileType.GZ)
-            {
-                GZip gz = new GZip();
-                fStream.Position = 0;
-                ZipReturn zr = gz.ReadGZip(fStream, false);
-                if (zr == ZipReturn.ZipGood)
-                {
-                    ulong streamSize = gz.uncompressedSize;
-                    if (streamSize > 0)
-                    {
-                        Stream stream;
-                        gz.GetStream(out stream);
-                        ulong memkeepSize = 1024 * 1024;
-                        if (streamSize <= memkeepSize)
-                        {
-                            byte[] tmpFile = new byte[streamSize];
-                            stream.Read(tmpFile, 0, (int)streamSize);
-                            Stream memFs = new MemoryStream(tmpFile, false);
-                            ret |= ScanAFile(filename, memFs);
-                            memFs.Close();
-                            memFs.Dispose();
-                        }
-                        else
-                        {
+		private static void ScanADirNew(string directory)
+		{
+			_bgw.ReportProgress(0, new bgwText("Scanning Dir : " + directory));
+			DirectoryInfo di = new DirectoryInfo(directory);
 
-                            string file = @"tmp\" + Guid.NewGuid();
-                            if (!Directory.Exists("tmp"))
-                                Directory.CreateDirectory("tmp");
-                            Stream fs;
-                            IO.FileStream.OpenFileWrite(file, out fs);
-                            ulong sizetogo = streamSize;
-                            while (sizetogo > 0)
-                            {
-                                int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
-                                stream.Read(Buffer, 0, sizenow);
-                                fs.Write(Buffer, 0, sizenow);
-                                sizetogo -= (ulong)sizenow;
-                            }
-                            fs.Close();
-                            stream.Close();
+			FileInfo[] fi = di.GetFiles();
 
-                            Stream fstreamNext;
-                            int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
-                            if (errorCode != 0)
-                                return false;
+			_bgw.ReportProgress(0, new bgwRange2Visible(true));
+			_bgw.ReportProgress(0, new bgwSetRange2(fi.Length));
 
-                            ret |= ScanAFile(filename, fstreamNext);
-                            fstreamNext.Close();
-                            fstreamNext.Dispose();
-                            File.Delete(file);
-                        }
-                    }
-                    // gz.Close(); do not close the Stream gZip
-                }
-            }
-            return ret;
-        }
+			for (int j = 0; j < fi.Length; j++)
+			{
+				if (_bgw.CancellationPending)
+					return;
 
-        private static void ScanADirNew(string directory)
-        {
-            _bgw.ReportProgress(0, new bgwText("Scanning Dir : " + directory));
-            DirectoryInfo di = new DirectoryInfo(directory);
+				FileInfo f = fi[j];
+				_bgw.ReportProgress(0, new bgwValue2(j));
+				_bgw.ReportProgress(0, new bgwText2(f.Name));
 
-            FileInfo[] fi = di.GetFiles();
+				Stream fstreamNext;
+				int errorCode = IO.FileStream.OpenFileRead(f.FullName, out fstreamNext);
+				if (errorCode != 0)
+					return;
 
-            _bgw.ReportProgress(0, new bgwRange2Visible(true));
-            _bgw.ReportProgress(0, new bgwSetRange2(fi.Length));
+				bool fileFound = ScanAFile(f.FullName, fstreamNext);
+				fstreamNext.Close();
+				fstreamNext.Dispose();
+				if (fileFound)
+					File.Delete(f.FullName);
+			}
 
-            for (int j = 0; j < fi.Length; j++)
-            {
-                if (_bgw.CancellationPending)
-                    return;
+			DirectoryInfo[] childdi = di.GetDirectories();
+			foreach (DirectoryInfo d in childdi)
+			{
+				if (_bgw.CancellationPending)
+					return;
+				ScanADirNew(d.FullName);
+			}
 
-                FileInfo f = fi[j];
-                _bgw.ReportProgress(0, new bgwValue2(j));
-                _bgw.ReportProgress(0, new bgwText2(f.Name));
+			if (directory == "ToSort")
+				return;
+			if (IsDirectoryEmpty(directory))
+				Directory.Delete(directory);
 
-                Stream fstreamNext;
-                int errorCode = IO.FileStream.OpenFileRead(f.FullName, out fstreamNext);
-                if (errorCode != 0)
-                    return;
+		}
 
-                bool fileFound = ScanAFile(f.FullName, fstreamNext);
-                fstreamNext.Close();
-                fstreamNext.Dispose();
-                if (fileFound)
-                    File.Delete(f.FullName);
-            }
+		private static bool IsDirectoryEmpty(string path)
+		{
+			return !Directory.EnumerateFileSystemEntries(path).Any();
+		}
 
-            DirectoryInfo[] childdi = di.GetDirectories();
-            foreach (DirectoryInfo d in childdi)
-            {
-                if (_bgw.CancellationPending)
-                    return;
-                ScanADirNew(d.FullName);
-            }
+		private static string GetFilename(byte[] sha1)
+		{
+			string path = "";
 
-            if (directory == "ToSort")
-                return;
-            if (IsDirectoryEmpty(directory))
-                Directory.Delete(directory);
+			bool exists = false;
+			int i = 0;
+			while (!exists)
+			{
+				string romRoot = AppSettings.ReadSetting("Depot" + i);
+				if (romRoot == null)
+				{
+					break;
+				}
 
-        }
+				path = romRoot + @"\" + VarFix.ToString(sha1[0]) + @"\" +
+						 VarFix.ToString(sha1[1]) + @"\" +
+						 VarFix.ToString(sha1[2]) + @"\" +
+						 VarFix.ToString(sha1[3]) + @"\" +
+						 VarFix.ToString(sha1) + ".gz";
+				exists = File.Exists(path);
+			}
 
+			if (!exists)
+			{
+				path = @"RomRoot\" + VarFix.ToString(sha1[0]) + @"\" +
+						 VarFix.ToString(sha1[1]) + @"\" +
+						 VarFix.ToString(sha1[2]) + @"\" +
+						 VarFix.ToString(sha1[3]) + @"\" +
+						 VarFix.ToString(sha1) + ".gz";
+			}
 
-
-        private static bool IsDirectoryEmpty(string path)
-        {
-            return !Directory.EnumerateFileSystemEntries(path).Any();
-        }
-
-        private static string Getfilename(byte[] sha1)
-        {
-            return @"RomRoot\" + VarFix.ToString(sha1[0]) + @"\" +
-                         VarFix.ToString(sha1[1]) + @"\" +
-                         VarFix.ToString(sha1) + ".gz";
-
-        }
-
-
-    }
+			return path;
+		}
+	}
 }

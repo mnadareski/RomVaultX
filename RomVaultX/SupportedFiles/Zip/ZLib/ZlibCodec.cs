@@ -63,7 +63,6 @@
 //
 // -----------------------------------------------------------------------
 
-
 using System;
 using System.Runtime.InteropServices;
 
@@ -175,12 +174,10 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// </remarks>
         public CompressionStrategy Strategy = CompressionStrategy.Default;
 
-
         /// <summary>
         /// The Adler32 checksum on the data transferred through the codec so far. You probably don't need to look at this.
         /// </summary>
         public int Adler32 { get { return (int)_Adler32; } }
-
 
         /// <summary>
         /// Create a ZlibCodec.
@@ -358,7 +355,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return istate.Inflate(flush);
         }
 
-
         /// <summary>
         /// Ends an inflation session. 
         /// </summary>
@@ -448,7 +444,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return _InternalInitializeDeflate(true);
         }
 
-
         /// <summary>
         /// Initialize the ZlibCodec for deflation operation, using the specified CompressionLevel, 
         /// and the explicit flag governing whether to emit an RFC1950 header byte pair.
@@ -468,7 +463,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             this.CompressLevel = level;
             return _InternalInitializeDeflate(wantRfc1950Header);
         }
-
 
         /// <summary>
         /// Initialize the ZlibCodec for deflation operation, using the specified CompressionLevel, 
@@ -621,7 +615,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             dstate.Reset();
         }
 
-
         /// <summary>
         /// Set the CompressionStrategy and CompressionLevel for a deflation session.
         /// </summary>
@@ -634,7 +627,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 throw new ZlibException("No Deflate State!");
             return dstate.SetParams(level, strategy);
         }
-
 
         /// <summary>
         /// Set the dictionary to be used for either Inflation or Deflation.

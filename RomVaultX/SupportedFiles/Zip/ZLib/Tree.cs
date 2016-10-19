@@ -60,7 +60,6 @@
 //
 // -----------------------------------------------------------------------
 
-
 namespace RomVaultX.SupportedFiles.Zip.ZLib
 {
     sealed class Tree

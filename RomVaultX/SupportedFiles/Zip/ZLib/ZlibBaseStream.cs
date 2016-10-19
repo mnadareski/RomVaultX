@@ -29,7 +29,6 @@ using System.IO;
 
 namespace RomVaultX.SupportedFiles.Zip.ZLib
 {
-
     internal enum ZlibStreamFlavor { ZLIB = 1950, DEFLATE = 1951, GZIP = 1952 }
 
     internal class ZlibBaseStream : System.IO.Stream
@@ -79,7 +78,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         protected internal bool _wantCompress
         {
             get
@@ -110,8 +108,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
-
         private byte[] workingBuffer
         {
             get
@@ -121,8 +117,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return _workingBuffer;
             }
         }
-
-
 
         public override void Write(System.Byte[] buffer, int offset, int count)
         {
@@ -167,8 +161,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
             while (!done);
         }
-
-
 
         private void finish()
         {
@@ -282,7 +274,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         private void end()
         {
             if (z == null)
@@ -297,7 +288,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
             _z = null;
         }
-
 
         public override void Close()
         {
@@ -329,7 +319,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             _stream.SetLength(value);
         }
 
-
 #if NOT
         public int Read()
         {
@@ -343,8 +332,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 #endif
 
         private bool nomoreinput = false;
-
-
 
         private string ReadZeroTerminatedString()
         {
@@ -367,7 +354,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             byte[] a = list.ToArray();
             return GZipStream.iso8859dash1.GetString(a, 0, a.Length);
         }
-
 
         private int _ReadAndValidateGzipHeader()
         {
@@ -411,8 +397,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 
             return totalBytesRead;
         }
-
-
 
         public override System.Int32 Read(System.Byte[] buffer, System.Int32 offset, System.Int32 count)
         {
@@ -490,7 +474,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             //while (_z.AvailableBytesOut == count && rc == ZlibConstants.Z_OK);
             while (_z.AvailableBytesOut > 0 && !nomoreinput && rc == ZlibConstants.Z_OK);
 
-
             // workitem 8557
             // is there more room in output?
             if (_z.AvailableBytesOut > 0)
@@ -516,7 +499,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 }
             }
 
-
             rc = (count - _z.AvailableBytesOut);
 
             // calculate CRC after reading
@@ -525,8 +507,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 
             return rc;
         }
-
-
 
         public override System.Boolean CanRead
         {
@@ -560,7 +540,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             Reader,
             Undefined,
         }
-
 
         public static void CompressString(String s, Stream compressor)
         {
@@ -622,6 +601,5 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
 
     }
-
 
 }

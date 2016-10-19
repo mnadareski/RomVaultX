@@ -25,7 +25,6 @@
 //
 // ------------------------------------------------------------------
 
-
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -79,7 +78,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         /// Returns the CRC32 for the specified stream.
         /// </summary>
@@ -123,7 +121,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         ///   Get the CRC32 for the given (word,byte) combo.  This is a
         ///   computation defined by PKzip for PKZIP 2.0 (weak) encryption.
@@ -140,7 +137,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         {
             return (Int32)(crc32Table[(W ^ B) & 0xFF] ^ (W >> 8));
         }
-
 
         /// <summary>
         /// Update the value for the running CRC32 using the given block of bytes.
@@ -172,7 +168,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
             _TotalBytesRead += count;
         }
-
 
         /// <summary>
         ///   Process one byte in the CRC.
@@ -228,8 +223,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
-
         private static uint ReverseBits(uint data)
         {
             unchecked
@@ -254,8 +247,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return (byte)((0x01001001 * (s + t)) >> 24);
             }
         }
-
-
 
         private void GenerateLookupTable()
         {
@@ -307,7 +298,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 #endif
         }
 
-
         private uint gf2_matrix_times(uint[] matrix, uint vec)
         {
             uint sum = 0;
@@ -327,8 +317,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             for (int i = 0; i < 32; i++)
                 square[i] = gf2_matrix_times(mat, mat[i]);
         }
-
-
 
         /// <summary>
         ///   Combines the given CRC32 value with the current running total.
@@ -389,7 +377,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                     crc1 = gf2_matrix_times(odd, crc1);
                 len2 >>= 1;
 
-
             } while (len2 != 0);
 
             crc1 ^= crc2;
@@ -399,7 +386,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             //return (int) crc1;
             return;
         }
-
 
         /// <summary>
         ///   Create an instance of the CRC32 class using the default settings: no
@@ -430,7 +416,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             this(unchecked((int)0xEDB88320), reverseBits)
         {
         }
-
 
         /// <summary>
         ///   Create an instance of the CRC32 class, specifying the polynomial and
@@ -486,7 +471,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         private const int BUFFER_SIZE = 8192;
         private UInt32 _register = 0xFFFFFFFFU;
     }
-
 
     /// <summary>
     /// A Stream that calculates a CRC32 (a checksum) on all bytes read,
@@ -619,7 +603,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 throw new ArgumentException("length");
         }
 
-
         // This ctor is private - no validation is done here.  This is to allow the use
         // of a (specific) negative value for the _lengthLimit, to indicate that there
         // is no length set.  So we validate the length limit in those ctors that use an
@@ -634,7 +617,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             _lengthLimit = length;
             _leaveOpen = leaveOpen;
         }
-
 
         /// <summary>
         ///   Gets the total number of bytes run through the CRC32 calculator.
@@ -804,7 +786,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             throw new NotSupportedException();
         }
 
-
         void IDisposable.Dispose()
         {
             Close();
@@ -821,7 +802,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
 
     }
-
 
     public class CRC32Hash : HashAlgorithm
     {

@@ -16,7 +16,6 @@ namespace RomVaultX.SupportedFiles.Files
         readonly uint[] _crc32Lookup;
         private uint _crc;
 
-
         public ThreadCRC()
         {
             _waitEvent = new AutoResetEvent(false);

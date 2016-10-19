@@ -229,7 +229,6 @@ namespace RomVaultX
 
             if (pTree.RText.Contains(x, y))
             {
-
                 RvSelected?.Invoke(pTree, mevent);
 
                 Selected = pTree;

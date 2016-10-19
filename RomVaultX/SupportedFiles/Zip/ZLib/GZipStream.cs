@@ -26,7 +26,6 @@
 //
 // ------------------------------------------------------------------
 
-
 using System;
 using System.IO;
 
@@ -118,8 +117,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         // on generation:
         // all optional fields get 0, except for the OS, which gets 255.
         //
-
-
 
         /// <summary>
         ///   The comment on the GZIP stream.
@@ -226,7 +223,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         string _FileName;
         string _Comment;
         int _Crc32;
-
 
         /// <summary>
         ///   Create a <c>GZipStream</c> using the specified <c>CompressionMode</c>.
@@ -587,7 +583,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary> Returns the total number of bytes input so far.</summary>
         virtual public long TotalIn
         {
@@ -653,7 +648,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         /// Indicates whether the stream can be read.
         /// </summary>
@@ -679,7 +673,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         {
             get { return false; }
         }
-
 
         /// <summary>
         /// Indicates whether the stream can be written.
@@ -786,8 +779,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return n;
         }
 
-
-
         /// <summary>
         ///   Calling this method always throws a <see cref="NotImplementedException"/>.
         /// </summary>
@@ -851,14 +842,12 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
         #endregion
 
-
         internal static readonly System.DateTime _unixEpoch = new System.DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 #if SILVERLIGHT || NETCF
         internal static readonly System.Text.Encoding iso8859dash1 = new Ionic.Encoding.Iso8859Dash1Encoding();
 #else
         internal static readonly System.Text.Encoding iso8859dash1 = System.Text.Encoding.GetEncoding("iso-8859-1");
 #endif
-
 
         private int EmitHeader()
         {
@@ -923,8 +912,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return header.Length; // bytes written
         }
 
-
-
         /// <summary>
         ///   Compress a string into a byte array using GZip.
         /// </summary>
@@ -952,7 +939,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return ms.ToArray();
             }
         }
-
 
         /// <summary>
         ///   Compress a byte array into a new byte array using GZip.
@@ -982,7 +968,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         ///   Uncompress a GZip'ed byte array into a single string.
         /// </summary>
@@ -1003,7 +988,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return ZlibBaseStream.UncompressString(compressed, decompressor);
             }
         }
-
 
         /// <summary>
         ///   Uncompress a GZip'ed byte array into a byte array.
@@ -1027,7 +1011,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return ZlibBaseStream.UncompressBuffer(compressed, decompressor);
             }
         }
-
 
     }
 }

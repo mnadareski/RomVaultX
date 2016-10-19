@@ -24,7 +24,6 @@
 //
 // ------------------------------------------------------------------
 
-
 using System;
 
 namespace RomVaultX.SupportedFiles.Zip.ZLib
@@ -444,8 +443,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
-
         /// <summary>
         /// Indicates whether the stream can be read.
         /// </summary>
@@ -471,7 +468,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         {
             get { return false; }
         }
-
 
         /// <summary>
         /// Indicates whether the stream can be written.
@@ -561,7 +557,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return _baseStream.Read(buffer, offset, count);
         }
 
-
         /// <summary>
         /// Calling this method always throws a <see cref="NotImplementedException"/>.
         /// </summary>
@@ -618,9 +613,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
         #endregion
 
-
-
-
         /// <summary>
         ///   Compress a string into a byte array using DEFLATE (RFC 1951).
         /// </summary>
@@ -650,7 +642,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return ms.ToArray();
             }
         }
-
 
         /// <summary>
         ///   Compress a byte array into a new byte array using DEFLATE.
@@ -682,7 +673,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         ///   Uncompress a DEFLATE'd byte array into a single string.
         /// </summary>
@@ -707,7 +697,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return ZlibBaseStream.UncompressString(compressed, decompressor);
             }
         }
-
 
         /// <summary>
         ///   Uncompress a DEFLATE'd byte array into a byte array.

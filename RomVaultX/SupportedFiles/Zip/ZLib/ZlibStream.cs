@@ -30,7 +30,6 @@ using System.IO;
 
 namespace RomVaultX.SupportedFiles.Zip.ZLib
 {
-
     /// <summary>
     /// Represents a Zlib stream for compression or decompression.
     /// </summary>
@@ -426,7 +425,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         /// Indicates whether the stream can be read.
         /// </summary>
@@ -612,7 +610,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
         #endregion
 
-
         /// <summary>
         ///   Compress a string into a byte array using ZLIB.
         /// </summary>
@@ -642,7 +639,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         ///   Compress a byte array into a new byte array using ZLIB.
         /// </summary>
@@ -671,7 +667,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             }
         }
 
-
         /// <summary>
         ///   Uncompress a ZLIB-compressed byte array into a single string.
         /// </summary>
@@ -694,7 +689,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
                 return ZlibBaseStream.UncompressString(compressed, decompressor);
             }
         }
-
 
         /// <summary>
         ///   Uncompress a ZLIB-compressed byte array into a byte array.
@@ -720,6 +714,5 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
 
     }
-
 
 }

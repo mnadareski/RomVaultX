@@ -86,12 +86,10 @@
 //
 // -----------------------------------------------------------------------
 
-
 using System.Runtime.InteropServices;
 
 namespace RomVaultX.SupportedFiles.Zip.ZLib
 {
-
     /// <summary>
     /// Describes how to flush the current deflate operation.
     /// </summary>
@@ -133,7 +131,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// <summary>Signals the end of the compression/decompression stream.</summary>
         Finish,
     }
-
 
     /// <summary>
     /// The compression level to be used when using a DeflateStream or ZlibStream with CompressionMode.Compress.
@@ -240,7 +237,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         HuffmanOnly = 2,
     }
 
-
     /// <summary>
     /// An enum to specify the direction of transcoding - whether to compress or decompress.
     /// </summary>
@@ -255,7 +251,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// </summary>
         Decompress = 1,
     }
-
 
     /// <summary>
     /// A general purpose exception class for exceptions in the Zlib library.
@@ -281,7 +276,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         {
         }
     }
-
 
     internal class SharedUtils
     {
@@ -341,12 +335,10 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
             return bytesRead;
         }
 
-
         internal static byte[] ToByteArray(System.String sourceString)
         {
             return System.Text.UTF8Encoding.UTF8.GetBytes(sourceString);
         }
-
 
         internal static char[] ToCharArray(byte[] byteArray)
         {
@@ -450,8 +442,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         }
     }
 
-
-
     /// <summary>
     /// Computes an Adler-32 checksum.
     /// </summary>
@@ -469,7 +459,6 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         private static readonly uint BASE = 65521;
         // NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1
         private static readonly int NMAX = 5552;
-
 
 #pragma warning disable 3001
 #pragma warning disable 3002

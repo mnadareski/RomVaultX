@@ -9,108 +9,104 @@ using System.Windows.Forms;
 
 namespace RomVaultX
 {
-    public static class UpdateZipDB
-    {
+	public static class UpdateZipDB
+	{
+		private static SQLiteCommand CommandWriteLocalHeaderToRom;
+		private static SQLiteCommand CommandWriteCentralDirToGame;
+		private static SQLiteCommand CommandGetAllGamesWithRoms;
+		private static SQLiteCommand CommandFindRomsInGame;
 
-        private static SQLiteCommand CommandWriteLocalHeaderToRom;
-        private static SQLiteCommand CommandWriteCentralDirToGame;
-        private static SQLiteCommand CommandGetAllGamesWithRoms;
-        private static SQLiteCommand CommandFindRomsInGame;
+		public static void UpdateDB()
+		{
+			SetupSQLCommands();
 
-        public static void UpdateDB()
-        {
-            SetupSQLCommands();
+			using (DbDataReader drGame = ZipSetGetAllGames())
+			{
+				int commitCount = 0;
+				Program.db.Begin();
 
-            using (DbDataReader drGame = ZipSetGetAllGames())
-            {
-                int commitCount = 0;
-                Program.db.Begin();
+				while (drGame.Read())
+				{
+					int GameId = Convert.ToInt32(drGame["GameId"]);
+					string GameName = drGame["name"].ToString();
+					Debug.WriteLine("Game " + GameId + " Name: " + GameName);
 
-                while (drGame.Read())
-                {
-                    int GameId = Convert.ToInt32(drGame["GameId"]);
-                    string GameName = drGame["name"].ToString();
-                    Debug.WriteLine("Game " + GameId + " Name: " + GameName);
+					ZipFile memZip = new ZipFile();
+					memZip.ZipCreateFake();
 
-                    ZipFile memZip = new ZipFile();
-                    memZip.ZipCreateFake();
+					ulong fileOffset = 0;
 
-                    ulong fileOffset = 0;
+					int romCount = 0;
+					using (DbDataReader drRom = ZipSetGetRomsInGame(GameId))
+					{
+						while (drRom.Read())
+						{
+							int RomId = Convert.ToInt32(drRom["RomId"]);
+							string RomName = drRom["name"].ToString();
+							ulong size = Convert.ToUInt64(drRom["size"]);
+							ulong compressedSize = Convert.ToUInt64(drRom["compressedsize"]);
+							byte[] CRC = VarFix.CleanMD5SHA1(drRom["crc"].ToString(), 8);
+							Debug.WriteLine("    Rom " + RomId + " Name: " + RomName + "  Size: " + size + "  Compressed: " + compressedSize + "  CRC: " + VarFix.ToString(CRC));
 
-                    int romCount = 0;
-                    using (DbDataReader drRom = ZipSetGetRomsInGame(GameId))
-                    {
+							byte[] localHeader;
+							memZip.ZipFileAddFake(RomName, fileOffset, size, compressedSize, CRC, out localHeader);
 
-                        while (drRom.Read())
-                        {
-                            int RomId = Convert.ToInt32(drRom["RomId"]);
-                            string RomName = drRom["name"].ToString();
-                            ulong size = Convert.ToUInt64(drRom["size"]);
-                            ulong compressedSize = Convert.ToUInt64(drRom["compressedsize"]);
-                            byte[] CRC = VarFix.CleanMD5SHA1(drRom["crc"].ToString(), 8);
-                            Debug.WriteLine("    Rom " + RomId + " Name: " + RomName + "  Size: " + size + "  Compressed: " + compressedSize + "  CRC: " + VarFix.ToString(CRC));
+							ZipSetLocalFileHeader(RomId, localHeader, fileOffset);
 
-                            byte[] localHeader;
-                            memZip.ZipFileAddFake(RomName, fileOffset, size, compressedSize, CRC, out localHeader);
+							fileOffset += (ulong)localHeader.Length + compressedSize;
+							commitCount += 1;
+							romCount += 1;
+						}
+					}
 
-                            ZipSetLocalFileHeader(RomId, localHeader, fileOffset);
+					byte[] centeralDir;
+					memZip.ZipFileCloseFake(fileOffset, out centeralDir);
 
-                            fileOffset += (ulong)localHeader.Length + compressedSize;
-                            commitCount += 1;
-                            romCount += 1;
-                        }
-                    }
+					if (romCount > 0)
+						ZipSetCentralFileHeader(GameId, fileOffset + (ulong)centeralDir.Length, DateTime.UtcNow.Ticks, centeralDir, fileOffset);
 
-                    byte[] centeralDir;
-                    memZip.ZipFileCloseFake(fileOffset, out centeralDir);
+					if (commitCount >= 100)
+					{
+						Program.db.Commit();
+						Program.db.Begin();
+						commitCount = 0;
+					}
 
-                    if (romCount > 0)
-                        ZipSetCentralFileHeader(GameId, fileOffset + (ulong)centeralDir.Length, DateTime.UtcNow.Ticks, centeralDir, fileOffset);
+				}
+			}
+			Program.db.Commit();
 
-                    if (commitCount >= 100)
-                    {
-                        Program.db.Commit();
-                        Program.db.Begin();
-                        commitCount = 0;
-                    }
+			MessageBox.Show("Zip Header Database Update Complete");
+		}
 
-                }
-            }
-            Program.db.Commit();
+		private static void SetupSQLCommands()
+		{
+			// just check one as the rest should be the same
+			if (CommandGetAllGamesWithRoms != null)
+				return;
 
-            MessageBox.Show("Zip Header Database Update Complete");
-        }
+			CommandGetAllGamesWithRoms = new SQLiteCommand(@"SELECT GameId,name FROM game WHERE RomGot>0 AND ZipFileLength is null", Program.db.Connection);
 
-        private static void SetupSQLCommands()
-        {
-            // just check one as the rest should be the same
-            if (CommandGetAllGamesWithRoms != null)
-                return;
-
-            CommandGetAllGamesWithRoms = new SQLiteCommand(@"SELECT GameId,name FROM game WHERE RomGot>0 AND ZipFileLength is null", Program.db.Connection);
-
-
-            CommandFindRomsInGame = new SQLiteCommand(
-                @"SELECT
+			CommandFindRomsInGame = new SQLiteCommand(
+				@"SELECT
                     ROM.RomId, ROM.name, FILES.size, FILES.compressedsize, FILES.crc
                  FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND ROM.PutInZip ORDER BY ROM.RomId", Program.db.Connection);
-            CommandFindRomsInGame.Parameters.Add(new SQLiteParameter("GameId"));
+			CommandFindRomsInGame.Parameters.Add(new SQLiteParameter("GameId"));
 
-            CommandWriteLocalHeaderToRom = new SQLiteCommand(
-               @"UPDATE ROM SET 
+			CommandWriteLocalHeaderToRom = new SQLiteCommand(
+			   @"UPDATE ROM SET 
                     LocalFileHeader=@localFileHeader,
                     LocalFileHeaderOffset=@localFileHeaderOffset,
                     LocalFileHeaderLength=@localFileHeaderLength
                 WHERE
                     RomId=@romID", Program.db.Connection);
-            CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeader"));
-            CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderOffset"));
-            CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderLength"));
-            CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("RomId"));
+			CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeader"));
+			CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderOffset"));
+			CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderLength"));
+			CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("RomId"));
 
-
-            CommandWriteCentralDirToGame = new SQLiteCommand(
-               @"UPDATE GAME SET 
+			CommandWriteCentralDirToGame = new SQLiteCommand(
+			   @"UPDATE GAME SET 
                     ZipFileLength=@zipFileLength,
                     LastWriteTime=@zipFileTimeStamp,
                     CreationTime=@zipFileTimeStamp,
@@ -120,45 +116,45 @@ namespace RomVaultX
                     CentralDirectoryLength=@centralDirectoryLength
                 WHERE
                     GameId=@gameID", Program.db.Connection);
-            CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileLength"));
-            CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileTimeStamp"));
-            CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectory"));
-            CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryOffset"));
-            CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryLength"));
-            CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("GameId"));
+			CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileLength"));
+			CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("zipFileTimeStamp"));
+			CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectory"));
+			CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryOffset"));
+			CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("centralDirectoryLength"));
+			CommandWriteCentralDirToGame.Parameters.Add(new SQLiteParameter("GameId"));
 
-        }
+		}
 
-        private static DbDataReader ZipSetGetAllGames()
-        {
-            return CommandGetAllGamesWithRoms.ExecuteReader();
-        }
+		private static DbDataReader ZipSetGetAllGames()
+		{
+			return CommandGetAllGamesWithRoms.ExecuteReader();
+		}
 
-        private static DbDataReader ZipSetGetRomsInGame(int GameId)
-        {
-            CommandFindRomsInGame.Parameters["GameId"].Value = GameId;
-            return CommandFindRomsInGame.ExecuteReader();
-        }
+		private static DbDataReader ZipSetGetRomsInGame(int GameId)
+		{
+			CommandFindRomsInGame.Parameters["GameId"].Value = GameId;
+			return CommandFindRomsInGame.ExecuteReader();
+		}
 
-        private static void ZipSetLocalFileHeader(int RomId, byte[] localHeader, ulong fileOffset)
-        {
-            CommandWriteLocalHeaderToRom.Parameters["localFileHeader"].Value = localHeader;
-            CommandWriteLocalHeaderToRom.Parameters["localFileHeaderOffset"].Value = fileOffset;
-            CommandWriteLocalHeaderToRom.Parameters["localFileHeaderLength"].Value = localHeader.Length;
-            CommandWriteLocalHeaderToRom.Parameters["RomId"].Value = RomId;
-            CommandWriteLocalHeaderToRom.ExecuteNonQuery();
-        }
+		private static void ZipSetLocalFileHeader(int RomId, byte[] localHeader, ulong fileOffset)
+		{
+			CommandWriteLocalHeaderToRom.Parameters["localFileHeader"].Value = localHeader;
+			CommandWriteLocalHeaderToRom.Parameters["localFileHeaderOffset"].Value = fileOffset;
+			CommandWriteLocalHeaderToRom.Parameters["localFileHeaderLength"].Value = localHeader.Length;
+			CommandWriteLocalHeaderToRom.Parameters["RomId"].Value = RomId;
+			CommandWriteLocalHeaderToRom.ExecuteNonQuery();
+		}
 
-        private static void ZipSetCentralFileHeader(int GameId, ulong zipFileLength, long timestamp, byte[] centeralDir, ulong fileOffset)
-        {
-            CommandWriteCentralDirToGame.Parameters["zipFileLength"].Value = zipFileLength;
-            CommandWriteCentralDirToGame.Parameters["zipFileTimeStamp"].Value = timestamp;
-            CommandWriteCentralDirToGame.Parameters["centralDirectory"].Value = centeralDir;
-            CommandWriteCentralDirToGame.Parameters["centralDirectoryOffset"].Value = fileOffset;
-            CommandWriteCentralDirToGame.Parameters["centralDirectoryLength"].Value = centeralDir.Length;
-            CommandWriteCentralDirToGame.Parameters["GameId"].Value = GameId;
-            CommandWriteCentralDirToGame.ExecuteNonQuery();
-        }
+		private static void ZipSetCentralFileHeader(int GameId, ulong zipFileLength, long timestamp, byte[] centeralDir, ulong fileOffset)
+		{
+			CommandWriteCentralDirToGame.Parameters["zipFileLength"].Value = zipFileLength;
+			CommandWriteCentralDirToGame.Parameters["zipFileTimeStamp"].Value = timestamp;
+			CommandWriteCentralDirToGame.Parameters["centralDirectory"].Value = centeralDir;
+			CommandWriteCentralDirToGame.Parameters["centralDirectoryOffset"].Value = fileOffset;
+			CommandWriteCentralDirToGame.Parameters["centralDirectoryLength"].Value = centeralDir.Length;
+			CommandWriteCentralDirToGame.Parameters["GameId"].Value = GameId;
+			CommandWriteCentralDirToGame.ExecuteNonQuery();
+		}
 
-    }
+	}
 }

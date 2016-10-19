@@ -37,8 +37,6 @@ namespace RomVaultX
             }
         }
 
-
-
         private void FrmProgressWindowNewShown(object sender, EventArgs e)
         {
             bgWork.ProgressChanged += BgwProgressChanged;
@@ -71,7 +69,6 @@ namespace RomVaultX
                 UpdateStatusText();
                 return;
             }
-
 
             bgwText2 bgwT2 = e.UserState as bgwText2;
             if (bgwT2 != null)
@@ -107,14 +104,12 @@ namespace RomVaultX
                 return;
             }
 
-
             bgwText3 bgwT3 = e.UserState as bgwText3;
             if (bgwT3 != null)
             {
                 label3.Text = bgwT3.Text;
                 return;
             }
-
 
             bgwShowError bgwSDE = e.UserState as bgwShowError;
             if (bgwSDE != null)
@@ -137,8 +132,6 @@ namespace RomVaultX
                 if (row >= 0) ErrorGrid.FirstDisplayedScrollingRowIndex = row;
 
             }
-
-
 
         }
         private void UpdateStatusText()

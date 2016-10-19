@@ -59,7 +59,6 @@
 //
 // -----------------------------------------------------------------------
 
-
 using System;
 
 namespace RomVaultX.SupportedFiles.Zip.ZLib
