@@ -102,6 +102,7 @@ namespace RomVaultX
 				new Detector(FileType.RAR, 6, 0,"", new Data(0, new byte[] {0x52, 0x61, 0x72, 0x21, 0x1A, 0x07})),
 
 				new Detector(FileType.CHD, 76, 0,"", new Data(0, new byte[] {(byte) 'M', (byte) 'C', (byte) 'o', (byte) 'm', (byte) 'p', (byte) 'r', (byte) 'H', (byte) 'D'})),
+
 				new Detector(FileType.A7800, 128, 128,"No-Intro_A7800.xml", new Data(1, new byte[] {0x41,0x54,0x41,0x52,0x49,0x37,0x38,0x30,0x30})),
 				new Detector(FileType.Lynx, 64, 64,"No-Intro_LNX.xml", new Data(0, new byte[] {0x4C, 0x59, 0x4E, 0x58})),
 				new Detector(FileType.NES, 16, 16,"No-Intro_NES.xml", new Data(0, new byte[] {0x04E, 0x45, 0x53, 0x1A}))
@@ -114,10 +115,14 @@ namespace RomVaultX
 			foreach (Detector d in Detectors)
 			{
 				if (string.IsNullOrEmpty(d.HeaderId))
+				{
 					continue;
+				}
 
 				if (theader == d.HeaderId)
+				{
 					return d.FType;
+				}
 			}
 			return FileType.Nothing;
 		}
@@ -131,7 +136,9 @@ namespace RomVaultX
 		{
 			int headSize = 128;
 			if (sIn.Length < headSize)
+			{
 				headSize = (int)sIn.Length;
+			}
 
 			byte[] buffer = new byte[headSize];
 
@@ -139,11 +146,16 @@ namespace RomVaultX
 
 			foreach (Detector detector in Detectors)
 			{
-				if (headSize < detector.HeaderLength) continue;
+				if (headSize < detector.HeaderLength)
+				{
+					continue;
+				}
 
 				bool found = true;
 				foreach (Data data in detector.Datas)
+				{
 					found &= ByteComp(buffer, data);
+				}
 
 				if (found)
 				{
@@ -158,7 +170,11 @@ namespace RomVaultX
 
 		private static bool ByteComp(byte[] buffer, Data d)
 		{
-			if (buffer.Length < d.Value.Length + d.Offset) return false;
+			if (buffer.Length < d.Value.Length + d.Offset)
+			{
+				return false;
+			}
+
 			for (int i = 0; i < d.Value.Length; i++)
 			{
 				if (buffer[i + d.Offset] != d.Value[i])

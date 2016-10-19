@@ -11,10 +11,6 @@ using System.Security.Cryptography;
 using System.Text;
 using RomVaultX.SupportedFiles.Zip.ZLib;
 
-// UInt16 = ushort
-// UInt32 = uint
-// ULong = ulong
-
 namespace RomVaultX.SupportedFiles.Zip
 {
 	public class ZipFile

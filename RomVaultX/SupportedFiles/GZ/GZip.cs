@@ -56,7 +56,9 @@ namespace RomVaultX.SupportedFiles.GZ
 			if (errorCode != 0)
 			{
 				if (errorCode == 32)
+				{
 					return ZipReturn.ZipFileLocked;
+				}
 				return ZipReturn.ZipErrorOpeningFile;
 			}
 			return ReadBody(deepScan);
@@ -150,7 +152,9 @@ namespace RomVaultX.SupportedFiles.GZ
 				SHA1 lsha1 = SHA1.Create();
 
 				if (_buffer == null)
+				{
 					_buffer = new byte[Buffersize];
+				}
 
 				ulong uncompressedRead = 0;
 
@@ -184,40 +188,55 @@ namespace RomVaultX.SupportedFiles.GZ
 					}
 				}
 				else
+				{
 					uncompressedSize = uncompressedRead;
+				}
 
 				byte[] testcrc = crc32.Hash;
 				if (crc != null)
 				{
 					for (int i = 0; i < 4; i++)
 					{
-						if (crc[i] == testcrc[i]) continue;
+						if (crc[i] == testcrc[i])
+						{
+							continue;
+						}
 						_zipFs.Close();
 						return ZipReturn.ZipDecodeError;
 					}
 				}
 				else
+				{
 					crc = testcrc;
+				}
 
 				byte[] testmd5 = lmd5.Hash;
 				if (md5Hash != null)
 				{
 					for (int i = 0; i < 16; i++)
 					{
-						if (md5Hash[i] == testmd5[i]) continue;
+						if (md5Hash[i] == testmd5[i])
+						{
+							continue;
+						}
 						_zipFs.Close();
 						return ZipReturn.ZipDecodeError;
 					}
 				}
 				else
+				{
 					md5Hash = testmd5;
+				}
 
 				byte[] testsha1 = lsha1.Hash;
 				if (sha1Hash != null)
 				{
 					for (int i = 0; i < 20; i++)
 					{
-						if (sha1Hash[i] == testsha1[i]) continue;
+						if (sha1Hash[i] == testsha1[i])
+						{
+							continue;
+						}
 						_zipFs.Close();
 						return ZipReturn.ZipDecodeError;
 					}
@@ -237,13 +256,18 @@ namespace RomVaultX.SupportedFiles.GZ
 			{
 				for (int i = 0; i < 4; i++)
 				{
-					if (gzcrc[3 - i] == crc[i]) continue;
+					if (gzcrc[3 - i] == crc[i])
+					{
+						continue;
+					}
 					_zipFs.Close();
 					return ZipReturn.ZipDecodeError;
 				}
 			}
 			else
+			{
 				crc = new[] { gzcrc[3], gzcrc[2], gzcrc[1], gzcrc[0] };
+			}
 
 			if (uncompressedSize != 0)
 			{
@@ -278,7 +302,9 @@ namespace RomVaultX.SupportedFiles.GZ
 			if (errorCode != 0)
 			{
 				if (errorCode == 32)
+				{
 					return ZipReturn.ZipFileLocked;
+				}
 				return ZipReturn.ZipErrorOpeningFile;
 			}
 
@@ -291,7 +317,10 @@ namespace RomVaultX.SupportedFiles.GZ
 
 		public void Close()
 		{
-			if (_zipFs == null) return;
+			if (_zipFs == null)
+			{
+				return;
+			}
 
 			_zipFs.Close();
 			_zipFs.Dispose();
@@ -316,9 +345,13 @@ namespace RomVaultX.SupportedFiles.GZ
 
 			// writing FEXTRA
 			if (FileHeaderReader.AltHeaderFile(altType))
+			{
 				zipBw.Write((Int16)77); // XLEN 16+4+8+1+16+20+4+8
+			}
 			else
+			{
 				zipBw.Write((Int16)28); // XLEN 16+4+8
+			}
 
 			zipBw.Write(md5Hash);           // 16 bytes
 			zipBw.Write(crc);               // 4 bytes
@@ -334,7 +367,9 @@ namespace RomVaultX.SupportedFiles.GZ
 			}
 
 			if (_buffer == null)
+			{
 				_buffer = new byte[Buffersize];
+			}
 
 			ulong dataStartPos = (ulong)zipBw.BaseStream.Position;
 			if (isCompressedStream)
@@ -381,14 +416,23 @@ namespace RomVaultX.SupportedFiles.GZ
 		{
 			string strTemp = IO.Path.GetDirectoryName(sFilename);
 
-			if (String.IsNullOrEmpty(strTemp)) return;
+			if (String.IsNullOrEmpty(strTemp))
+			{
+				return;
+			}
 
-			if (IO.Directory.Exists(strTemp)) return;
+			if (IO.Directory.Exists(strTemp))
+			{
+				return;
+			}
 
 			while (strTemp.Length > 0 && !IO.Directory.Exists(strTemp))
 			{
 				int pos = strTemp.LastIndexOf(IO.Path.DirectorySeparatorChar);
-				if (pos < 0) pos = 0;
+				if (pos < 0)
+				{
+					pos = 0;
+				}
 				strTemp = strTemp.Substring(0, pos);
 			}
 

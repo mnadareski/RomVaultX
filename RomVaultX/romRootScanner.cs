@@ -124,11 +124,14 @@ namespace RomVaultX
 					FindStatus res = fileneededTest(tFile);
 
 					if (res != FindStatus.FoundFileInArchive)
+					{
 						tFile.DBWrite();
-
+					}
 				}
 				if (_bgw.CancellationPending)
+				{
 					return;
+				}
 			}
 
 			DirectoryInfo[] childdi = di.GetDirectories();
