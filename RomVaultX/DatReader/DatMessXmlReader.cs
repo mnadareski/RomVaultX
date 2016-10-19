@@ -157,17 +157,15 @@ namespace RomVaultX.DatReader
 		private static void LoadDiskFromDat(RvGame rvGame, XmlNode romNode)
 		{
 			if (romNode.Attributes == null)
-				return;
-
-			XmlNode name = romNode.Attributes.GetNamedItem("name");
-			RvRom tRom = new RvRom
 			{
-				Name = VarFix.CleanFullFileName(name) + ".chd",
-				SHA1 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40),
-				Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status")),
-			};
+				return;
+			}
 
-			rvGame.AddRom(tRom);
+			string Name = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("name")) + ".chd";
+			byte[] SHA1CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40);
+			byte[] MD5CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("md5"), 32);
+			string Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge"));
+			string Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status"));
 		}
 	}
 }

@@ -12,10 +12,14 @@ namespace RomVaultX.DatReader
 			string filename = IO.Path.GetFileName(strFilename);
 
 			if (!LoadHeaderFromDat(doc, rvDat, filename))
+			{
 				return false;
+			}
 
 			if (doc.DocumentElement == null)
+			{
 				return false;
+			}
 
 			XmlNodeList dirNodeList = doc.DocumentElement.SelectNodes("dir");
 			if (dirNodeList != null)
@@ -53,10 +57,14 @@ namespace RomVaultX.DatReader
 			string filename = IO.Path.GetFileName(strFilename);
 
 			if (!LoadMameHeaderFromDat(doc, rvDat, filename))
+			{
 				return false;
+			}
 
 			if (doc.DocumentElement == null)
+			{
 				return false;
+			}
 
 			XmlNodeList dirNodeList = doc.DocumentElement.SelectNodes("dir");
 			if (dirNodeList != null)
@@ -91,13 +99,17 @@ namespace RomVaultX.DatReader
 		private static bool LoadHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename)
 		{
 			if (doc.DocumentElement == null)
+			{
 				return false;
+			}
 			XmlNode head = doc.DocumentElement.SelectSingleNode("header");
 
 			rvDat.Filename = filename;
 
 			if (head == null)
+			{
 				return false;
+			}
 			rvDat.Name = VarFix.CleanFileName(head.SelectSingleNode("name"));
 			rvDat.RootDir = VarFix.CleanFileName(head.SelectSingleNode("rootdir"));
 			rvDat.Description = VarFix.String(head.SelectSingleNode("description"));
@@ -113,7 +125,9 @@ namespace RomVaultX.DatReader
 			XmlNode packingNode = head.SelectSingleNode("romvault") ?? head.SelectSingleNode("clrmamepro");
 
 			if (packingNode?.Attributes != null)
+			{
 				rvDat.MergeType = VarFix.String(packingNode.Attributes.GetNamedItem("forcemerging")).ToLower();
+			}
 
 			return true;
 		}
@@ -121,14 +135,18 @@ namespace RomVaultX.DatReader
 		private static bool LoadMameHeaderFromDat(XmlDocument doc, RvDat rvDat, string filename)
 		{
 			if (doc.DocumentElement == null)
+			{
 				return false;
+			}
 			XmlNode head = doc.SelectSingleNode("mame");
 
 			if (head?.Attributes == null)
+			{
 				return false;
+			}
 
 			rvDat.Filename = filename;
-			rvDat.Name = VarFix.CleanFileName(head.Attributes.GetNamedItem("build"));   /// ?? is this correct should it be Name & Descripition??
+			rvDat.Name = VarFix.CleanFileName(head.Attributes.GetNamedItem("build"));   /// ?? is this correct should it be Name & Description??
 			rvDat.Description = VarFix.String(head.Attributes.GetNamedItem("build"));
 
 			return true;
@@ -137,7 +155,9 @@ namespace RomVaultX.DatReader
 		private static void LoadDirFromDat(RvDat rvDat, XmlNode dirNode, string rootDir)
 		{
 			if (dirNode.Attributes == null)
+			{
 				return;
+			}
 
 			string fullname = VarFix.CleanFullFileName(dirNode.Attributes.GetNamedItem("name"));
 
@@ -163,7 +183,9 @@ namespace RomVaultX.DatReader
 		private static void LoadGameFromDat(RvDat rvDat, XmlNode gameNode, string rootDir)
 		{
 			if (gameNode.Attributes == null)
+			{
 				return;
+			}
 
 			RvGame rvGame = new RvGame
 			{
@@ -204,19 +226,29 @@ namespace RomVaultX.DatReader
 
 			XmlNodeList romNodeList = gameNode.SelectNodes("rom");
 			if (romNodeList != null)
+			{
 				for (int i = 0; i < romNodeList.Count; i++)
+				{
 					LoadRomFromDat(rvGame, romNodeList[i]);
+				}
+			}
 
 			XmlNodeList diskNodeList = gameNode.SelectNodes("disk");
 			if (diskNodeList != null)
+			{
 				for (int i = 0; i < diskNodeList.Count; i++)
+				{
 					LoadDiskFromDat(rvGame, diskNodeList[i]);
+				}
+			}
 		}
 
 		private static void LoadRomFromDat(RvGame rvGame, XmlNode romNode)
 		{
 			if (romNode.Attributes == null)
+			{
 				return;
+			}
 
 			RvRom rvRom = new RvRom
 			{
@@ -235,7 +267,9 @@ namespace RomVaultX.DatReader
 		private static void LoadDiskFromDat(RvGame rvGame, XmlNode romNode)
 		{
 			if (romNode.Attributes == null)
+			{
 				return;
+			}
 
 			string Name = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("name")) + ".chd";
 			byte[] SHA1CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40);
@@ -243,6 +277,5 @@ namespace RomVaultX.DatReader
 			string Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge"));
 			string Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status"));
 		}
-
 	}
 }
