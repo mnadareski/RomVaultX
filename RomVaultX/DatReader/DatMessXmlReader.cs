@@ -13,14 +13,20 @@ namespace RomVaultX.DatReader
 			rvDat = new RvDat();
 			string filename = IO.Path.GetFileName(strFilename);
 			if (!LoadHeaderFromDat(doc, rvDat, filename))
+			{
 				return false;
+			}
 
 			if (doc.DocumentElement == null)
+			{
 				return false;
+			}
 			XmlNodeList gameNodeList = doc.DocumentElement.SelectNodes("software");
 
 			if (gameNodeList == null)
+			{
 				return false;
+			}
 			for (int i = 0; i < gameNodeList.Count; i++)
 			{
 				LoadGameFromDat(rvDat, gameNodeList[i]);
@@ -33,13 +39,19 @@ namespace RomVaultX.DatReader
 		{
 			XmlNodeList head = doc.SelectNodes("softwarelist");
 			if (head == null)
+			{
 				return false;
+			}
 
 			if (head.Count == 0)
+			{
 				return false;
+			}
 
 			if (head[0].Attributes == null)
+			{
 				return false;
+			}
 
 			rvDat.Filename = filename;
 			rvDat.Name = VarFix.CleanFileName(head[0].Attributes.GetNamedItem("name"));
@@ -51,7 +63,9 @@ namespace RomVaultX.DatReader
 		private static void LoadGameFromDat(RvDat rvDat, XmlNode gameNode)
 		{
 			if (gameNode.Attributes == null)
+			{
 				return;
+			}
 
 			RvGame rvGame = new RvGame
 			{
@@ -64,17 +78,26 @@ namespace RomVaultX.DatReader
 			};
 
 			XmlNodeList partNodeList = gameNode.SelectNodes("part");
-			if (partNodeList == null) return;
+			if (partNodeList == null)
+			{
+				return;
+			}
 
 			for (int iP = 0; iP < partNodeList.Count; iP++)
 			{
 				_indexContinue = -1;
 				XmlNodeList dataAreaNodeList = partNodeList[iP].SelectNodes("dataarea");
-				if (dataAreaNodeList == null) continue;
+				if (dataAreaNodeList == null)
+				{
+					continue;
+				}
 				for (int iD = 0; iD < dataAreaNodeList.Count; iD++)
 				{
 					XmlNodeList romNodeList = dataAreaNodeList[iD].SelectNodes("rom");
-					if (romNodeList == null) continue;
+					if (romNodeList == null)
+					{
+						continue;
+					}
 					for (int iR = 0; iR < romNodeList.Count; iR++)
 					{
 						LoadRomFromDat(rvGame, romNodeList[iR]);
@@ -82,37 +105,33 @@ namespace RomVaultX.DatReader
 				}
 			}
 
-			/*
-            for (int iP = 0; iP < partNodeList.Count; iP++)
-            {
-                XmlNodeList diskAreaNodeList = partNodeList[iP].SelectNodes("diskarea");
-                if (diskAreaNodeList != null)
-                    for (int iD = 0; iD < diskAreaNodeList.Count; iD++)
-                    {
-                        XmlNodeList romNodeList = diskAreaNodeList[iD].SelectNodes("disk");
-                        if (romNodeList != null)
-                            for (int iR = 0; iR < romNodeList.Count; iR++)
-                            {
-                                LoadDiskFromDat(rvGameCHD, romNodeList[iR]);
-                            }
-                    }
-            }
-            */
+			for (int iP = 0; iP < partNodeList.Count; iP++)
+			{
+				XmlNodeList diskAreaNodeList = partNodeList[iP].SelectNodes("diskarea");
+				if (diskAreaNodeList != null)
+					for (int iD = 0; iD < diskAreaNodeList.Count; iD++)
+					{
+						XmlNodeList romNodeList = diskAreaNodeList[iD].SelectNodes("disk");
+						if (romNodeList != null)
+							for (int iR = 0; iR < romNodeList.Count; iR++)
+							{
+								LoadDiskFromDat(rvGame, romNodeList[iR]);
+							}
+					}
+			}
 
 			if (rvGame.RomCount > 0)
+			{
 				rvDat.AddGame(rvGame);
-
-			/*
-            if (tDirCHD.ChildCount > 0)
-                rvDat.AddGame(rvGameCHD, index1);
-            */
-
+			}
 		}
 
 		private static void LoadRomFromDat(RvGame rvGame, XmlNode romNode)
 		{
 			if (romNode.Attributes == null)
+			{
 				return;
+			}
 
 			XmlNode name = romNode.Attributes.GetNamedItem("name");
 			string loadflag = VarFix.String(romNode.Attributes.GetNamedItem("loadflag"));
@@ -135,27 +154,20 @@ namespace RomVaultX.DatReader
 
 		}
 
-		/*
-        private static void LoadDiskFromDat(ref RvDir tGame, XmlNode romNode)
-        {
-            if (romNode.Attributes == null)
-                return;
+		private static void LoadDiskFromDat(RvGame rvGame, XmlNode romNode)
+		{
+			if (romNode.Attributes == null)
+				return;
 
-            XmlNode name = romNode.Attributes.GetNamedItem("name");
-            RvFile tRom = new RvFile(FileType.File)
-            {
-                Name = VarFix.CleanFullFileName(name) + ".chd",
-                SHA1CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40),
-                Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status")),
+			XmlNode name = romNode.Attributes.GetNamedItem("name");
+			RvRom tRom = new RvRom
+			{
+				Name = VarFix.CleanFullFileName(name) + ".chd",
+				SHA1 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40),
+				Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status")),
+			};
 
-                Dat = tGame.Dat
-            };
-
-            if (tRom.SHA1CHD != null) tRom.FileStatusSet(FileStatus.SHA1CHDFromDAT);
-
-            tGame.ChildAdd(tRom);
-        }
-        */
-
+			rvGame.AddRom(tRom);
+		}
 	}
 }
