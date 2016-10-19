@@ -178,7 +178,9 @@ namespace RomVaultX
 			for (int i = 0; i < d.Value.Length; i++)
 			{
 				if (buffer[i + d.Offset] != d.Value[i])
+				{
 					return false;
+				}
 			}
 			return true;
 		}

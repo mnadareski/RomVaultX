@@ -91,7 +91,9 @@ namespace RomVaultX
 			for (int j = 0; j < fi.Count(); j++)
 			{
 				if (_bgw.CancellationPending)
+				{
 					return;
+				}
 
 				FileInfo f = fi[j];
 				_bgw.ReportProgress(0, new bgwValue2(j));
@@ -138,7 +140,10 @@ namespace RomVaultX
 			foreach (DirectoryInfo d in childdi)
 			{
 				if (_bgw.CancellationPending)
+				{
 					return;
+				}
+
 				ScanRomRoot(d.FullName);
 			}
 		}
@@ -149,6 +154,7 @@ namespace RomVaultX
 			FoundFileInArchive,
 			FileNeededInArchive,
 		};
+
 		private static FindStatus fileneededTest(RvFile tFile)
 		{
 			// first check to see if we already have it in the file table

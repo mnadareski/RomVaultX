@@ -19,12 +19,8 @@ namespace RomVaultX
 				frmShowError fshow = new frmShowError();
 				fshow.settype(message);
 				fshow.ShowDialog();
-
 			}
-			catch
-			{
-			}
+			catch { }
 		}
-
 	}
 }

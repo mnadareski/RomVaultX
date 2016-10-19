@@ -90,7 +90,9 @@ namespace RomVaultX
 				ret = true;
 			}
 			else if (res == FindStatus.FoundFileInArchive)
+			{
 				ret = true;
+			}
 
 			if (foundFileType == FileType.ZIP)
 			{
@@ -152,6 +154,7 @@ namespace RomVaultX
 				else
 					ret = false;
 			}
+
 			if (foundFileType == FileType.GZ)
 			{
 				GZip gz = new GZip();
@@ -178,7 +181,9 @@ namespace RomVaultX
 						{
 							string file = @"tmp\" + Guid.NewGuid();
 							if (!Directory.Exists("tmp"))
+							{
 								Directory.CreateDirectory("tmp");
+							}
 							Stream fs;
 							IO.FileStream.OpenFileWrite(file, out fs);
 							ulong sizetogo = streamSize;
@@ -195,7 +200,9 @@ namespace RomVaultX
 							Stream fstreamNext;
 							int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
 							if (errorCode != 0)
+							{
 								return false;
+							}
 
 							ret |= ScanAFile(filename, fstreamNext);
 							fstreamNext.Close();
@@ -205,6 +212,11 @@ namespace RomVaultX
 					}
 					// gz.Close(); do not close the Stream gZip
 				}
+			}
+
+			if (foundFileType == FileType.SevenZip)
+			{
+				// Implement 7-zip reader
 			}
 			return ret;
 		}

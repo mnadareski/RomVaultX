@@ -194,11 +194,15 @@ namespace RomVaultX
 
 			int? dirId = DirFind(dirPart);
 			if (dirId == null)
+			{
 				return null;
+			}
 
 			VFile retFile = DirGetFile((int)dirId, filePart);
 			if (retFile != null)
+			{
 				retFile.FileName = filename;
+			}
 
 			return retFile;
 
@@ -206,7 +210,9 @@ namespace RomVaultX
 		private static int? DirFind(string dirPart)
 		{
 			if (string.IsNullOrEmpty(dirPart))
+			{
 				return 0;
+			}
 
 			string testName = dirPart.Substring(1) + @"\";
 			using (DbCommand getDirectoryId = Program.db.Command(@"select DirId From DIR where fullname=@FName"))
@@ -216,7 +222,9 @@ namespace RomVaultX
 
 				object ret = getDirectoryId.ExecuteScalar();
 				if (ret == null || ret == DBNull.Value)
+				{
 					return null;
+				}
 				return Convert.ToInt32(ret);
 			}
 		}
@@ -254,13 +262,13 @@ namespace RomVaultX
 
 			using (DbCommand getRoms = Program.db.Command(
 				@"SELECT
-                    FILES.sha1,
-                    FILES.compressedsize,
-                    LocalFileHeader,
-                    LocalFileHeaderOffset,
-                    LocalFileHeaderLength
-                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND putinzip
-                 ORDER BY Rom.RomId"))
+					FILES.sha1,
+					FILES.compressedsize,
+					LocalFileHeader,
+					LocalFileHeaderOffset,
+					LocalFileHeaderLength
+				FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND putinzip
+				ORDER BY Rom.RomId"))
 			{
 				DbParameter pGameId = Program.db.Parameter("GameId", FileId);
 				getRoms.Parameters.Add(pGameId);
@@ -285,18 +293,20 @@ namespace RomVaultX
 
 			// the central directory is now added on to the end of the file list, like is another file with zero bytes of compressed data.
 			using (DbCommand getCentralDir = Program.db.Command(
-			   @"select 
-                    CentralDirectory, 
-                    CentralDirectoryOffset, 
-                    CentralDirectoryLength 
-                 from game where GameId=@gameId"))
+				@"SELECT
+					CentralDirectory, 
+					CentralDirectoryOffset, 
+					CentralDirectoryLength 
+				FROM game WHERE GameId=@gameId"))
 			{
 				DbParameter pGameId = Program.db.Parameter("GameId", FileId);
 				getCentralDir.Parameters.Add(pGameId);
 				using (DbDataReader dr = getCentralDir.ExecuteReader())
 				{
 					if (!dr.Read())
+					{
 						return false;
+					}
 
 					VZipFile gf = new VZipFile
 					{
@@ -314,6 +324,5 @@ namespace RomVaultX
 
 			return true;
 		}
-
 	}
 }

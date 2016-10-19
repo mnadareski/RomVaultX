@@ -14,12 +14,10 @@ namespace RomVaultX
 	public class VDrive : IDokanOperations
 	{
 		private const FileAccess DataAccess = FileAccess.ReadData | FileAccess.WriteData | FileAccess.AppendData |
-										   FileAccess.Execute |
-										   FileAccess.GenericExecute | FileAccess.GenericWrite | FileAccess.GenericRead;
+				FileAccess.Execute | FileAccess.GenericExecute | FileAccess.GenericWrite | FileAccess.GenericRead;
 
 		private const FileAccess DataWriteAccess = FileAccess.WriteData | FileAccess.AppendData |
-												   FileAccess.Delete |
-												   FileAccess.GenericWrite;
+				FileAccess.Delete | FileAccess.GenericWrite;
 
 		private static long TotalBytes()
 		{
@@ -43,23 +41,19 @@ namespace RomVaultX
 				switch (mode)
 				{
 					case FileMode.Open:
-						{
-							vDir = VFile.DirInfo(fileName);
-							info.Context = vDir;
-							return vDir != null ? DokanResult.Success : DokanResult.PathNotFound;
-						}
+						vDir = VFile.DirInfo(fileName);
+						info.Context = vDir;
+						return vDir != null ? DokanResult.Success : DokanResult.PathNotFound;
 					case FileMode.CreateNew:
+						vDir = VFile.DirInfo(fileName);
+						if (vDir != null)
 						{
-							vDir = VFile.DirInfo(fileName);
-							if (vDir != null)
-								return DokanResult.FileExists;
-							vDir = VFile.CreateDir(fileName);
-							return vDir != null ? DokanResult.Success : DokanResult.PathNotFound;
+							return DokanResult.FileExists;
 						}
+						vDir = VFile.CreateDir(fileName);
+						return vDir != null ? DokanResult.Success : DokanResult.PathNotFound;
 					default:
-						{
-							throw new NotImplementedException("Missing Directory Mode " + mode);
-						}
+						throw new NotImplementedException("Missing Directory Mode " + mode);
 				}
 			}
 
@@ -70,15 +64,11 @@ namespace RomVaultX
 				switch (mode)
 				{
 					case FileMode.Open:
-						{
-							info.IsDirectory = true;
-							info.Context = vDir;
-							return DokanResult.Success;
-						}
+						info.IsDirectory = true;
+						info.Context = vDir;
+						return DokanResult.Success;
 					default:
-						{
-							throw new NotImplementedException("Missing Directory Mode " + mode);
-						}
+						throw new NotImplementedException("Missing Directory Mode " + mode);
 				}
 			}
 
@@ -88,30 +78,30 @@ namespace RomVaultX
 			switch (mode)
 			{
 				case FileMode.Open:
+					VFile vfile = VFile.GetFile(fileName);
+					if (vfile == null)
 					{
-						VFile vfile = VFile.GetFile(fileName);
-						if (vfile == null)
-							return DokanResult.FileNotFound;
+						return DokanResult.FileNotFound;
+					}
 
-						if (readWriteAttributes)
-						{
-							info.Context = vfile;
-							return DokanResult.Success;
-						}
-						if (readAccess)
-						{
-							if (!vfile.LoadVFile())
-								return DokanResult.Error;
-							info.Context = vfile;
-							return DokanResult.Success;
-						}
-						// looks like we are trying to write to the file.
-						return DokanResult.AccessDenied;
-					}
-				default:
+					if (readWriteAttributes)
 					{
-						throw new NotImplementedException("Missing Directory Mode " + mode);
+						info.Context = vfile;
+						return DokanResult.Success;
 					}
+					if (readAccess)
+					{
+						if (!vfile.LoadVFile())
+						{
+							return DokanResult.Error;
+						}
+						info.Context = vfile;
+						return DokanResult.Success;
+					}
+					// looks like we are trying to write to the file.
+					return DokanResult.AccessDenied;
+				default:
+					throw new NotImplementedException("Missing Directory Mode " + mode);
 			}
 		}
 
@@ -130,10 +120,14 @@ namespace RomVaultX
 
 			VFile vfile = (VFile)info.Context;
 			if (vfile?.Files == null)
+			{
 				return;
+			}
 
 			foreach (VFile.VZipFile gf in vfile.Files)
+			{
 				gf.GZip?.Close();
+			}
 		}
 
 		private void copyData(byte[] source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
@@ -150,7 +144,9 @@ namespace RomVaultX
 
 				// check if source is all before destination
 				if (sourceLength <= 0)
+				{
 					return;
+				}
 			}
 			else
 			{
@@ -160,12 +156,16 @@ namespace RomVaultX
 
 				// check if desination is all before source
 				if (destinationLength <= 0)
+				{
 					return;
+				}
 			}
 
 			long actualLength = Math.Min(sourceLength, destinationLength);
 			for (int i = 0; i < actualLength; i++)
+			{
 				destination[destinationStart + i] = source[sourceStart + i];
+			}
 		}
 
 		private void copyStream(VFile.VZipFile source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
@@ -182,7 +182,9 @@ namespace RomVaultX
 
 				// check if source is all before destination
 				if (sourceLength <= 0)
+				{
 					return;
+				}
 			}
 			else
 			{
@@ -192,7 +194,9 @@ namespace RomVaultX
 
 				// check if desination is all before source
 				if (destinationLength <= 0)
+				{
 					return;
+				}
 			}
 
 			if (source.GZip == null)
@@ -228,20 +232,20 @@ namespace RomVaultX
 				}
 
 				path = romRoot + @"\" + VarFix.ToString(SHA1[0]) + @"\" +
-						 VarFix.ToString(SHA1[1]) + @"\" +
-						 VarFix.ToString(SHA1[2]) + @"\" +
-						 VarFix.ToString(SHA1[3]) + @"\" +
-						 VarFix.ToString(SHA1) + ".gz";
+						VarFix.ToString(SHA1[1]) + @"\" +
+						VarFix.ToString(SHA1[2]) + @"\" +
+						VarFix.ToString(SHA1[3]) + @"\" +
+						VarFix.ToString(SHA1) + ".gz";
 				exists = File.Exists(path);
 			}
 
 			if (!exists)
 			{
 				path = @"RomRoot\" + VarFix.ToString(SHA1[0]) + @"\" +
-						 VarFix.ToString(SHA1[1]) + @"\" +
-						 VarFix.ToString(SHA1[2]) + @"\" +
-						 VarFix.ToString(SHA1[3]) + @"\" +
-						 VarFix.ToString(SHA1) + ".gz";
+						VarFix.ToString(SHA1[1]) + @"\" +
+						VarFix.ToString(SHA1[2]) + @"\" +
+						VarFix.ToString(SHA1[3]) + @"\" +
+						VarFix.ToString(SHA1) + ".gz";
 			}
 
 			return path;
@@ -252,7 +256,9 @@ namespace RomVaultX
 			bytesRead = 0;
 			VFile vfile = (VFile)info.Context;
 			if (vfile == null)
+			{
 				return NtStatus.NoSuchFile;
+			}
 
 			// trying to fill all of the buffer
 			bytesRead = buffer.Length;
@@ -265,7 +271,9 @@ namespace RomVaultX
 			}
 			// if reading to the EOF then set the number of bytes left to read
 			if (offset + bytesRead > vfile.Length)
+			{
 				bytesRead = (int)(vfile.Length - offset);
+			}
 
 			foreach (VFile.VZipFile gf in vfile.Files)
 			{
@@ -302,7 +310,6 @@ namespace RomVaultX
 			fileInfo = (FileInformation)vfile;
 
 			return NtStatus.Success;
-
 		}
 
 		public NtStatus FindFiles(string fileName, out IList<FileInformation> files, DokanFileInfo info)
@@ -312,7 +319,6 @@ namespace RomVaultX
 			Debug.WriteLine("Filename : " + fileName);
 
 			return FindFilesWithPattern(fileName, "*", out files, info);
-
 		}
 
 		public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info)
@@ -329,14 +335,19 @@ namespace RomVaultX
 
 			VFile vfile = (VFile)info.Context;
 			if (vfile == null)
+			{
 				return NtStatus.NoSuchFile;
+			}
 
 			GetEmptyDirectoryDefaultFiles(fileName, ref files);
 
 			List<VFile> dirs = VFile.DirGetSubDirs(vfile.FileId);
 			foreach (VFile dir in dirs)
 			{
-				if (searchPattern != "*" && searchPattern != dir.FileName) continue;
+				if (searchPattern != "*" && searchPattern != dir.FileName)
+				{
+					continue;
+				}
 				FileInformation fi = (FileInformation)dir;
 				files.Add(fi);
 			}
@@ -344,7 +355,10 @@ namespace RomVaultX
 			List<VFile> dFiles = VFile.DirGetFiles(vfile.FileId);
 			foreach (VFile file in dFiles)
 			{
-				if (searchPattern != "*" && searchPattern != file.FileName + ".zip") continue;
+				if (searchPattern != "*" && searchPattern != file.FileName + ".zip")
+				{
+					continue;
+				}
 				FileInformation fi = (FileInformation)file;
 				files.Add(fi);
 			}
@@ -355,7 +369,9 @@ namespace RomVaultX
 		private void GetEmptyDirectoryDefaultFiles(string fileName, ref IList<FileInformation> files)
 		{
 			if (fileName == "\\")
+			{
 				return;
+			}
 			files.Add(new FileInformation() { FileName = ".", Attributes = FileAttributes.Directory, CreationTime = DateTime.Today, LastWriteTime = DateTime.Today, LastAccessTime = DateTime.Today });
 			files.Add(new FileInformation() { FileName = "..", Attributes = FileAttributes.Directory, CreationTime = DateTime.Today, LastWriteTime = DateTime.Today, LastAccessTime = DateTime.Today });
 		}
@@ -418,8 +434,8 @@ namespace RomVaultX
 			volumeLabel = "RomVaultX";
 			fileSystemName = "RomVaultX";
 			features = FileSystemFeatures.CasePreservedNames | FileSystemFeatures.CaseSensitiveSearch |
-					   FileSystemFeatures.PersistentAcls | FileSystemFeatures.SupportsRemoteStorage |
-					   FileSystemFeatures.UnicodeOnDisk;
+						FileSystemFeatures.PersistentAcls | FileSystemFeatures.SupportsRemoteStorage |
+						FileSystemFeatures.UnicodeOnDisk;
 			return DokanResult.Success;
 		}
 
@@ -456,8 +472,6 @@ namespace RomVaultX
 
 			streams = new FileInformation[0];
 			return NtStatus.Success;
-
 		}
 	}
-
 }

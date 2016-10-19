@@ -24,14 +24,21 @@ namespace RomVaultX
 		{
 			// first check to see if we already have it in the file table
 			bool inFileDB = FindInFiles(tFile); // returns true if found in File table
-			if (inFileDB) return FindStatus.FoundFileInArchive;
+			if (inFileDB)
+			{
+				return FindStatus.FoundFileInArchive;
+			}
 
 			// now check if needed in any ROMs
 			if (FindInROMs(tFile))
+			{
 				return FindStatus.FileNeededInArchive;
+			}
 
 			if (FileHeaderReader.AltHeaderFile(tFile.AltType) && FindInROMsAlt(tFile))
+			{
 				return FindStatus.FileNeededInArchive;
+			}
 
 			return FindStatus.FileUnknown;
 		}
@@ -41,8 +48,8 @@ namespace RomVaultX
 			if (_commandFindInFiles == null)
 			{
 				_commandFindInFiles = new SQLiteCommand(@"
-                    SELECT COUNT(1) FROM FILES WHERE
-                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5", Program.db.Connection);
+					SELECT COUNT(1) FROM FILES WHERE
+						size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5", Program.db.Connection);
 				_commandFindInFiles.Parameters.Add(new SQLiteParameter("size"));
 				_commandFindInFiles.Parameters.Add(new SQLiteParameter("crc"));
 				_commandFindInFiles.Parameters.Add(new SQLiteParameter("sha1"));
@@ -56,7 +63,9 @@ namespace RomVaultX
 
 			object res = _commandFindInFiles.ExecuteScalar();
 			if (res == null || res == DBNull.Value)
+			{
 				return false;
+			}
 			int count = Convert.ToInt32(res);
 
 			return count > 0;
@@ -66,39 +75,39 @@ namespace RomVaultX
 			if (_commandFindInRoMsZero == null || _commandFindInRoMs == null)
 			{
 				_commandFindInRoMsZero = new SQLiteCommand(@"
-                    SELECT count(1) AS TotalFound FROM ROM WHERE
-                        ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                        ( md5=@MD5 OR md5 is NULL) AND
-                        ( crc=@CRC OR crc is NULL ) AND
-                        ( size=0 ) ", Program.db.Connection);
+					SELECT count(1) AS TotalFound FROM ROM WHERE
+						( sha1=@SHA1 OR sha1 is NULL ) AND 
+						( md5=@MD5 OR md5 is NULL) AND
+						( crc=@CRC OR crc is NULL ) AND
+						( size=0 ) ", Program.db.Connection);
 				_commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("crc"));
 				_commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("sha1"));
 				_commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("md5"));
 
 				_commandFindInRoMs = new SQLiteCommand(@"
-                        SELECT
-                        (
-                            SELECT count(1) FROM ROM WHERE
-                                ( sha1=@SHA1 ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
-                                ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL )
-                        ) +
-                        (
-                            SELECT count(1) FROM ROM WHERE
-                                ( md5=@MD5 ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL )
-                        ) +
-                        (
-                            SELECT count(1) FROM ROM WHERE
-                                ( crc=@CRC ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
-                                ( size=@size OR size is NULL )
-                        ) 
-                        AS TotalFound", Program.db.Connection);
+					SELECT
+						(
+							SELECT count(1) FROM ROM WHERE
+								( sha1=@SHA1 ) AND 
+								( md5=@MD5 OR md5 is NULL) AND
+								( crc=@CRC OR crc is NULL ) AND
+								( size=@size OR size is NULL )
+						) +
+						(
+							SELECT count(1) FROM ROM WHERE
+								( md5=@MD5 ) AND
+								( sha1=@SHA1 OR sha1 is NULL ) AND 
+								( crc=@CRC OR crc is NULL ) AND
+								( size=@size OR size is NULL )
+						) +
+						(
+							SELECT count(1) FROM ROM WHERE
+								( crc=@CRC ) AND
+								( sha1=@SHA1 OR sha1 is NULL ) AND 
+								( md5=@MD5 OR md5 is NULL) AND
+								( size=@size OR size is NULL )
+						) 
+						AS TotalFound", Program.db.Connection);
 				_commandFindInRoMs.Parameters.Add(new SQLiteParameter("size"));
 				_commandFindInRoMs.Parameters.Add(new SQLiteParameter("crc"));
 				_commandFindInRoMs.Parameters.Add(new SQLiteParameter("sha1"));
@@ -114,7 +123,9 @@ namespace RomVaultX
 				object resZero = _commandFindInRoMsZero.ExecuteScalar();
 
 				if (resZero == null || resZero == DBNull.Value)
+				{
 					return false;
+				}
 				int countZero = Convert.ToInt32(resZero);
 
 				return countZero > 0;
@@ -129,42 +140,45 @@ namespace RomVaultX
 			object res = _commandFindInRoMs.ExecuteScalar();
 
 			if (res == null || res == DBNull.Value)
+			{
 				return false;
+			}
 			int count = Convert.ToInt32(res);
 
 			return count > 0;
 		}
+
 		private static bool FindInROMsAlt(RvFile tFile)
 		{
 			if (_commandFindInRoMsAlt == null)
 			{
 				_commandFindInRoMsAlt = new SQLiteCommand(@"
-                        SELECT
-                        (
-                            SELECT count(1) FROM ROM WHERE
-                                ( type=@type ) AND
-                                ( sha1=@SHA1 ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
-                                ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL )
-                        ) +
-                        (
-                            SELECT count(1) FROM ROM WHERE
-                                ( type=@type ) AND
-                                ( md5=@MD5 ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( crc=@CRC OR crc is NULL ) AND
-                                ( size=@size OR size is NULL )
-                        ) +
-                        (
-                            SELECT count(1) FROM ROM WHERE
-                                ( type=@type ) AND
-                                ( crc=@CRC ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
-                                ( size=@size OR size is NULL )
-                        ) 
-                        AS TotalFound", Program.db.Connection);
+						SELECT
+						(
+							SELECT count(1) FROM ROM WHERE
+								( type=@type ) AND
+								( sha1=@SHA1 ) AND 
+								( md5=@MD5 OR md5 is NULL) AND
+								( crc=@CRC OR crc is NULL ) AND
+								( size=@size OR size is NULL )
+						) +
+						(
+							SELECT count(1) FROM ROM WHERE
+								( type=@type ) AND
+								( md5=@MD5 ) AND
+								( sha1=@SHA1 OR sha1 is NULL ) AND 
+								( crc=@CRC OR crc is NULL ) AND
+								( size=@size OR size is NULL )
+						) +
+						(
+							SELECT count(1) FROM ROM WHERE
+								( type=@type ) AND
+								( crc=@CRC ) AND
+								( sha1=@SHA1 OR sha1 is NULL ) AND 
+								( md5=@MD5 OR md5 is NULL) AND
+								( size=@size OR size is NULL )
+						) 
+						AS TotalFound", Program.db.Connection);
 				_commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("type"));
 				_commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("size"));
 				_commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("crc"));
@@ -181,14 +195,18 @@ namespace RomVaultX
 			object res = _commandFindInRoMsAlt.ExecuteScalar();
 
 			if (res == null || res == DBNull.Value)
+			{
 				return false;
+			}
 			int count = Convert.ToInt32(res);
 
 			return count > 0;
 		}
+
 		#endregion
 
 		#region MatchFileToRoms
+
 		private static SQLiteCommand _commandRvFileUpdateRom;
 		private static SQLiteCommand _commandRvFileUpdateRomAlt;
 		private static SQLiteCommand _commandRvFileUpdateZeroRom;
@@ -200,10 +218,14 @@ namespace RomVaultX
 				FileUpdateRom(file);
 
 				if (FileHeaderReader.AltHeaderFile(file.AltType))
+				{
 					FileUpdateRomAlt(file);
+				}
 			}
 			else
+			{
 				FileUpdateZeroRom(file);
+			}
 		}
 
 		private static void FileUpdateRom(RvFile file)
@@ -212,42 +234,42 @@ namespace RomVaultX
 			{
 				_commandRvFileUpdateRom = new SQLiteCommand(
 					@"
-                    UPDATE ROM SET 
-	                    FileId = @FileId,
-                        LocalFileHeader = null,
-                        LocalFileHeaderOffset = null,
-                        LocalFileHeaderLength=null
-                    WHERE
-	                    (                 sha1 = @sha1 ) AND
-	                    ( md5  is NULL OR md5  = @md5  ) AND 
-	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
-                        FileId IS NULL;
+					UPDATE ROM SET 
+						FileId = @FileId,
+						LocalFileHeader = null,
+						LocalFileHeaderOffset = null,
+						LocalFileHeaderLength=null
+					WHERE
+						(                 sha1 = @sha1 ) AND
+						( md5  is NULL OR md5  = @md5  ) AND 
+						( crc  is NULL OR crc  = @crc  ) AND
+						( size is NULL OR size = @Size ) AND
+						FileId IS NULL;
 		
-                    UPDATE ROM SET 
-	                    FileId = @FileId,
-                        LocalFileHeader = null,
-                        LocalFileHeaderOffset = null,
-                        LocalFileHeaderLength=null
-                    WHERE
-	                    (                 md5  = @md5  ) AND 
-	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
-	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
-                        FileId IS NULL;
+					UPDATE ROM SET 
+						FileId = @FileId,
+						LocalFileHeader = null,
+						LocalFileHeaderOffset = null,
+						LocalFileHeaderLength=null
+					WHERE
+						(                 md5  = @md5  ) AND 
+						( sha1 is NULL OR sha1 = @sha1 ) AND
+						( crc  is NULL OR crc  = @crc  ) AND
+						( size is NULL OR size = @Size ) AND
+						FileId IS NULL;
 		
-                    UPDATE ROM SET 
-	                    FileId = @FileId,
-                        LocalFileHeader = null,
-                        LocalFileHeaderOffset = null,
-                        LocalFileHeaderLength=null
-                    WHERE
-	                    (                 crc  = @crc  ) AND
-	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
-	                    ( md5  is NULL OR md5  = @md5  ) AND 
-	                    ( size is NULL OR size = @Size ) AND
-                        FileId IS NULL;
-                ", Program.db.Connection);
+					UPDATE ROM SET 
+						FileId = @FileId,
+						LocalFileHeader = null,
+						LocalFileHeaderOffset = null,
+						LocalFileHeaderLength=null
+					WHERE
+						(                 crc  = @crc  ) AND
+						( sha1 is NULL OR sha1 = @sha1 ) AND
+						( md5  is NULL OR md5  = @md5  ) AND 
+						( size is NULL OR size = @Size ) AND
+						FileId IS NULL;
+				", Program.db.Connection);
 				_commandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("FileId"));
 				_commandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("size"));
 				_commandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("crc"));
@@ -262,51 +284,52 @@ namespace RomVaultX
 			_commandRvFileUpdateRom.Parameters["md5"].Value = VarFix.ToDBString(file.MD5);
 			_commandRvFileUpdateRom.ExecuteNonQuery();
 		}
+
 		private static void FileUpdateRomAlt(RvFile file)
 		{
 			if (_commandRvFileUpdateRomAlt == null)
 			{
 				_commandRvFileUpdateRomAlt = new SQLiteCommand(
 					@"
-                    UPDATE ROM SET 
-	                    FileId = @FileId,
-                        LocalFileHeader = null,
-                        LocalFileHeaderOffset = null,
-                        LocalFileHeaderLength=null
-                    WHERE
-                        (                 type = @type ) AND
-	                    (                 sha1 = @sha1 ) AND
-	                    ( md5  is NULL OR md5  = @md5  ) AND 
-	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
-                        FileId IS NULL;
+					UPDATE ROM SET 
+						FileId = @FileId,
+						LocalFileHeader = null,
+						LocalFileHeaderOffset = null,
+						LocalFileHeaderLength=null
+					WHERE
+						(                 type = @type ) AND
+						(                 sha1 = @sha1 ) AND
+						( md5  is NULL OR md5  = @md5  ) AND 
+						( crc  is NULL OR crc  = @crc  ) AND
+						( size is NULL OR size = @Size ) AND
+						FileId IS NULL;
 		
-                    UPDATE ROM SET 
-	                    FileId = @FileId,
-                        LocalFileHeader = null,
-                        LocalFileHeaderOffset = null,
-                        LocalFileHeaderLength=null
-                    WHERE
-                        (                 type = @type ) AND
-	                    (                 md5  = @md5  ) AND 
-	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
-	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
-                        FileId IS NULL;
+					UPDATE ROM SET 
+						FileId = @FileId,
+						LocalFileHeader = null,
+						LocalFileHeaderOffset = null,
+						LocalFileHeaderLength=null
+					WHERE
+						(                 type = @type ) AND
+						(                 md5  = @md5  ) AND 
+						( sha1 is NULL OR sha1 = @sha1 ) AND
+						( crc  is NULL OR crc  = @crc  ) AND
+						( size is NULL OR size = @Size ) AND
+						FileId IS NULL;
 		
-                    UPDATE ROM SET 
-	                    FileId = @FileId,
-                        LocalFileHeader = null,
-                        LocalFileHeaderOffset = null,
-                        LocalFileHeaderLength=null
-                    WHERE
-                        (                 type = @type ) AND
-	                    (                 crc  = @crc  ) AND
-	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
-	                    ( md5  is NULL OR md5  = @md5  ) AND 
-	                    ( size is NULL OR size = @Size ) AND
-                        FileId IS NULL;
-                ", Program.db.Connection);
+					UPDATE ROM SET 
+						FileId = @FileId,
+						LocalFileHeader = null,
+						LocalFileHeaderOffset = null,
+						LocalFileHeaderLength=null
+					WHERE
+						(                 type = @type ) AND
+						(                 crc  = @crc  ) AND
+						( sha1 is NULL OR sha1 = @sha1 ) AND
+						( md5  is NULL OR md5  = @md5  ) AND 
+						( size is NULL OR size = @Size ) AND
+						FileId IS NULL;
+				", Program.db.Connection);
 				_commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("FileId"));
 				_commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("type"));
 				_commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("size"));
@@ -323,24 +346,25 @@ namespace RomVaultX
 			_commandRvFileUpdateRomAlt.Parameters["md5"].Value = VarFix.ToDBString(file.AltMD5);
 			_commandRvFileUpdateRomAlt.ExecuteNonQuery();
 		}
+
 		private static void FileUpdateZeroRom(RvFile file)
 		{
 			if (_commandRvFileUpdateZeroRom == null)
 			{
 				_commandRvFileUpdateZeroRom = new SQLiteCommand(
 					@"
-                    UPDATE ROM SET 
-	                    FileId = @FileId,
-                        LocalFileHeader = null,
-                        LocalFileHeaderOffset = null,
-                        LocalFileHeaderLength=null
-                    WHERE
-	                    ( Size=0 ) AND
-	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
-	                    ( md5  is NULL OR md5  = @md5  ) AND 
-                        FileId IS NULL;
-                ", Program.db.Connection);
+					UPDATE ROM SET 
+						FileId = @FileId,
+						LocalFileHeader = null,
+						LocalFileHeaderOffset = null,
+						LocalFileHeaderLength=null
+					WHERE
+						( Size=0 ) AND
+						( crc  is NULL OR crc  = @crc  ) AND
+						( sha1 is NULL OR sha1 = @sha1 ) AND
+						( md5  is NULL OR md5  = @md5  ) AND 
+						FileId IS NULL;
+				", Program.db.Connection);
 				_commandRvFileUpdateZeroRom.Parameters.Add(new SQLiteParameter("FileId"));
 				_commandRvFileUpdateZeroRom.Parameters.Add(new SQLiteParameter("crc"));
 				_commandRvFileUpdateZeroRom.Parameters.Add(new SQLiteParameter("sha1"));
@@ -353,6 +377,7 @@ namespace RomVaultX
 			_commandRvFileUpdateZeroRom.Parameters["md5"].Value = VarFix.ToDBString(file.MD5);
 			_commandRvFileUpdateZeroRom.ExecuteNonQuery();
 		}
+
 		#endregion
 
 		#region MatchRomToaFile
@@ -370,14 +395,14 @@ namespace RomVaultX
 			if (_commandSHA1 == null)
 			{
 				_commandSHA1 = new SQLiteCommand(@"
-                       select FileId from FILES
-                            WHERE
-	                                    (                  @sha1 = sha1 ) AND
-	                                    ( @md5  is NULL OR @md5  = md5  ) AND
-	                                    ( @crc  is NULL OR @crc  = crc  ) AND
-	                                    ( @size is NULL OR @size = Size )
-                            limit 1
-                ", Program.db.Connection);
+						SELECT FileId from FILES
+							WHERE
+										(                  @sha1 = sha1 ) AND
+										( @md5  is NULL OR @md5  = md5  ) AND
+										( @crc  is NULL OR @crc  = crc  ) AND
+										( @size is NULL OR @size = Size )
+							limit 1
+				", Program.db.Connection);
 
 				_commandSHA1.Parameters.Add(new SQLiteParameter("sha1"));
 				_commandSHA1.Parameters.Add(new SQLiteParameter("md5"));
@@ -385,15 +410,15 @@ namespace RomVaultX
 				_commandSHA1.Parameters.Add(new SQLiteParameter("size"));
 
 				_commandSHA1Alt = new SQLiteCommand(@"
-                       select FileId from FILES
-                            WHERE
-                                        (               @alttype = alttype ) AND
-	                                    (                  @sha1 = altsha1 ) AND
-	                                    ( @md5  is NULL OR @md5  = altmd5  ) AND
-	                                    ( @crc  is NULL OR @crc  = altcrc  ) AND
-	                                    ( @size is NULL OR @size = altSize )
-                            limit 1
-                ", Program.db.Connection);
+						SELECT FileId from FILES
+							WHERE
+										(               @alttype = alttype ) AND
+										(                  @sha1 = altsha1 ) AND
+										( @md5  is NULL OR @md5  = altmd5  ) AND
+										( @crc  is NULL OR @crc  = altcrc  ) AND
+										( @size is NULL OR @size = altSize )
+							limit 1
+				", Program.db.Connection);
 
 				_commandSHA1Alt.Parameters.Add(new SQLiteParameter("alttype"));
 				_commandSHA1Alt.Parameters.Add(new SQLiteParameter("sha1"));
@@ -402,27 +427,27 @@ namespace RomVaultX
 				_commandSHA1Alt.Parameters.Add(new SQLiteParameter("size"));
 
 				_commandMD5 = new SQLiteCommand(@"
-                       select FileId from FILES
-                            WHERE
-	                                    (                  @md5  = md5  ) AND
-	                                    ( @crc  is NULL OR @crc  = crc  ) AND
-	                                    ( @size is NULL OR @size = Size )
-                            limit 1
-                ", Program.db.Connection);
+						SELECT FileId from FILES
+							WHERE
+										(                  @md5  = md5  ) AND
+										( @crc  is NULL OR @crc  = crc  ) AND
+										( @size is NULL OR @size = Size )
+							limit 1
+				", Program.db.Connection);
 
 				_commandMD5.Parameters.Add(new SQLiteParameter("md5"));
 				_commandMD5.Parameters.Add(new SQLiteParameter("crc"));
 				_commandMD5.Parameters.Add(new SQLiteParameter("size"));
 
 				_commandMD5Alt = new SQLiteCommand(@"
-                       select FileId from FILES
-                            WHERE
-                                        (               @alttype = alttype ) AND
-	                                    (                  @md5  = altmd5  ) AND
-	                                    ( @crc  is NULL OR @crc  = altcrc  ) AND
-	                                    ( @size is NULL OR @size = altSize )
-                            limit 1
-                ", Program.db.Connection);
+						SELECT FileId from FILES
+							WHERE
+										(               @alttype = alttype ) AND
+										(                  @md5  = altmd5  ) AND
+										( @crc  is NULL OR @crc  = altcrc  ) AND
+										( @size is NULL OR @size = altSize )
+							limit 1
+				", Program.db.Connection);
 
 				_commandMD5Alt.Parameters.Add(new SQLiteParameter("alttype"));
 				_commandMD5Alt.Parameters.Add(new SQLiteParameter("md5"));
@@ -430,34 +455,34 @@ namespace RomVaultX
 				_commandMD5Alt.Parameters.Add(new SQLiteParameter("size"));
 
 				_commandCRC = new SQLiteCommand(@"
-                       select FileId from FILES
-                            WHERE
-	                                    (                  @crc  = crc  ) AND
-	                                    ( @size is NULL OR @size = Size )
-                            limit 1
-                ", Program.db.Connection);
+						SELECT FileId from FILES
+							WHERE
+										(                  @crc  = crc  ) AND
+										( @size is NULL OR @size = Size )
+							limit 1
+				", Program.db.Connection);
 
 				_commandCRC.Parameters.Add(new SQLiteParameter("crc"));
 				_commandCRC.Parameters.Add(new SQLiteParameter("size"));
 
 				_commandCRCAlt = new SQLiteCommand(@"
-                       select FileId from FILES
-                            WHERE
-                                        (               @alttype = alttype ) AND
-	                                    (                  @crc  = altcrc  ) AND
-	                                    ( @size is NULL OR @size = altSize )
-                            limit 1
-                ", Program.db.Connection);
+						SELECT FileId from FILES
+							WHERE
+										(               @alttype = alttype ) AND
+										(                  @crc  = altcrc  ) AND
+										( @size is NULL OR @size = altSize )
+							limit 1
+				", Program.db.Connection);
 
 				_commandCRCAlt.Parameters.Add(new SQLiteParameter("crc"));
 				_commandCRCAlt.Parameters.Add(new SQLiteParameter("size"));
 
 				_commandSize = new SQLiteCommand(@"
-                       select FileId from FILES
-                            WHERE
-	                                    ( @size = Size )
-                            limit 1
-                ", Program.db.Connection);
+						SELECT FileId from FILES
+							WHERE
+										( @size = Size )
+							limit 1
+				", Program.db.Connection);
 
 				_commandSize.Parameters.Add(new SQLiteParameter("size"));
 
@@ -473,7 +498,9 @@ namespace RomVaultX
 				object res = _commandSHA1.ExecuteScalar();
 
 				if (res == null || res == DBNull.Value)
+				{
 					return null;
+				}
 				return (uint?)Convert.ToInt32(res);
 			}
 			if (tFile.SHA1 != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
@@ -487,7 +514,9 @@ namespace RomVaultX
 				object res = _commandSHA1Alt.ExecuteScalar();
 
 				if (res == null || res == DBNull.Value)
+				{
 					return null;
+				}
 				return (uint?)Convert.ToInt32(res);
 			}
 			if (tFile.MD5 != null)
@@ -499,7 +528,9 @@ namespace RomVaultX
 				object res = _commandMD5.ExecuteScalar();
 
 				if (res == null || res == DBNull.Value)
+				{
 					return null;
+				}
 				return (uint?)Convert.ToInt32(res);
 			}
 			if (tFile.MD5 != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
@@ -512,7 +543,9 @@ namespace RomVaultX
 				object res = _commandMD5Alt.ExecuteScalar();
 
 				if (res == null || res == DBNull.Value)
+				{
 					return null;
+				}
 				return (uint?)Convert.ToInt32(res);
 			}
 
@@ -524,7 +557,9 @@ namespace RomVaultX
 				object res = _commandCRC.ExecuteScalar();
 
 				if (res == null || res == DBNull.Value)
+				{
 					return null;
+				}
 				return (uint?)Convert.ToInt32(res);
 			}
 			if (tFile.CRC != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
@@ -536,7 +571,9 @@ namespace RomVaultX
 				object res = _commandCRCAlt.ExecuteScalar();
 
 				if (res == null || res == DBNull.Value)
+				{
 					return null;
+				}
 				return (uint?)Convert.ToInt32(res);
 			}
 
@@ -546,12 +583,15 @@ namespace RomVaultX
 
 				object res = _commandSize.ExecuteScalar();
 				if (res == null || res == DBNull.Value)
+				{
 					return null;
+				}
 				return (uint?)Convert.ToInt32(res);
 			}
 
 			return null;
 		}
+
 		#endregion
 	}
 }

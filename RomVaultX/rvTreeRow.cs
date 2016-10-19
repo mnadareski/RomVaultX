@@ -38,22 +38,22 @@ namespace RomVaultX
 			if (CommandReadTree == null)
 			{
 				CommandReadTree = new SQLiteCommand(@"
-                    SELECT 
-                        dir.DirId as DirId,
-                        dir.name as dirname,
-                        dir.fullname,
-                        dir.expanded,
-                        dir.RomTotal as dirRomTotal,
-                        dir.RomGot as dirRomGot,
-                        dir.RomNoDump as dirNoDump,
-                        dat.DatId,
-                        dat.name as datname,
-                        dat.description,
-                        dat.RomTotal,
-                        dat.RomGot,
-                        dat.RomNoDump
-                    FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
-                    ORDER BY dir.Fullname,dat.Filename", Program.db.Connection);
+					SELECT 
+						dir.DirId as DirId,
+						dir.name as dirname,
+						dir.fullname,
+						dir.expanded,
+						dir.RomTotal as dirRomTotal,
+						dir.RomGot as dirRomGot,
+						dir.RomNoDump as dirNoDump,
+						dat.DatId,
+						dat.name as datname,
+						dat.description,
+						dat.RomTotal,
+						dat.RomGot,
+						dat.RomNoDump
+					FROM dir LEFT JOIN dat ON dir.DirId=dat.DirId
+					ORDER BY dir.Fullname,dat.Filename", Program.db.Connection);
 			}
 
 			List<RvTreeRow> rows = new List<RvTreeRow>();
@@ -87,7 +87,9 @@ namespace RomVaultX
 						if (pTree.dirFullName.Length >= skipUntil.Length)
 						{
 							if (pTree.dirFullName.Substring(0, skipUntil.Length) == skipUntil)
+							{
 								continue;
+							}
 						}
 					}
 					if (!pTree.Expanded)
@@ -125,7 +127,9 @@ namespace RomVaultX
 							lastTree.MultiDatDir = true;
 						}
 						if (thisMultiDatDirFound)
+						{
 							pTree.MultiDatDir = true;
+						}
 
 						multiDatDirFound = thisMultiDatDirFound;
 					}
@@ -141,7 +145,9 @@ namespace RomVaultX
 		{
 			int? value = GetFirstExpanded(DirId);
 			if (value == null)
+			{
 				return;
+			}
 			value = 1 - value;
 
 			List<uint> todo = new List<uint>();
@@ -161,14 +167,16 @@ namespace RomVaultX
 			if (_commandGetFirstExpanded == null)
 			{
 				_commandGetFirstExpanded = new SQLiteCommand(@"
-                SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1", Program.db.Connection);
+					SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1", Program.db.Connection);
 				_commandGetFirstExpanded.Parameters.Add(new SQLiteParameter("DirId"));
 			}
 
 			_commandGetFirstExpanded.Parameters["DirId"].Value = DirId;
 			object res = _commandGetFirstExpanded.ExecuteScalar();
 			if (res == null || res == DBNull.Value)
+			{
 				return null;
+			}
 			return Convert.ToInt32(res);
 		}
 
@@ -199,7 +207,5 @@ namespace RomVaultX
 			}
 			return retList;
 		}
-
 	}
-
 }
