@@ -152,7 +152,8 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				return ZipReturn.ZipSignatureError;
 			}
 
-			_baseOffset = _zipFs.Position; Util.log("BaseOffset : " + _baseOffset);
+			_baseOffset = _zipFs.Position;
+			Util.log("BaseOffset : " + _baseOffset);
 
 			Util.log("Loading Stream : " + (_baseOffset + (long)signatureHeader.NextHeaderOffset) + " , Size : " + signatureHeader.NextHeaderSize);
 

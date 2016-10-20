@@ -52,7 +52,8 @@ namespace RomVaultX.DatReader
 			}
 
 			// Everything else if a rom/game
-			string lastgame = ""; bool foundgame = false;
+			string lastgame = "";
+			bool foundgame = false;
 			RvGame rvGame = new RvGame();
 			while (!DatFileLoader.EndOfStream())
 			{

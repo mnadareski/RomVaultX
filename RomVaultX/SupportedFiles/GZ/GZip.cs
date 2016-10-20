@@ -103,19 +103,26 @@ namespace RomVaultX.SupportedFiles.GZ
 
 				if (XLen == 28)
 				{
-					md5Hash = new byte[16]; Array.Copy(bytes, 0, md5Hash, 0, 16);
-					crc = new byte[4]; Array.Copy(bytes, 16, crc, 0, 4);
+					md5Hash = new byte[16];
+					Array.Copy(bytes, 0, md5Hash, 0, 16);
+					crc = new byte[4];
+					Array.Copy(bytes, 16, crc, 0, 4);
 					uncompressedSize = BitConverter.ToUInt64(bytes, 20);
 				}
 				if (XLen == 77)
 				{
-					md5Hash = new byte[16]; Array.Copy(bytes, 0, md5Hash, 0, 16);
-					crc = new byte[4]; Array.Copy(bytes, 16, crc, 0, 4);
+					md5Hash = new byte[16];
+					Array.Copy(bytes, 0, md5Hash, 0, 16);
+					crc = new byte[4];
+					Array.Copy(bytes, 16, crc, 0, 4);
 					uncompressedSize = BitConverter.ToUInt64(bytes, 20);
 					altType = (FileType)bytes[28];
-					altmd5Hash = new byte[16]; Array.Copy(bytes, 29, altmd5Hash, 0, 16);
-					altsha1Hash = new byte[20]; Array.Copy(bytes, 45, altsha1Hash, 0, 20);
-					altcrc = new byte[4]; Array.Copy(bytes, 65, altcrc, 0, 4);
+					altmd5Hash = new byte[16];
+					Array.Copy(bytes, 29, altmd5Hash, 0, 16);
+					altsha1Hash = new byte[20];
+					Array.Copy(bytes, 45, altsha1Hash, 0, 20);
+					altcrc = new byte[4];
+					Array.Copy(bytes, 65, altcrc, 0, 4);
 					uncompressedAltSize = BitConverter.ToUInt64(bytes, 69);
 				}
 			}

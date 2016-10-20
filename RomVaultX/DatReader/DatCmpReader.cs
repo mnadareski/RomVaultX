@@ -280,7 +280,8 @@ namespace RomVaultX.DatReader
 			string pathextra = "";
 			if (snext == "rebuildto")
 			{
-				pathextra = VarFix.CleanFullFileName(DatFileLoader.Gn()); DatFileLoader.Gn();
+				pathextra = VarFix.CleanFullFileName(DatFileLoader.Gn());
+				DatFileLoader.Gn();
 				snext = DatFileLoader.Next.ToLower();
 			}
 

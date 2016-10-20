@@ -233,8 +233,10 @@ namespace RomVaultX
 		{
 			using (DbCommand getFileInDirectory = Program.db.Command(@"select game.gameId, ZipFileLength,LastWriteTime,CreationTime,LastAccessTime from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name"))
 			{
-				DbParameter pDirId = Program.db.Parameter("DirId", dirId); getFileInDirectory.Parameters.Add(pDirId);
-				DbParameter pName = Program.db.Parameter("Name", filePart); getFileInDirectory.Parameters.Add(pName);
+				DbParameter pDirId = Program.db.Parameter("DirId", dirId);
+				getFileInDirectory.Parameters.Add(pDirId);
+				DbParameter pName = Program.db.Parameter("Name", filePart);
+				getFileInDirectory.Parameters.Add(pName);
 				using (DbDataReader dr = getFileInDirectory.ExecuteReader())
 				{
 					while (dr.Read())
