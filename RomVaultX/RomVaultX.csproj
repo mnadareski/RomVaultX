@@ -162,6 +162,7 @@
     <Compile Include="SupportedFiles\Files\ThreadSHA1.cs" />
     <Compile Include="SupportedFiles\Files\UnCompFiles.cs" />
     <Compile Include="SupportedFiles\GZ\GZip.cs" />
+    <Compile Include="SupportedFiles\SevenZip\**\*.cs" />
     <Compile Include="SupportedFiles\ZipEnums.cs" />
     <Compile Include="SupportedFiles\Zip\zipFile.cs" />
     <Compile Include="SupportedFiles\Zip\ZLib\Crc32.cs" />

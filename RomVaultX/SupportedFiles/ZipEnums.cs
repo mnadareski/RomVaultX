@@ -34,8 +34,8 @@ namespace RomVaultX.SupportedFiles
 		ZipErrorReadingFile,
 		ZipErrorTimeStamp,
 		ZipErrorRollBackFile,
-		ZipUntested
-
+		ZipUntested,
+		ZipTryingToAccessADirectory,
 	}
 
 	public enum ZipOpenType
@@ -43,7 +43,7 @@ namespace RomVaultX.SupportedFiles
 		Closed,
 		OpenRead,
 		OpenWrite,
-		OpenFakeWrite
+		OpenFakeWrite,
 	}
 
 	[Flags]
@@ -51,7 +51,6 @@ namespace RomVaultX.SupportedFiles
 	{
 		None = 0x0,
 		TrrntZip = 0x1,
-		ExtraData = 0x2
+		ExtraData = 0x2,
 	}
-
 }
