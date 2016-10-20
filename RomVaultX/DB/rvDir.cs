@@ -32,7 +32,9 @@ namespace RomVaultX.DB
 		{
 			uint? foundDatId = FindInDir(fullName);
 			if (foundDatId == null)
+			{
 				return InsertIntoDir(parentDirId, name, fullName);
+			}
 
 			SetDirFound((uint)foundDatId);
 			return (uint)foundDatId;
@@ -49,7 +51,9 @@ namespace RomVaultX.DB
 			CommandFindInDir.Parameters["FullName"].Value = fullname;
 			object resFind = CommandFindInDir.ExecuteScalar();
 			if (resFind == null || resFind == DBNull.Value)
+			{
 				return null;
+			}
 			return (uint?)Convert.ToInt32(resFind);
 		}
 
@@ -80,7 +84,6 @@ namespace RomVaultX.DB
 				CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("Name"));
 				CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("FullName"));
 				CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("TimeStamp"));
-
 			}
 
 			CommandInsertIntoDir.Parameters["ParentDirId"].Value = parentDirId;
@@ -91,9 +94,10 @@ namespace RomVaultX.DB
 			object res = CommandInsertIntoDir.ExecuteScalar();
 
 			if (res == null || res == DBNull.Value)
+			{
 				return 0;
+			}
 			return Convert.ToUInt32(res);
 		}
-
 	}
 }

@@ -99,7 +99,9 @@ namespace RomVaultX.DB
 			}
 
 			if (readGames)
+			{
 				Games = RvGame.ReadGames(DatId, true);
+			}
 		}
 
 		public void DbWrite()
@@ -151,11 +153,15 @@ namespace RomVaultX.DB
 			object res = _commandRvDatWrite.ExecuteScalar();
 
 			if (res == null || res == DBNull.Value)
+			{
 				return;
+			}
 			DatId = Convert.ToUInt32(res);
 
 			if (Games == null)
+			{
 				return;
+			}
 
 			foreach (RvGame rvGame in Games)
 			{
@@ -167,7 +173,9 @@ namespace RomVaultX.DB
 		public void AddGame(RvGame rvGame)
 		{
 			if (Games == null)
+			{
 				Games = new List<RvGame>();
+			}
 
 			int index;
 			ChildNameSearch(rvGame.Name, out index);
@@ -177,9 +185,13 @@ namespace RomVaultX.DB
 		public string GetExtraDirName()
 		{
 			if (!string.IsNullOrWhiteSpace(Description))
+			{
 				return Description;
+			}
 			if (!string.IsNullOrWhiteSpace(Name))
+			{
 				return Name;
+			}
 			return "-unknown-";
 		}
 
@@ -197,9 +209,13 @@ namespace RomVaultX.DB
 
 				intRes = VarFix.CompareName(lGameName, Games[intMid].Name);
 				if (intRes < 0)
+				{
 					intTop = intMid;
+				}
 				else if (intRes > 0)
+				{
 					intBottom = intMid + 1;
+				}
 			}
 			index = intMid;
 
@@ -211,15 +227,18 @@ namespace RomVaultX.DB
 				{
 					intRes1 = VarFix.CompareName(lGameName, Games[index - 1].Name);
 					if (intRes1 == 0)
+					{
 						index--;
+					}
 				}
 			}
 			// if the search is greater than the closest match move one up the list
 			else if (intRes > 0)
+			{
 				index++;
+			}
 
 			return intRes;
 		}
-
 	}
 }

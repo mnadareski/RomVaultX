@@ -85,7 +85,6 @@ namespace RomVaultX.DB
                     [CentralDirectoryLength] INTEGER NULL,
                     FOREIGN KEY(DatId) REFERENCES DAT(DatId)
                 );");
-
 		}
 
 		public void DBRead(int gameId, bool readRoms = false)
@@ -103,13 +102,17 @@ namespace RomVaultX.DB
 			using (DbDataReader dr = _commandRvGameRead.ExecuteReader())
 			{
 				if (dr.Read())
+				{
 					RvGameReadFromReader(dr, this);
+				}
 
 				dr.Close();
 			}
 
 			if (readRoms)
+			{
 				Roms = RvRom.ReadRoms(GameId);
+			}
 		}
 
 		public static List<RvGame> ReadGames(uint datId, bool readRoms = false)
@@ -137,8 +140,12 @@ namespace RomVaultX.DB
 			}
 
 			if (readRoms)
+			{
 				foreach (RvGame game in games)
+				{
 					game.Roms = RvRom.ReadRoms(game.GameId);
+				}
+			}
 
 			return games;
 		}
@@ -242,7 +249,9 @@ namespace RomVaultX.DB
 			object res = _commandRvGameWrite.ExecuteScalar();
 
 			if (res == null || res == DBNull.Value)
+			{
 				return;
+			}
 			GameId = Convert.ToUInt32(res);
 
 			if (Roms != null)
@@ -258,7 +267,9 @@ namespace RomVaultX.DB
 		public int AddRom(RvRom rvRom)
 		{
 			if (Roms == null)
+			{
 				Roms = new List<RvRom>();
+			}
 
 			int index;
 			ChildNameSearch(rvRom.Name, out index);
@@ -282,9 +293,13 @@ namespace RomVaultX.DB
 
 				intRes = VarFix.CompareName(lRomName, Roms[intMid].Name);
 				if (intRes < 0)
+				{
 					intTop = intMid;
+				}
 				else if (intRes > 0)
+				{
 					intBottom = intMid + 1;
+				}
 			}
 			index = intMid;
 
@@ -296,15 +311,18 @@ namespace RomVaultX.DB
 				{
 					intRes1 = VarFix.CompareName(lRomName, Roms[index - 1].Name);
 					if (intRes1 == 0)
+					{
 						index--;
+					}
 				}
 			}
 			// if the search is greater than the closest match move one up the list
 			else if (intRes > 0)
+			{
 				index++;
+			}
 
 			return intRes;
 		}
 	}
-
 }
