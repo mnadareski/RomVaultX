@@ -118,8 +118,11 @@ namespace RomVaultX.Util
 			//if (checksum.Length % 2 == 1)
 			//	checksum = "0" + checksum;
 
-			//if (checksum.Length != length)
-			//	return null;
+			// This was commented out but will help because of issues that have appeared in DATs
+			if (checksum.Length != length)
+			{
+				return null;
+			}
 
 			while (checksum.Length < length)
 			{
@@ -131,7 +134,14 @@ namespace RomVaultX.Util
 
 			for (int i = 0; i < retL; i++)
 			{
-				retB[i] = Convert.ToByte(checksum.Substring(i * 2, 2), 16);
+				try
+				{
+					retB[i] = Convert.ToByte(checksum.Substring(i * 2, 2), 16);
+				}
+				catch (Exception ex)
+				{
+					ex.ToString();
+				}
 			}
 
 			return retB;
