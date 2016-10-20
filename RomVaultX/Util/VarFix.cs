@@ -115,13 +115,14 @@ namespace RomVaultX.Util
 				return null;
 			}
 
-			//if (checksum.Length % 2 == 1)
-			//	checksum = "0" + checksum;
-
-			// This was commented out but will help because of issues that have appeared in DATs
-			if (checksum.Length != length)
+			// Make sure the length of the checksum is proper
+			if (checksum.Length < length)
 			{
-				return null;
+				checksum = checksum.PadLeft(length, '0');
+			}
+			else if (checksum.Length > length)
+			{
+				checksum = checksum.Remove(length);
 			}
 
 			while (checksum.Length < length)
