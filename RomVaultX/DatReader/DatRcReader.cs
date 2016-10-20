@@ -28,7 +28,6 @@ namespace RomVaultX.DatReader
 			}
 			if (DatFileLoader.Next.ToLower() == "[credits]")
 			{
-				DatFileLoader.Gn();
 				if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
 				{
 					return false;
@@ -37,7 +36,6 @@ namespace RomVaultX.DatReader
 			}
 			else if (DatFileLoader.Next.ToLower() == "[dat]")
 			{
-				DatFileLoader.Gn();
 				if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
 				{
 					return false;
@@ -46,7 +44,6 @@ namespace RomVaultX.DatReader
 			}
 			else if (DatFileLoader.Next.ToLower() == "[emulator]")
 			{
-				DatFileLoader.Gn();
 				if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
 				{
 					return false;
@@ -59,21 +56,32 @@ namespace RomVaultX.DatReader
 			RvGame rvGame = new RvGame();
 			while (!DatFileLoader.EndOfStream())
 			{
+				// Set loop variables
 				foundgame = true;
-				string game = "";
-				if (!LoadRomFromDat(rvGame, "", datFileType, out game))
+				string game = "", description = "", romof = "", cloneof = "";
+				RvRom rvRom = new RvRom();
+
+				if (!LoadRomFromDat("", datFileType, out rvRom, out game, out description, out romof, out cloneof))
 				{
 					return false;
 				}
 				DatFileLoader.Gn();
 				
 				// If we have a new game finally, add the last one
-				if (lastgame != game)
+				if (lastgame != game && lastgame != "")
 				{
 					rvDat.AddGame(rvGame);
-					lastgame = ""; foundgame = false;
+					foundgame = false;
 					rvGame = new RvGame();
 				}
+
+				// For everything else, add to the new rvGame
+				rvGame.Name = (String.IsNullOrEmpty(rvGame.Name) ? game : rvGame.Name);
+				rvGame.Description = (String.IsNullOrEmpty(rvGame.Description) ? description : rvGame.Description);
+				rvGame.CloneOf = (String.IsNullOrEmpty(rvGame.CloneOf) ? cloneof : rvGame.CloneOf);
+				rvGame.RomOf = (String.IsNullOrEmpty(rvGame.RomOf) ? romof : rvGame.RomOf);
+				rvGame.AddRom(rvRom);
+				lastgame = game;
 			}
 
 			// If we had a lingering game, add it
@@ -92,13 +100,13 @@ namespace RomVaultX.DatReader
 			datFileType = FileType.Nothing;
 			rvDat.Filename = filename;
 
-			// Split the line by '='
-			string key = DatFileLoader.Next.Split('=')[0];
-			string value = DatFileLoader.Next.Remove(0, key.Length + 1);
-			string block = blockstart;
-
 			while (DatFileLoader.Next.ToLower() != "[games]")
 			{
+				// Split the line by '='
+				string key = DatFileLoader.Next.Split('=')[0];
+				string value = DatFileLoader.Next.Remove(0, key.Length + (DatFileLoader.Next.Contains("=") ? 1 : 0));
+				string block = blockstart;
+
 				switch (key.ToLower())
 				{
 					// CREDITS block
@@ -178,10 +186,14 @@ namespace RomVaultX.DatReader
 			return true;
 		}
 
-		private static bool LoadRomFromDat(RvGame rvGame, string rootName, FileType datFileType, out string game)
+		private static bool LoadRomFromDat(string rootName, FileType datFileType, out RvRom rvRom, out string game, out string description, out string romof, out string cloneof)
 		{
-			// Set the current game name to "" for the time being
+			// Set the current out vars to blank for the time being
+			rvRom = new RvRom();
 			game = "";
+			description = "";
+			romof = "";
+			cloneof = "";
 
 			if (!DatFileLoader.Next.Contains("¬"))
 			{
@@ -190,22 +202,18 @@ namespace RomVaultX.DatReader
 			}
 
 			string[] split = DatFileLoader.Next.Split('¬');
-			if (String.IsNullOrEmpty(rvGame.Name))
-			{
-				rvGame.Name = split[3];
-				rvGame.Description = split[4];
-				rvGame.RomOf = split[1];
-				rvGame.CloneOf = split[1];
-			}
+			game = split[3];
+			description = split[4];
+			romof = split[1];
+			cloneof = split[1];
 
-			RvRom rvRom = new RvRom
+			rvRom = new RvRom
 			{
 				Name = split[5],
 				CRC = VarFix.CleanMD5SHA1(split[6], 8),
 				Size = VarFix.FixLong(split[7]),
 				Merge = split[9],
 			};
-			rvGame.AddRom(rvRom);
 
 			return true;
 		}
@@ -224,10 +232,13 @@ namespace RomVaultX.DatReader
 				_streamReader = null;
 				int errorCode = IO.FileStream.OpenFileRead(strFilename, out _fileStream);
 				if (errorCode != 0)
+				{
 					return errorCode;
+				}
 				_streamReader = new StreamReader(_fileStream, Program.Enc);
 				return 0;
 			}
+
 			public static void Close()
 			{
 				_streamReader.Close();
@@ -243,13 +254,14 @@ namespace RomVaultX.DatReader
 
 			public static string Gn()
 			{
+				_line = "";
 				while ((_line.Trim().Length == 0) && (!_streamReader.EndOfStream))
 				{
 					_line = _streamReader.ReadLine();
 				}
 
 				Next = _line;
-				return _line; ;
+				return _line;
 			}
 		}
 	}

@@ -46,7 +46,9 @@ namespace RomVaultX.DatReader
 					case "game":
 						DatFileLoader.Gn();
 						if (!LoadGameFromDat(rvDat, "", datFileType))
+						{
 							return false;
+						}
 						DatFileLoader.Gn();
 						break;
 					default:
@@ -186,6 +188,7 @@ namespace RomVaultX.DatReader
 
 			name = IO.Path.Combine(pathextra, name);
 			name = IO.Path.Combine(rootName, name);
+			name = (name.EndsWith(".zip") ? name.Remove(name.Length - 4) : name);
 
 			DatFileLoader.Gn();
 
@@ -306,7 +309,7 @@ namespace RomVaultX.DatReader
 			};
 			DatFileLoader.Gn();
 
-			while (DatFileLoader.Next != ")")
+			while (rvRom.CRC == null || rvRom.Size == null || DatFileLoader.Next != ")")
 			{
 				switch (DatFileLoader.Next.ToLower())
 				{
@@ -326,36 +329,13 @@ namespace RomVaultX.DatReader
 						rvRom.MD5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
 						DatFileLoader.Gn();
 						break;
-					case "merge":
-						rvRom.Merge = VarFix.CleanFullFileName(DatFileLoader.Gn());
-						DatFileLoader.Gn();
-						break;
-					case "flags":
-						rvRom.Status = VarFix.ToLower(DatFileLoader.Gn());
-						DatFileLoader.Gn();
-						break;
 					case "date":
 						rvRom.Date = DatFileLoader.Gn();
 						rvRom.Date += " " + DatFileLoader.Gn();
-						break;
-					case "bios":
-						DatFileLoader.Gn();
-						DatFileLoader.Gn();
-						break;
-					case "region":
-						DatFileLoader.Gn();
-						DatFileLoader.Gn();
-						break;
-					case "offs":
-						DatFileLoader.Gn();
-						DatFileLoader.Gn();
-						break;
-					case "nodump":
-						rvRom.Status = "nodump";
 						DatFileLoader.Gn();
 						break;
 					default:
-						DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in rom", DatFileLoader.Filename);
+						rvRom.Name += " " + DatFileLoader.Next;
 						DatFileLoader.Gn();
 						break;
 				}
