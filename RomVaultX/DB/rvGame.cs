@@ -46,45 +46,45 @@ namespace RomVaultX.DB
 		public static void CreateTable()
 		{
 			Program.db.ExecuteNonQuery(@"
-                 CREATE TABLE IF NOT EXISTS [GAME] (
-                    [GameId] INTEGER  PRIMARY KEY NOT NULL,
-                    [DatId] INTEGER NOT NULL,
-                    [name] NVARCHAR(200) NOT NULL,
-                    [description] NVARCHAR(220) NULL,
-                    [manufacturer] NVARCHAR(200) NULL,
-                    [cloneof] NVARCHAR(200) NULL,
-                    [romof] NVARCHAR(200) NULL,
-                    [sampleof] NVARCHAR(200) NULL,
-                    [sourcefile] NVARCHAR(200) NULL,
-                    [isbios] NVARCHAR(200) NULL,
-                    [board] NVARCHAR(200) NULL,
-                    [year] NVARCHAR(200) NULL,
-                    [istrurip] BOOLEAN DEFAULT 0 NOT NULL,
-                    [publisher] NVARCHAR(200) NULL,
-                    [developer] NVARCHAR(200) NULL,
-                    [edition] NVARCHAR(200) NULL,
-                    [version] NVARCHAR(200) NULL,
-                    [type] NVARCHAR(200) NULL,
-                    [media] NVARCHAR(200) NULL,
-                    [language] NVARCHAR(200) NULL,
-                    [players] NVARCHAR(200) NULL,
-                    [ratings] NVARCHAR(200) NULL,
-                    [genre] NVARCHAR(200) NULL,
-                    [peripheral] NVARCHAR(200) NULL,
-                    [barcode] NVARCHAR(200) NULL,
-                    [mediacatalognumber] NVARCHAR(200),
-                    [RomTotal] INTEGER DEFAULT 0 NOT NULL,
-                    [RomGot] INTEGER DEFAULT 0 NOT NULL,
-                    [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
-                    [ZipFileLength] INTEGER NULL, 
-                    [LastWriteTime] INTEGER NULL,
-                    [CreationTime] INTEGER NULL,
-                    [LastAccessTime] INTEGER NULL,
-                    [CentralDirectory] BLOB NULL,
-                    [CentralDirectoryOffset] INTEGER NULL,
-                    [CentralDirectoryLength] INTEGER NULL,
-                    FOREIGN KEY(DatId) REFERENCES DAT(DatId)
-                );");
+				 CREATE TABLE IF NOT EXISTS [GAME] (
+					[GameId] INTEGER  PRIMARY KEY NOT NULL,
+					[DatId] INTEGER NOT NULL,
+					[name] NVARCHAR(200) NOT NULL,
+					[description] NVARCHAR(220) NULL,
+					[manufacturer] NVARCHAR(200) NULL,
+					[cloneof] NVARCHAR(200) NULL,
+					[romof] NVARCHAR(200) NULL,
+					[sampleof] NVARCHAR(200) NULL,
+					[sourcefile] NVARCHAR(200) NULL,
+					[isbios] NVARCHAR(200) NULL,
+					[board] NVARCHAR(200) NULL,
+					[year] NVARCHAR(200) NULL,
+					[istrurip] BOOLEAN DEFAULT 0 NOT NULL,
+					[publisher] NVARCHAR(200) NULL,
+					[developer] NVARCHAR(200) NULL,
+					[edition] NVARCHAR(200) NULL,
+					[version] NVARCHAR(200) NULL,
+					[type] NVARCHAR(200) NULL,
+					[media] NVARCHAR(200) NULL,
+					[language] NVARCHAR(200) NULL,
+					[players] NVARCHAR(200) NULL,
+					[ratings] NVARCHAR(200) NULL,
+					[genre] NVARCHAR(200) NULL,
+					[peripheral] NVARCHAR(200) NULL,
+					[barcode] NVARCHAR(200) NULL,
+					[mediacatalognumber] NVARCHAR(200),
+					[RomTotal] INTEGER DEFAULT 0 NOT NULL,
+					[RomGot] INTEGER DEFAULT 0 NOT NULL,
+					[RomNoDump] INTEGER DEFAULT 0 NOT NULL,
+					[ZipFileLength] INTEGER NULL, 
+					[LastWriteTime] INTEGER NULL,
+					[CreationTime] INTEGER NULL,
+					[LastAccessTime] INTEGER NULL,
+					[CentralDirectory] BLOB NULL,
+					[CentralDirectoryOffset] INTEGER NULL,
+					[CentralDirectoryLength] INTEGER NULL,
+					FOREIGN KEY(DatId) REFERENCES DAT(DatId)
+				);");
 		}
 
 		public void DBRead(int gameId, bool readRoms = false)
@@ -92,8 +92,8 @@ namespace RomVaultX.DB
 			if (_commandRvGameRead == null)
 			{
 				_commandRvGameRead = new SQLiteCommand(@"
-                SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE GameId=@GameId ORDER BY name", Program.db.Connection);
+				SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
+					FROM GAME WHERE GameId=@GameId ORDER BY name", Program.db.Connection);
 				_commandRvGameRead.Parameters.Add(new SQLiteParameter("GameId"));
 			}
 
@@ -120,8 +120,8 @@ namespace RomVaultX.DB
 			if (_commandRvGameReadDatGames == null)
 			{
 				_commandRvGameReadDatGames = new SQLiteCommand(@"
-                SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE DatId=@DatId ORDER BY name", Program.db.Connection);
+				SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
+					FROM GAME WHERE DatId=@DatId ORDER BY name", Program.db.Connection);
 				_commandRvGameReadDatGames.Parameters.Add(new SQLiteParameter("DatId"));
 			}
 
@@ -184,10 +184,10 @@ namespace RomVaultX.DB
 			if (_commandRvGameWrite == null)
 			{
 				_commandRvGameWrite = new SQLiteCommand(@"
-                INSERT INTO GAME ( DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber)
-                          VALUES (@DatId,@Name,@Description,@Manufacturer,@CloneOf,@RomOf,@SourceFile,@IsBios,@Board,@Year,@IsTrurip,@Publisher,@Developer,@Edition,@Version,@Type,@Media,@Language,@Players,@Ratings,@Genre,@Peripheral,@BarCode,@MediaCatalogNumber);
+				INSERT INTO GAME ( DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber)
+						  VALUES (@DatId,@Name,@Description,@Manufacturer,@CloneOf,@RomOf,@SourceFile,@IsBios,@Board,@Year,@IsTrurip,@Publisher,@Developer,@Edition,@Version,@Type,@Media,@Language,@Players,@Ratings,@Genre,@Peripheral,@BarCode,@MediaCatalogNumber);
 
-                SELECT last_insert_rowid();", Program.db.Connection);
+				SELECT last_insert_rowid();", Program.db.Connection);
 
 				_commandRvGameWrite.Parameters.Add(new SQLiteParameter("DatId")); //DatId;
 				_commandRvGameWrite.Parameters.Add(new SQLiteParameter("Name")); //Name;
@@ -215,7 +215,7 @@ namespace RomVaultX.DB
 				_commandRvGameWrite.Parameters.Add(new SQLiteParameter("Genre")); //Genre;
 				_commandRvGameWrite.Parameters.Add(new SQLiteParameter("Peripheral")); //Peripheral;
 				_commandRvGameWrite.Parameters.Add(new SQLiteParameter("BarCode")); //BarCode;
-				_commandRvGameWrite.Parameters.Add(new SQLiteParameter("MediaCatalogNumber")); //MediaCatalogNumber;        
+				_commandRvGameWrite.Parameters.Add(new SQLiteParameter("MediaCatalogNumber")); //MediaCatalogNumber;		
 			}
 
 			_commandRvGameWrite.Parameters["DatId"].Value = DatId;

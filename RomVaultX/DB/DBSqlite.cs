@@ -121,9 +121,9 @@ namespace RomVaultX.DB
 			/******** Create Tables ***********/
 
 			ExecuteNonQuery(@"
-                CREATE TABLE IF NOT EXISTS [VERSION] (
-                    [Version] INTEGER NOT NULL);
-                INSERT INTO VERSION (version) VALUES (@Version);",
+				CREATE TABLE IF NOT EXISTS [VERSION] (
+					[Version] INTEGER NOT NULL);
+				INSERT INTO VERSION (version) VALUES (@Version);",
 				"version", DBVersion);
 
 			RvDir.CreateTable();
@@ -137,138 +137,138 @@ namespace RomVaultX.DB
 			/**** FILE Triggers ****/
 			/*INSERT*/
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [FileInsert];
-                ");
+				DROP TRIGGER IF EXISTS [FileInsert];
+				");
 
 			/*DELETE*/
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [FileDelete];
-                CREATE TRIGGER IF NOT EXISTS [FileDelete] 
-                AFTER DELETE ON [FILES] 
-                FOR EACH ROW 
-                BEGIN 
-                    UPDATE ROM SET 
-                        FileId=null,
-                        LocalFileHeader=null,
-                        LocalFileHeaderOffset=null,
-                        LocalFileHeaderLength=null 
-                    WHERE 
-                        FileId=OLD.FileId;
-                END;
-            ");
+				DROP TRIGGER IF EXISTS [FileDelete];
+				CREATE TRIGGER IF NOT EXISTS [FileDelete] 
+				AFTER DELETE ON [FILES] 
+				FOR EACH ROW 
+				BEGIN 
+					UPDATE ROM SET 
+						FileId=null,
+						LocalFileHeader=null,
+						LocalFileHeaderOffset=null,
+						LocalFileHeaderLength=null 
+					WHERE 
+						FileId=OLD.FileId;
+				END;
+			");
 
 			//**** ROM Triggers ****
 			//INSERT
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [RomInsert];
-                CREATE TRIGGER IF NOT EXISTS [RomInsert] 
-                AFTER INSERT ON [ROM] 
-                FOR EACH ROW
-                BEGIN 
-                    UPDATE GAME SET
-                        RomTotal = RomTotal + 1,
-                        RomGot = RomGot + (IFNULL(New.FileId,0)>0),
-                        RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null,0)),
-                        ZipFileLength=null,
-                        LastWriteTime=null,
-                        CreationTime=null,
-                        LastAccessTime=null,
-                        CentralDirectory=null,
-                        CentralDirectoryOffset=null,
-                        CentralDirectoryLength=null
-                    WHERE 
-                        Game.GameId = New.GameId;
-                END;
-            ");
+				DROP TRIGGER IF EXISTS [RomInsert];
+				CREATE TRIGGER IF NOT EXISTS [RomInsert] 
+				AFTER INSERT ON [ROM] 
+				FOR EACH ROW
+				BEGIN 
+					UPDATE GAME SET
+						RomTotal = RomTotal + 1,
+						RomGot = RomGot + (IFNULL(New.FileId,0)>0),
+						RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null,0)),
+						ZipFileLength=null,
+						LastWriteTime=null,
+						CreationTime=null,
+						LastAccessTime=null,
+						CentralDirectory=null,
+						CentralDirectoryOffset=null,
+						CentralDirectoryLength=null
+					WHERE 
+						Game.GameId = New.GameId;
+				END;
+			");
 			//DELETE
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [RomDelete];
-                CREATE TRIGGER IF NOT EXISTS [RomDelete] 
-                AFTER DELETE ON [ROM] 
-                FOR EACH ROW
-                BEGIN 
-                    UPDATE GAME SET
-                        RomTotal = RomTotal - 1,
-                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
-                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null,0)),
-                        ZipFileLength=null,
-                        LastWriteTime=null,
-                        CreationTime=null,
-                        LastAccessTime=null,
-                        CentralDirectory=null,
-                        CentralDirectoryOffset=null,
-                        CentralDirectoryLength=null
-                    WHERE 
-                        Game.GameId = Old.GameId;
-                END;
-            ");
+				DROP TRIGGER IF EXISTS [RomDelete];
+				CREATE TRIGGER IF NOT EXISTS [RomDelete] 
+				AFTER DELETE ON [ROM] 
+				FOR EACH ROW
+				BEGIN 
+					UPDATE GAME SET
+						RomTotal = RomTotal - 1,
+						RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
+						RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null,0)),
+						ZipFileLength=null,
+						LastWriteTime=null,
+						CreationTime=null,
+						LastAccessTime=null,
+						CentralDirectory=null,
+						CentralDirectoryOffset=null,
+						CentralDirectoryLength=null
+					WHERE 
+						Game.GameId = Old.GameId;
+				END;
+			");
 			//UPDATE
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [RomUpdate];
-                CREATE TRIGGER IF NOT EXISTS [RomUpdate]
-                AFTER UPDATE ON [ROM]
-                FOR EACH ROW WHEN (IFNULL(Old.FileId,0)>0) != (IFNULL(New.FileId,0)>0)
-                BEGIN 
-                    UPDATE GAME SET
-                        RomGot = RomGot - (IFNULL(Old.FileId,0)>0) + (IFNULL(New.FileId,0)>0),
-                        ZipFileLength=null,
-                        LastWriteTime=null,
-                        CreationTime=null,
-                        LastAccessTime=null,
-                        CentralDirectory=null,
-                        CentralDirectoryOffset=null,
-                        CentralDirectoryLength=null
-                    WHERE 
-                        Game.GameId = New.GameId;
-                END;
-            ");
+				DROP TRIGGER IF EXISTS [RomUpdate];
+				CREATE TRIGGER IF NOT EXISTS [RomUpdate]
+				AFTER UPDATE ON [ROM]
+				FOR EACH ROW WHEN (IFNULL(Old.FileId,0)>0) != (IFNULL(New.FileId,0)>0)
+				BEGIN 
+					UPDATE GAME SET
+						RomGot = RomGot - (IFNULL(Old.FileId,0)>0) + (IFNULL(New.FileId,0)>0),
+						ZipFileLength=null,
+						LastWriteTime=null,
+						CreationTime=null,
+						LastAccessTime=null,
+						CentralDirectory=null,
+						CentralDirectoryOffset=null,
+						CentralDirectoryLength=null
+					WHERE 
+						Game.GameId = New.GameId;
+				END;
+			");
 
 			//**** GAME Triggers ****
 			//INSERT
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [GameInsert];
-                CREATE TRIGGER IF NOT EXISTS [GameInsert]
-                AFTER INSERT ON [GAME]
-                FOR EACH ROW
-                BEGIN
-                    UPDATE DAT SET
-                            RomTotal   =RomTotal  + New.RomTotal  , 
-                            RomGot     =RomGot    + New.RomGot    ,
-                            RomNoDump  =RomNoDump + New.RomNoDump
-                    WHERE
-                            DatId= New.DatId;
-                END;
-            ");
+				DROP TRIGGER IF EXISTS [GameInsert];
+				CREATE TRIGGER IF NOT EXISTS [GameInsert]
+				AFTER INSERT ON [GAME]
+				FOR EACH ROW
+				BEGIN
+					UPDATE DAT SET
+							RomTotal   =RomTotal  + New.RomTotal  , 
+							RomGot	 =RomGot	+ New.RomGot	,
+							RomNoDump  =RomNoDump + New.RomNoDump
+					WHERE
+							DatId= New.DatId;
+				END;
+			");
 			//DELETE
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [GameDelete];
-                CREATE TRIGGER IF NOT EXISTS [GameDelete]
-                AFTER DELETE ON [GAME]
-                FOR EACH ROW
-                BEGIN
-                    UPDATE DAT SET 
-                            RomTotal   =RomTotal  - Old.RomTotal  ,
-                            RomGot     =RomGot    - Old.RomGot    ,
-                            RomNoDump  =RomNoDump - Old.RomNoDump
-                    WHERE
-                            DatId=Old.DatId;
-                END;
-            ");
+				DROP TRIGGER IF EXISTS [GameDelete];
+				CREATE TRIGGER IF NOT EXISTS [GameDelete]
+				AFTER DELETE ON [GAME]
+				FOR EACH ROW
+				BEGIN
+					UPDATE DAT SET 
+							RomTotal   =RomTotal  - Old.RomTotal  ,
+							RomGot	 =RomGot	- Old.RomGot	,
+							RomNoDump  =RomNoDump - Old.RomNoDump
+					WHERE
+							DatId=Old.DatId;
+				END;
+			");
 			//UPDATE
 			ExecuteNonQuery(@"
-                DROP TRIGGER IF EXISTS [GameUpdate];
-                CREATE TRIGGER IF NOT EXISTS [GameUpdate] 
-                AFTER UPDATE ON [GAME] 
-                FOR EACH ROW WHEN Old.RomTotal!=New.RomTotal OR Old.RomGot!=New.RomGot 
-                BEGIN 
-                  UPDATE DAT SET
-                            RomTotal   =RomTotal  - Old.RomTotal  + New.RomTotal ,
-                            RomGot     =RomGot    - Old.RomGot    + New.RomGot ,
-                            RomNoDump  =RomNoDump - Old.RomNoDump + New.RomNoDump
-                    WHERE
-                            DatId=New.DatId;
-                END;
-            ");
+				DROP TRIGGER IF EXISTS [GameUpdate];
+				CREATE TRIGGER IF NOT EXISTS [GameUpdate] 
+				AFTER UPDATE ON [GAME] 
+				FOR EACH ROW WHEN Old.RomTotal!=New.RomTotal OR Old.RomGot!=New.RomGot 
+				BEGIN 
+				  UPDATE DAT SET
+							RomTotal   =RomTotal  - Old.RomTotal  + New.RomTotal ,
+							RomGot	 =RomGot	- Old.RomGot	+ New.RomGot ,
+							RomNoDump  =RomNoDump - Old.RomNoDump + New.RomNoDump
+					WHERE
+							DatId=New.DatId;
+				END;
+			");
 
 		}
 
@@ -284,42 +284,42 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(0));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-SHA1"));
 			}
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]        ASC);");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]		ASC);");
 
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwValue2(1));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-MD5"));
 			}
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMMD5Index]    ON [ROM]   ([md5]         ASC); ");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMMD5Index]	ON [ROM]   ([md5]		 ASC); ");
 
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwValue2(2));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-CRC"));
 			}
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMCRCIndex]    ON [ROM]   ([crc]         ASC); ");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMCRCIndex]	ON [ROM]   ([crc]		 ASC); ");
 
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwValue2(3));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-Size"));
 			}
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSizeIndex]   ON [ROM]   ([size]        ASC); ");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSizeIndex]   ON [ROM]   ([size]		ASC); ");
 
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwValue2(4));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-FileId"));
 			}
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]   ([FileId]      ASC); ");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]   ([FileId]	  ASC); ");
 
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwValue2(5));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-GameId-Name"));
 			}
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMGameId]      ON [ROM]   ([GameId]      ASC,[name] ASC);");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMGameId]	  ON [ROM]   ([GameId]	  ASC,[name] ASC);");
 
 			if (bgw != null)
 			{
@@ -327,25 +327,25 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwText2("Indexing Complete"));
 			}
 
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [GameDatId]      ON [GAME]  ([DatId]       ASC,[name] ASC);");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [GameDatId]	  ON [GAME]  ([DatId]	   ASC,[name] ASC);");
 
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILESHA1]       ON [FILES] ([sha1]        ASC);");
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILEMD5]        ON [FILES] ([md5]         ASC);");
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILECRC]        ON [FILES] ([crc]         ASC);");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILESHA1]	   ON [FILES] ([sha1]		ASC);");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILEMD5]		ON [FILES] ([md5]		 ASC);");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILECRC]		ON [FILES] ([crc]		 ASC);");
 
-			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DATDIRID]       ON [DAT]   ([DirId]       ASC);");
+			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DATDIRID]	   ON [DAT]   ([DirId]	   ASC);");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);");
 		}
 
 		public void DropIndex()
 		{
 			ExecuteNonQuery(@"
-                DROP INDEX IF EXISTS [ROMSHA1Index];
-                DROP INDEX IF EXISTS [ROMMD5Index];
-                DROP INDEX IF EXISTS [ROMCRCIndex];
-                DROP INDEX IF EXISTS [ROMSizeIndex];
-                DROP INDEX IF EXISTS [ROMFileIdIndex];
-                DROP INDEX IF EXISTS [ROMGameId];");
+				DROP INDEX IF EXISTS [ROMSHA1Index];
+				DROP INDEX IF EXISTS [ROMMD5Index];
+				DROP INDEX IF EXISTS [ROMCRCIndex];
+				DROP INDEX IF EXISTS [ROMSizeIndex];
+				DROP INDEX IF EXISTS [ROMFileIdIndex];
+				DROP INDEX IF EXISTS [ROMGameId];");
 
 		}
 

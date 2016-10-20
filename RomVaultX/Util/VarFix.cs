@@ -116,10 +116,10 @@ namespace RomVaultX.Util
 			}
 
 			//if (checksum.Length % 2 == 1)
-			//    checksum = "0" + checksum;
+			//	checksum = "0" + checksum;
 
 			//if (checksum.Length != length)
-			//    return null;
+			//	return null;
 
 			while (checksum.Length < length)
 			{

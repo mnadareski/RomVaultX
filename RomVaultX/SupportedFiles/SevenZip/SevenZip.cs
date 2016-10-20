@@ -123,7 +123,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 			//byte[] mainHeader = new byte[signatureHeader.NextHeaderSize];
 			//_zipFs.Read(mainHeader, 0, (int)signatureHeader.NextHeaderSize);
 			//if (!CRC.VerifyDigest(signatureHeader.NextHeaderCRC, mainHeader, 0, (uint)signatureHeader.NextHeaderSize))
-			//    return ZipReturn.Zip64EndOfCentralDirError;
+			//	return ZipReturn.Zip64EndOfCentralDirError;
 
 			_zipFs.Seek(_baseOffset + (long)signatureHeader.NextHeaderOffset, SeekOrigin.Begin);
 			ZipReturn zr = Header.ReadHeaderOrPackedHeader(_zipFs, _baseOffset, out _header);
@@ -161,7 +161,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 			//byte[] mainHeader = new byte[signatureHeader.NextHeaderSize];
 			//_zipFs.Read(mainHeader, 0, (int)signatureHeader.NextHeaderSize);
 			//if (!CRC.VerifyDigest(signatureHeader.NextHeaderCRC, mainHeader, 0, (uint)signatureHeader.NextHeaderSize))
-			//    return ZipReturn.Zip64EndOfCentralDirError;
+			//	return ZipReturn.Zip64EndOfCentralDirError;
 
 			_zipFs.Seek(_baseOffset + (long)signatureHeader.NextHeaderOffset, SeekOrigin.Begin);
 			ZipReturn zr = Header.ReadHeaderOrPackedHeader(_zipFs, _baseOffset, out _header);
@@ -635,7 +635,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 						continue;
 
 					if (_localFiles[i].isDirectory)
-						_header.FileInfo.Attributes[i] = 0x10;                      // set attributes to directory
+						_header.FileInfo.Attributes[i] = 0x10;					  // set attributes to directory
 					else
 						_header.FileInfo.EmptyFileFlags[emptyStreamCount] = true;   // set empty file flag
 

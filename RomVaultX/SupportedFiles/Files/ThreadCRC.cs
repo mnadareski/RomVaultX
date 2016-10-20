@@ -85,7 +85,7 @@ namespace RomVaultX.SupportedFiles.Files
 
 				// offset hardcoded to zero so this loop is not needed
 				//for (; (offset & 7) != 0 && _size != 0; _size--)
-				//    crc = (crc >> 8) ^ _crc32Lookup[(byte)crc ^ _buffer[offset++]];
+				//	crc = (crc >> 8) ^ _crc32Lookup[(byte)crc ^ _buffer[offset++]];
 
 				if (_size >= 8)
 				{

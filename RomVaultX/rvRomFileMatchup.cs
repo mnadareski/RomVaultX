@@ -240,7 +240,7 @@ namespace RomVaultX
 						LocalFileHeaderOffset = null,
 						LocalFileHeaderLength=null
 					WHERE
-						(                 sha1 = @sha1 ) AND
+						(				 sha1 = @sha1 ) AND
 						( md5  is NULL OR md5  = @md5  ) AND 
 						( crc  is NULL OR crc  = @crc  ) AND
 						( size is NULL OR size = @Size ) AND
@@ -252,7 +252,7 @@ namespace RomVaultX
 						LocalFileHeaderOffset = null,
 						LocalFileHeaderLength=null
 					WHERE
-						(                 md5  = @md5  ) AND 
+						(				 md5  = @md5  ) AND 
 						( sha1 is NULL OR sha1 = @sha1 ) AND
 						( crc  is NULL OR crc  = @crc  ) AND
 						( size is NULL OR size = @Size ) AND
@@ -264,7 +264,7 @@ namespace RomVaultX
 						LocalFileHeaderOffset = null,
 						LocalFileHeaderLength=null
 					WHERE
-						(                 crc  = @crc  ) AND
+						(				 crc  = @crc  ) AND
 						( sha1 is NULL OR sha1 = @sha1 ) AND
 						( md5  is NULL OR md5  = @md5  ) AND 
 						( size is NULL OR size = @Size ) AND
@@ -297,8 +297,8 @@ namespace RomVaultX
 						LocalFileHeaderOffset = null,
 						LocalFileHeaderLength=null
 					WHERE
-						(                 type = @type ) AND
-						(                 sha1 = @sha1 ) AND
+						(				 type = @type ) AND
+						(				 sha1 = @sha1 ) AND
 						( md5  is NULL OR md5  = @md5  ) AND 
 						( crc  is NULL OR crc  = @crc  ) AND
 						( size is NULL OR size = @Size ) AND
@@ -310,8 +310,8 @@ namespace RomVaultX
 						LocalFileHeaderOffset = null,
 						LocalFileHeaderLength=null
 					WHERE
-						(                 type = @type ) AND
-						(                 md5  = @md5  ) AND 
+						(				 type = @type ) AND
+						(				 md5  = @md5  ) AND 
 						( sha1 is NULL OR sha1 = @sha1 ) AND
 						( crc  is NULL OR crc  = @crc  ) AND
 						( size is NULL OR size = @Size ) AND
@@ -323,8 +323,8 @@ namespace RomVaultX
 						LocalFileHeaderOffset = null,
 						LocalFileHeaderLength=null
 					WHERE
-						(                 type = @type ) AND
-						(                 crc  = @crc  ) AND
+						(				 type = @type ) AND
+						(				 crc  = @crc  ) AND
 						( sha1 is NULL OR sha1 = @sha1 ) AND
 						( md5  is NULL OR md5  = @md5  ) AND 
 						( size is NULL OR size = @Size ) AND
@@ -397,7 +397,7 @@ namespace RomVaultX
 				_commandSHA1 = new SQLiteCommand(@"
 						SELECT FileId from FILES
 							WHERE
-										(                  @sha1 = sha1 ) AND
+										(				  @sha1 = sha1 ) AND
 										( @md5  is NULL OR @md5  = md5  ) AND
 										( @crc  is NULL OR @crc  = crc  ) AND
 										( @size is NULL OR @size = Size )
@@ -412,8 +412,8 @@ namespace RomVaultX
 				_commandSHA1Alt = new SQLiteCommand(@"
 						SELECT FileId from FILES
 							WHERE
-										(               @alttype = alttype ) AND
-										(                  @sha1 = altsha1 ) AND
+										(			   @alttype = alttype ) AND
+										(				  @sha1 = altsha1 ) AND
 										( @md5  is NULL OR @md5  = altmd5  ) AND
 										( @crc  is NULL OR @crc  = altcrc  ) AND
 										( @size is NULL OR @size = altSize )
@@ -429,7 +429,7 @@ namespace RomVaultX
 				_commandMD5 = new SQLiteCommand(@"
 						SELECT FileId from FILES
 							WHERE
-										(                  @md5  = md5  ) AND
+										(				  @md5  = md5  ) AND
 										( @crc  is NULL OR @crc  = crc  ) AND
 										( @size is NULL OR @size = Size )
 							limit 1
@@ -442,8 +442,8 @@ namespace RomVaultX
 				_commandMD5Alt = new SQLiteCommand(@"
 						SELECT FileId from FILES
 							WHERE
-										(               @alttype = alttype ) AND
-										(                  @md5  = altmd5  ) AND
+										(			   @alttype = alttype ) AND
+										(				  @md5  = altmd5  ) AND
 										( @crc  is NULL OR @crc  = altcrc  ) AND
 										( @size is NULL OR @size = altSize )
 							limit 1
@@ -457,7 +457,7 @@ namespace RomVaultX
 				_commandCRC = new SQLiteCommand(@"
 						SELECT FileId from FILES
 							WHERE
-										(                  @crc  = crc  ) AND
+										(				  @crc  = crc  ) AND
 										( @size is NULL OR @size = Size )
 							limit 1
 				", Program.db.Connection);
@@ -468,8 +468,8 @@ namespace RomVaultX
 				_commandCRCAlt = new SQLiteCommand(@"
 						SELECT FileId from FILES
 							WHERE
-										(               @alttype = alttype ) AND
-										(                  @crc  = altcrc  ) AND
+										(			   @alttype = alttype ) AND
+										(				  @crc  = altcrc  ) AND
 										( @size is NULL OR @size = altSize )
 							limit 1
 				", Program.db.Connection);

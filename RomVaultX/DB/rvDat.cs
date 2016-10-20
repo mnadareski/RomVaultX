@@ -35,32 +35,32 @@ namespace RomVaultX.DB
 		public static void CreateTable()
 		{
 			Program.db.ExecuteNonQuery(@"
-                 CREATE TABLE IF NOT EXISTS [DAT] (
-                    [DatId] INTEGER  PRIMARY KEY NOT NULL,
-                    [DirId] INTEGER  NOT NULL,
-                    [Filename] NVARCHAR(300)  NULL,
+				 CREATE TABLE IF NOT EXISTS [DAT] (
+					[DatId] INTEGER  PRIMARY KEY NOT NULL,
+					[DirId] INTEGER  NOT NULL,
+					[Filename] NVARCHAR(300)  NULL,
 
-                    [name] NVARCHAR(100)  NULL,
-                    [rootdir] NVARCHAR(10)  NULL,
-                    [description] NVARCHAR(10)  NULL,
-                    [category] NVARCHAR(10)  NULL,
-                    [version] NVARCHAR(10)  NULL,
-                    [date] NVARCHAR(10)  NULL,
-                    [author] NVARCHAR(10)  NULL,
-                    [email] NVARCHAR(10)  NULL,
-                    [homepage] NVARCHAR(10)  NULL,
-                    [url] NVARCHAR(10)  NULL,
-                    [comment] NVARCHAR(10) NULL,
-                    [mergetype] NVARCHAR(10) NULL,
-                    [RomTotal] INTEGER DEFAULT 0 NOT NULL,
-                    [RomGot] INTEGER DEFAULT 0 NOT NULL,
-                    [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
-                    [Path] NVARCHAR(10)  NOT NULL,
-                    [DatTimeStamp] NVARCHAR(20)  NOT NULL,
-                    [ExtraDir] BOOLEAN DEFAULT 0,
-                    [found] BOOLEAN DEFAULT 1,            
-                    FOREIGN KEY(DirId) REFERENCES DIR(DirId)
-                );");
+					[name] NVARCHAR(100)  NULL,
+					[rootdir] NVARCHAR(10)  NULL,
+					[description] NVARCHAR(10)  NULL,
+					[category] NVARCHAR(10)  NULL,
+					[version] NVARCHAR(10)  NULL,
+					[date] NVARCHAR(10)  NULL,
+					[author] NVARCHAR(10)  NULL,
+					[email] NVARCHAR(10)  NULL,
+					[homepage] NVARCHAR(10)  NULL,
+					[url] NVARCHAR(10)  NULL,
+					[comment] NVARCHAR(10) NULL,
+					[mergetype] NVARCHAR(10) NULL,
+					[RomTotal] INTEGER DEFAULT 0 NOT NULL,
+					[RomGot] INTEGER DEFAULT 0 NOT NULL,
+					[RomNoDump] INTEGER DEFAULT 0 NOT NULL,
+					[Path] NVARCHAR(10)  NOT NULL,
+					[DatTimeStamp] NVARCHAR(20)  NOT NULL,
+					[ExtraDir] BOOLEAN DEFAULT 0,
+					[found] BOOLEAN DEFAULT 1,			
+					FOREIGN KEY(DirId) REFERENCES DIR(DirId)
+				);");
 		}
 
 		public void DbRead(uint datId, bool readGames = false)
@@ -68,8 +68,8 @@ namespace RomVaultX.DB
 			if (_commandRvDatRead == null)
 			{
 				_commandRvDatRead = new SQLiteCommand(@"
-                SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment,mergetype
-                FROM DAT WHERE DatId=@datId ORDER BY Filename", Program.db.Connection);
+				SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment,mergetype
+				FROM DAT WHERE DatId=@datId ORDER BY Filename", Program.db.Connection);
 				_commandRvDatRead.Parameters.Add(new SQLiteParameter("datId"));
 			}
 
@@ -109,10 +109,10 @@ namespace RomVaultX.DB
 			if (_commandRvDatWrite == null)
 			{
 				_commandRvDatWrite = new SQLiteCommand(@"
-                INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment, MergeType, Path, DatTimeStamp,ExtraDir)
-                VALUES          (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@MergeType,@Path, @DatTimeStamp,@ExtraDir);
+				INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment, MergeType, Path, DatTimeStamp,ExtraDir)
+				VALUES		  (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@MergeType,@Path, @DatTimeStamp,@ExtraDir);
 
-                SELECT last_insert_rowid();", Program.db.Connection);
+				SELECT last_insert_rowid();", Program.db.Connection);
 
 				_commandRvDatWrite.Parameters.Add(new SQLiteParameter("DirId"));
 				_commandRvDatWrite.Parameters.Add(new SQLiteParameter("Filename"));

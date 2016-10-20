@@ -34,25 +34,25 @@ namespace RomVaultX.DB
 		public static void CreateTable()
 		{
 			Program.db.ExecuteNonQuery(@"
-               CREATE TABLE IF NOT EXISTS [ROM] (
-                    [RomId] INTEGER PRIMARY KEY NOT NULL,
-                    [GameId] INTEGER NOT NULL,
-                    [name] NVARCHAR(320) NOT NULL,
-                    [type] INTEGER NULL,
-                    [size] INTEGER NULL,
-                    [crc] VARCHAR(8) NULL,
-                    [sha1] VARCHAR(40) NULL,
-                    [md5] VARCHAR(32) NULL,
-                    [merge] VARCHAR(20) NULL,
-                    [status] VARCHAR(20) NULL,
-                    [putinzip] BOOLEAN,
-                    [FileId] INTEGER NULL,
-                    [LocalFileHeader] BLOB NULL,
-                    [LocalFileHeaderOffset] INTEGER NULL,
-                    [LocalFileHeaderLength] INTEGER NULL,
-                    FOREIGN KEY(GameId) REFERENCES Game(GameId),
-                    FOREIGN KEY(FileId) REFERENCES Files(FileId)
-                );");
+			   CREATE TABLE IF NOT EXISTS [ROM] (
+					[RomId] INTEGER PRIMARY KEY NOT NULL,
+					[GameId] INTEGER NOT NULL,
+					[name] NVARCHAR(320) NOT NULL,
+					[type] INTEGER NULL,
+					[size] INTEGER NULL,
+					[crc] VARCHAR(8) NULL,
+					[sha1] VARCHAR(40) NULL,
+					[md5] VARCHAR(32) NULL,
+					[merge] VARCHAR(20) NULL,
+					[status] VARCHAR(20) NULL,
+					[putinzip] BOOLEAN,
+					[FileId] INTEGER NULL,
+					[LocalFileHeader] BLOB NULL,
+					[LocalFileHeaderOffset] INTEGER NULL,
+					[LocalFileHeaderLength] INTEGER NULL,
+					FOREIGN KEY(GameId) REFERENCES Game(GameId),
+					FOREIGN KEY(FileId) REFERENCES Files(FileId)
+				);");
 		}
 
 		public static List<RvRom> ReadRoms(uint gameId)
@@ -61,19 +61,19 @@ namespace RomVaultX.DB
 			{
 				_commandRvRomReader = new SQLiteCommand(
 					@"SELECT RomId,name,
-                    type,
-                    rom.size,
-                    rom.crc,
-                    rom.sha1,
-                    rom.md5,
-                    merge,status,putinzip,
-                    rom.FileId,
-                    files.size as fileSize,
-                    files.compressedsize as fileCompressedSize,
-                    files.crc as filecrc,
-                    files.sha1 as filesha1,
-                    files.md5 as filemd5
-                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY RomId", Program.db.Connection);
+					type,
+					rom.size,
+					rom.crc,
+					rom.sha1,
+					rom.md5,
+					merge,status,putinzip,
+					rom.FileId,
+					files.size as fileSize,
+					files.compressedsize as fileCompressedSize,
+					files.crc as filecrc,
+					files.sha1 as filesha1,
+					files.md5 as filemd5
+				FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY RomId", Program.db.Connection);
 				_commandRvRomReader.Parameters.Add(new SQLiteParameter("GameId"));
 			}
 
@@ -118,10 +118,10 @@ namespace RomVaultX.DB
 			if (_commandRvRomWrite == null)
 			{
 				_commandRvRomWrite = new SQLiteCommand(@"
-                INSERT INTO ROM  ( GameId, name, type, size, crc, sha1, md5, merge, status, putinzip, FileId)
-                          VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@PutInZip,@FileId);
+				INSERT INTO ROM  ( GameId, name, type, size, crc, sha1, md5, merge, status, putinzip, FileId)
+						  VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@PutInZip,@FileId);
 
-                SELECT last_insert_rowid();", Program.db.Connection);
+				SELECT last_insert_rowid();", Program.db.Connection);
 
 				_commandRvRomWrite.Parameters.Add(new SQLiteParameter("GameId"));
 				_commandRvRomWrite.Parameters.Add(new SQLiteParameter("Name"));

@@ -21,7 +21,7 @@ namespace RomVaultX.DB
 			if (_commandRvGameGridRowRead == null)
 			{
 				_commandRvGameGridRowRead = new SQLiteCommand(@"
-                    SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name"
+					SELECT GameId,Name,Description,RomTotal,RomGot,RomNoDump FROM game WHERE DatId=@datId ORDER BY Name"
 					, Program.db.Connection);
 				_commandRvGameGridRowRead.Parameters.Add(new SQLiteParameter("datId"));
 			}

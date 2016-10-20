@@ -63,35 +63,35 @@ namespace RomVaultX
 		}
 
 		/*
-        <detector>
-            <name>No-Intro Atari 7800 Dat Header Skipper</name>
-            <author>Connie</author>
-            <version>20130123</version>
-            <rule start_offset="80" end_offset="EOF" operation="none">
-                <data offset="1" value="415441524937383030" result="true"/>
-                <data offset="60" value="0000000041435455414C20434152542044415441205354415254532048455245" result="true"/>
-            </rule>
-        </detector>
+		<detector>
+			<name>No-Intro Atari 7800 Dat Header Skipper</name>
+			<author>Connie</author>
+			<version>20130123</version>
+			<rule start_offset="80" end_offset="EOF" operation="none">
+				<data offset="1" value="415441524937383030" result="true"/>
+				<data offset="60" value="0000000041435455414C20434152542044415441205354415254532048455245" result="true"/>
+			</rule>
+		</detector>
 
-        <detector>
-            <name>No-Intro Lynx Dat LNX Header Skipper</name>
-            <author>Yakushi~Kabuto</author>
-            <version>20070408</version>
-            <rule start_offset="40">
-                <data offset="0" value="4C594E58"/>
-            </rule>
-        </detector>
+		<detector>
+			<name>No-Intro Lynx Dat LNX Header Skipper</name>
+			<author>Yakushi~Kabuto</author>
+			<version>20070408</version>
+			<rule start_offset="40">
+				<data offset="0" value="4C594E58"/>
+			</rule>
+		</detector>
 
-        <detector>
-            <name>No-Intro NES Dat iNES Header Skipper</name>
-            <author>Yakushi~Kabuto</author>
-            <version>20070321</version>
-            <rule start_offset="10">
-                <data offset="0" value="4E4553"/>
-            </rule>
-        </detector>
+		<detector>
+			<name>No-Intro NES Dat iNES Header Skipper</name>
+			<author>Yakushi~Kabuto</author>
+			<version>20070321</version>
+			<rule start_offset="10">
+				<data offset="0" value="4E4553"/>
+			</rule>
+		</detector>
 
-        */
+		*/
 
 		static FileHeaderReader()
 		{

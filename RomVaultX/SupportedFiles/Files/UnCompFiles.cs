@@ -1,7 +1,7 @@
 ﻿/******************************************************
- *     ROMVaultX is written by Gordon J.              *
- *     Contact gordon@romvault.com                    *
- *     Copyright 2016                                 *
+ *	 ROMVaultX is written by Gordon J.			  *
+ *	 Contact gordon@romvault.com					*
+ *	 Copyright 2016								 *
  ******************************************************/
 
 using System.IO;

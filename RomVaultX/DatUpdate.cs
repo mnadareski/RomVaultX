@@ -615,9 +615,9 @@ namespace RomVaultX
 			if (_commandClearfoundDirDATs == null)
 			{
 				_commandClearfoundDirDATs = new SQLiteCommand(@"
-                    UPDATE DIR SET Found=0;
-                    UPDATE DAT SET Found=0;
-                ", Program.db.Connection);
+					UPDATE DIR SET Found=0;
+					UPDATE DAT SET Found=0;
+				", Program.db.Connection);
 			}
 
 			_commandClearfoundDirDATs.ExecuteNonQuery();
@@ -628,8 +628,8 @@ namespace RomVaultX
 			if (CommandFindDat == null)
 			{
 				CommandFindDat = new SQLiteCommand(@"
-                            SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND DatTimeStamp=@DatTimeStamp AND ExtraDir=@ExtraDir
-                    ", Program.db.Connection);
+							SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND DatTimeStamp=@DatTimeStamp AND ExtraDir=@ExtraDir
+					", Program.db.Connection);
 				CommandFindDat.Parameters.Add(new SQLiteParameter("path"));
 				CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
 				CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
@@ -656,9 +656,9 @@ namespace RomVaultX
 			if (CommandSetDatFound == null)
 			{
 				CommandSetDatFound = new SQLiteCommand(@"
-                        Update Dat SET Found=1 WHERE DatId=@DatId;
-                        Update Dir SET Found=1 WHERE DirId=(select DirId from Dat WHERE DatId=@DatId);
-                    ", Program.db.Connection);
+						Update Dat SET Found=1 WHERE DatId=@DatId;
+						Update Dir SET Found=1 WHERE DirId=(select DirId from Dat WHERE DatId=@DatId);
+					", Program.db.Connection);
 				CommandSetDatFound.Parameters.Add(new SQLiteParameter("DatId"));
 
 			}
@@ -672,23 +672,23 @@ namespace RomVaultX
 			if (_commandCleanupNotFoundDaTs == null)
 			{
 				_commandCleanupNotFoundDaTs = new SQLiteCommand(@"
-                    delete from rom where rom.GameId in
-                    (
-                        select gameid from game where game.datid in
-                        (
-                            select datId from dat where found=0
-                        )
-                    );
+					delete from rom where rom.GameId in
+					(
+						select gameid from game where game.datid in
+						(
+							select datId from dat where found=0
+						)
+					);
 
-                    delete from game where game.datid in
-                    (
-                        select datId from dat where found=0
-                    );
+					delete from game where game.datid in
+					(
+						select datId from dat where found=0
+					);
 
-                    delete from dat where found=0;
+					delete from dat where found=0;
 
-                    delete from dir where found=0;
-                ", Program.db.Connection);
+					delete from dir where found=0;
+				", Program.db.Connection);
 			}
 
 			_commandCleanupNotFoundDaTs.ExecuteNonQuery();
@@ -698,24 +698,24 @@ namespace RomVaultX
 		{
 			Program.db.ExecuteNonQuery(@"
 
-            UPDATE DIR SET RomTotal=null, ROMGot=null,RomNoDump=null;
+			UPDATE DIR SET RomTotal=null, ROMGot=null,RomNoDump=null;
 
-            UPDATE DIR SET 
-                RomTotal = (SELECT SUM(RomTotal) FROM Dat WHERE dat.dirid=dir.dirid) ,
-                RomGot = (SELECT SUM(RomGot) FROM dat WHERE dat.dirid=dir.dirid) , 
-                RomNoDump = (SELECT SUM(RomNoDump) FROM dat WHERE dat.dirid=dir.dirid)
-            WHERE
-                (SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirId=dir.dirid)=0;
-            ");
+			UPDATE DIR SET 
+				RomTotal = (SELECT SUM(RomTotal) FROM Dat WHERE dat.dirid=dir.dirid) ,
+				RomGot = (SELECT SUM(RomGot) FROM dat WHERE dat.dirid=dir.dirid) , 
+				RomNoDump = (SELECT SUM(RomNoDump) FROM dat WHERE dat.dirid=dir.dirid)
+			WHERE
+				(SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirId=dir.dirid)=0;
+			");
 
 			SQLiteCommand sqlUpdateCounts = new SQLiteCommand(@"
-                    UPDATE dir SET
-                        romTotal =(IFNULL((SELECT SUM(dir1.romTotal ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomTotal ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
-                        romGot   =(IFNULL((SELECT SUM(dir1.romGot   ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomGot   ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
-                        romNodump=(IFNULL((SELECT SUM(dir1.romNodump) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomNoDump) FROM Dat WHERE dat.dirid=dir.dirid),0))
-                    WHERE
-                        romtotal IS null AND
-                        (SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid AND dir1.romtotal IS null) = 0;", Program.db.Connection);
+					UPDATE dir SET
+						romTotal =(IFNULL((SELECT SUM(dir1.romTotal ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomTotal ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
+						romGot   =(IFNULL((SELECT SUM(dir1.romGot   ) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomGot   ) FROM Dat WHERE dat.dirid=dir.dirid),0)),
+						romNodump=(IFNULL((SELECT SUM(dir1.romNodump) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid),0)) + (IFNULL((SELECT SUM(RomNoDump) FROM Dat WHERE dat.dirid=dir.dirid),0))
+					WHERE
+						romtotal IS null AND
+						(SELECT COUNT(1) FROM dir AS dir1 WHERE dir1.parentdirid=dir.dirid AND dir1.romtotal IS null) = 0;", Program.db.Connection);
 
 			SQLiteCommand sqlNullCount = new SQLiteCommand(@"SELECT COUNT(1) FROM dir WHERE RomTotal IS null", Program.db.Connection);
 

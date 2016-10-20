@@ -46,7 +46,7 @@ namespace RomVaultX
 							ulong size = Convert.ToUInt64(drRom["size"]);
 							ulong compressedSize = Convert.ToUInt64(drRom["compressedsize"]);
 							byte[] CRC = VarFix.CleanMD5SHA1(drRom["crc"].ToString(), 8);
-							Debug.WriteLine("    Rom " + RomId + " Name: " + RomName + "  Size: " + size + "  Compressed: " + compressedSize + "  CRC: " + VarFix.ToString(CRC));
+							Debug.WriteLine("	Rom " + RomId + " Name: " + RomName + "  Size: " + size + "  Compressed: " + compressedSize + "  CRC: " + VarFix.ToString(CRC));
 
 							byte[] localHeader;
 							memZip.ZipFileAddFake(RomName, fileOffset, size, compressedSize, CRC, out localHeader);

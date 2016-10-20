@@ -25,20 +25,20 @@ namespace RomVaultX.DB
 		public static void CreateTable()
 		{
 			Program.db.ExecuteNonQuery(@"
-                CREATE TABLE IF NOT EXISTS [FILES] (
-                    [FileId] INTEGER PRIMARY KEY NOT NULL,
-                    [size] INTEGER NOT NULL,
-                    [compressedsize] INTEGER NULL,
-                    [crc] VARCHAR(8) NULL,
-                    [sha1] VARCHAR(40) NULL,
-                    [md5] VARCHAR(32) NULL,
-                    [alttype] VARCHAR(8) NULL,
-                    [altsize] INTEGER NULL,
-                    [altcrc] VARCHAR(8) NULL,
-                    [altsha1] VARCHAR(40) NULL,
-                    [altmd5] VARCHAR(32) NULL
-                );
-            ");
+				CREATE TABLE IF NOT EXISTS [FILES] (
+					[FileId] INTEGER PRIMARY KEY NOT NULL,
+					[size] INTEGER NOT NULL,
+					[compressedsize] INTEGER NULL,
+					[crc] VARCHAR(8) NULL,
+					[sha1] VARCHAR(40) NULL,
+					[md5] VARCHAR(32) NULL,
+					[alttype] VARCHAR(8) NULL,
+					[altsize] INTEGER NULL,
+					[altcrc] VARCHAR(8) NULL,
+					[altsha1] VARCHAR(40) NULL,
+					[altmd5] VARCHAR(32) NULL
+				);
+			");
 		}
 
 		public void DBWrite()
@@ -55,8 +55,8 @@ namespace RomVaultX.DB
 			{
 				_commandRvFileWrite = new SQLiteCommand(
 				   @"INSERT INTO FILES (size,compressedsize,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5)
-                        VALUES (@Size,@compressedsize,@CRC,@SHA1,@MD5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
-                    SELECT last_insert_rowid();", Program.db.Connection);
+						VALUES (@Size,@compressedsize,@CRC,@SHA1,@MD5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
+					SELECT last_insert_rowid();", Program.db.Connection);
 
 				_commandRvFileWrite.Parameters.Add(new SQLiteParameter("size"));
 				_commandRvFileWrite.Parameters.Add(new SQLiteParameter("compressedsize"));

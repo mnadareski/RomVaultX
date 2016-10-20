@@ -1,7 +1,7 @@
 ﻿/******************************************************
- *     ROMVault2 is written by Gordon J.              *
- *     Contact gordon@romvault.com                    *
- *     Copyright 2014                                 *
+ *	 ROMVault2 is written by Gordon J.			  *
+ *	 Contact gordon@romvault.com					*
+ *	 Copyright 2014								 *
  ******************************************************/
 
 using System;
@@ -57,7 +57,7 @@ namespace RomVaultX.SupportedFiles.Zip
 				Zip64 = false;
 				_zipFs = zipFs;
 				_generalPurposeBitFlag = 2;  // Maximum Compression Deflating
-				_compressionMethod = 8;      // Compression Method Deflate
+				_compressionMethod = 8;	  // Compression Method Deflate
 				_lastModFileTime = 48128;
 				_lastModFileDate = 8600;
 
@@ -917,19 +917,19 @@ namespace RomVaultX.SupportedFiles.Zip
 			if (thisSignature != EndOfCentralDirSignature)
 				return ZipReturn.ZipEndOfCentralDirectoryError;
 
-			ushort tushort = zipBr.ReadUInt16();     // NumberOfThisDisk
+			ushort tushort = zipBr.ReadUInt16();	 // NumberOfThisDisk
 			if (tushort != 0) return ZipReturn.ZipEndOfCentralDirectoryError;
 
-			tushort = zipBr.ReadUInt16();     // NumberOfThisDiskCenterDir
+			tushort = zipBr.ReadUInt16();	 // NumberOfThisDiskCenterDir
 			if (tushort != 0) return ZipReturn.ZipEndOfCentralDirectoryError;
 
-			_localFilesCount = zipBr.ReadUInt16();     // TotalNumberOfEnteriesDisk
+			_localFilesCount = zipBr.ReadUInt16();	 // TotalNumberOfEnteriesDisk
 
-			tushort = zipBr.ReadUInt16();     // TotalNumber of enteries in the central directory 
+			tushort = zipBr.ReadUInt16();	 // TotalNumber of enteries in the central directory 
 			if (tushort != _localFilesCount) return ZipReturn.ZipEndOfCentralDirectoryError;
 
-			_centerDirSize = zipBr.ReadUInt32();     // SizeOfCenteralDir
-			_centerDirStart = zipBr.ReadUInt32();     // Offset
+			_centerDirSize = zipBr.ReadUInt32();	 // SizeOfCenteralDir
+			_centerDirStart = zipBr.ReadUInt32();	 // Offset
 
 			ushort zipFileCommentLength = zipBr.ReadUInt16();
 
@@ -995,8 +995,8 @@ namespace RomVaultX.SupportedFiles.Zip
 			bw.Write((ulong)44); // Size of zip64 end of central directory record
 			bw.Write((ushort)45); // version made by
 			bw.Write((ushort)45); // version needed to extract
-			bw.Write((uint)0);    // number of this disk
-			bw.Write((uint)0);    // number of the disk with the start of the central directroy
+			bw.Write((uint)0);	// number of this disk
+			bw.Write((uint)0);	// number of the disk with the start of the central directroy
 			bw.Write((ulong)_localFiles.Count); // total number of entries in the central directory on this disk
 			bw.Write((ulong)_localFiles.Count); // total number of entries in the central directory
 			bw.Write(_centerDirSize);  // size of central directory
@@ -1026,7 +1026,7 @@ namespace RomVaultX.SupportedFiles.Zip
 		{
 			BinaryWriter bw = new BinaryWriter(_zipFs);
 			bw.Write(Zip64EndOfCentralDirectoryLocator);
-			bw.Write((uint)0);    // number of the disk with the start of the zip64 end of centeral directory
+			bw.Write((uint)0);	// number of the disk with the start of the zip64 end of centeral directory
 			bw.Write(_endOfCenterDir64); // relative offset of the zip64 end of central directroy record
 			bw.Write((uint)1);  // total number of disks
 		}
@@ -1497,24 +1497,24 @@ namespace RomVaultX.SupportedFiles.Zip
 		}
 
 		/*
-        public void BreakTrrntZip(string filename)
-        {
-            _zipFs = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
-            BinaryReader zipBr = new BinaryReader(_zipFs);
-            _zipFs.Position = _zipFs.Length - 22;
-            byte[] fileComment = zipBr.ReadBytes(22);
-            if (GetString(fileComment).Substring(0, 14) == "TORRENTZIPPED-")
-            {
-                _zipFs.Position = _zipFs.Length - 8;
-                _zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48);
-                _zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48);
-            }
+		public void BreakTrrntZip(string filename)
+		{
+			_zipFs = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+			BinaryReader zipBr = new BinaryReader(_zipFs);
+			_zipFs.Position = _zipFs.Length - 22;
+			byte[] fileComment = zipBr.ReadBytes(22);
+			if (GetString(fileComment).Substring(0, 14) == "TORRENTZIPPED-")
+			{
+				_zipFs.Position = _zipFs.Length - 8;
+				_zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48);
+				_zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48); _zipFs.WriteByte(48);
+			}
 
-            zipBr.Close();
-            _zipFs.Flush();
-            _zipFs.Close();
-        }
-        */
+			zipBr.Close();
+			_zipFs.Flush();
+			_zipFs.Close();
+		}
+		*/
 
 		public void DeepScan()
 		{

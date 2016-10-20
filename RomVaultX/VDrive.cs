@@ -330,7 +330,7 @@ namespace RomVaultX
 			Debug.WriteLine("searchPattern : " + searchPattern);
 
 			// if (searchPattern != "*" && searchPattern !="DatRoot")
-			//     Debug.WriteLine("Unknown search pattern");
+			//	 Debug.WriteLine("Unknown search pattern");
 
 			files = new List<FileInformation>();
 
