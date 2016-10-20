@@ -19,7 +19,7 @@ namespace RomVaultX.DatReader
 				return false;
 			}
 
-			string filename = IO.Path.GetFileName(strFilename);
+			string filename = Path.GetFileName(strFilename);
 
 			DatFileLoader.Gn();
 			if (DatFileLoader.EndOfStream())
@@ -226,7 +226,7 @@ namespace RomVaultX.DatReader
 				return false;
 			}
 			string fullname = VarFix.CleanFullFileName(DatFileLoader.GnRest());
-			fullname = IO.Path.Combine(rootName, fullname);
+			fullname = Path.Combine(rootName, fullname);
 
 			DatFileLoader.Gn();
 
@@ -293,8 +293,8 @@ namespace RomVaultX.DatReader
 
 			string name = VarFix.CleanFullFileName(DatFileLoader.GnRest());
 
-			name = IO.Path.Combine(pathextra, name);
-			name = IO.Path.Combine(rootName, name);
+			name = Path.Combine(pathextra, name);
+			name = Path.Combine(rootName, name);
 
 			DatFileLoader.Gn();
 
@@ -592,18 +592,21 @@ namespace RomVaultX.DatReader
 			{
 				Filename = strFilename;
 				_streamReader = null;
-				int errorCode = IO.FileStream.OpenFileRead(strFilename, out _fileStream);
-				if (errorCode != 0)
+				try
 				{
-					return errorCode;
+					_fileStream = File.OpenRead(strFilename);
+					_streamReader = new StreamReader(_fileStream, Program.Enc);
 				}
-				_streamReader = new StreamReader(_fileStream, Program.Enc);
+				catch
+				{
+					return 1; // Mock error code
+				}
+				
 				return 0;
 			}
+
 			public static void Close()
 			{
-				_streamReader.Close();
-				_fileStream.Close();
 				_streamReader.Dispose();
 				_fileStream.Dispose();
 			}

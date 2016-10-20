@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.IO;
+using System.Xml;
 using RomVaultX.DB;
 using RomVaultX.Util;
 
@@ -11,7 +12,7 @@ namespace RomVaultX.DatReader
 		public static bool ReadDat(XmlDocument doc, string strFilename, out RvDat rvDat)
 		{
 			rvDat = new RvDat();
-			string filename = IO.Path.GetFileName(strFilename);
+			string filename = Path.GetFileName(strFilename);
 			if (!LoadHeaderFromDat(doc, rvDat, filename))
 			{
 				return false;

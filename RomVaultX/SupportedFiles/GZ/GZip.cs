@@ -46,21 +46,21 @@ namespace RomVaultX.SupportedFiles.GZ
 		public ZipReturn ReadGZip(string filename, bool deepScan)
 		{
 			_filename = "";
-			if (!IO.File.Exists(filename))
+			if (!File.Exists(filename))
 			{
 				return ZipReturn.ZipErrorFileNotFound;
 			}
 			_filename = filename;
 
-			int errorCode = IO.FileStream.OpenFileRead(filename, out _zipFs);
-			if (errorCode != 0)
+			try
 			{
-				if (errorCode == 32)
-				{
-					return ZipReturn.ZipFileLocked;
-				}
+				_zipFs = File.OpenRead(filename);
+			}
+			catch (Exception)
+			{
 				return ZipReturn.ZipErrorOpeningFile;
 			}
+
 			return ReadBody(deepScan);
 		}
 
@@ -293,23 +293,21 @@ namespace RomVaultX.SupportedFiles.GZ
 		public ZipReturn GetRawStream(out Stream st)
 		{
 			st = null;
-			if (!IO.File.Exists(_filename))
+			if (!File.Exists(_filename))
 			{
 				return ZipReturn.ZipErrorFileNotFound;
 			}
 
-			int errorCode = IO.FileStream.OpenFileRead(_filename, out _zipFs);
-			if (errorCode != 0)
+			try
 			{
-				if (errorCode == 32)
-				{
-					return ZipReturn.ZipFileLocked;
-				}
+				_zipFs = File.OpenRead(_filename);
+			}
+			catch (Exception)
+			{
 				return ZipReturn.ZipErrorOpeningFile;
 			}
 
 			_zipFs.Position = datapos;
-
 			st = _zipFs;
 
 			return ZipReturn.ZipGood;
@@ -331,8 +329,7 @@ namespace RomVaultX.SupportedFiles.GZ
 		{
 			CreateDirForFile(filename);
 
-			Stream _zipFs;
-			IO.FileStream.OpenFileWrite(filename, out _zipFs);
+			Stream _zipFs = File.OpenWrite(filename);
 			BinaryWriter zipBw = new BinaryWriter(_zipFs);
 
 			zipBw.Write((byte)0x1f); // ID1 = 0x1f
@@ -414,21 +411,21 @@ namespace RomVaultX.SupportedFiles.GZ
 
 		private static void CreateDirForFile(string sFilename)
 		{
-			string strTemp = IO.Path.GetDirectoryName(sFilename);
+			string strTemp = Path.GetDirectoryName(sFilename);
 
 			if (String.IsNullOrEmpty(strTemp))
 			{
 				return;
 			}
 
-			if (IO.Directory.Exists(strTemp))
+			if (Directory.Exists(strTemp))
 			{
 				return;
 			}
 
-			while (strTemp.Length > 0 && !IO.Directory.Exists(strTemp))
+			while (strTemp.Length > 0 && !Directory.Exists(strTemp))
 			{
-				int pos = strTemp.LastIndexOf(IO.Path.DirectorySeparatorChar);
+				int pos = strTemp.LastIndexOf(Path.DirectorySeparatorChar);
 				if (pos < 0)
 				{
 					pos = 0;
@@ -436,10 +433,10 @@ namespace RomVaultX.SupportedFiles.GZ
 				strTemp = strTemp.Substring(0, pos);
 			}
 
-			while (sFilename.IndexOf(IO.Path.DirectorySeparatorChar, strTemp.Length + 1) > 0)
+			while (sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1) > 0)
 			{
-				strTemp = sFilename.Substring(0, sFilename.IndexOf(IO.Path.DirectorySeparatorChar, strTemp.Length + 1));
-				IO.Directory.CreateDirectory(strTemp);
+				strTemp = sFilename.Substring(0, sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1));
+				Directory.CreateDirectory(strTemp);
 			}
 		}
 	}

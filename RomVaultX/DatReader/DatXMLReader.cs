@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.IO;
+using System.Xml;
 using RomVaultX.DB;
 using RomVaultX.Util;
 
@@ -9,7 +10,7 @@ namespace RomVaultX.DatReader
 		public static bool ReadDat(XmlDocument doc, string strFilename, out RvDat rvDat)
 		{
 			rvDat = new RvDat();
-			string filename = IO.Path.GetFileName(strFilename);
+			string filename = Path.GetFileName(strFilename);
 
 			if (!LoadHeaderFromDat(doc, rvDat, filename))
 			{
@@ -54,7 +55,7 @@ namespace RomVaultX.DatReader
 		public static bool ReadMameDat(XmlDocument doc, string strFilename, out RvDat rvDat)
 		{
 			rvDat = new RvDat();
-			string filename = IO.Path.GetFileName(strFilename);
+			string filename = Path.GetFileName(strFilename);
 
 			if (!LoadMameHeaderFromDat(doc, rvDat, filename))
 			{
@@ -166,7 +167,7 @@ namespace RomVaultX.DatReader
 			{
 				for (int i = 0; i < dirNodeList.Count; i++)
 				{
-					LoadDirFromDat(rvDat, dirNodeList[i], IO.Path.Combine(rootDir, fullname));
+					LoadDirFromDat(rvDat, dirNodeList[i], Path.Combine(rootDir, fullname));
 				}
 			}
 
@@ -175,7 +176,7 @@ namespace RomVaultX.DatReader
 			{
 				for (int i = 0; i < gameNodeList.Count; i++)
 				{
-					LoadGameFromDat(rvDat, gameNodeList[i], IO.Path.Combine(rootDir, fullname));
+					LoadGameFromDat(rvDat, gameNodeList[i], Path.Combine(rootDir, fullname));
 				}
 			}
 		}
@@ -220,7 +221,7 @@ namespace RomVaultX.DatReader
 				rvGame.BarCode = VarFix.String(trurip.SelectSingleNode("barcode"));
 			}
 
-			rvGame.Name = IO.Path.Combine(rootDir, rvGame.Name);
+			rvGame.Name = Path.Combine(rootDir, rvGame.Name);
 
 			rvDat.AddGame(rvGame);
 

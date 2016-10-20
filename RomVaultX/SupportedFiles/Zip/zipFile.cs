@@ -825,7 +825,7 @@ namespace RomVaultX.SupportedFiles.Zip
 
 		}
 
-		private IO.FileInfo _zipFileInfo;
+		private FileInfo _zipFileInfo;
 
 		public string ZipFilename
 		{
@@ -833,7 +833,7 @@ namespace RomVaultX.SupportedFiles.Zip
 		}
 		public long TimeStamp
 		{
-			get { return _zipFileInfo != null ? _zipFileInfo.LastWriteTime : 0; }
+			get { return _zipFileInfo != null ? _zipFileInfo.LastWriteTime.Ticks : 0; }
 		}
 
 		private ulong _centerDirStart;
@@ -1042,23 +1042,23 @@ namespace RomVaultX.SupportedFiles.Zip
 
 			try
 			{
-				if (!IO.File.Exists(newFilename))
+				if (!File.Exists(newFilename))
 				{
 					ZipFileClose();
 					return ZipReturn.ZipErrorFileNotFound;
 				}
-				_zipFileInfo = new IO.FileInfo(newFilename);
-				if (_zipFileInfo.LastWriteTime != timestamp)
+				_zipFileInfo = new FileInfo(newFilename);
+				if (_zipFileInfo.LastWriteTime.Ticks != timestamp)
 				{
 					ZipFileClose();
 					return ZipReturn.ZipErrorTimeStamp;
 				}
-				int errorCode = IO.FileStream.OpenFileRead(newFilename, out _zipFs);
-				if (errorCode != 0)
+				try
 				{
-					ZipFileClose();
-					if (errorCode == 32)
-						return ZipReturn.ZipFileLocked;
+					_zipFs = File.OpenRead(newFilename);
+				}
+				catch (Exception)
+				{
 					return ZipReturn.ZipErrorOpeningFile;
 				}
 			}
@@ -1233,10 +1233,13 @@ namespace RomVaultX.SupportedFiles.Zip
 				return ZipReturn.ZipFileAlreadyOpen;
 
 			CreateDirForFile(newFilename);
-			_zipFileInfo = new IO.FileInfo(newFilename);
+			_zipFileInfo = new FileInfo(newFilename);
 
-			int errorCode = IO.FileStream.OpenFileWrite(newFilename, out _zipFs);
-			if (errorCode != 0)
+			try
+			{
+				_zipFs = File.OpenWrite(newFilename);
+			}
+			catch (Exception)
 			{
 				ZipFileClose();
 				return ZipReturn.ZipErrorOpeningFile;
@@ -1310,9 +1313,8 @@ namespace RomVaultX.SupportedFiles.Zip
 			_zipFs.Flush();
 			_zipFs.Close();
 			_zipFs.Dispose();
-			_zipFileInfo = new IO.FileInfo(_zipFileInfo.FullName);
+			_zipFileInfo = new FileInfo(_zipFileInfo.FullName);
 			ZipOpen = ZipOpenType.Closed;
-
 		}
 
 		public void ZipFileCloseFake(ulong fileOffset, out byte[] centeralDir)
@@ -1386,7 +1388,7 @@ namespace RomVaultX.SupportedFiles.Zip
 			_zipFs.Flush();
 			_zipFs.Close();
 			_zipFs.Dispose();
-			IO.File.Delete(_zipFileInfo.FullName);
+			File.Delete(_zipFileInfo.FullName);
 			_zipFileInfo = null;
 			ZipOpen = ZipOpenType.Closed;
 		}
@@ -1522,23 +1524,23 @@ namespace RomVaultX.SupportedFiles.Zip
 
 		public static void CreateDirForFile(string sFilename)
 		{
-			string strTemp = IO.Path.GetDirectoryName(sFilename);
+			string strTemp = Path.GetDirectoryName(sFilename);
 
 			if (String.IsNullOrEmpty(strTemp)) return;
 
-			if (IO.Directory.Exists(strTemp)) return;
+			if (Directory.Exists(strTemp)) return;
 
-			while (strTemp.Length > 0 && !IO.Directory.Exists(strTemp))
+			while (strTemp.Length > 0 && !Directory.Exists(strTemp))
 			{
-				int pos = strTemp.LastIndexOf(IO.Path.DirectorySeparatorChar);
+				int pos = strTemp.LastIndexOf(Path.DirectorySeparatorChar);
 				if (pos < 0) pos = 0;
 				strTemp = strTemp.Substring(0, pos);
 			}
 
-			while (sFilename.IndexOf(IO.Path.DirectorySeparatorChar, strTemp.Length + 1) > 0)
+			while (sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1) > 0)
 			{
-				strTemp = sFilename.Substring(0, sFilename.IndexOf(IO.Path.DirectorySeparatorChar, strTemp.Length + 1));
-				IO.Directory.CreateDirectory(strTemp);
+				strTemp = sFilename.Substring(0, sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1));
+				Directory.CreateDirectory(strTemp);
 			}
 		}
 

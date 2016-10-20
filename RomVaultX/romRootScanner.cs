@@ -1,13 +1,11 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
-using DirectoryInfo = RomVaultX.IO.DirectoryInfo;
-using FileInfo = RomVaultX.IO.FileInfo;
-using Path = RomVaultX.IO.Path;
 
 namespace RomVaultX
 {

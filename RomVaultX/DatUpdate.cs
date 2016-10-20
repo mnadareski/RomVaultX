@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SQLite;
+using System.IO;
 using System.Threading;
 using RomVaultX.DB;
-using RomVaultX.IO;
 using RomVaultX.Util;
 using Convert = System.Convert;
 
@@ -144,7 +144,7 @@ namespace RomVaultX
 				_datsProcessed++;
 				_bgw.ReportProgress(_datsProcessed);
 
-				uint? datId = FindDat(subPath, f.Name, f.LastWriteTime, extraDir);
+				uint? datId = FindDat(subPath, f.Name, f.LastWriteTime.Ticks, extraDir);
 				if (datId != null)
 				{
 					SetDatFound((uint)datId);
@@ -171,7 +171,7 @@ namespace RomVaultX
 					rvDat.DirId = nextDirId;
 					rvDat.ExtraDir = extraDir;
 					rvDat.Path = subPath;
-					rvDat.DatTimeStamp = f.LastWriteTime;
+					rvDat.DatTimeStamp = f.LastWriteTime.Ticks;
 
 					DatSetRemoveUnneededDirs(rvDat);
 					DatSetCheckParentSets(rvDat);

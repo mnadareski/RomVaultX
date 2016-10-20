@@ -89,9 +89,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// This example uses a <c>ZlibStream</c> to compress a file, and writes the
         /// compressed data to another file.
         /// <code>
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        /// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         /// {
-        ///     using (var raw = System.IO.File.Create(fileToCompress + ".zlib"))
+        ///     using (var raw = System.File.Create(fileToCompress + ".zlib"))
         ///     {
         ///         using (Stream compressor = new ZlibStream(raw, CompressionMode.Compress))
         ///         {
@@ -149,9 +149,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         ///   compressed data to another file.
         ///
         /// <code>
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        /// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         /// {
-        ///     using (var raw = System.IO.File.Create(fileToCompress + ".zlib"))
+        ///     using (var raw = System.File.Create(fileToCompress + ".zlib"))
         ///     {
         ///         using (Stream compressor = new ZlibStream(raw,
         ///                                                   CompressionMode.Compress,
@@ -265,9 +265,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// additional data to be written to it.
         ///
         /// <code>
-        /// using (var output = System.IO.File.Create(fileToCompress + ".zlib"))
+        /// using (var output = System.File.Create(fileToCompress + ".zlib"))
         /// {
-        ///     using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        ///     using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         ///     {
         ///         using (Stream compressor = new ZlibStream(output, CompressionMode.Compress, CompressionLevel.BestCompression, true))
         ///         {

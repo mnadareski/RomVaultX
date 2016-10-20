@@ -10,10 +10,6 @@ using RomVaultX.SupportedFiles.Files;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.SupportedFiles.Zip;
 using RomVaultX.Util;
-using Directory = System.IO.Directory;
-using DirectoryInfo = RomVaultX.IO.DirectoryInfo;
-using File = System.IO.File;
-using FileInfo = RomVaultX.IO.FileInfo;
 
 namespace RomVaultX
 {
@@ -123,8 +119,7 @@ namespace RomVaultX
 							string file = @"tmp\" + Guid.NewGuid();
 							if (!Directory.Exists("tmp"))
 								Directory.CreateDirectory("tmp");
-							Stream fs;
-							IO.FileStream.OpenFileWrite(file, out fs);
+							Stream fs = File.OpenWrite(file);
 							ulong sizetogo = streamSize;
 							while (sizetogo > 0)
 							{
@@ -136,9 +131,14 @@ namespace RomVaultX
 							fs.Close();
 
 							Stream fstreamNext;
-							int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
-							if (errorCode != 0)
+							try
+							{
+								fstreamNext = File.OpenRead(file);
+							}
+							catch
+							{
 								return false;
+							}
 
 							allZipFound &= ScanAFile(fz.Filename(i), fstreamNext);
 							fstreamNext.Close();
@@ -184,8 +184,7 @@ namespace RomVaultX
 							{
 								Directory.CreateDirectory("tmp");
 							}
-							Stream fs;
-							IO.FileStream.OpenFileWrite(file, out fs);
+							Stream fs = File.OpenWrite(file);
 							ulong sizetogo = streamSize;
 							while (sizetogo > 0)
 							{
@@ -198,8 +197,11 @@ namespace RomVaultX
 							stream.Close();
 
 							Stream fstreamNext;
-							int errorCode = IO.FileStream.OpenFileRead(file, out fstreamNext);
-							if (errorCode != 0)
+							try
+							{
+								fstreamNext = File.OpenRead(file);
+							}
+							catch
 							{
 								return false;
 							}
@@ -241,9 +243,14 @@ namespace RomVaultX
 				_bgw.ReportProgress(0, new bgwText2(f.Name));
 
 				Stream fstreamNext;
-				int errorCode = IO.FileStream.OpenFileRead(f.FullName, out fstreamNext);
-				if (errorCode != 0)
+				try
+				{
+					fstreamNext = File.OpenRead(f.FullName);
+				}
+				catch
+				{
 					return;
+				}
 
 				bool fileFound = ScanAFile(f.FullName, fstreamNext);
 				fstreamNext.Close();

@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Data.Common;
 using System.Data.SQLite;
-using RomVaultX.IO;
+using System.IO;
 
 namespace RomVaultX.DB
 {

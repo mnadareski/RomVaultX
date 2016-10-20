@@ -135,8 +135,6 @@
     <Compile Include="frmShowError.designer.cs">
       <DependentUpon>frmShowError.cs</DependentUpon>
     </Compile>
-    <Compile Include="IO\RVIO.cs" />
-    <Compile Include="IO\Win32Native.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReportError.cs" />

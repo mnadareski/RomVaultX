@@ -29,10 +29,13 @@ namespace RomVaultX.DatReader
 
 			// Attempt to read the file and check for errors
 			Stream fs;
-			int errorCode = IO.FileStream.OpenFileRead(fullname, out fs);
-			if (errorCode != 0)
+			try
 			{
-				_bgw.ReportProgress(0, new bgwShowError(fullname, errorCode + ": " + new Win32Exception(errorCode).Message));
+				fs = File.OpenRead(fullname);
+			}
+			catch (Exception ex)
+			{
+				_bgw.ReportProgress(0, new bgwShowError(fullname, ex.Message));
 				return false;
 			}
 
@@ -111,10 +114,13 @@ namespace RomVaultX.DatReader
 
 			// Attempt to read the file and check for errors
 			Stream fs;
-			int errorCode = IO.FileStream.OpenFileRead(fullname, out fs);
-			if (errorCode != 0)
+			try
 			{
-				_bgw.ReportProgress(0, new bgwShowError(fullname, errorCode + ": " + new Win32Exception(errorCode).Message));
+				fs = File.OpenRead(fullname);
+			}
+			catch (Exception ex)
+			{
+				_bgw.ReportProgress(0, new bgwShowError(fullname, ex.Message));
 				return false;
 			}
 

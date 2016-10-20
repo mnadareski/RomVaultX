@@ -22,7 +22,7 @@ namespace RomVaultX.DatReader
 				return false;
 			}
 
-			string filename = IO.Path.GetFileName(strFilename);
+			string filename = Path.GetFileName(strFilename);
 
 			DatFileLoader.Gn();
 			if (DatFileLoader.EndOfStream())
@@ -186,8 +186,8 @@ namespace RomVaultX.DatReader
 
 			string name = VarFix.CleanFullFileName(DatFileLoader.GnRest());
 
-			name = IO.Path.Combine(pathextra, name);
-			name = IO.Path.Combine(rootName, name);
+			name = Path.Combine(pathextra, name);
+			name = Path.Combine(rootName, name);
 			name = (name.EndsWith(".zip") ? name.Remove(name.Length - 4) : name);
 
 			DatFileLoader.Gn();
@@ -358,12 +358,16 @@ namespace RomVaultX.DatReader
 			{
 				Filename = strFilename;
 				_streamReader = null;
-				int errorCode = IO.FileStream.OpenFileRead(strFilename, out _fileStream);
-				if (errorCode != 0)
+				try
 				{
-					return errorCode;
+					_fileStream = File.OpenRead(strFilename);
+					_streamReader = new StreamReader(_fileStream, Program.Enc);
 				}
-				_streamReader = new StreamReader(_fileStream, Program.Enc);
+				catch
+				{
+					return 1; // Mock error code
+				}
+
 				return 0;
 			}
 			public static void Close()

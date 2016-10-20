@@ -82,9 +82,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// This example uses a DeflateStream to compress data from a file, and writes
         /// the compressed data to another file.
         /// <code>
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        /// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         /// {
-        ///     using (var raw = System.IO.File.Create(fileToCompress + ".deflated"))
+        ///     using (var raw = System.File.Create(fileToCompress + ".deflated"))
         ///     {
         ///         using (Stream compressor = new DeflateStream(raw, CompressionMode.Compress))
         ///         {
@@ -143,9 +143,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         ///   the compressed data to another file.
         ///
         /// <code>
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        /// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         /// {
-        ///     using (var raw = System.IO.File.Create(fileToCompress + ".deflated"))
+        ///     using (var raw = System.File.Create(fileToCompress + ".deflated"))
         ///     {
         ///         using (Stream compressor = new DeflateStream(raw,
         ///                                                      CompressionMode.Compress,
@@ -261,9 +261,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         ///   a file, and store the compressed data into another file.
         ///
         /// <code>
-        /// using (var output = System.IO.File.Create(fileToCompress + ".deflated"))
+        /// using (var output = System.File.Create(fileToCompress + ".deflated"))
         /// {
-        ///     using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        ///     using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         ///     {
         ///         using (Stream compressor = new DeflateStream(output, CompressionMode.Compress, CompressionLevel.BestCompression, true))
         ///         {

@@ -247,9 +247,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// <example>
         ///   This example shows how to use a GZipStream to compress data.
         /// <code>
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        /// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         /// {
-        ///     using (var raw = System.IO.File.Create(outputFile))
+        ///     using (var raw = System.File.Create(outputFile))
         ///     {
         ///         using (Stream compressor = new GZipStream(raw, CompressionMode.Compress))
         ///         {
@@ -292,11 +292,11 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         ///     var DecompressedFile = filename.Substring(0,filename.Length-3);
         ///     byte[] working = new byte[WORKING_BUFFER_SIZE];
         ///     int n= 1;
-        ///     using (System.IO.Stream input = System.IO.File.OpenRead(filename))
+        ///     using (System.IO.Stream input = System.File.OpenRead(filename))
         ///     {
         ///         using (Stream decompressor= new Ionic.Zlib.GZipStream(input, CompressionMode.Decompress, true))
         ///         {
-        ///             using (var output = System.IO.File.Create(DecompressedFile))
+        ///             using (var output = System.File.Create(DecompressedFile))
         ///             {
         ///                 while (n !=0)
         ///                 {
@@ -364,9 +364,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// This example shows how to use a <c>GZipStream</c> to compress a file into a .gz file.
         ///
         /// <code>
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        /// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         /// {
-        ///     using (var raw = System.IO.File.Create(fileToCompress + ".gz"))
+        ///     using (var raw = System.File.Create(fileToCompress + ".gz"))
         ///     {
         ///         using (Stream compressor = new GZipStream(raw,
         ///                                                   CompressionMode.Compress,
@@ -492,9 +492,9 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// <example>
         ///   This example shows how to use a <c>GZipStream</c> to compress data.
         /// <code>
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(fileToCompress))
+        /// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
         /// {
-        ///     using (var raw = System.IO.File.Create(outputFile))
+        ///     using (var raw = System.File.Create(outputFile))
         ///     {
         ///         using (Stream compressor = new GZipStream(raw, CompressionMode.Compress, CompressionLevel.BestCompression, true))
         ///         {
@@ -742,11 +742,11 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
         /// <example>
         /// <code>
         /// byte[] working = new byte[WORKING_BUFFER_SIZE];
-        /// using (System.IO.Stream input = System.IO.File.OpenRead(_CompressedFile))
+        /// using (System.IO.Stream input = System.File.OpenRead(_CompressedFile))
         /// {
         ///     using (Stream decompressor= new Ionic.Zlib.GZipStream(input, CompressionMode.Decompress, true))
         ///     {
-        ///         using (var output = System.IO.File.Create(_DecompressedFile))
+        ///         using (var output = System.File.Create(_DecompressedFile))
         ///         {
         ///             int n;
         ///             while ((n= decompressor.Read(working, 0, working.Length)) !=0)
