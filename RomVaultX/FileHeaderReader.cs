@@ -67,37 +67,6 @@ namespace RomVaultX
 			}
 		}
 
-		/*
-		<detector>
-			<name>No-Intro Atari 7800 Dat Header Skipper</name>
-			<author>Connie</author>
-			<version>20130123</version>
-			<rule start_offset="80" end_offset="EOF" operation="none">
-				<data offset="1" value="415441524937383030" result="true"/>
-				<data offset="60" value="0000000041435455414C20434152542044415441205354415254532048455245" result="true"/>
-			</rule>
-		</detector>
-
-		<detector>
-			<name>No-Intro Lynx Dat LNX Header Skipper</name>
-			<author>Yakushi~Kabuto</author>
-			<version>20070408</version>
-			<rule start_offset="40">
-				<data offset="0" value="4C594E58"/>
-			</rule>
-		</detector>
-
-		<detector>
-			<name>No-Intro NES Dat iNES Header Skipper</name>
-			<author>Yakushi~Kabuto</author>
-			<version>20070321</version>
-			<rule start_offset="10">
-				<data offset="0" value="4E4553"/>
-			</rule>
-		</detector>
-
-		*/
-
 		static FileHeaderReader()
 		{
 			Detectors = new List<Detector>
@@ -112,18 +81,18 @@ namespace RomVaultX
 				new Detector(FileType.CHD, 76, 0,"", new Data(0, new byte[] {(byte) 'M', (byte) 'C', (byte) 'o', (byte) 'm', (byte) 'p', (byte) 'r', (byte) 'H', (byte) 'D'})),
 
 				// Headered files
-				new Detector(FileType.A7800, 128, 128, "No-Intro_A7800.xml", new Data(1, new byte[] {0x41, 0x54, 0x41, 0x52, 0x49, 0x37, 0x38, 0x30, 0x30})),
-				new Detector(FileType.A7800, 128, 128, "No-Intro_A7800.xml", new Data(100, new byte[] {0x41, 0x43, 0x54, 0x55, 0x41, 0x4C, 0x20, 0x43, 0x41, 0x52, 0x54, 0x20, 0x44, 0x41, 0x54, 0x41, 0x20, 0x53, 0x54, 0x41, 0x52, 0x54, 0x53, 0x20, 0x48, 0x45, 0x52, 0x45})),
+				new Detector(FileType.A7800, 128, 128, "a7800.xml", new Data(1, new byte[] {0x41, 0x54, 0x41, 0x52, 0x49, 0x37, 0x38, 0x30, 0x30})),
+				new Detector(FileType.A7800, 128, 128, "a7800.xml", new Data(100, new byte[] {0x41, 0x43, 0x54, 0x55, 0x41, 0x4C, 0x20, 0x43, 0x41, 0x52, 0x54, 0x20, 0x44, 0x41, 0x54, 0x41, 0x20, 0x53, 0x54, 0x41, 0x52, 0x54, 0x53, 0x20, 0x48, 0x45, 0x52, 0x45})),
 
 				new Detector(FileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
 				new Detector(FileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
 				new Detector(FileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
 				new Detector(FileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
 
-				new Detector(FileType.Lynx, 64, 64, "No-Intro_LNX.xml", new Data(0, new byte[] {0x4C, 0x59, 0x4E, 0x58})),
-				new Detector(FileType.Lynx, 64, 64, "No-Intro_LNX.xml", new Data(6, new byte[] {0x42, 0x53, 0x39})),
+				new Detector(FileType.Lynx, 64, 64, "lynx.xml", new Data(0, new byte[] {0x4C, 0x59, 0x4E, 0x58})),
+				new Detector(FileType.Lynx, 64, 64, "lynx.xml", new Data(6, new byte[] {0x42, 0x53, 0x39})),
 
-				new Detector(FileType.NES, 16, 16, "No-Intro_NES.xml", new Data(0, new byte[] {0x4E, 0x45, 0x53, 0x1A})),
+				new Detector(FileType.NES, 16, 16, "nes.xml", new Data(0, new byte[] {0x4E, 0x45, 0x53, 0x1A})),
 
 				new Detector(FileType.PCE, 512, 512, "pce.xml", new Data(0, new byte[] {0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0xBB, 0x02})),
 
