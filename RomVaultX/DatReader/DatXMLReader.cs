@@ -113,21 +113,21 @@ namespace RomVaultX.DatReader
 			}
 			rvDat.Name = VarFix.CleanFileName(head.SelectSingleNode("name"));
 			rvDat.RootDir = VarFix.CleanFileName(head.SelectSingleNode("rootdir"));
-			rvDat.Description = VarFix.String(head.SelectSingleNode("description"));
-			rvDat.Category = VarFix.String(head.SelectSingleNode("category"));
-			rvDat.Version = VarFix.String(head.SelectSingleNode("version"));
-			rvDat.Date = VarFix.String(head.SelectSingleNode("date"));
-			rvDat.Author = VarFix.String(head.SelectSingleNode("author"));
-			rvDat.Email = VarFix.String(head.SelectSingleNode("email"));
-			rvDat.Homepage = VarFix.String(head.SelectSingleNode("homepage"));
-			rvDat.URL = VarFix.String(head.SelectSingleNode("url"));
-			rvDat.Comment = VarFix.String(head.SelectSingleNode("comment"));
+			rvDat.Description = VarFix.StringFromXmlNode(head.SelectSingleNode("description"));
+			rvDat.Category = VarFix.StringFromXmlNode(head.SelectSingleNode("category"));
+			rvDat.Version = VarFix.StringFromXmlNode(head.SelectSingleNode("version"));
+			rvDat.Date = VarFix.StringFromXmlNode(head.SelectSingleNode("date"));
+			rvDat.Author = VarFix.StringFromXmlNode(head.SelectSingleNode("author"));
+			rvDat.Email = VarFix.StringFromXmlNode(head.SelectSingleNode("email"));
+			rvDat.Homepage = VarFix.StringFromXmlNode(head.SelectSingleNode("homepage"));
+			rvDat.URL = VarFix.StringFromXmlNode(head.SelectSingleNode("url"));
+			rvDat.Comment = VarFix.StringFromXmlNode(head.SelectSingleNode("comment"));
 
 			XmlNode packingNode = head.SelectSingleNode("romvault") ?? head.SelectSingleNode("clrmamepro");
 
 			if (packingNode?.Attributes != null)
 			{
-				rvDat.MergeType = VarFix.String(packingNode.Attributes.GetNamedItem("forcemerging")).ToLower();
+				rvDat.MergeType = VarFix.StringFromXmlNode(packingNode.Attributes.GetNamedItem("forcemerging")).ToLower();
 			}
 
 			return true;
@@ -148,7 +148,7 @@ namespace RomVaultX.DatReader
 
 			rvDat.Filename = filename;
 			rvDat.Name = VarFix.CleanFileName(head.Attributes.GetNamedItem("build"));   /// ?? is this correct should it be Name & Description??
-			rvDat.Description = VarFix.String(head.Attributes.GetNamedItem("build"));
+			rvDat.Description = VarFix.StringFromXmlNode(head.Attributes.GetNamedItem("build"));
 
 			return true;
 		}
@@ -194,31 +194,31 @@ namespace RomVaultX.DatReader
 				RomOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("romof")),
 				CloneOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof")),
 				SampleOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("sampleof")),
-				Description = VarFix.String(gameNode.SelectSingleNode("description")),
-				SourceFile = VarFix.String(gameNode.Attributes.GetNamedItem("sourcefile")),
-				IsBios = VarFix.String(gameNode.Attributes.GetNamedItem("isbios")),
-				Board = VarFix.String(gameNode.Attributes.GetNamedItem("board")),
-				Year = VarFix.String(gameNode.SelectSingleNode("year")),
-				Manufacturer = VarFix.String(gameNode.SelectSingleNode("manufacturer"))
+				Description = VarFix.StringFromXmlNode(gameNode.SelectSingleNode("description")),
+				SourceFile = VarFix.StringFromXmlNode(gameNode.Attributes.GetNamedItem("sourcefile")),
+				IsBios = VarFix.StringFromXmlNode(gameNode.Attributes.GetNamedItem("isbios")),
+				Board = VarFix.StringFromXmlNode(gameNode.Attributes.GetNamedItem("board")),
+				Year = VarFix.StringFromXmlNode(gameNode.SelectSingleNode("year")),
+				Manufacturer = VarFix.StringFromXmlNode(gameNode.SelectSingleNode("manufacturer"))
 			};
 
 			XmlNode trurip = gameNode.SelectSingleNode("trurip");
 			if (trurip != null)
 			{
 				rvGame.IsTrurip = true;
-				rvGame.Publisher = VarFix.String(trurip.SelectSingleNode("publisher"));
-				rvGame.Developer = VarFix.String(trurip.SelectSingleNode("developer"));
-				rvGame.Edition = VarFix.String(trurip.SelectSingleNode("edition"));
-				rvGame.Version = VarFix.String(trurip.SelectSingleNode("version"));
-				rvGame.Type = VarFix.String(trurip.SelectSingleNode("type"));
-				rvGame.Media = VarFix.String(trurip.SelectSingleNode("media"));
-				rvGame.Language = VarFix.String(trurip.SelectSingleNode("language"));
-				rvGame.Players = VarFix.String(trurip.SelectSingleNode("players"));
-				rvGame.Ratings = VarFix.String(trurip.SelectSingleNode("ratings"));
-				rvGame.Peripheral = VarFix.String(trurip.SelectSingleNode("peripheral"));
-				rvGame.Genre = VarFix.String(trurip.SelectSingleNode("genre"));
-				rvGame.MediaCatalogNumber = VarFix.String(trurip.SelectSingleNode("mediacatalognumber"));
-				rvGame.BarCode = VarFix.String(trurip.SelectSingleNode("barcode"));
+				rvGame.Publisher = VarFix.StringFromXmlNode(trurip.SelectSingleNode("publisher"));
+				rvGame.Developer = VarFix.StringFromXmlNode(trurip.SelectSingleNode("developer"));
+				rvGame.Edition = VarFix.StringFromXmlNode(trurip.SelectSingleNode("edition"));
+				rvGame.Version = VarFix.StringFromXmlNode(trurip.SelectSingleNode("version"));
+				rvGame.Type = VarFix.StringFromXmlNode(trurip.SelectSingleNode("type"));
+				rvGame.Media = VarFix.StringFromXmlNode(trurip.SelectSingleNode("media"));
+				rvGame.Language = VarFix.StringFromXmlNode(trurip.SelectSingleNode("language"));
+				rvGame.Players = VarFix.StringFromXmlNode(trurip.SelectSingleNode("players"));
+				rvGame.Ratings = VarFix.StringFromXmlNode(trurip.SelectSingleNode("ratings"));
+				rvGame.Peripheral = VarFix.StringFromXmlNode(trurip.SelectSingleNode("peripheral"));
+				rvGame.Genre = VarFix.StringFromXmlNode(trurip.SelectSingleNode("genre"));
+				rvGame.MediaCatalogNumber = VarFix.StringFromXmlNode(trurip.SelectSingleNode("mediacatalognumber"));
+				rvGame.BarCode = VarFix.StringFromXmlNode(trurip.SelectSingleNode("barcode"));
 			}
 
 			rvGame.Name = Path.Combine(rootDir, rvGame.Name);

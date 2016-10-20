@@ -56,7 +56,7 @@ namespace RomVaultX.DatReader
 
 			rvDat.Filename = filename;
 			rvDat.Name = VarFix.CleanFileName(head[0].Attributes.GetNamedItem("name"));
-			rvDat.Description = VarFix.String(head[0].Attributes.GetNamedItem("description"));
+			rvDat.Description = VarFix.StringFromXmlNode(head[0].Attributes.GetNamedItem("description"));
 
 			return true;
 		}
@@ -71,7 +71,7 @@ namespace RomVaultX.DatReader
 			RvGame rvGame = new RvGame
 			{
 				Name = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("name")),
-				Description = VarFix.String(gameNode.SelectSingleNode("description")),
+				Description = VarFix.StringFromXmlNode(gameNode.SelectSingleNode("description")),
 				RomOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof")),
 				CloneOf = VarFix.CleanFileName(gameNode.Attributes.GetNamedItem("cloneof")),
 				Year = VarFix.CleanFileName(gameNode.SelectSingleNode("year")),
@@ -135,7 +135,7 @@ namespace RomVaultX.DatReader
 			}
 
 			XmlNode name = romNode.Attributes.GetNamedItem("name");
-			string loadflag = VarFix.String(romNode.Attributes.GetNamedItem("loadflag"));
+			string loadflag = VarFix.StringFromXmlNode(romNode.Attributes.GetNamedItem("loadflag"));
 			if (name != null)
 			{
 				RvRom rvRom = new RvRom();
