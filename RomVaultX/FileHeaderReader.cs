@@ -150,7 +150,7 @@ namespace RomVaultX
 
 		public static FileType GetType(Stream sIn, out int offset)
 		{
-			int headSize = 128;
+			int headSize = 512;
 			if (sIn.Length < headSize)
 			{
 				headSize = (int)sIn.Length;
