@@ -8,6 +8,7 @@ using RomVaultX.DB;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.Files;
 using RomVaultX.SupportedFiles.GZ;
+using RomVaultX.SupportedFiles.SevenZip;
 using RomVaultX.SupportedFiles.Zip;
 using RomVaultX.Util;
 
@@ -118,7 +119,9 @@ namespace RomVaultX
 						{
 							string file = @"tmp\" + Guid.NewGuid();
 							if (!Directory.Exists("tmp"))
+							{
 								Directory.CreateDirectory("tmp");
+							}
 							Stream fs = File.OpenWrite(file);
 							ulong sizetogo = streamSize;
 							while (sizetogo > 0)
@@ -152,7 +155,9 @@ namespace RomVaultX
 					ret |= allZipFound;
 				}
 				else
+				{
 					ret = false;
+				}
 			}
 
 			if (foundFileType == FileType.GZ)
@@ -218,7 +223,71 @@ namespace RomVaultX
 
 			if (foundFileType == FileType.SevenZip)
 			{
-				// Implement 7-zip reader
+				SevenZipFile fz = new SevenZipFile();
+				fStream.Position = 0;
+				ZipReturn zp = fz.ZipFileOpen(fStream);
+				if (zp == ZipReturn.ZipGood)
+				{
+					bool allZipFound = true;
+					for (int i = 0; i < fz.LocalFilesCount(); i++)
+					{
+						Stream stream;
+						ulong streamSize;
+						if (fz.ZipFileOpenReadStream(i, out stream, out streamSize) != ZipReturn.ZipGood || stream == null)
+						{
+							return false;
+						}
+
+						if (streamSize <= inMemorySize)
+						{
+							byte[] tmpFile = new byte[streamSize];
+							stream.Read(tmpFile, 0, (int)streamSize);
+							Stream memFs = new MemoryStream(tmpFile, false);
+							allZipFound &= ScanAFile(fz.Filename(i), memFs);
+							memFs.Close();
+							memFs.Dispose();
+						}
+						else
+						{
+							string file = @"tmp\" + Guid.NewGuid();
+							if (!Directory.Exists("tmp"))
+							{
+								Directory.CreateDirectory("tmp");
+							}
+							Stream fs = File.OpenWrite(file);
+							ulong sizetogo = streamSize;
+							while (sizetogo > 0)
+							{
+								int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
+								stream.Read(Buffer, 0, sizenow);
+								fs.Write(Buffer, 0, sizenow);
+								sizetogo -= (ulong)sizenow;
+							}
+							fs.Close();
+
+							Stream fstreamNext;
+							try
+							{
+								fstreamNext = File.OpenRead(file);
+							}
+							catch
+							{
+								return false;
+							}
+
+							allZipFound &= ScanAFile(fz.Filename(i), fstreamNext);
+							fstreamNext.Close();
+							fstreamNext.Dispose();
+							File.Delete(file);
+						}
+						fz.ZipFileCloseReadStream();
+
+					}
+					fz.ZipFileClose();
+					ret |= allZipFound;
+				}
+				else
+					ret = false;
 			}
 			return ret;
 		}
@@ -299,6 +368,7 @@ namespace RomVaultX
 						 VarFix.ToString(sha1[3]) + @"\" +
 						 VarFix.ToString(sha1) + ".gz";
 				exists = File.Exists(path);
+				i++;
 			}
 
 			if (!exists)

@@ -10,7 +10,7 @@ using RomVaultX.SupportedFiles.SevenZip.Structure;
 
 namespace RomVaultX.SupportedFiles.SevenZip
 {
-	public class SevenZ
+	public class SevenZipFile
 	{
 		public class LocalFile
 		{
@@ -65,14 +65,11 @@ namespace RomVaultX.SupportedFiles.SevenZip
 		public byte[] MD5(int i) { return _localFiles[i].md5; }
 		public byte[] SHA1(int i) { return _localFiles[i].sha1; }
 		public bool IsDirectory(int i) { return _localFiles[i].isDirectory; }
-
-
 		private long _baseOffset;
-
 
 		#region open 7z files
 
-		public ZipReturn ZipFileOpen(string filename, long timestamp, bool readHeaders)
+		public ZipReturn ZipFileOpen(string filename, long timestamp)
 		{
 			Debug.WriteLine(filename);
 			#region open file stream
@@ -134,12 +131,48 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				return zr;
 
 			_zipFs.Seek(_baseOffset + (long)(signatureHeader.NextHeaderOffset + signatureHeader.NextHeaderSize), SeekOrigin.Begin);
-			_pZipStatus = Istorrent7Z() ? ZipStatus.TrrntZip : ZipStatus.None;
+			_pZipStatus = IsTorrent7z() ? ZipStatus.TrrntZip : ZipStatus.None;
 			PopulateLocalFiles(out _localFiles);
 
 			return ZipReturn.ZipGood;
 		}
 
+		public ZipReturn ZipFileOpen(Stream zipFileStream)
+		{
+			ZipFileClose();
+			_zipFileInfo = null;
+			_zipFs = zipFileStream;
+
+			_zipOpen = ZipOpenType.OpenRead;
+			_pZipStatus = ZipStatus.None;
+
+			SignatureHeader signatureHeader = new SignatureHeader();
+			if (!signatureHeader.Read(new BinaryReader(_zipFs)))
+			{
+				return ZipReturn.ZipSignatureError;
+			}
+
+			_baseOffset = _zipFs.Position; Util.log("BaseOffset : " + _baseOffset);
+
+			Util.log("Loading Stream : " + (_baseOffset + (long)signatureHeader.NextHeaderOffset) + " , Size : " + signatureHeader.NextHeaderSize);
+
+			//_zipFs.Seek(_baseOffset + (long)signatureHeader.NextHeaderOffset, SeekOrigin.Begin);
+			//byte[] mainHeader = new byte[signatureHeader.NextHeaderSize];
+			//_zipFs.Read(mainHeader, 0, (int)signatureHeader.NextHeaderSize);
+			//if (!CRC.VerifyDigest(signatureHeader.NextHeaderCRC, mainHeader, 0, (uint)signatureHeader.NextHeaderSize))
+			//    return ZipReturn.Zip64EndOfCentralDirError;
+
+			_zipFs.Seek(_baseOffset + (long)signatureHeader.NextHeaderOffset, SeekOrigin.Begin);
+			ZipReturn zr = Header.ReadHeaderOrPackedHeader(_zipFs, _baseOffset, out _header);
+			if (zr != ZipReturn.ZipGood)
+				return zr;
+
+			_zipFs.Seek(_baseOffset + (long)(signatureHeader.NextHeaderOffset + signatureHeader.NextHeaderSize), SeekOrigin.Begin);
+			_pZipStatus = IsTorrent7z() ? ZipStatus.TrrntZip : ZipStatus.None;
+			PopulateLocalFiles(out _localFiles);
+
+			return ZipReturn.ZipGood;
+		}
 
 		private void PopulateLocalFiles(out List<LocalFile> localFiles)
 		{
@@ -215,9 +248,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 
 		private Header _header;
 
-
-
-		private bool Istorrent7Z()
+		private bool IsTorrent7z()
 		{
 			const int crcsz = 128;
 			const int t7ZsigSize = 16 + 1 + 9 + 4 + 4;
@@ -235,8 +266,9 @@ namespace RomVaultX.SupportedFiles.SevenZip
 			_zipFs.Seek(0, SeekOrigin.Begin);
 			int ar = _zipFs.Read(buffer, offs, crcsz);
 			if (ar < crcsz)
+			{
 				Util.memset(buffer, offs + ar, 0, crcsz - ar);
-
+			}
 
 			offs = crcsz;
 			long foffs = _zipFs.Length;
@@ -258,7 +290,9 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				Util.memcpyr(buffer, crcsz * 2 + 8, buffer, offs + ar, t7ZsigSize + 4);
 			}
 			else
+			{
 				Util.memcpyr(buffer, crcsz * 2 + 8, buffer, crcsz * 2, t7ZsigSize + 4);
+			}
 
 			foffs = _zipFs.Length;
 			foffs -= t7ZsigSize + 4;
@@ -297,10 +331,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 			return false;
 		}
 
-
-
 		#endregion
-
 
 		public void DeepScan()
 		{
@@ -322,10 +353,14 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				Stream inStream;
 				ZipReturn zr = ZipFileOpenReadStream(index, out inStream, out sizetogo);
 				if (zr != ZipReturn.ZipGood)
+				{
 					continue;
+				}
 
 				if (inStream == null)
+				{
 					continue;
+				}
 
 				CRC crc32 = new CRC();
 				MD5 lmd5 = System.Security.Cryptography.MD5.Create();
@@ -353,8 +388,6 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				_localFiles[index].FileStatus = Util.ByteArrCompare(_localFiles[index].crc, testcrc) ? ZipReturn.ZipGood : ZipReturn.ZipCRCDecodeError;
 			}
 		}
-
-
 
 		#region read 7z file
 
@@ -411,7 +444,6 @@ namespace RomVaultX.SupportedFiles.SevenZip
 			// first close the old streams
 			ZipFileCloseReadStream();
 
-
 			// open new stream
 			_streamIndex = thisStreamIndex;
 			_zipFs.Seek(_baseOffset + (long)_header.StreamsInfo.PackedStreams[thisStreamIndex].StreamPosition, SeekOrigin.Begin);
@@ -466,7 +498,6 @@ namespace RomVaultX.SupportedFiles.SevenZip
 
 			return ZipReturn.ZipUnsupportedCompression;
 		}
-
 
 		public ZipReturn ZipFileCloseReadStream()
 		{
@@ -612,8 +643,6 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				}
 			}
 
-
-
 			//StreamsInfo
 			_header.StreamsInfo = new StreamsInfo { PackPosition = 0 };
 
@@ -630,7 +659,9 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				for (int i = 0; i < fileCount; i++)
 				{
 					if (_localFiles[i].UncompressedSize == 0)
+					{
 						continue;
+					}
 					_header.StreamsInfo.PackedStreams[fileIndex++] = new PackedStreamInfo { PackedSize = _localFiles[i].UncompressedSize };
 				}
 			}
@@ -662,7 +693,9 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				for (int i = 0; i < fileCount; i++)
 				{
 					if (_localFiles[i].UncompressedSize == 0)
+					{
 						continue;
+					}
 					UnpackedStreamInfo unpackedStreamInfo = new UnpackedStreamInfo
 					{
 						UnpackedSize = _localFiles[i].UncompressedSize,
@@ -679,7 +712,9 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				for (int i = 0; i < fileCount; i++)
 				{
 					if (_localFiles[i].UncompressedSize == 0)
+					{
 						continue;
+					}
 					Folder folder = new Folder { Coders = new Coder[1] };
 
 					//StreamsInfo.Folders.Coder
@@ -763,7 +798,6 @@ namespace RomVaultX.SupportedFiles.SevenZip
 
 		#endregion
 
-
 		public void ZipFileAddDirectory(string filename)
 		{
 			LocalFile lf = new LocalFile
@@ -785,8 +819,5 @@ namespace RomVaultX.SupportedFiles.SevenZip
 		{
 			throw new NotImplementedException();
 		}
-
-
-
 	}
 }

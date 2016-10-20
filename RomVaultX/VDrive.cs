@@ -237,6 +237,7 @@ namespace RomVaultX
 						VarFix.ToString(SHA1[3]) + @"\" +
 						VarFix.ToString(SHA1) + ".gz";
 				exists = File.Exists(path);
+				i++;
 			}
 
 			if (!exists)
