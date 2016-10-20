@@ -29,7 +29,9 @@ namespace RomVaultX.SupportedFiles.Files
 				{
 					uint r = (uint)i;
 					for (int j = 0; j < 8; j++)
+					{
 						r = (r >> 1) ^ (polynomial & ~((r & 1) - 1));
+					}
 					_crc32Lookup[i] = r;
 				}
 				for (; i < 256 * CRC_NUM_TABLES; i++)
@@ -73,7 +75,10 @@ namespace RomVaultX.SupportedFiles.Files
 			while (true)
 			{
 				_waitEvent.WaitOne();
-				if (_finished) break;
+				if (_finished)
+				{
+					break;
+				}
 
 				uint crc = _crc;
 				int offset = 0;
@@ -106,7 +111,9 @@ namespace RomVaultX.SupportedFiles.Files
 				}
 
 				while (_size-- != 0)
+				{
 					crc = (crc >> 8) ^ _crc32Lookup[(byte)crc ^ _buffer[offset++]];
+				}
 
 				_crc = crc;
 

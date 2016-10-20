@@ -41,7 +41,10 @@ namespace RomVaultX.SupportedFiles.Files
 			while (true)
 			{
 				_waitEvent.WaitOne();
-				if (_finished) break;
+				if (_finished)
+				{
+					break;
+				}
 				_md5.TransformBlock(_buffer, 0, _size, null, 0);
 				_outEvent.Set();
 			}

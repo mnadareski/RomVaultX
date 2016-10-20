@@ -67,7 +67,9 @@ namespace RomVaultX.SupportedFiles.Files
 				// trigger the buffer loading worker
 				sizeNext = sizetogo > Buffersize ? Buffersize : (int)sizetogo;
 				if (sizeNext > 0)
+				{
 					lbuffer.Trigger(whichBuffer ? Buffer1 : Buffer0, sizeNext);
+				}
 
 				byte[] buffer = whichBuffer ? Buffer0 : Buffer1;
 
@@ -81,7 +83,9 @@ namespace RomVaultX.SupportedFiles.Files
 
 				// wait until all the workers are complete
 				if (sizeNext > 0)
+				{
 					lbuffer.Wait();
+				}
 				crc32.Wait();
 				md5.Wait();
 				sha1.Wait();

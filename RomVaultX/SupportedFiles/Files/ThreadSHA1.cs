@@ -41,7 +41,10 @@ namespace RomVaultX.SupportedFiles.Files
 			while (true)
 			{
 				_waitEvent.WaitOne();
-				if (_finished) break;
+				if (_finished)
+				{
+					break;
+				}
 				_sha1.TransformBlock(_buffer, 0, _size, null, 0);
 				_outEvent.Set();
 			}
@@ -49,6 +52,7 @@ namespace RomVaultX.SupportedFiles.Files
 			byte[] tmp = new byte[0];
 			_sha1.TransformFinalBlock(tmp, 0, 0);
 		}
+
 		public void Trigger(byte[] buffer, int size)
 		{
 			_buffer = buffer;

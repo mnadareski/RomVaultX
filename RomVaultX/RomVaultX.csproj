@@ -155,7 +155,6 @@
       <DependentUpon>rvTree.cs</DependentUpon>
     </Compile>
     <Compile Include="rvTreeRow.cs" />
-    <Compile Include="SupportedFiles\Files\ThreadCRCOriginal.cs" />
     <Compile Include="SupportedFiles\Files\ThreadCRC.cs" />
     <Compile Include="SupportedFiles\Files\ThreadLoadBuffer.cs" />
     <Compile Include="SupportedFiles\Files\ThreadMD5.cs" />

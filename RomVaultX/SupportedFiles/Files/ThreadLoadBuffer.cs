@@ -25,6 +25,7 @@ namespace RomVaultX.SupportedFiles.Files
 			_tWorker = new Thread(MainLoop);
 			_tWorker.Start();
 		}
+
 		public void Dispose()
 		{
 			_waitEvent.Dispose();
@@ -36,7 +37,10 @@ namespace RomVaultX.SupportedFiles.Files
 			while (true)
 			{
 				_waitEvent.WaitOne();
-				if (_finished) break;
+				if (_finished)
+				{
+					break;
+				}
 				_ds.Read(_buffer, 0, _size);
 				_outEvent.Set();
 			}

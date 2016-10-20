@@ -1,5 +1,4 @@
-﻿
-namespace RomVaultX
+﻿namespace RomVaultX
 {
 	public class bgwText
 	{
@@ -10,6 +9,7 @@ namespace RomVaultX
 
 		public string Text { get; private set; }
 	}
+
 	public class bgwText2
 	{
 		public bgwText2(string Text)
@@ -19,6 +19,7 @@ namespace RomVaultX
 
 		public string Text { get; private set; }
 	}
+
 	public class bgwText3
 	{
 		public bgwText3(string Text)
@@ -38,6 +39,7 @@ namespace RomVaultX
 
 		public int MaxVal { get; private set; }
 	}
+
 	public class bgwSetRange2
 	{
 		public bgwSetRange2(int MaxVal)

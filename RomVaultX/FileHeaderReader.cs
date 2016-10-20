@@ -39,6 +39,7 @@ namespace RomVaultX
 				HeaderId = headerId.ToLower();
 				Datas = new List<Data> { data };
 			}
+
 			public Detector(FileType fType, int headerLength, int fileOffset, string headerId, List<Data> datas)
 			{
 				FType = fType;
