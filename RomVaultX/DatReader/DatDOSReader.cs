@@ -6,9 +6,6 @@ using RomVaultX.Util;
 
 namespace RomVaultX.DatReader
 {
-	/// <summary>
-	/// REWRITE THIS TO ACTUALLY READ A DOS DAT
-	/// </summary>
 	public static class DatDOSReader
 	{
 		public static bool ReadDat(string strFilename, out RvDat rvDat)
@@ -340,7 +337,6 @@ namespace RomVaultX.DatReader
 						break;
 				}
 			}
-
 			rvGame.AddRom(rvRom);
 
 			return true;
@@ -348,7 +344,7 @@ namespace RomVaultX.DatReader
 
 		private static class DatFileLoader
 		{
-			public static String Filename { get; private set; }
+			public static string Filename { get; private set; }
 			private static Stream _fileStream;
 			private static StreamReader _streamReader;
 			private static string _line = "";
@@ -370,10 +366,9 @@ namespace RomVaultX.DatReader
 
 				return 0;
 			}
+
 			public static void Close()
 			{
-				_streamReader.Close();
-				_fileStream.Close();
 				_streamReader.Dispose();
 				_fileStream.Dispose();
 			}

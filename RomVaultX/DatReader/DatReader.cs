@@ -55,10 +55,7 @@ namespace RomVaultX.DatReader
 			// XML-based DATs
 			if (strLine.ToLower().IndexOf("xml", StringComparison.Ordinal) >= 0)
 			{
-				if (!ReadXMLDat(fullname, out rvDat))
-				{
-					return false;
-				}
+				return ReadXMLDat(fullname, out rvDat);
 			}
 
 			// ClrMamePro DATs
@@ -66,29 +63,20 @@ namespace RomVaultX.DatReader
 				|| strLine.ToLower().IndexOf("romvault", StringComparison.Ordinal) >= 0
 				|| strLine.ToLower().IndexOf("game", StringComparison.Ordinal) >= 0)
 			{
-				if (!DatCmpReader.ReadDat(fullname, out rvDat))
-				{
-					return false;
-				}
+				return DatCmpReader.ReadDat(fullname, out rvDat);
 			}
 
 			// DOSCenter DATs
 			else if (strLine.ToLower().IndexOf("doscenter", StringComparison.Ordinal) >= 0)
 			{
-				if (!DatDOSReader.ReadDat(fullname, out rvDat))
-				{
-					return false;
-				}
+				return DatDOSReader.ReadDat(fullname, out rvDat);
 			}
 
 			// RomCenter DATs
 			else if (strLine.ToLower().IndexOf("[", StringComparison.Ordinal) >= 0
 				&& strLine.ToLower().IndexOf("]", StringComparison.Ordinal) >= 0)
 			{
-				if (!DatRcReader.ReadDat(fullname, out rvDat))
-				{
-					return false;
-				}
+				return DatRcReader.ReadDat(fullname, out rvDat);
 			}
 
 			// Unknown file / DAT type
@@ -97,8 +85,6 @@ namespace RomVaultX.DatReader
 				_bgw.ReportProgress(0, new bgwShowError(fullname, "Invalid DAT File"));
 				return false;
 			}
-
-			return true;
 		}
 
 		/// <summary>

@@ -89,7 +89,6 @@ namespace RomVaultX.DatReader
 			{
 				rvDat.AddGame(rvGame);
 			}
-
 			DatFileLoader.Close();
 
 			return true;
@@ -220,7 +219,7 @@ namespace RomVaultX.DatReader
 
 		private static class DatFileLoader
 		{
-			public static String Filename { get; private set; }
+			public static string Filename { get; private set; }
 			private static Stream _fileStream;
 			private static StreamReader _streamReader;
 			private static string _line = "";

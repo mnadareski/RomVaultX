@@ -152,7 +152,6 @@ namespace RomVaultX.DatReader
 				RvRom tROM = rvGame.Roms[_indexContinue];
 				tROM.Size += VarFix.ULong(romNode.Attributes.GetNamedItem("size"));
 			}
-
 		}
 
 		private static void LoadDiskFromDat(RvGame rvGame, XmlNode romNode)
