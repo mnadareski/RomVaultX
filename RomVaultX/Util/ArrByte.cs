@@ -62,8 +62,9 @@ namespace RomVaultX.Util
 				}
 				if (b1[p] > b2[p])
 				{
-					p++;
+					return 1;
 				}
+				p++;
 			}
 		}
 
