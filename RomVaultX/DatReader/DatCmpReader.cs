@@ -147,6 +147,7 @@ namespace RomVaultX.DatReader
 						break;
 
 					case "comment":
+					case "comments":
 						rvDat.Comment = DatFileLoader.GnRest();
 						DatFileLoader.Gn();
 						break;
@@ -311,6 +312,10 @@ namespace RomVaultX.DatReader
 						rvGame.Description = DatFileLoader.GnRest();
 						DatFileLoader.Gn();
 						break;
+					case "comment":
+						DatFileLoader.GnRest();
+						DatFileLoader.Gn();
+						break;
 
 					case "sourcefile":
 						rvGame.SourceFile = DatFileLoader.GnRest();
@@ -375,6 +380,32 @@ namespace RomVaultX.DatReader
 						DatFileLoader.Gn();
 						break;
 					case "driver":
+						DatFileLoader.GnRest();
+						DatFileLoader.Gn();
+						break;
+					case "driverstatus":
+						DatFileLoader.GnRest();
+						DatFileLoader.Gn();
+						break;
+					case "device_ref":
+						DatFileLoader.GnRest();
+						DatFileLoader.Gn();
+						break;
+
+					// These are incorrect but should be ignored
+					case "version":
+						DatFileLoader.GnRest();
+						DatFileLoader.Gn();
+						break;
+					case "author":
+						DatFileLoader.GnRest();
+						DatFileLoader.Gn();
+						break;
+					case "category":
+						DatFileLoader.GnRest();
+						DatFileLoader.Gn();
+						break;
+					case "#":
 						DatFileLoader.GnRest();
 						DatFileLoader.Gn();
 						break;
@@ -542,6 +573,14 @@ namespace RomVaultX.DatReader
 						break;
 					case "nodump":
 						Status = "nodump";
+						DatFileLoader.Gn();
+						break;
+					case "region":
+						DatFileLoader.Gn();
+						DatFileLoader.Gn();
+						break;
+					case "index":
+						DatFileLoader.Gn();
 						DatFileLoader.Gn();
 						break;
 					default:

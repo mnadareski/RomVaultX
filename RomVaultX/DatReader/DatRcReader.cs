@@ -135,6 +135,10 @@ namespace RomVaultX.DatReader
 						rvDat.Comment = value;
 						DatFileLoader.Gn();
 						break;
+					case "url":
+						rvDat.URL = value;
+						DatFileLoader.Gn();
+						break;
 
 					// DAT block
 					case "[dat]":
