@@ -277,7 +277,7 @@ namespace RomVaultX.DB
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwRange2Visible(true));
-				bgw.ReportProgress(0, new bgwSetRange2(6));
+				bgw.ReportProgress(0, new bgwSetRange2(12));
 			}
 			if (bgw != null)
 			{
@@ -324,17 +324,50 @@ namespace RomVaultX.DB
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwValue2(6));
-				bgw.ReportProgress(0, new bgwText2("Indexing Complete"));
+				bgw.ReportProgress(0, new bgwText2("Creating Index Game-DatId"));
 			}
-
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [GameDatId]	  ON [GAME]  ([DatId]	   ASC,[name] ASC);");
 
+			if (bgw != null)
+			{
+				bgw.ReportProgress(0, new bgwValue2(7));
+				bgw.ReportProgress(0, new bgwText2("Creating Index FILE-SHA1"));
+			}
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILESHA1]	   ON [FILES] ([sha1]		ASC);");
+
+			if (bgw != null)
+			{
+				bgw.ReportProgress(0, new bgwValue2(8));
+				bgw.ReportProgress(0, new bgwText2("Creating Index FILE-MD5"));
+			}
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILEMD5]		ON [FILES] ([md5]		 ASC);");
+
+			if (bgw != null)
+			{
+				bgw.ReportProgress(0, new bgwValue2(9));
+				bgw.ReportProgress(0, new bgwText2("Creating Index FILE-CRC"));
+			}
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILECRC]		ON [FILES] ([crc]		 ASC);");
 
+			if (bgw != null)
+			{
+				bgw.ReportProgress(0, new bgwValue2(10));
+				bgw.ReportProgress(0, new bgwText2("Creating Index DAT-DirId"));
+			}
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DATDIRID]	   ON [DAT]   ([DirId]	   ASC);");
+
+			if (bgw != null)
+			{
+				bgw.ReportProgress(0, new bgwValue2(11));
+				bgw.ReportProgress(0, new bgwText2("Creating Index Dir-ParentDirId"));
+			}
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);");
+
+			if (bgw != null)
+			{
+				bgw.ReportProgress(0, new bgwValue2(12));
+				bgw.ReportProgress(0, new bgwText2("Indexing Complete"));
+			}
 		}
 
 		public void DropIndex()
