@@ -207,6 +207,7 @@ namespace RomVaultX
 			return retFile;
 
 		}
+
 		private static int? DirFind(string dirPart)
 		{
 			if (string.IsNullOrEmpty(dirPart))

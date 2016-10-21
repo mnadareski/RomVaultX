@@ -116,16 +116,16 @@ namespace RomVaultX.Util
 			}
 
 			// Make sure the length of the checksum is proper
-			if (checksum.Length < length)
+			if (checksum.Length < (length * 2))
 			{
-				checksum = checksum.PadLeft(length, '0');
+				checksum = checksum.PadLeft((length * 2), '0');
 			}
-			else if (checksum.Length > length)
+			else if (checksum.Length > (length * 2))
 			{
 				checksum = checksum.Remove(length);
 			}
 
-			while (checksum.Length < length)
+			while (checksum.Length < (length * 2))
 			{
 				checksum = "0" + checksum;
 			}
