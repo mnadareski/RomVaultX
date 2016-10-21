@@ -284,7 +284,7 @@ namespace RomVaultX
 							LocalHeaderOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]),
 							LocalHeaderLength = Convert.ToInt64(dr["LocalFileHeaderLength"]),
 							LocalHeader = (byte[])dr["LocalFileHeader"],
-							GZipSHA1 = VarFix.CleanMD5SHA1(dr["sha1"].ToString(), 20),
+							GZipSHA1 = VarFix.CleanMD5SHA1(dr["sha1"].ToString(), 40),
 							CompressedDataOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]) + Convert.ToInt64(dr["LocalFileHeaderLength"]),
 							CompressedDataLength = Convert.ToInt64(dr["compressedsize"]),
 							GZip = null // opened as needed
