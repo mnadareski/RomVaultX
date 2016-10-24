@@ -10,6 +10,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using RomVaultX.SupportedFiles.Zip.ZLib;
+//using Alphaleonis.Win32.Filesystem;
 
 namespace RomVaultX.SupportedFiles.Zip
 {

@@ -2,7 +2,8 @@
 using System.ComponentModel;
 using System.Data.Common;
 using System.Data.SQLite;
-using System.IO;
+//using System.IO;
+using Alphaleonis.Win32.Filesystem;
 
 namespace RomVaultX.DB
 {

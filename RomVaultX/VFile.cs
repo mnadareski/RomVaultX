@@ -93,7 +93,7 @@ namespace RomVaultX
 				}
 			}
 
-			DirectoryInfo di = new DirectoryInfo(GetPath(dirFullname));
+            Alphaleonis.Win32.Filesystem.DirectoryInfo di = new Alphaleonis.Win32.Filesystem.DirectoryInfo(GetPath(dirFullname));
 			if (di.Exists)
 			{
 				VFile vDir = new VFile
@@ -113,7 +113,7 @@ namespace RomVaultX
 
 		public static VFile CreateDir(string dirFullname)
 		{
-			DirectoryInfo di = Directory.CreateDirectory(GetPath(dirFullname));
+            Alphaleonis.Win32.Filesystem.DirectoryInfo di = Alphaleonis.Win32.Filesystem.Directory.CreateDirectory(GetPath(dirFullname));
 			if (di.Exists)
 			{
 				VFile vDir = new VFile
@@ -189,8 +189,8 @@ namespace RomVaultX
 
 		public static VFile GetFile(string filename)
 		{
-			string dirPart = Path.GetDirectoryName(filename);
-			string filePart = Path.GetFileNameWithoutExtension(filename);
+			string dirPart = Alphaleonis.Win32.Filesystem.Path.GetDirectoryName(filename);
+			string filePart = Alphaleonis.Win32.Filesystem.Path.GetFileNameWithoutExtension(filename);
 
 			int? dirId = DirFind(dirPart);
 			if (dirId == null)
