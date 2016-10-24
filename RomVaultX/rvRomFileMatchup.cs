@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+
 using RomVaultX.DB;
 using RomVaultX.Util;
 
@@ -15,6 +16,7 @@ namespace RomVaultX
 	public static class RvRomFileMatchup
 	{
 		#region FileNeededTest
+
 		private static SQLiteCommand _commandFindInFiles;
 		private static SQLiteCommand _commandFindInRoMsZero;
 		private static SQLiteCommand _commandFindInRoMs;
@@ -70,6 +72,7 @@ namespace RomVaultX
 
 			return count > 0;
 		}
+
 		private static bool FindInROMs(RvFile tFile)
 		{
 			if (_commandFindInRoMsZero == null || _commandFindInRoMs == null)
@@ -381,6 +384,7 @@ namespace RomVaultX
 		#endregion
 
 		#region MatchRomToaFile
+
 		private static SQLiteCommand _commandSHA1;
 		private static SQLiteCommand _commandMD5;
 		private static SQLiteCommand _commandCRC;

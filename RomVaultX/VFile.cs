@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
-using DokanNet;
+
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
+
+using DokanNet;
 
 namespace RomVaultX
 {

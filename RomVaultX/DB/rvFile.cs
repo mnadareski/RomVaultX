@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+
 using RomVaultX.Util;
 
 namespace RomVaultX.DB

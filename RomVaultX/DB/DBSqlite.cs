@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Data.Common;
 using System.Data.SQLite;
+
 using Alphaleonis.Win32.Filesystem;
 
 namespace RomVaultX.DB

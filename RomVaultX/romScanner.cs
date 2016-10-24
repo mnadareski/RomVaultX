@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.Files;
@@ -10,6 +11,7 @@ using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.SupportedFiles.SevenZip;
 using RomVaultX.SupportedFiles.Zip;
 using RomVaultX.Util;
+
 using Alphaleonis.Win32.Filesystem;
 
 using Stream = System.IO.Stream;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles.Zip.ZLib;
 

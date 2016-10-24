@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
+
 using RomVaultX.Util;
 
 namespace RomVaultX.DB

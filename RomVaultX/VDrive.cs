@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
 using System.Security.AccessControl;
-using DokanNet;
+
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
+
+using DokanNet;
+
 using FileAccess = DokanNet.FileAccess;
-using System.IO;
 
 namespace RomVaultX
 {

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+
 using RomVaultX.DB;
 using RomVaultX.Util;
+
 using Alphaleonis.Win32.Filesystem;
 
 using Stream = System.IO.Stream;

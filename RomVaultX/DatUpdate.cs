@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SQLite;
 using System.Threading;
+
 using RomVaultX.DB;
 using RomVaultX.Util;
+
 using Alphaleonis.Win32.Filesystem;
 
 using Convert = System.Convert;

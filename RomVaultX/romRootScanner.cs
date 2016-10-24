@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
+
 using Alphaleonis.Win32.Filesystem;
 
 namespace RomVaultX
@@ -159,6 +161,5 @@ namespace RomVaultX
 			bool inFileDB = RvRomFileMatchup.FindInFiles(tFile); // returns true if found in File table
 			return inFileDB ? FindStatus.FoundFileInArchive : FindStatus.FileNeededInArchive;
 		}
-
 	}
 }

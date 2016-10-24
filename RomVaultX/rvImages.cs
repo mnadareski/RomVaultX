@@ -19,10 +19,12 @@ namespace RomVaultX
 		{
 			get { return GetBitmap("TickBoxDisabled"); }
 		}
+
 		public static Bitmap TickBoxTicked
 		{
 			get { return GetBitmap("TickBoxTicked"); }
 		}
+
 		public static Bitmap TickBoxUnTicked
 		{
 			get { return GetBitmap("TickBoxUnTicked"); }
@@ -32,6 +34,7 @@ namespace RomVaultX
 		{
 			get { return GetBitmap("ExpandBoxMinus"); }
 		}
+
 		public static Bitmap ExpandBoxPlus
 		{
 			get { return GetBitmap("ExpandBoxPlus"); }
