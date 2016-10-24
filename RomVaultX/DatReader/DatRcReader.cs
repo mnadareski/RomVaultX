@@ -184,7 +184,7 @@ namespace RomVaultX.DatReader
 						break;
 
 					default:
-						DatUpdate.SendAndShowDat("Error: key word '" + key  + "' not known in romcenter", DatFileLoader.Filename);
+						DatUpdate.SendAndShowDat("Error on line " + DatFileLoader.LineNumber + ": key word '" + key  + "' not known in romcenter", DatFileLoader.Filename);
 						DatFileLoader.Gn();
 						break;
 				}
@@ -204,7 +204,7 @@ namespace RomVaultX.DatReader
 
 			if (!DatFileLoader.Next.Contains("¬"))
 			{
-				DatUpdate.SendAndShowDat("¬ not found in the rom definition", DatFileLoader.Filename);
+				DatUpdate.SendAndShowDat("¬ not found in the rom definition on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
 				return false;
 			}
 
@@ -232,6 +232,7 @@ namespace RomVaultX.DatReader
 			private static StreamReader _streamReader;
 			private static string _line = "";
 			public static string Next;
+			public static long LineNumber = 0;
 
 			public static int LoadDat(string strFilename)
 			{
@@ -251,8 +252,6 @@ namespace RomVaultX.DatReader
 
 			public static void Close()
 			{
-				_streamReader.Close();
-				_fileStream.Close();
 				_streamReader.Dispose();
 				_fileStream.Dispose();
 			}
@@ -268,6 +267,7 @@ namespace RomVaultX.DatReader
 				while ((_line.Trim().Length == 0) && (!_streamReader.EndOfStream))
 				{
 					_line = _streamReader.ReadLine();
+					LineNumber++;
 				}
 
 				Next = _line;

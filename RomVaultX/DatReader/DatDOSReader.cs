@@ -52,7 +52,7 @@ namespace RomVaultX.DatReader
 						DatFileLoader.Gn();
 						break;
 					default:
-						DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known", DatFileLoader.Filename);
+						DatUpdate.SendAndShowDat("Error on line " + DatFileLoader.LineNumber + ": key word '" + DatFileLoader.Next + "' not known", DatFileLoader.Filename);
 						DatFileLoader.Gn();
 						break;
 				}
@@ -69,7 +69,7 @@ namespace RomVaultX.DatReader
 
 			if (DatFileLoader.Next != "(")
 			{
-				DatUpdate.SendAndShowDat("( not found after clrmamepro", DatFileLoader.Filename);
+				DatUpdate.SendAndShowDat("( not found after clrmamepro on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
 				return false;
 			}
 			DatFileLoader.Gn();
@@ -150,7 +150,7 @@ namespace RomVaultX.DatReader
 						}
 						else
 						{
-							DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in clrmamepro", DatFileLoader.Filename);
+							DatUpdate.SendAndShowDat("Error on line " + DatFileLoader.LineNumber + ": key word '" + DatFileLoader.Next + "' not known in clrmamepro", DatFileLoader.Filename);
 							DatFileLoader.Gn();
 						}
 						break;
@@ -164,7 +164,7 @@ namespace RomVaultX.DatReader
 		{
 			if (DatFileLoader.Next != "(")
 			{
-				DatUpdate.SendAndShowDat("( not found after game", DatFileLoader.Filename);
+				DatUpdate.SendAndShowDat("( not found after game on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
 				return false;
 			}
 			DatFileLoader.Gn();
@@ -181,7 +181,7 @@ namespace RomVaultX.DatReader
 
 			if (snext != "name")
 			{
-				DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
+				DatUpdate.SendAndShowDat("Name not found as first object in ( ) on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
 				return false;
 			}
 
@@ -279,7 +279,7 @@ namespace RomVaultX.DatReader
 						DatFileLoader.Gn();
 						break;
 					default:
-						DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in game", DatFileLoader.Filename);
+						DatUpdate.SendAndShowDat("Error on line " + DatFileLoader.LineNumber + ": key word '" + DatFileLoader.Next + "' not known in game", DatFileLoader.Filename);
 						DatFileLoader.Gn();
 						break;
 				}
@@ -292,14 +292,14 @@ namespace RomVaultX.DatReader
 		{
 			if (DatFileLoader.Next != "(")
 			{
-				DatUpdate.SendAndShowDat("( not found after rom", DatFileLoader.Filename);
+				DatUpdate.SendAndShowDat("( not found after rom on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
 				return false;
 			}
 			DatFileLoader.Gn();
 
 			if (DatFileLoader.Next.ToLower() != "name")
 			{
-				DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
+				DatUpdate.SendAndShowDat("Name not found as first object in ( ) on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
 				return false;
 			}
 
@@ -353,6 +353,7 @@ namespace RomVaultX.DatReader
 			private static StreamReader _streamReader;
 			private static string _line = "";
 			public static string Next;
+			public static long LineNumber = 0;
 
 			public static int LoadDat(string strFilename)
 			{
@@ -396,6 +397,8 @@ namespace RomVaultX.DatReader
 				while ((_line.Trim().Length == 0) && (!_streamReader.EndOfStream))
 				{
 					_line = _streamReader.ReadLine();
+					LineNumber++;
+
 					_line = (_line ?? "").Replace("" + (char)9, " ");
 					if (_line.TrimStart().Length > 2 && _line.TrimStart().Substring(0, 2) == @"//")
 					{

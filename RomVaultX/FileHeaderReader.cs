@@ -6,14 +6,17 @@ namespace RomVaultX
 {
 	public enum FileType
 	{
+		// Archive
 		Nothing = 0,
 		ZIP,
 		GZ,
 		SevenZip,
 		RAR,
 
+		// Specialty
 		CHD,
 
+		// Copier header
 		A7800,
 		Lynx,
 		FDS,
