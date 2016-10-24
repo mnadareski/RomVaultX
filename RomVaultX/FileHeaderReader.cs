@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+//using System.IO;
 using RomVaultX.DB;
+using Alphaleonis.Win32.Filesystem;
 
 namespace RomVaultX
 {
@@ -148,7 +149,7 @@ namespace RomVaultX
 				|| fileType == FileType.SPC;
 		}
 
-		public static FileType GetType(Stream sIn, out int offset)
+		public static FileType GetType(System.IO.Stream sIn, out int offset)
 		{
 			int headSize = 512;
 			if (sIn.Length < headSize)

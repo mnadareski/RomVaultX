@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
 using System.Security.AccessControl;
 using DokanNet;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
 using FileAccess = DokanNet.FileAccess;
+using System.IO;
 
 namespace RomVaultX
 {
@@ -27,7 +27,7 @@ namespace RomVaultX
 			}
 		}
 
-		public NtStatus CreateFile(string fileName, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
+		public NtStatus CreateFile(string fileName, FileAccess access, System.IO.FileShare share, System.IO.FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
 		{
 			Debug.WriteLine("");
 			Debug.WriteLine("-----------CreateFile---------------------------------");
@@ -236,7 +236,7 @@ namespace RomVaultX
 						VarFix.ToString(SHA1[2]) + @"\" +
 						VarFix.ToString(SHA1[3]) + @"\" +
 						VarFix.ToString(SHA1) + ".gz";
-				exists = File.Exists(path);
+				exists = Alphaleonis.Win32.Filesystem.File.Exists(path);
 				i++;
 			}
 

@@ -8,6 +8,7 @@ using RomVaultX.SupportedFiles.SevenZip.Compress.LZMA;
 using RomVaultX.SupportedFiles.SevenZip.Filters;
 using RomVaultX.SupportedFiles.SevenZip.Structure;
 
+
 namespace RomVaultX.SupportedFiles.SevenZip
 {
 	public class SevenZipFile
@@ -27,7 +28,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 
 		private List<LocalFile> _localFiles = new List<LocalFile>();
 
-		private FileInfo _zipFileInfo;
+		private Alphaleonis.Win32.Filesystem.FileInfo _zipFileInfo;
 
 		private Stream _zipFs;
 
@@ -75,12 +76,12 @@ namespace RomVaultX.SupportedFiles.SevenZip
 			#region open file stream
 			try
 			{
-				if (!File.Exists(filename))
+				if (!Alphaleonis.Win32.Filesystem.File.Exists(filename))
 				{
 					ZipFileClose();
 					return ZipReturn.ZipErrorFileNotFound;
 				}
-				_zipFileInfo = new FileInfo(filename);
+				_zipFileInfo = new Alphaleonis.Win32.Filesystem.FileInfo(filename);
 				if (timestamp != -1 && _zipFileInfo.LastWriteTime.Ticks != timestamp)
 				{
 					ZipFileClose();
@@ -88,7 +89,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				}
 				try
 				{
-					_zipFs = File.OpenRead(filename);
+					_zipFs = Alphaleonis.Win32.Filesystem.File.OpenRead(filename);
 				}
 				catch
 				{
@@ -243,7 +244,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 
 			CloseWriting7Zip(p);
 
-			_zipFileInfo = new FileInfo(_zipFileInfo.FullName);
+			_zipFileInfo = new Alphaleonis.Win32.Filesystem.FileInfo(_zipFileInfo.FullName);
 			_zipOpen = ZipOpenType.Closed;
 		}
 
@@ -539,11 +540,11 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				return ZipReturn.ZipFileAlreadyOpen;
 
 			DirUtil.CreateDirForFile(newFilename);
-			_zipFileInfo = new FileInfo(newFilename);
+			_zipFileInfo = new Alphaleonis.Win32.Filesystem.FileInfo(newFilename);
 
 			try
 			{
-				_zipFs = File.OpenWrite(newFilename);
+				_zipFs = Alphaleonis.Win32.Filesystem.File.OpenWrite(newFilename);
 			}
 			catch
 			{
@@ -765,7 +766,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				}
 				_packStreamSize = (UInt64)_zipFs.Position - packStreamStart;
 
-				File.Delete(_zipFileInfo.FullName + ".tmp");
+                Alphaleonis.Win32.Filesystem.File.Delete(_zipFileInfo.FullName + ".tmp");
 			}
 
 			Create7ZStructure();

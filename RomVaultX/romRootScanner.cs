@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel;
-using System.IO;
+//using System.IO;
 using System.Linq;
 using System.Threading;
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
+using Alphaleonis.Win32.Filesystem;
+
 
 namespace RomVaultX
 {
