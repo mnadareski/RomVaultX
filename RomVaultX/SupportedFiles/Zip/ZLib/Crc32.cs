@@ -29,6 +29,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
+using Stream = System.IO.Stream;
+
 namespace RomVaultX.SupportedFiles.Zip.ZLib
 {
 	/// <summary>
@@ -83,7 +85,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// </summary>
 		/// <param name="input">The stream over which to calculate the CRC32</param>
 		/// <returns>the CRC32 calculation</returns>
-		public Int32 GetCrc32(System.IO.Stream input)
+		public Int32 GetCrc32(Stream input)
 		{
 			return GetCrc32AndCopy(input, null);
 		}
@@ -95,7 +97,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// <param name="input">The stream over which to calculate the CRC32</param>
 		/// <param name="output">The stream into which to deflate the input</param>
 		/// <returns>the CRC32 calculation</returns>
-		public Int32 GetCrc32AndCopy(System.IO.Stream input, System.IO.Stream output)
+		public Int32 GetCrc32AndCopy(Stream input, Stream output)
 		{
 			if (input == null)
 				throw new Exception("The input stream must not be null.");
@@ -491,11 +493,11 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 	/// DotNetZip library.
 	/// </para>
 	/// </remarks>
-	public class CrcCalculatorStream : System.IO.Stream, System.IDisposable
+	public class CrcCalculatorStream : Stream, System.IDisposable
 	{
 		private static readonly Int64 UnsetLengthLimit = -99;
 
-		internal System.IO.Stream _innerStream;
+		internal Stream _innerStream;
 		private CRC32 _Crc32;
 		private Int64 _lengthLimit = -99;
 		private bool _leaveOpen;
@@ -511,7 +513,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		///   </para>
 		/// </remarks>
 		/// <param name="stream">The underlying stream</param>
-		public CrcCalculatorStream(System.IO.Stream stream)
+		public CrcCalculatorStream(Stream stream)
 			: this(true, CrcCalculatorStream.UnsetLengthLimit, stream, null)
 		{
 		}
@@ -529,7 +531,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// <param name="stream">The underlying stream</param>
 		/// <param name="leaveOpen">true to leave the underlying stream
 		/// open upon close of the <c>CrcCalculatorStream</c>; false otherwise.</param>
-		public CrcCalculatorStream(System.IO.Stream stream, bool leaveOpen)
+		public CrcCalculatorStream(Stream stream, bool leaveOpen)
 			: this(leaveOpen, CrcCalculatorStream.UnsetLengthLimit, stream, null)
 		{
 		}
@@ -550,7 +552,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// </remarks>
 		/// <param name="stream">The underlying stream</param>
 		/// <param name="length">The length of the stream to slurp</param>
-		public CrcCalculatorStream(System.IO.Stream stream, Int64 length)
+		public CrcCalculatorStream(Stream stream, Int64 length)
 			: this(true, length, stream, null)
 		{
 			if (length < 0)
@@ -572,7 +574,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// <param name="length">The length of the stream to slurp</param>
 		/// <param name="leaveOpen">true to leave the underlying stream
 		/// open upon close of the <c>CrcCalculatorStream</c>; false otherwise.</param>
-		public CrcCalculatorStream(System.IO.Stream stream, Int64 length, bool leaveOpen)
+		public CrcCalculatorStream(Stream stream, Int64 length, bool leaveOpen)
 			: this(leaveOpen, length, stream, null)
 		{
 			if (length < 0)
@@ -595,7 +597,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// <param name="leaveOpen">true to leave the underlying stream
 		/// open upon close of the <c>CrcCalculatorStream</c>; false otherwise.</param>
 		/// <param name="crc32">the CRC32 instance to use to calculate the CRC32</param>
-		public CrcCalculatorStream(System.IO.Stream stream, Int64 length, bool leaveOpen,
+		public CrcCalculatorStream(Stream stream, Int64 length, bool leaveOpen,
 								   CRC32 crc32)
 			: this(leaveOpen, length, stream, crc32)
 		{
@@ -609,7 +611,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		// explicit param, otherwise we don't validate, because it could be our special
 		// value.
 		private CrcCalculatorStream
-			(bool leaveOpen, Int64 length, System.IO.Stream stream, CRC32 crc32)
+			(bool leaveOpen, Int64 length, Stream stream, CRC32 crc32)
 			: base()
 		{
 			_innerStream = stream;

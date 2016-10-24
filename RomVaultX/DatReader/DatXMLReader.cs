@@ -1,5 +1,4 @@
-﻿//using System.IO;
-using System.Xml;
+﻿using System.Xml;
 using RomVaultX.DB;
 using RomVaultX.Util;
 using Alphaleonis.Win32.Filesystem;

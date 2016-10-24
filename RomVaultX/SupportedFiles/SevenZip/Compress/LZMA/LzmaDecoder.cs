@@ -364,15 +364,11 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZMA
 			SetPosBitsProperties(pb);
 		}
 
-		public bool Train(System.IO.Stream stream)
+		public bool Train(Stream stream)
 		{
 			_solid = true;
 			return m_OutWindow.Train(stream);
 		}
-
-
-
-
 
 		private Base.State state;
 		private uint rep0, rep1, rep2, rep3;

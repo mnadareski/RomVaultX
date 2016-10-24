@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-//using System.IO;
 using System.Linq;
 using System.Threading;
 using RomVaultX.DB;
@@ -12,6 +11,8 @@ using RomVaultX.SupportedFiles.SevenZip;
 using RomVaultX.SupportedFiles.Zip;
 using RomVaultX.Util;
 using Alphaleonis.Win32.Filesystem;
+
+using Stream = System.IO.Stream;
 
 namespace RomVaultX
 {
@@ -56,7 +57,7 @@ namespace RomVaultX
 			Program.SyncCont = null;
 		}
 
-		private static bool ScanAFile(string filename, System.IO.Stream fStream)
+		private static bool ScanAFile(string filename, Stream fStream)
 		{
 			bool ret = false;
 			int offset;
@@ -102,7 +103,7 @@ namespace RomVaultX
 					bool allZipFound = true;
 					for (int i = 0; i < fz.LocalFilesCount(); i++)
 					{
-                        System.IO.Stream stream;
+						Stream stream;
 						ulong streamSize;
 						ushort compressionMethod;
 						fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
@@ -111,7 +112,7 @@ namespace RomVaultX
 						{
 							byte[] tmpFile = new byte[streamSize];
 							stream.Read(tmpFile, 0, (int)streamSize);
-                            System.IO.Stream memFs = new System.IO.MemoryStream(tmpFile, false);
+							Stream memFs = new System.IO.MemoryStream(tmpFile, false);
 							allZipFound &= ScanAFile(fz.Filename(i), memFs);
 							memFs.Close();
 							memFs.Dispose();
@@ -123,7 +124,7 @@ namespace RomVaultX
 							{
 								Directory.CreateDirectory("tmp");
 							}
-                            System.IO.Stream fs = File.OpenWrite(file);
+							Stream fs = File.OpenWrite(file);
 							ulong sizetogo = streamSize;
 							while (sizetogo > 0)
 							{
@@ -134,7 +135,7 @@ namespace RomVaultX
 							}
 							fs.Close();
 
-                            System.IO.Stream fstreamNext;
+							Stream fstreamNext;
 							try
 							{
 								fstreamNext = File.OpenRead(file);
@@ -171,14 +172,14 @@ namespace RomVaultX
 					ulong streamSize = gz.uncompressedSize;
 					if (streamSize > 0)
 					{
-                        System.IO.Stream stream;
+						Stream stream;
 						gz.GetStream(out stream);
 						ulong memkeepSize = 1024 * 1024;
 						if (streamSize <= memkeepSize)
 						{
 							byte[] tmpFile = new byte[streamSize];
 							stream.Read(tmpFile, 0, (int)streamSize);
-                            System.IO.Stream memFs = new System.IO.MemoryStream(tmpFile, false);
+							Stream memFs = new System.IO.MemoryStream(tmpFile, false);
 							ret |= ScanAFile(filename, memFs);
 							memFs.Close();
 							memFs.Dispose();
@@ -190,7 +191,7 @@ namespace RomVaultX
 							{
 								Directory.CreateDirectory("tmp");
 							}
-                            System.IO.Stream fs = File.OpenWrite(file);
+							Stream fs = File.OpenWrite(file);
 							ulong sizetogo = streamSize;
 							while (sizetogo > 0)
 							{
@@ -202,7 +203,7 @@ namespace RomVaultX
 							fs.Close();
 							stream.Close();
 
-                            System.IO.Stream fstreamNext;
+							Stream fstreamNext;
 							try
 							{
 								fstreamNext = File.OpenRead(file);
@@ -232,7 +233,7 @@ namespace RomVaultX
 					bool allZipFound = true;
 					for (int i = 0; i < fz.LocalFilesCount(); i++)
 					{
-                        System.IO.Stream stream;
+						Stream stream;
 						ulong streamSize;
 						if (fz.ZipFileOpenReadStream(i, out stream, out streamSize) != ZipReturn.ZipGood || stream == null)
 						{
@@ -243,7 +244,7 @@ namespace RomVaultX
 						{
 							byte[] tmpFile = new byte[streamSize];
 							stream.Read(tmpFile, 0, (int)streamSize);
-                            System.IO.Stream memFs = new System.IO.MemoryStream(tmpFile, false);
+							Stream memFs = new System.IO.MemoryStream(tmpFile, false);
 							allZipFound &= ScanAFile(fz.Filename(i), memFs);
 							memFs.Close();
 							memFs.Dispose();
@@ -255,7 +256,7 @@ namespace RomVaultX
 							{
 								Directory.CreateDirectory("tmp");
 							}
-                            System.IO.Stream fs = File.OpenWrite(file);
+							Stream fs = File.OpenWrite(file);
 							ulong sizetogo = streamSize;
 							while (sizetogo > 0)
 							{
@@ -266,7 +267,7 @@ namespace RomVaultX
 							}
 							fs.Close();
 
-                            System.IO.Stream fstreamNext;
+							Stream fstreamNext;
 							try
 							{
 								fstreamNext = File.OpenRead(file);
@@ -312,7 +313,7 @@ namespace RomVaultX
 				_bgw.ReportProgress(0, new bgwValue2(j));
 				_bgw.ReportProgress(0, new bgwText2(f.Name));
 
-                System.IO.Stream fstreamNext;
+				Stream fstreamNext;
 				try
 				{
 					fstreamNext = File.OpenRead(f.FullName);

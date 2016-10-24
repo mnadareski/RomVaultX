@@ -3,6 +3,8 @@
 using System;
 using RomVaultX.SupportedFiles.SevenZip.Common;
 
+using Stream = System.IO.Stream;
+
 namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZ
 {
 	public class BinTree : InWindow, IMatchFinder
@@ -49,7 +51,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZ
 			}
 		}
 
-		public new void SetStream(System.IO.Stream stream) { base.SetStream(stream); }
+		public new void SetStream(Stream stream) { base.SetStream(stream); }
 		public new void ReleaseStream() { base.ReleaseStream(); }
 
 		public new void Init()

@@ -38,7 +38,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 	/// <para>
 	/// The ZlibStream is a <see
 	/// href="http://en.wikipedia.org/wiki/Decorator_pattern">Decorator</see> on a <see
-	/// cref="System.IO.Stream"/>.  It adds ZLIB compression or decompression to any
+	/// cref="Stream"/>.  It adds ZLIB compression or decompression to any
 	/// stream.
 	/// </para>
 	///
@@ -67,7 +67,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 	/// </remarks>
 	/// <seealso cref="DeflateStream" />
 	/// <seealso cref="GZipStream" />
-	public class ZlibStream : System.IO.Stream
+	public class ZlibStream : Stream
 	{
 		internal ZlibBaseStream _baseStream;
 		bool _disposed;
@@ -89,7 +89,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// This example uses a <c>ZlibStream</c> to compress a file, and writes the
 		/// compressed data to another file.
 		/// <code>
-		/// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
+		/// using (Stream input = System.File.OpenRead(fileToCompress))
 		/// {
 		///	 using (var raw = System.File.Create(fileToCompress + ".zlib"))
 		///	 {
@@ -125,7 +125,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		///
 		/// <param name="stream">The stream which will be read or written.</param>
 		/// <param name="mode">Indicates whether the ZlibStream will compress or decompress.</param>
-		public ZlibStream(System.IO.Stream stream, CompressionMode mode)
+		public ZlibStream(Stream stream, CompressionMode mode)
 			: this(stream, mode, CompressionLevel.Default, false)
 		{
 		}
@@ -149,7 +149,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		///   compressed data to another file.
 		///
 		/// <code>
-		/// using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
+		/// using (Stream input = System.File.OpenRead(fileToCompress))
 		/// {
 		///	 using (var raw = System.File.Create(fileToCompress + ".zlib"))
 		///	 {
@@ -189,7 +189,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// <param name="stream">The stream to be read or written while deflating or inflating.</param>
 		/// <param name="mode">Indicates whether the ZlibStream will compress or decompress.</param>
 		/// <param name="level">A tuning knob to trade speed for effectiveness.</param>
-		public ZlibStream(System.IO.Stream stream, CompressionMode mode, CompressionLevel level)
+		public ZlibStream(Stream stream, CompressionMode mode, CompressionLevel level)
 			: this(stream, mode, level, false)
 		{
 		}
@@ -228,7 +228,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// <param name="mode">Indicates whether the ZlibStream will compress or decompress.</param>
 		/// <param name="leaveOpen">true if the application would like the stream to remain
 		/// open after inflation/deflation.</param>
-		public ZlibStream(System.IO.Stream stream, CompressionMode mode, bool leaveOpen)
+		public ZlibStream(Stream stream, CompressionMode mode, bool leaveOpen)
 			: this(stream, mode, CompressionLevel.Default, leaveOpen)
 		{
 		}
@@ -267,7 +267,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// <code>
 		/// using (var output = System.File.Create(fileToCompress + ".zlib"))
 		/// {
-		///	 using (System.IO.Stream input = System.File.OpenRead(fileToCompress))
+		///	 using (Stream input = System.File.OpenRead(fileToCompress))
 		///	 {
 		///		 using (Stream compressor = new ZlibStream(output, CompressionMode.Compress, CompressionLevel.BestCompression, true))
 		///		 {
@@ -314,7 +314,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 		/// A tuning knob to trade speed for effectiveness. This parameter is
 		/// effective only when mode is <c>CompressionMode.Compress</c>.
 		/// </param>
-		public ZlibStream(System.IO.Stream stream, CompressionMode mode, CompressionLevel level, bool leaveOpen)
+		public ZlibStream(Stream stream, CompressionMode mode, CompressionLevel level, bool leaveOpen)
 		{
 			_baseStream = new ZlibBaseStream(stream, mode, level, ZlibStreamFlavor.ZLIB, leaveOpen);
 		}
@@ -383,7 +383,7 @@ namespace RomVaultX.SupportedFiles.Zip.ZLib
 
 		#endregion
 
-		#region System.IO.Stream methods
+		#region Stream methods
 
 		/// <summary>
 		///   Dispose the stream.

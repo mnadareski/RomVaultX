@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
-//using System.IO;
 using RomVaultX.DB;
 using RomVaultX.Util;
 using Alphaleonis.Win32.Filesystem;
+
+using Stream = System.IO.Stream;
+using StreamReader = System.IO.StreamReader;
 
 namespace RomVaultX.DatReader
 {
@@ -347,8 +349,8 @@ namespace RomVaultX.DatReader
 		private static class DatFileLoader
 		{
 			public static string Filename { get; private set; }
-			private static System.IO.Stream _fileStream;
-			private static System.IO.StreamReader _streamReader;
+			private static Stream _fileStream;
+			private static StreamReader _streamReader;
 			private static string _line = "";
 			public static string Next;
 
@@ -359,7 +361,7 @@ namespace RomVaultX.DatReader
 				try
 				{
 					_fileStream = File.OpenRead(strFilename);
-					_streamReader = new System.IO.StreamReader(_fileStream, Program.Enc);
+					_streamReader = new StreamReader(_fileStream, Program.Enc);
 				}
 				catch
 				{

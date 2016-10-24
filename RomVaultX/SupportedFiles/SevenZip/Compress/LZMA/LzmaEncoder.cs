@@ -4,6 +4,8 @@ using System;
 using RomVaultX.SupportedFiles.SevenZip.Common;
 using RomVaultX.SupportedFiles.SevenZip.Compress.RangeCoder;
 
+using Stream = System.IO.Stream;
+
 namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZMA
 {
 	public class Encoder : ICoder, ISetCoderProperties, IWriteCoderProperties
@@ -352,7 +354,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZMA
 
 		Int64 nowPos64;
 		bool _finished;
-		System.IO.Stream _inStream;
+		Stream _inStream;
 
 		EMatchFinderType _matchFinderType = EMatchFinderType.BT4;
 		bool _writeEndMark = false;
@@ -1237,7 +1239,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZMA
 			}
 		}
 
-		void SetOutStream(System.IO.Stream outStream) { _rangeEncoder.SetStream(outStream); }
+		void SetOutStream(Stream outStream) { _rangeEncoder.SetStream(outStream); }
 		void ReleaseOutStream() { _rangeEncoder.ReleaseStream(); }
 
 		void ReleaseStreams()
@@ -1246,7 +1248,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZMA
 			ReleaseOutStream();
 		}
 
-		void SetStreams(System.IO.Stream inStream, System.IO.Stream outStream,
+		void SetStreams(Stream inStream, Stream outStream,
 				Int64 inSize, Int64 outSize)
 		{
 			_inStream = inStream;
@@ -1270,7 +1272,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZMA
 		}
 
 
-		public void Code(System.IO.Stream inStream, System.IO.Stream outStream,
+		public void Code(Stream inStream, Stream outStream,
 			Int64 inSize, Int64 outSize, ICodeProgress progress)
 		{
 			_needReleaseMFStream = false;
@@ -1300,7 +1302,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.LZMA
 		const int kPropSize = 5;
 		Byte[] properties = new Byte[kPropSize];
 
-		public void WriteCoderProperties(System.IO.Stream outStream)
+		public void WriteCoderProperties(Stream outStream)
 		{
 			properties[0] = (Byte)((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits);
 			for (int i = 0; i < 4; i++)

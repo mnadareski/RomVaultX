@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
-//using System.IO;
 using System.Xml;
 using RomVaultX.DB;
 using Alphaleonis.Win32.Filesystem;
+
+using Stream = System.IO.Stream;
+using StreamReader = System.IO.StreamReader;
 
 namespace RomVaultX.DatReader
 {
@@ -28,8 +30,8 @@ namespace RomVaultX.DatReader
 
 			Console.WriteLine("Reading " + fullname);
 
-            // Attempt to read the file and check for errors
-            System.IO.Stream fs;
+			// Attempt to read the file and check for errors
+			Stream fs;
 			try
 			{
 				fs = File.OpenRead(fullname);
@@ -40,8 +42,8 @@ namespace RomVaultX.DatReader
 				return false;
 			}
 
-            // If the file could be read, read the first line
-            System.IO.StreamReader myfile = new System.IO.StreamReader(fs, Program.Enc);
+			// If the file could be read, read the first line
+			StreamReader myfile = new StreamReader(fs, Program.Enc);
 			string strLine = myfile.ReadLine();
 			myfile.Close();
 			fs.Close();
@@ -99,8 +101,8 @@ namespace RomVaultX.DatReader
 			// Create a null DAT for output to start
 			rvDat = null;
 
-            // Attempt to read the file and check for errors
-            System.IO.Stream fs;
+			// Attempt to read the file and check for errors
+			Stream fs;
 			try
 			{
 				fs = File.OpenRead(fullname);

@@ -2,6 +2,8 @@
 
 using System;
 
+using Stream = System.IO.Stream;
+
 namespace RomVaultX.SupportedFiles.SevenZip.Common
 {
 	/// <summary>
@@ -57,7 +59,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Common
 		/// <exception cref="DataErrorException">
 		/// if input stream is not valid
 		/// </exception>
-		void Code(System.IO.Stream inStream, System.IO.Stream outStream,
+		void Code(Stream inStream, Stream outStream,
 			Int64 inSize, Int64 outSize, ICodeProgress progress);
 	};
 
@@ -147,7 +149,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Common
 
 	public interface IWriteCoderProperties
 	{
-		void WriteCoderProperties(System.IO.Stream outStream);
+		void WriteCoderProperties(Stream outStream);
 	}
 
 	public interface ISetDecoderProperties

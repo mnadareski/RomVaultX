@@ -766,7 +766,7 @@ namespace RomVaultX.SupportedFiles.SevenZip
 				}
 				_packStreamSize = (UInt64)_zipFs.Position - packStreamStart;
 
-                Alphaleonis.Win32.Filesystem.File.Delete(_zipFileInfo.FullName + ".tmp");
+				Alphaleonis.Win32.Filesystem.File.Delete(_zipFileInfo.FullName + ".tmp");
 			}
 
 			Create7ZStructure();

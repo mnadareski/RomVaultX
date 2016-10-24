@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SQLite;
-//using System.IO;
 using System.Threading;
 using RomVaultX.DB;
 using RomVaultX.Util;
-using Convert = System.Convert;
 using Alphaleonis.Win32.Filesystem;
+
+using Convert = System.Convert;
 
 namespace RomVaultX
 {

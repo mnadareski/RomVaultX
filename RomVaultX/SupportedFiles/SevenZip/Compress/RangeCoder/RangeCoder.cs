@@ -1,12 +1,14 @@
 using System;
 
+using Stream = System.IO.Stream;
+
 namespace RomVaultX.SupportedFiles.SevenZip.Compress.RangeCoder
 {
 	class Encoder
 	{
 		public const uint kTopValue = (1 << 24);
 
-		System.IO.Stream Stream;
+		Stream Stream;
 
 		public UInt64 Low;
 		public uint Range;
@@ -15,7 +17,7 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.RangeCoder
 
 		long StartPosition;
 
-		public void SetStream(System.IO.Stream stream)
+		public void SetStream(Stream stream)
 		{
 			Stream = stream;
 		}
@@ -125,9 +127,9 @@ namespace RomVaultX.SupportedFiles.SevenZip.Compress.RangeCoder
 		public uint Range;
 		public uint Code;
 		// public Buffer.InBuffer Stream = new Buffer.InBuffer(1 << 16);
-		public System.IO.Stream Stream;
+		public Stream Stream;
 
-		public void Init(System.IO.Stream stream)
+		public void Init(Stream stream)
 		{
 			// Stream.Init(stream);
 			Stream = stream;
