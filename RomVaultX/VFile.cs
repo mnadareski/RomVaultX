@@ -176,7 +176,7 @@ namespace RomVaultX
 							{
 								IsDirectory = false,
 								FileId = Convert.ToInt32(dr["GameId"]),
-								FileName = (string)dr["name"],
+								FileName = ((string)dr["name"]).Replace(Path.AltDirectorySeparatorChar, '¬'),
 								Length = Convert.ToInt64(dr["ZipFileLength"]),
 								CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
 								LastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
@@ -238,8 +238,8 @@ namespace RomVaultX
 			{
 				DbParameter pDirId = Program.db.Parameter("DirId", dirId);
 				getFileInDirectory.Parameters.Add(pDirId);
-				DbParameter pName = Program.db.Parameter("Name", filePart);
-				getFileInDirectory.Parameters.Add(pName);
+				DbParameter pName = Program.db.Parameter("Name", filePart.Replace('¬', Path.AltDirectorySeparatorChar));
+                getFileInDirectory.Parameters.Add(pName);
 				using (DbDataReader dr = getFileInDirectory.ExecuteReader())
 				{
 					while (dr.Read())
