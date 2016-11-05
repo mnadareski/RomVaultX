@@ -6,6 +6,7 @@ using System.Threading;
 
 using RomVaultX.DB;
 using RomVaultX.SupportedFiles;
+using RomVaultX.SupportedFiles.CHD;
 using RomVaultX.SupportedFiles.Files;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.SupportedFiles.SevenZip;
@@ -71,7 +72,8 @@ namespace RomVaultX
 
 			if (foundFileType == FileType.CHD)
 			{
-				// read altheader values from CHD file.
+				uint? version;
+				CHD.CheckFile(fStream, out tFile.SHA1, out tFile.MD5, out version);
 			}
 
 			// test if needed.
@@ -80,7 +82,7 @@ namespace RomVaultX
 			if (res == FindStatus.FileNeededInArchive)
 			{
 				_bgw?.ReportProgress(0, new bgwShowError(filename, "found"));
-				Debug.WriteLine("Reading file as " + tFile.SHA1);
+				Debug.WriteLine("Reading file as " + VarFix.ToDBString(tFile.SHA1));
 				GZip gz = new GZip(tFile);
 				string outfile = GetFilename(tFile.SHA1);
 				fStream.Position = 0;

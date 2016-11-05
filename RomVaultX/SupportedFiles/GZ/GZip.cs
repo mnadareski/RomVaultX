@@ -358,8 +358,8 @@ namespace RomVaultX.SupportedFiles.GZ
 				zipBw.Write((Int16)28); // XLEN 16+4+8
 			}
 
-			zipBw.Write(md5Hash);		   // 16 bytes
-			zipBw.Write(crc);			   // 4 bytes
+			zipBw.Write((md5Hash == null ? new byte[] { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } : md5Hash));		   // 16 bytes
+			zipBw.Write((crc == null ? new byte[] { 0,0,0,0 } : crc));			   // 4 bytes
 			zipBw.Write(uncompressedSize);  // 8 bytes
 
 			if (FileHeaderReader.AltHeaderFile(altType))

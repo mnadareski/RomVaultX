@@ -274,11 +274,20 @@ namespace RomVaultX.DatReader
 				return;
 			}
 
-			string Name = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("name")) + ".chd";
-			byte[] SHA1CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40);
-			byte[] MD5CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("md5"), 32);
-			string Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge"));
-			string Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status"));
+			RvRom rvRom = new RvRom
+			{
+				Name = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("name")) + ".chd",
+				Size = VarFix.ULong(romNode.Attributes.GetNamedItem("size")),
+				SHA1CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40),
+				FileSHA1 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40),
+				MD5CHD = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("md5"), 32),
+				FileMD5 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("md5"), 32),
+				Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge")),
+				Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status")),
+				AltType = FileType.CHD,
+			};
+
+			rvGame.AddRom(rvRom);
 		}
 	}
 }

@@ -820,6 +820,8 @@ namespace RomVaultX
 
 				if (rom.SHA1 != null)
 					RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1);
+				else if (rom.SHA1CHD != null)
+					RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1CHD);
 				else if (rom.FileSHA1 != null)
 				{
 					RomGrid.Rows[iRow].Cells[6].Style.ForeColor = Color.FromArgb(0, 0, 255);
@@ -827,6 +829,8 @@ namespace RomVaultX
 				}
 				if (rom.MD5 != null)
 					RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5);
+				else if (rom.MD5CHD != null)
+					RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5CHD);
 				else if (rom.FileMD5 != null)
 				{
 					RomGrid.Rows[iRow].Cells[7].Style.ForeColor = Color.FromArgb(0, 0, 255);

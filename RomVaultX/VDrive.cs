@@ -26,7 +26,14 @@ namespace RomVaultX
 		{
 			using (DbCommand getTotalBytes = Program.db.Command(@"select sum(zipfilelength) from game"))
 			{
-				return Convert.ToInt64(getTotalBytes.ExecuteScalar());
+				try
+				{
+					return Convert.ToInt64(getTotalBytes.ExecuteScalar());
+				}
+				catch
+				{
+					return 81920000;
+				}
 			}
 		}
 

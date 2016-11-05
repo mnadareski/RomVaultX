@@ -548,11 +548,11 @@ namespace RomVaultX.DatReader
 				return false;
 			}
 
-			string filename = VarFix.CleanFullFileName(DatFileLoader.Gn());
-			byte[] sha1;
-			byte[] md5;
-			string Merge;
-			string Status;
+			RvRom rvRom = new RvRom
+			{
+				Name = VarFix.CleanFullFileName(DatFileLoader.Gn()),
+				AltType = FileType.CHD,
+			};
 
 			DatFileLoader.Gn();
 
@@ -561,23 +561,25 @@ namespace RomVaultX.DatReader
 				switch (DatFileLoader.Next.ToLower())
 				{
 					case "sha1":
-						sha1 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40);
+						rvRom.SHA1CHD = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40);
+						rvRom.FileSHA1 = rvRom.SHA1CHD;
 						DatFileLoader.Gn();
 						break;
 					case "md5":
-						md5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
+						rvRom.MD5CHD = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
+						rvRom.FileMD5 = rvRom.MD5CHD;
 						DatFileLoader.Gn();
 						break;
 					case "merge":
-						Merge = VarFix.CleanFullFileName(DatFileLoader.Gn());
+						rvRom.Merge = VarFix.CleanFullFileName(DatFileLoader.Gn());
 						DatFileLoader.Gn();
 						break;
 					case "flags":
-						Status = VarFix.ToLower(DatFileLoader.Gn());
+						rvRom.Status = VarFix.ToLower(DatFileLoader.Gn());
 						DatFileLoader.Gn();
 						break;
 					case "nodump":
-						Status = "nodump";
+						rvRom.Status = "nodump";
 						DatFileLoader.Gn();
 						break;
 					case "region":
@@ -594,6 +596,8 @@ namespace RomVaultX.DatReader
 						break;
 				}
 			}
+
+			rvGame.AddRom(rvRom);
 
 			return true;
 		}

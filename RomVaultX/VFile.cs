@@ -171,6 +171,12 @@ namespace RomVaultX
 				{
 					while (dr.Read())
 					{
+						// Here, we want to do a check if the name contains AltDirSepChar
+						// This means the file is from a SuperDAT
+						// Try to add a directory at each level down until the last one
+						// Then add the file to that last dir
+						// Only problem is how that would be opened since it wouldn't be a valid dirid
+
 						files.Add(
 							new VFile
 							{
@@ -239,7 +245,7 @@ namespace RomVaultX
 				DbParameter pDirId = Program.db.Parameter("DirId", dirId);
 				getFileInDirectory.Parameters.Add(pDirId);
 				DbParameter pName = Program.db.Parameter("Name", filePart.Replace('¬', Path.AltDirectorySeparatorChar));
-                getFileInDirectory.Parameters.Add(pName);
+				getFileInDirectory.Parameters.Add(pName);
 				using (DbDataReader dr = getFileInDirectory.ExecuteReader())
 				{
 					while (dr.Read())

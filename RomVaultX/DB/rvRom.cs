@@ -16,7 +16,9 @@ namespace RomVaultX.DB
 		public FileType AltType;
 		public byte[] CRC;
 		public byte[] SHA1;
+		public byte[] SHA1CHD;
 		public byte[] MD5;
+		public byte[] MD5CHD;
 		public string Merge;
 		public string Status;
 		public string Date;
@@ -143,8 +145,8 @@ namespace RomVaultX.DB
 			_commandRvRomWrite.Parameters["type"].Value = (int)AltType;
 			_commandRvRomWrite.Parameters["size"].Value = Size;
 			_commandRvRomWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
-			_commandRvRomWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
-			_commandRvRomWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
+			_commandRvRomWrite.Parameters["sha1"].Value = (SHA1CHD != null ? VarFix.ToDBString(SHA1CHD) : VarFix.ToDBString(SHA1));
+			_commandRvRomWrite.Parameters["md5"].Value = (MD5CHD != null ? VarFix.ToDBString(MD5CHD) : VarFix.ToDBString(MD5));
 			_commandRvRomWrite.Parameters["merge"].Value = Merge;
 			_commandRvRomWrite.Parameters["status"].Value = Status;
 			_commandRvRomWrite.Parameters["putinzip"].Value = PutInZip;

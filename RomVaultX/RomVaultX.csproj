@@ -160,6 +160,7 @@
       <DependentUpon>rvTree.cs</DependentUpon>
     </Compile>
     <Compile Include="rvTreeRow.cs" />
+    <Compile Include="SupportedFiles\CHD\CHD.cs" />
     <Compile Include="SupportedFiles\Files\ThreadCRC.cs" />
     <Compile Include="SupportedFiles\Files\ThreadLoadBuffer.cs" />
     <Compile Include="SupportedFiles\Files\ThreadMD5.cs" />
@@ -225,6 +226,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="chdman.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="chip.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
