@@ -72,7 +72,7 @@ namespace RomVaultX
                         ( sha1=@SHA1 OR sha1 is NULL ) AND 
                         ( md5=@MD5 OR md5 is NULL) AND
                         ( crc=@CRC OR crc is NULL ) AND
-                        ( size=0 ) ", Program.db.Connection);
+                        ( size=0 and (status !='nodump' or status is null)) ", Program.db.Connection);
                 _commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("crc"));
                 _commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("sha1"));
                 _commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("md5"));

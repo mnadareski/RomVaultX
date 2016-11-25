@@ -68,6 +68,7 @@ namespace RomVaultX.DB
             if (!datFound)
                 MakeDB();
 
+            MakeTriggers();
             MakeIndex();
 
             return null;
@@ -124,13 +125,16 @@ namespace RomVaultX.DB
                 "version", DBVersion);
 
 
-        RvDir.CreateTable();
+            RvDir.CreateTable();
             RvDat.CreateTable();
             RvGame.CreateTable();
             RvFile.CreateTable();
             RvRom.CreateTable();
+        }
 
-            /******** Create Triggers ***********/
+        private void MakeTriggers()
+        { 
+        /******** Create Triggers ***********/
 
             /**** FILE Triggers ****/
             /*INSERT*/
@@ -169,7 +173,7 @@ namespace RomVaultX.DB
                     UPDATE GAME SET
                         RomTotal = RomTotal + 1,
                         RomGot = RomGot + (IFNULL(New.FileId,0)>0),
-                        RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.crc is null and New.sha1 is null and New.md5 is null,0)),
+                        RomNoDump = RomNoDump + (IFNULL(New.status ='nodump' and New.FileId is null,0)),
                         ZipFileLength=null,
                         LastWriteTime=null,
                         CreationTime=null,
@@ -191,7 +195,7 @@ namespace RomVaultX.DB
                     UPDATE GAME SET
                         RomTotal = RomTotal - 1,
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
-                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.crc is null and Old.sha1 is null and Old.md5 is null,0)),
+                        RomNoDump = RomNoDump - (IFNULL(Old.status ='nodump' and Old.FileId is null,0)),
                         ZipFileLength=null,
                         LastWriteTime=null,
                         CreationTime=null,
