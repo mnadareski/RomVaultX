@@ -163,6 +163,7 @@ namespace RomVaultX.DatReader
 								rvDat.MergeType = (String.IsNullOrEmpty(rvDat.MergeType) ? "split" : rvDat.MergeType);
 								break;
 						}
+						DatFileLoader.Gn();
 						break;
 					case "merge":
 						switch (value)
@@ -174,6 +175,7 @@ namespace RomVaultX.DatReader
 								rvDat.MergeType = (String.IsNullOrEmpty(rvDat.MergeType) ? "merge" : rvDat.MergeType);
 								break;
 						}
+						DatFileLoader.Gn();
 						break;
 
 					// EMULATOR block
