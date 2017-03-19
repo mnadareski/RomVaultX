@@ -140,17 +140,14 @@ namespace RomVaultX.DatReader
 			string loadflag = VarFix.StringFromXmlNode(romNode.Attributes.GetNamedItem("loadflag"));
 			if (name != null)
 			{
-				RvRom rvRom = new RvRom
-				{
-					Name = VarFix.CleanFullFileName(name),
-					Size = VarFix.ULong(romNode.Attributes.GetNamedItem("size")),
-					CRC = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("crc"), 8),
-					MD5 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("md5"), 32),
-					SHA1 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40),
-					Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status")),
-				};
+				RvRom rvRom = new RvRom();
+				rvRom.Name = VarFix.CleanFullFileName(name);
+				rvRom.Size = VarFix.ULong(romNode.Attributes.GetNamedItem("size"));
+				rvRom.CRC = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("crc"), 8);
+				rvRom.SHA1 = VarFix.CleanMD5SHA1(romNode.Attributes.GetNamedItem("sha1"), 40);
+				rvRom.Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status"));
 
-			_indexContinue = rvGame.AddRom(rvRom);
+				_indexContinue = rvGame.AddRom(rvRom);
 			}
 			else if (loadflag.ToLower() == "continue")
 			{
@@ -177,7 +174,6 @@ namespace RomVaultX.DatReader
 				Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge")),
 				Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status")),
 				AltType = FileType.CHD,
-				PutInZip = false,
 			};
 
 			_indexContinue = rvGame.AddRom(rvRom);

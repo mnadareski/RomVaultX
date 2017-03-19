@@ -552,7 +552,6 @@ namespace RomVaultX.DatReader
 			{
 				Name = VarFix.CleanFullFileName(DatFileLoader.Gn()),
 				AltType = FileType.CHD,
-				PutInZip = false,
 			};
 
 			DatFileLoader.Gn();

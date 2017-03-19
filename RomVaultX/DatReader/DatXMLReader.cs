@@ -285,7 +285,6 @@ namespace RomVaultX.DatReader
 				Merge = VarFix.CleanFullFileName(romNode.Attributes.GetNamedItem("merge")),
 				Status = VarFix.ToLower(romNode.Attributes.GetNamedItem("status")),
 				AltType = FileType.CHD,
-				PutInZip = false,
 			};
 
 			rvGame.AddRom(rvRom);
