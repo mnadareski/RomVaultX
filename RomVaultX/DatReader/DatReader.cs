@@ -36,6 +36,7 @@ namespace RomVaultX.DatReader
 			Stream fs;
 			try
 			{
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, "Reading"));
 				fs = File.OpenRead(fullname);
 			}
 			catch (Exception ex)
@@ -119,7 +120,6 @@ namespace RomVaultX.DatReader
 			XmlDocument doc = new XmlDocument { XmlResolver = null };
 			try
 			{
-				_bgw.ReportProgress(0, new bgwShowEvent(fullname, "Loading"));
 				doc.Load(fs);
 			}
 			catch (Exception e)
