@@ -275,6 +275,11 @@ namespace RomVaultX.DB
 
 		public void MakeIndex(BackgroundWorker bgw = null)
 		{
+			if (bgw == null)
+			{
+				ConsoleManager.Show();
+			}
+
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwRange2Visible(true));
@@ -285,6 +290,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(0));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-SHA1"));
 			}
+			Console.WriteLine("Creating Index ROM-SHA1");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]		ASC);");
 
 			if (bgw != null)
@@ -292,6 +298,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(1));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-MD5"));
 			}
+			Console.WriteLine("Creating Index ROM-MD5");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMMD5Index]	ON [ROM]   ([md5]		 ASC); ");
 
 			if (bgw != null)
@@ -299,6 +306,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(2));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-CRC"));
 			}
+			Console.WriteLine("Creating Index ROM-CRC");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMCRCIndex]	ON [ROM]   ([crc]		 ASC); ");
 
 			if (bgw != null)
@@ -306,6 +314,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(3));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-Size"));
 			}
+			Console.WriteLine("Creating Index ROM-Size");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSizeIndex]   ON [ROM]   ([size]		ASC); ");
 
 			if (bgw != null)
@@ -313,6 +322,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(4));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-FileId"));
 			}
+			Console.WriteLine("Creating Index ROM-FileId");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]   ([FileId]	  ASC); ");
 
 			if (bgw != null)
@@ -320,6 +330,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(5));
 				bgw.ReportProgress(0, new bgwText2("Creating Index ROM-GameId-Name"));
 			}
+			Console.WriteLine("Creating Index ROM-GameId-Name");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMGameId]	  ON [ROM]   ([GameId]	  ASC,[name] ASC);");
 
 			if (bgw != null)
@@ -327,6 +338,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(6));
 				bgw.ReportProgress(0, new bgwText2("Creating Index Game-DatId"));
 			}
+			Console.WriteLine("Creating Index Game-DatId");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [GameDatId]	  ON [GAME]  ([DatId]	   ASC,[name] ASC);");
 
 			if (bgw != null)
@@ -334,6 +346,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(7));
 				bgw.ReportProgress(0, new bgwText2("Creating Index FILE-SHA1"));
 			}
+			Console.WriteLine("Creating Index FILE-SHA1");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILESHA1]	   ON [FILES] ([sha1]		ASC);");
 
 			if (bgw != null)
@@ -341,6 +354,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(8));
 				bgw.ReportProgress(0, new bgwText2("Creating Index FILE-MD5"));
 			}
+			Console.WriteLine("Creating Index FILE-MD5");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILEMD5]		ON [FILES] ([md5]		 ASC);");
 
 			if (bgw != null)
@@ -348,6 +362,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(9));
 				bgw.ReportProgress(0, new bgwText2("Creating Index FILE-CRC"));
 			}
+			Console.WriteLine("Creating Index FILE-CRC");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILECRC]		ON [FILES] ([crc]		 ASC);");
 
 			if (bgw != null)
@@ -355,6 +370,7 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(10));
 				bgw.ReportProgress(0, new bgwText2("Creating Index DAT-DirId"));
 			}
+			Console.WriteLine("Creating Index DAT-DirId");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DATDIRID]	   ON [DAT]   ([DirId]	   ASC);");
 
 			if (bgw != null)
@@ -362,12 +378,19 @@ namespace RomVaultX.DB
 				bgw.ReportProgress(0, new bgwValue2(11));
 				bgw.ReportProgress(0, new bgwText2("Creating Index Dir-ParentDirId"));
 			}
+			Console.WriteLine("Creating Index Dir-ParentDirId");
 			ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);");
 
 			if (bgw != null)
 			{
 				bgw.ReportProgress(0, new bgwValue2(12));
 				bgw.ReportProgress(0, new bgwText2("Indexing Complete"));
+			}
+			Console.WriteLine("Indexing Complete");
+
+			if (bgw == null)
+			{
+				ConsoleManager.Hide();
 			}
 		}
 

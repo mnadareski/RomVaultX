@@ -108,6 +108,7 @@
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
     <Compile Include="BackGroundWorkerInterface.cs" />
+    <Compile Include="ConsoleManager.cs" />
     <Compile Include="DatReader\DatDOSReader.cs" />
     <Compile Include="DatReader\DatMessXmlReader.cs" />
     <Compile Include="DatReader\DatCmpReader.cs" />
