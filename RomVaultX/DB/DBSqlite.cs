@@ -66,7 +66,18 @@ namespace RomVaultX.DB
 			{
 				MakeDB();
 			}
-			MakeIndex();
+
+			string skipIndexing = AppSettings.ReadSetting("SkipIndexingOnStartup");
+			if (skipIndexing == null)
+			{
+				AppSettings.AddUpdateAppSettings("SkipIndexingOnStartup", "false");
+				_dbFilename = AppSettings.ReadSetting("SkipIndexingOnStartup");
+			}
+
+			if (skipIndexing != "true")
+			{
+				MakeIndex();
+			}
 
 			return null;
 		}
