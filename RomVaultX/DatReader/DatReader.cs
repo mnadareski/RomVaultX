@@ -119,14 +119,14 @@ namespace RomVaultX.DatReader
 			XmlDocument doc = new XmlDocument { XmlResolver = null };
 			try
 			{
-				_bgw.ReportProgress(0, new bgwShowEvent(fullname, string.Format("Error Occured Reading Dat:\r\n{0}\r\n", e.Message)));
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, "Loading"));
 				doc.Load(fs);
 			}
 			catch (Exception e)
 			{
 				fs.Close();
 				fs.Dispose();
-				_bgw.ReportProgress(0, new bgwShowEvent(fullname, "Loading"));
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, string.Format("Error Occured Reading Dat:\r\n{0}\r\n", e.Message)));
 				return false;
 			}
 			fs.Close();
