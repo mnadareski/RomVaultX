@@ -86,6 +86,10 @@ namespace RomVaultX.DatReader
 						}
 						DatFileLoader.Gn();
 						break;
+					case "#":
+						// Comments in CMP start with a # character
+						DatFileLoader.Gn();
+						break;
 					default:
 						DatUpdate.SendAndShowDat("Error on line " + DatFileLoader.LineNumber + ": key word '" + DatFileLoader.Next + "' not known", DatFileLoader.Filename);
 						DatFileLoader.Gn();
@@ -485,12 +489,27 @@ namespace RomVaultX.DatReader
 						rvRom.CRC = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 8);
 						DatFileLoader.Gn();
 						break;
+					case "md5":
+						rvRom.MD5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
+						DatFileLoader.Gn();
+						break;
 					case "sha1":
 						rvRom.SHA1 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40);
 						DatFileLoader.Gn();
 						break;
-					case "md5":
-						rvRom.MD5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
+					case "sha256":
+						// No-op until larger hashes are supported
+						DatFileLoader.Gn();
+						DatFileLoader.Gn();
+						break;
+					case "sha384":
+						// No-op until larger hashes are supported
+						DatFileLoader.Gn();
+						DatFileLoader.Gn();
+						break;
+					case "sha512":
+						// No-op until larger hashes are supported
+						DatFileLoader.Gn();
 						DatFileLoader.Gn();
 						break;
 					case "merge":
@@ -560,14 +579,29 @@ namespace RomVaultX.DatReader
 			{
 				switch (DatFileLoader.Next.ToLower())
 				{
+					case "md5":
+						rvRom.MD5CHD = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
+						rvRom.FileMD5 = rvRom.MD5CHD;
+						DatFileLoader.Gn();
+						break;
 					case "sha1":
 						rvRom.SHA1CHD = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40);
 						rvRom.FileSHA1 = rvRom.SHA1CHD;
 						DatFileLoader.Gn();
 						break;
-					case "md5":
-						rvRom.MD5CHD = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
-						rvRom.FileMD5 = rvRom.MD5CHD;
+					case "sha256":
+						// No-op until larger hashes are supported
+						DatFileLoader.Gn();
+						DatFileLoader.Gn();
+						break;
+					case "sha384":
+						// No-op until larger hashes are supported
+						DatFileLoader.Gn();
+						DatFileLoader.Gn();
+						break;
+					case "sha512":
+						// No-op until larger hashes are supported
+						DatFileLoader.Gn();
 						DatFileLoader.Gn();
 						break;
 					case "merge":
