@@ -36,7 +36,8 @@ namespace RomVaultX.DB
 			Connection = new SQLiteConnection(@"data source=" + _dbFilename + ";Version=3");
 			Connection.Open();
 
-			ExecuteNonQuery("PRAGMA temp_store = MEMORY");
+			// ExecuteNonQuery("PRAGMA temp_store = MEMORY");
+			ExecuteNonQuery("PRAGMA temp_store = FILE");
 			ExecuteNonQuery("PRAGMA cache_size = -" + dbMemCacheSize);
 			//ExecuteNonQuery("PRAGMA journal_mode = MEMORY");
 			ExecuteNonQuery("PRAGMA journal_mode = PERSIST");
