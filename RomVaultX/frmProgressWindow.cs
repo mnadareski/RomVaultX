@@ -111,7 +111,7 @@ namespace RomVaultX
 				return;
 			}
 
-			bgwShowError bgwSDE = e.UserState as bgwShowError;
+			bgwShowEvent bgwSDE = e.UserState as bgwShowEvent;
 			if (bgwSDE != null)
 			{
 				if (!_errorOpen)
@@ -125,7 +125,7 @@ namespace RomVaultX
 				ErrorGrid.Rows.Add();
 				int row = ErrorGrid.Rows.Count - 1;
 
-				ErrorGrid.Rows[row].Cells["CError"].Value = bgwSDE.error;
+				ErrorGrid.Rows[row].Cells["CError"].Value = bgwSDE.eventStrng;
 
 				ErrorGrid.Rows[row].Cells["CErrorFile"].Value = bgwSDE.filename;
 

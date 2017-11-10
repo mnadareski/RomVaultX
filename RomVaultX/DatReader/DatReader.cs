@@ -40,7 +40,7 @@ namespace RomVaultX.DatReader
 			}
 			catch (Exception ex)
 			{
-				_bgw.ReportProgress(0, new bgwShowError(fullname, ex.Message));
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, ex.Message));
 				return false;
 			}
 
@@ -87,7 +87,7 @@ namespace RomVaultX.DatReader
 			// Unknown file / DAT type
 			else
 			{
-				_bgw.ReportProgress(0, new bgwShowError(fullname, "Invalid DAT File"));
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, "Invalid DAT File"));
 				return false;
 			}
 		}
@@ -111,7 +111,7 @@ namespace RomVaultX.DatReader
 			}
 			catch (Exception ex)
 			{
-				_bgw.ReportProgress(0, new bgwShowError(fullname, ex.Message));
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, ex.Message));
 				return false;
 			}
 
@@ -119,13 +119,14 @@ namespace RomVaultX.DatReader
 			XmlDocument doc = new XmlDocument { XmlResolver = null };
 			try
 			{
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, string.Format("Error Occured Reading Dat:\r\n{0}\r\n", e.Message)));
 				doc.Load(fs);
 			}
 			catch (Exception e)
 			{
 				fs.Close();
 				fs.Dispose();
-				_bgw.ReportProgress(0, new bgwShowError(fullname, string.Format("Error Occured Reading Dat:\r\n{0}\r\n", e.Message)));
+				_bgw.ReportProgress(0, new bgwShowEvent(fullname, "Loading"));
 				return false;
 			}
 			fs.Close();

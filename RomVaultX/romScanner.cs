@@ -81,7 +81,7 @@ namespace RomVaultX
 
 			if (res == FindStatus.FileNeededInArchive)
 			{
-				_bgw?.ReportProgress(0, new bgwShowError(filename, "found"));
+				_bgw?.ReportProgress(0, new bgwShowEvent(filename, "found"));
 				Debug.WriteLine("Reading file as " + VarFix.ToDBString(tFile.SHA1));
 				GZip gz = new GZip(tFile);
 				string outfile = GetFilename(tFile.SHA1);

@@ -70,16 +70,16 @@
 		public bool Visible { get; private set; }
 	}
 
-	public class bgwShowError
+	public class bgwShowEvent
 	{
-		public bgwShowError(string filename, string error)
+		public bgwShowEvent(string filename, string eventString)
 		{
-			this.error = error;
+			this.eventStrng = eventString;
 			this.filename = filename;
 		}
 
 		public string filename { get; private set; }
-		public string error { get; private set; }
+		public string eventStrng { get; private set; }
 	}
 
 	public class bgwShowFix

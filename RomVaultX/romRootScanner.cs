@@ -108,7 +108,7 @@ namespace RomVaultX
 
 					if (errorcode != ZipReturn.ZipGood)
 					{
-						_bgw.ReportProgress(0, new bgwShowError(f.FullName, "gz File corrupt"));
+						_bgw.ReportProgress(0, new bgwShowEvent(f.FullName, "gz File corrupt"));
 						continue;
 					}
 					RvFile tFile = new RvFile();

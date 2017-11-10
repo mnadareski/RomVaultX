@@ -22,12 +22,12 @@ namespace RomVaultX
 
 		public static void ShowDat(string message, string filename)
 		{
-			_bgw?.ReportProgress(0, new bgwShowError(filename, message));
+			_bgw?.ReportProgress(0, new bgwShowEvent(filename, message));
 		}
 
 		public static void SendAndShowDat(string message, string filename)
 		{
-			_bgw?.ReportProgress(0, new bgwShowError(filename, message));
+			_bgw?.ReportProgress(0, new bgwShowEvent(filename, message));
 		}
 
 		public static void UpdateDat(object sender, DoWorkEventArgs e)
