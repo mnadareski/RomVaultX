@@ -19,12 +19,9 @@ namespace RomVaultX.Util
 
 		public static ulong? ULong(string n)
 		{
-			if (String.IsNullOrEmpty(n))
-			{
-				return null;
-			}
-
-			if (n == "-")
+			if (String.IsNullOrWhiteSpace(n)
+				|| n.ToLower() == "null"
+				|| n == "-")
 			{
 				return null;
 			}
@@ -92,7 +89,7 @@ namespace RomVaultX.Util
 
 		public static byte[] CleanMD5SHA1(string checksum, int length)
 		{
-			if (String.IsNullOrEmpty(checksum))
+			if (String.IsNullOrWhiteSpace(checksum))
 			{
 				return null;
 			}
@@ -107,12 +104,9 @@ namespace RomVaultX.Util
 				}
 			}
 
-			if (String.IsNullOrEmpty(checksum))
-			{
-				return null;
-			}
-
-			if (checksum == "-")
+			if (String.IsNullOrWhiteSpace(checksum)
+				|| checksum == "null"
+				|| checksum == "-")
 			{
 				return null;
 			}
@@ -265,7 +259,14 @@ namespace RomVaultX.Util
 
 		public static ulong? FixLong(object v)
 		{
-			return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
+			try
+			{
+				return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 		public static FileType FixFileType(object v)
