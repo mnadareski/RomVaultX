@@ -72,14 +72,14 @@
 
 	public class bgwShowEvent
 	{
-		public bgwShowEvent(string filename, string eventString)
+		public bgwShowEvent(string filename, string error)
 		{
-			this.eventStrng = eventString;
+			this.error = error;
 			this.filename = filename;
 		}
 
 		public string filename { get; private set; }
-		public string eventStrng { get; private set; }
+		public string error { get; private set; }
 	}
 
 	public class bgwShowFix
