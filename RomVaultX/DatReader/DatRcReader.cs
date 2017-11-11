@@ -212,6 +212,12 @@ namespace RomVaultX.DatReader
 				return false;
 			}
 
+			// Some old RC DATs have this behavior
+			if (DatFileLoader.Next.Contains("¬N¬O"))
+			{
+				DatFileLoader.Next = DatFileLoader.Next.Replace("¬N¬O", "") + "¬¬";
+			}
+
 			string[] split = DatFileLoader.Next.Split('¬');
 			game = split[3];
 			description = split[4];
