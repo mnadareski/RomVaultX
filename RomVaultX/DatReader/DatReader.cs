@@ -11,6 +11,7 @@ using StreamReader = System.IO.StreamReader;
 
 namespace RomVaultX.DatReader
 {
+	// TODO: Implement other DAT formats
 	static class DatReader
 	{
 		private static BackgroundWorker _bgw;
