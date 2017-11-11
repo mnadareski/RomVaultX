@@ -222,7 +222,7 @@ namespace RomVaultX.DatReader
 			{
 				Name = split[5],
 				CRC = VarFix.CleanMD5SHA1(split[6], 8),
-				Size = VarFix.FixLong(split[7]),
+				Size = Int64.TryParse(split[7], out var temp) ? VarFix.FixLong(split[7]) : null,
 				Merge = split[9],
 			};
 

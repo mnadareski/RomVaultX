@@ -52,34 +52,6 @@ namespace RomVaultX.Util
 		}
 
 		private const string ValidHexChar = "0123456789abcdef";
-		private static string CleanCheck(string crc, int length)
-		{
-			string retcrc = crc ?? "";
-			retcrc = retcrc.ToLower().Trim();
-
-			if (retcrc.Length >= 2 && retcrc.Substring(0, 2).ToLower() == "0x")
-			{
-				retcrc = retcrc.Substring(2);
-			}
-
-			if (retcrc == "-")
-			{
-				retcrc = "00000000";
-			}
-
-			for (int i = 0; i < retcrc.Length; i++)
-			{
-				if (ValidHexChar.IndexOf(retcrc.Substring(i, 1), StringComparison.Ordinal) < 0)
-				{
-					return "";
-				}
-			}
-
-			retcrc = (new String('0', length)) + retcrc;
-			retcrc = retcrc.Substring(retcrc.Length - length);
-
-			return retcrc;
-		}
 
 		//CleanMD5SHA1 with a null or empty string will return null
 		public static byte[] CleanMD5SHA1(XmlNode n, int length)
@@ -109,6 +81,15 @@ namespace RomVaultX.Util
 				|| checksum == "-")
 			{
 				return null;
+			}
+
+			// If we have non-hex characters left, we return null
+			for (int i = 0; i < checksum.Length; i++)
+			{
+				if (ValidHexChar.IndexOf(checksum[i]) < 0)
+				{
+					return null;
+				}
 			}
 
 			// Make sure the length of the checksum is proper
