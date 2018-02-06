@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace RomVaultX
+namespace RomVaultX.Util
 {
 	/// <summary>
 	/// Sourced from https://stackoverflow.com/questions/160587/no-output-to-console-from-a-wpf-application
