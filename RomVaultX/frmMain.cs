@@ -219,7 +219,8 @@ namespace RomVaultX
 				lblDITDate.Text = "";
 			}
 			lblDITRomsGot.Text = tr.RomGot.ToString("#,0");
-			lblDITRomsMissing.Text = (tr.RomTotal - tr.RomGot - tr.RomNoDump).ToString("#,0");
+			long realtotal = tr.RomTotal - tr.RomGot - tr.RomNoDump;
+			lblDITRomsMissing.Text = (realtotal < 0 ? 0 : realtotal).ToString("#,0");
 			lblDITRomsTotal.Text = tr.RomTotal.ToString("#,0");
 			lblDITRomsNoDump.Text = tr.RomNoDump.ToString("#,0");
 
