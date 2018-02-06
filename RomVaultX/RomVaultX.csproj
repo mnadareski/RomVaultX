@@ -108,7 +108,7 @@
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
     <Compile Include="BackGroundWorkerInterface.cs" />
-    <Compile Include="ConsoleManager.cs" />
+    <Compile Include="Util\ConsoleManager.cs" />
     <Compile Include="DatReader\DatDOSReader.cs" />
     <Compile Include="DatReader\DatMessXmlReader.cs" />
     <Compile Include="DatReader\DatCmpReader.cs" />
@@ -190,6 +190,7 @@
     <Compile Include="VFile.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="frmProgressWindow.resx">
       <DependentUpon>frmProgressWindow.cs</DependentUpon>
