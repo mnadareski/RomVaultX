@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Data.SQLite;
 
 using Alphaleonis.Win32.Filesystem;
+using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
@@ -42,6 +43,7 @@ namespace RomVaultX.DB
 			//ExecuteNonQuery("PRAGMA journal_mode = MEMORY");
 			ExecuteNonQuery("PRAGMA journal_mode = PERSIST");
 			ExecuteNonQuery("PRAGMA threads = 7");
+			ExecuteNonQuery("PRAGMA auto_vacuum = FULL"); // Experimental pragma to reduce size of the DB file
 
 			string dbCheckOnStartup = AppSettings.ReadSetting("DBCheckOnStartup");
 			if (dbCheckOnStartup == null)
