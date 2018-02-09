@@ -297,6 +297,7 @@ namespace RomVaultX
 
 		public NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
 		{
+			bytesWritten = 0;
 			return DokanResult.Error;
 		}
 
