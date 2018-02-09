@@ -443,7 +443,7 @@ namespace RomVaultX
 		public NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info)
 		{
 			volumeLabel = "RomVaultX";
-			fileSystemName = "RomVaultX";
+			fileSystemName = "NTFS";
 			features = FileSystemFeatures.CasePreservedNames | FileSystemFeatures.CaseSensitiveSearch |
 						FileSystemFeatures.PersistentAcls | FileSystemFeatures.SupportsRemoteStorage |
 						FileSystemFeatures.UnicodeOnDisk;
