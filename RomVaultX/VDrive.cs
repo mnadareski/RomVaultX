@@ -297,12 +297,12 @@ namespace RomVaultX
 
 		public NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus FlushFileBuffers(string fileName, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info)
@@ -389,47 +389,47 @@ namespace RomVaultX
 
 		public NtStatus SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus DeleteFile(string fileName, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus DeleteDirectory(string fileName, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus MoveFile(string oldName, string newName, bool replace, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus SetEndOfFile(string fileName, long length, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus LockFile(string fileName, long offset, long length, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus UnlockFile(string fileName, long offset, long length, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus GetDiskFreeSpace(out long freeBytesAvailable, out long totalNumberOfBytes, out long totalNumberOfFreeBytes, DokanFileInfo info)
@@ -462,7 +462,7 @@ namespace RomVaultX
 
 		public NtStatus SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
 		{
-			throw new NotImplementedException();
+			return DokanResult.Error;
 		}
 
 		public NtStatus Mounted(DokanFileInfo info)
