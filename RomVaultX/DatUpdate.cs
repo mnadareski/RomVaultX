@@ -62,7 +62,7 @@ namespace RomVaultX
 
 				int dbDatCount = DatDBCount();
 
-				bool dropIndex = (_datCount - dbDatCount > 10);
+				bool dropIndex = false; // (_datCount - dbDatCount > 10);
 
 				if (dropIndex)
 				{
