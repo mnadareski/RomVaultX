@@ -532,15 +532,15 @@ namespace RomVaultX
 									continue;
 								}
 
-								byte[] SHA0 = mGame.Roms[r].SHA1;
-								byte[] SHA1 = romofGame.Roms[r1].SHA1;
+								byte[] SHA0 = mGame.Roms[r].SHA1CHD ?? mGame.Roms[r].SHA1;
+								byte[] SHA1 = romofGame.Roms[r1].SHA1CHD ?? romofGame.Roms[r1].SHA1;
 								if (SHA0 != null && SHA1 != null && !ArrByte.bCompare(SHA0, SHA1))
 								{
 									continue;
 								}
 
-								byte[] MD50 = mGame.Roms[r].MD5;
-								byte[] MD51 = romofGame.Roms[r1].MD5;
+								byte[] MD50 = mGame.Roms[r].MD5CHD ?? mGame.Roms[r].MD5;
+								byte[] MD51 = romofGame.Roms[r1].MD5CHD ?? romofGame.Roms[r1].MD5;
 								if (MD50 != null && MD51 != null && !ArrByte.bCompare(MD50, MD51))
 								{
 									continue;

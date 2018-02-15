@@ -494,8 +494,8 @@ namespace RomVaultX
 
 			if (tFile.SHA1 != null)
 			{
-				_commandSHA1.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-				_commandSHA1.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+				_commandSHA1.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1CHD ?? tFile.SHA1);
+				_commandSHA1.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5CHD ?? tFile.MD5);
 				_commandSHA1.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
 				_commandSHA1.Parameters["size"].Value = tFile.Size;
 
@@ -510,8 +510,8 @@ namespace RomVaultX
 			if (tFile.SHA1 != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
 			{
 				_commandSHA1Alt.Parameters["alttype"].Value = (int)tFile.AltType;
-				_commandSHA1Alt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-				_commandSHA1Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+				_commandSHA1Alt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1CHD ?? tFile.SHA1);
+				_commandSHA1Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5CHD ?? tFile.MD5);
 				_commandSHA1Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
 				_commandSHA1Alt.Parameters["size"].Value = tFile.Size;
 
@@ -525,7 +525,7 @@ namespace RomVaultX
 			}
 			if (tFile.MD5 != null)
 			{
-				_commandMD5.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+				_commandMD5.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5CHD ?? tFile.MD5);
 				_commandMD5.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
 				_commandMD5.Parameters["size"].Value = tFile.Size;
 
@@ -540,7 +540,7 @@ namespace RomVaultX
 			if (tFile.MD5 != null && FileHeaderReader.AltHeaderFile(tFile.AltType))
 			{
 				_commandMD5Alt.Parameters["alttype"].Value = (int)tFile.AltType;
-				_commandMD5Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+				_commandMD5Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5CHD ?? tFile.MD5);
 				_commandMD5Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
 				_commandMD5Alt.Parameters["size"].Value = tFile.Size;
 

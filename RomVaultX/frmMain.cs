@@ -819,19 +819,19 @@ namespace RomVaultX
 					RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.FileCRC);
 				}
 
-				if (rom.SHA1 != null)
-					RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1);
-				else if (rom.SHA1CHD != null)
+				if (rom.SHA1CHD != null)
 					RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1CHD);
+				else if (rom.SHA1 != null)
+					RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1);
 				else if (rom.FileSHA1 != null)
 				{
 					RomGrid.Rows[iRow].Cells[6].Style.ForeColor = Color.FromArgb(0, 0, 255);
 					RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.FileSHA1);
 				}
-				if (rom.MD5 != null)
-					RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5);
-				else if (rom.MD5CHD != null)
+				if (rom.MD5CHD != null)
 					RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5CHD);
+				else if (rom.MD5 != null)
+					RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5);
 				else if (rom.FileMD5 != null)
 				{
 					RomGrid.Rows[iRow].Cells[7].Style.ForeColor = Color.FromArgb(0, 0, 255);
@@ -840,7 +840,11 @@ namespace RomVaultX
 				RomGrid.Rows[iRow].Cells[8].Value = rom.Status;
 				RomGrid.Rows[iRow].Cells[9].Value = rom.PutInZip;
 
-				if (rom.Status == "nodump" && rom.CRC == null && rom.SHA1 == null && rom.MD5 == null && rom.FileId == null || !rom.PutInZip)
+				if (rom.Status == "nodump"
+					&& rom.CRC == null
+					&& rom.SHA1 == null && rom.SHA1CHD == null
+					&& rom.MD5 == null && rom.MD5CHD == null
+					&& rom.FileId == null || !rom.PutInZip)
 					RomGrid.Rows[iRow].DefaultCellStyle.BackColor = CGray;
 				else
 					RomGrid.Rows[iRow].DefaultCellStyle.BackColor = rom.FileId != null ? CGreen : CRed;
