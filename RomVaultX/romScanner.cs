@@ -365,6 +365,12 @@ namespace RomVaultX
 				string romRoot = AppSettings.ReadSetting("Depot" + i);
 				if (romRoot == null)
 				{
+					i++;
+					break;
+				}
+				else if (!Directory.Exists(romRoot))
+				{
+					i++;
 					break;
 				}
 
@@ -373,8 +379,7 @@ namespace RomVaultX
 						 VarFix.ToString(sha1[2]) + @"\" +
 						 VarFix.ToString(sha1[3]) + @"\" +
 						 VarFix.ToString(sha1) + ".gz";
-				exists = File.Exists(path);
-				i++;
+				exists = true;
 			}
 
 			if (!exists)
