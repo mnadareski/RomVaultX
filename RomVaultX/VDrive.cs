@@ -440,13 +440,14 @@ namespace RomVaultX
 			return DokanResult.Success;
 		}
 
-		public NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info)
+		public NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, out uint maximumComponentLength, DokanFileInfo info)
 		{
 			volumeLabel = "RomVaultX";
 			fileSystemName = "NTFS";
 			features = FileSystemFeatures.CasePreservedNames | FileSystemFeatures.CaseSensitiveSearch |
 						FileSystemFeatures.PersistentAcls | FileSystemFeatures.SupportsRemoteStorage |
 						FileSystemFeatures.UnicodeOnDisk;
+			maximumComponentLength = 256;
 			return DokanResult.Success;
 		}
 
