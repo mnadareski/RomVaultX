@@ -37,11 +37,11 @@
 			this.label2 = new System.Windows.Forms.Label();
 			this.lbl2Prog = new System.Windows.Forms.Label();
 			this.ErrorGrid = new System.Windows.Forms.DataGridView();
+			this.CError = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.CErrorFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.label3 = new System.Windows.Forms.Label();
 			this.bgWork = new System.ComponentModel.BackgroundWorker();
-			this.CError = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.CErrorFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			((System.ComponentModel.ISupportInitialize)(this.ErrorGrid)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -109,8 +109,8 @@
 			this.ErrorGrid.BackgroundColor = System.Drawing.Color.White;
 			this.ErrorGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.ErrorGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-			this.CError,
-			this.CErrorFile});
+            this.CError,
+            this.CErrorFile});
 			this.ErrorGrid.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.ErrorGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
 			this.ErrorGrid.Location = new System.Drawing.Point(0, 0);
@@ -127,6 +127,22 @@
 			this.ErrorGrid.Size = new System.Drawing.Size(591, 186);
 			this.ErrorGrid.TabIndex = 6;
 			this.ErrorGrid.SelectionChanged += new System.EventHandler(this.ErrorGridSelectionChanged);
+			// 
+			// CError
+			// 
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.CError.DefaultCellStyle = dataGridViewCellStyle1;
+			this.CError.HeaderText = "Event";
+			this.CError.Name = "CError";
+			this.CError.ReadOnly = true;
+			this.CError.Width = 200;
+			// 
+			// CErrorFile
+			// 
+			this.CErrorFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+			this.CErrorFile.HeaderText = "Filename";
+			this.CErrorFile.Name = "CErrorFile";
+			this.CErrorFile.ReadOnly = true;
 			// 
 			// splitContainer1
 			// 
@@ -168,22 +184,6 @@
 			this.bgWork.WorkerSupportsCancellation = true;
 			this.bgWork.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.Complete);
 			// 
-			// CError
-			// 
-			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-			this.CError.DefaultCellStyle = dataGridViewCellStyle1;
-			this.CError.HeaderText = "Event";
-			this.CError.Name = "CError";
-			this.CError.ReadOnly = true;
-			this.CError.Width = 200;
-			// 
-			// CErrorFile
-			// 
-			this.CErrorFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-			this.CErrorFile.HeaderText = "Filename";
-			this.CErrorFile.Name = "CErrorFile";
-			this.CErrorFile.ReadOnly = true;
-			// 
 			// FrmProgressWindow
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -191,6 +191,8 @@
 			this.ClientSize = new System.Drawing.Size(591, 320);
 			this.Controls.Add(this.splitContainer1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.MinimizeBox = true;
+			this.MaximizeBox = false;
 			this.Name = "FrmProgressWindow";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "RomVault Progress";
