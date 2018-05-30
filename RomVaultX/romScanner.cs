@@ -34,13 +34,6 @@ namespace RomVaultX
 		public static void ScanFiles(object sender, DoWorkEventArgs e)
 		{
 			string sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
-			if (sInMemorySize == null)
-			{
-				// I use 1000000
-				AppSettings.AddUpdateAppSettings("ScanInMemorySize", "1000000");
-				sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
-			}
-
 			if (!ulong.TryParse(sInMemorySize, out inMemorySize))
 				inMemorySize = 1000000;
 

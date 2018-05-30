@@ -17,19 +17,7 @@ namespace RomVaultX.DB
 		public string ConnectToDB()
 		{
 			_dbFilename = AppSettings.ReadSetting("DBFileName");
-			if (_dbFilename == null)
-			{
-				AppSettings.AddUpdateAppSettings("DBFileName", "rom");
-				_dbFilename = AppSettings.ReadSetting("DBFileName");
-			}
 			string dbMemCacheSize = AppSettings.ReadSetting("DBMemCacheSize");
-			if (dbMemCacheSize == null)
-			{
-				// I use 8000000
-				AppSettings.AddUpdateAppSettings("DBMemCacheSize", "2000");
-				dbMemCacheSize = AppSettings.ReadSetting("DBMemCacheSize");
-			}
-
 			_dbFilename += DBVersion + ".db3";
 
 			bool datFound = File.Exists(_dbFilename);
@@ -46,12 +34,6 @@ namespace RomVaultX.DB
 			ExecuteNonQuery("PRAGMA auto_vacuum = FULL"); // Experimental pragma to reduce size of the DB file
 
 			string dbCheckOnStartup = AppSettings.ReadSetting("DBCheckOnStartup");
-			if (dbCheckOnStartup == null)
-			{
-				AppSettings.AddUpdateAppSettings("DBCheckOnStartup", "false");
-				dbCheckOnStartup = AppSettings.ReadSetting("DBCheckOnStartup");
-			}
-
 			if (dbCheckOnStartup.ToLower() == "true")
 			{
 				DbCommand dbCheck = new SQLiteCommand(@"PRAGMA quick_check;", Connection);
@@ -71,12 +53,6 @@ namespace RomVaultX.DB
 			}
 
 			string skipIndexing = AppSettings.ReadSetting("SkipIndexingOnStartup");
-			if (skipIndexing == null)
-			{
-				AppSettings.AddUpdateAppSettings("SkipIndexingOnStartup", "false");
-				_dbFilename = AppSettings.ReadSetting("SkipIndexingOnStartup");
-			}
-
 			if (skipIndexing != "true")
 			{
 				MakeIndex();

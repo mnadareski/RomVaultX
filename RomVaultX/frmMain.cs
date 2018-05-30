@@ -41,14 +41,9 @@ namespace RomVaultX
 		public frmMain()
 		{
 			InitializeComponent();
+			ValidateSettings();
 
 			string driveLetter = AppSettings.ReadSetting("vDriveLetter");
-			if (driveLetter == null)
-			{
-				AppSettings.AddUpdateAppSettings("vDriveLetter", "V");
-
-				driveLetter = AppSettings.ReadSetting("DBFileName");
-			}
 			vDriveLetter = driveLetter.ToCharArray()[0];
 
 			addGameGrid();
@@ -62,6 +57,79 @@ namespace RomVaultX
 
 			DatUpdate.UpdateGotTotal();
 			DirTree.Setup(RvTreeRow.ReadTreeFromDB());
+		}
+
+		/// <summary>
+		/// Validate all known settings
+		/// </summary>
+		private void ValidateSettings()
+		{
+			// Database and Memory
+			string setting = AppSettings.ReadSetting("DBFileName");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("DBFileName", "rom");
+			}
+			setting = AppSettings.ReadSetting("DBMemCacheSize");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("DBMemCacheSize", "2000"); // I use 8000000
+			}
+			setting = AppSettings.ReadSetting("ScanInMemorySize");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("ScanInMemorySize", "1000000"); // I use 1000000
+			}
+			setting = AppSettings.ReadSetting("DBCheckOnStartup");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("DBCheckOnStartup", "false");
+			}
+			setting = AppSettings.ReadSetting("SkipIndexingOnStartup");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("SkipIndexingOnStartup", "false");
+			}
+
+			// Virtual Drive
+			setting = AppSettings.ReadSetting("vDriveLetter");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("vDriveLetter", "V");
+			}
+
+			// Paths
+			setting = AppSettings.ReadSetting("DatRoot");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("DatRoot", "DatRoot");
+			}
+			setting = AppSettings.ReadSetting("ToSort");
+			if (setting == null)
+			{
+				AppSettings.AddUpdateAppSettings("ToSort", "ToSort");
+			}
+
+			int i = 0;
+			while (true)
+			{
+				setting = AppSettings.ReadSetting("Depot" + i);
+				if (setting == null && i == 0)
+				{
+					AppSettings.AddUpdateAppSettings("Depot" + i, "RomRoot");
+				}
+				else
+				{
+					break;
+				}
+				setting = AppSettings.ReadSetting("Size" + i);
+				if (setting == null)
+				{
+					AppSettings.AddUpdateAppSettings("Size" + i, "-1");
+				}
+
+				i++;
+			}
 		}
 
 		private void btnUpdateDats_Click(object sender, EventArgs e)
