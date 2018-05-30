@@ -66,7 +66,7 @@ namespace RomVaultX
 			if (foundFileType == FileType.CHD)
 			{
 				uint? version;
-				CHD.CheckFile(fStream, out tFile.SHA1, out tFile.MD5, out version);
+				CHD.CheckFile(fStream, out tFile.AltSHA1, out tFile.AltMD5, out version);
 			}
 
 			// test if needed.

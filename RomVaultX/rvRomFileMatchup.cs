@@ -42,6 +42,11 @@ namespace RomVaultX
 				return FindStatus.FileNeededInArchive;
 			}
 
+			if (tFile.AltType == FileType.CHD && FindInROMsAlt(tFile))
+			{
+				return FindStatus.FileNeededInArchive;
+			}
+
 			return FindStatus.FileUnknown;
 		}
 
