@@ -192,7 +192,7 @@
 			this.Controls.Add(this.splitContainer1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MinimizeBox = true;
-			this.MaximizeBox = false;
+			this.MaximizeBox = true;
 			this.Name = "FrmProgressWindow";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "RomVault Progress";

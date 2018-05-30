@@ -119,7 +119,6 @@ namespace RomVaultX
 					_errorOpen = true;
 					ClientSize = new Size(498, 292);
 					MinimumSize = new Size(498, 292);
-					FormBorderStyle = FormBorderStyle.SizableToolWindow;
 				}
 
 				ErrorGrid.Rows.Add();
