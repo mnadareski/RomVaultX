@@ -963,9 +963,14 @@ namespace RomVaultX
 		{
 			Dokan.Unmount(vDriveLetter);
 			di = new VDrive();
-			Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.FixedDrive, 10); });
-			t2.Start();
-		}
+
+            string threadCountSetting = AppSettings.ReadSetting("VirtualDriveThreads");
+            if (!Int32.TryParse(threadCountSetting, out int threadCount))
+                threadCount = 10;
+
+            Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.FixedDrive, threadCount); });
+            t2.Start();
+        }
 
 		private void closeVDriveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
