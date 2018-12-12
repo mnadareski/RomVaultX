@@ -25,15 +25,15 @@ namespace RomVaultX.DB
 			Connection = new SQLiteConnection(@"data source=" + _dbFilename + ";Version=3");
 			Connection.Open();
 
-			// ExecuteNonQuery("PRAGMA temp_store = MEMORY");
-			ExecuteNonQuery("PRAGMA temp_store = FILE");
-			ExecuteNonQuery("PRAGMA cache_size = -" + dbMemCacheSize);
-			//ExecuteNonQuery("PRAGMA journal_mode = MEMORY");
-			ExecuteNonQuery("PRAGMA journal_mode = PERSIST");
-			ExecuteNonQuery("PRAGMA threads = 7");
-			ExecuteNonQuery("PRAGMA auto_vacuum = FULL"); // Experimental pragma to reduce size of the DB file
+            // ExecuteNonQuery("PRAGMA temp_store = MEMORY");
+            ExecuteNonQuery("PRAGMA temp_store = FILE");
+            ExecuteNonQuery("PRAGMA cache_size = -" + dbMemCacheSize);
+            // ExecuteNonQuery("PRAGMA journal_mode = MEMORY");
+            ExecuteNonQuery("PRAGMA journal_mode = PERSIST");
+            ExecuteNonQuery("PRAGMA threads = 7");
+            ExecuteNonQuery("PRAGMA auto_vacuum = FULL"); // Experimental pragma to reduce size of the DB file
 
-			string dbCheckOnStartup = AppSettings.ReadSetting("DBCheckOnStartup");
+            string dbCheckOnStartup = AppSettings.ReadSetting("DBCheckOnStartup");
 			if (dbCheckOnStartup.ToLower() == "true")
 			{
 				DbCommand dbCheck = new SQLiteCommand(@"PRAGMA quick_check;", Connection);
@@ -41,22 +41,16 @@ namespace RomVaultX.DB
 				string sRes = res.ToString();
 
 				if (sRes != "ok")
-				{
 					return sRes;
-				}
 			}
 
 			CheckDbVersion(ref datFound);
 			if (!datFound)
-			{
 				MakeDB();
-			}
 
 			string skipIndexing = AppSettings.ReadSetting("SkipIndexingOnStartup");
 			if (skipIndexing != "true")
-			{
 				MakeIndex();
-			}
 
 			return null;
 		}
