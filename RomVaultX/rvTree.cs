@@ -238,7 +238,37 @@ namespace RomVaultX
 			base.OnMouseDown(mevent);
 		}
 
-		private bool CheckMouseDown(RvTreeRow pTree, int x, int y, MouseEventArgs mevent)
+        protected override void OnMouseClick(MouseEventArgs mevent)
+        {
+            if (mevent.Button == MouseButtons.Right && Selected != null)
+            {
+                var result = MessageBox.Show($"Do you really want to delete {Selected.description}?", "Remove DAT?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    var removeDatCommand = new SQLiteCommand(@"
+					delete from rom where rom.GameId in
+					(
+						select gameid from game where game.datid = @DatID
+					);
+
+					delete from game where game.datid = @DatID;
+
+                    delete from dir where DirId=(select DirId from Dat WHERE DatId=@DatID); // TODO: Check this
+
+					delete from dat where datid = @DatID;
+				    ", Program.db.Connection);
+
+                    removeDatCommand.Parameters.Add(new SQLiteParameter("DatID", Selected.DatId.ToString()));
+                    removeDatCommand.ExecuteNonQuery();
+
+                    Refresh();
+                }
+            }
+
+            base.OnMouseClick(mevent);
+        }
+
+        private bool CheckMouseDown(RvTreeRow pTree, int x, int y, MouseEventArgs mevent)
 		{
 			if (pTree.RExpand.Contains(x, y))
 			{
