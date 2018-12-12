@@ -25,6 +25,7 @@ namespace RomVaultX.DB
 		public string Comment;
 		public string Path;
 		public long DatTimeStamp;
+        public string SHA1;
 		public bool ExtraDir;
 		public string MergeType;
 
