@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SQLite;
+using System.Security.Cryptography;
 using System.Threading;
 
 using RomVaultX.DB;
@@ -18,27 +19,41 @@ namespace RomVaultX
 		private static int _datCount;
 		private static int _datsProcessed;
 		private static BackgroundWorker _bgw;
+        private static SHA1 _sha1;
 		public static bool NoFilesInDb;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="filename"></param>
 		public static void ShowDat(string message, string filename)
 		{
 			_bgw?.ReportProgress(0, new bgwShowEvent(filename, message));
 		}
 
+        /// <summary>
+        /// /
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="filename"></param>
 		public static void SendAndShowDat(string message, string filename)
 		{
 			_bgw?.ReportProgress(0, new bgwShowEvent(filename, message));
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		public static void UpdateDat(object sender, DoWorkEventArgs e)
 		{
 			try
 			{
 				_bgw = sender as BackgroundWorker;
 				if (_bgw == null)
-				{
 					return;
-				}
 
 				Program.SyncCont = e.Argument as SynchronizationContext;
 				if (Program.SyncCont == null)
@@ -78,10 +93,13 @@ namespace RomVaultX
 				ScanDirs(dirId, datRoot, "DatRoot");
 				Program.db.Commit();
 
-				_bgw.ReportProgress(0, new bgwText("Removing old DATs"));
-				RemoveNotFoundDATs();
+                if (AppSettings.ReadSetting("RemoveMissingDats").ToLowerInvariant() == "true")
+                {
+                    _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
+                    RemoveNotFoundDATs();
+                }
 
-				_bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
+                _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
 				Program.db.MakeIndex(_bgw);
 
 				_bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
@@ -100,6 +118,11 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="datRoot"></param>
+        /// <param name="subPath"></param>
 		private static void DatCount(string datRoot, string subPath)
 		{
 			DirectoryInfo di = new DirectoryInfo(Path.Combine(datRoot, subPath));
@@ -117,6 +140,12 @@ namespace RomVaultX
 			_datCount += fis.Length;
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dirId"></param>
+        /// <param name="datRoot"></param>
+        /// <param name="subPath"></param>
 		private static void ScanDirs(uint dirId, string datRoot, string subPath)
 		{
 			DirectoryInfo di = new DirectoryInfo(Path.Combine(datRoot, subPath));
@@ -140,6 +169,13 @@ namespace RomVaultX
 			ReadDat(fisXml, subPath, dirId, datcount > 1);
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fis"></param>
+        /// <param name="subPath"></param>
+        /// <param name="dirId"></param>
+        /// <param name="extraDir"></param>
 		private static void ReadDat(FileInfo[] fis, string subPath, uint dirId, bool extraDir)
 		{
 			foreach (FileInfo f in fis)
@@ -147,7 +183,14 @@ namespace RomVaultX
 				_datsProcessed++;
 				_bgw.ReportProgress(_datsProcessed);
 
-				uint? datId = FindDat(subPath, f.Name, f.LastWriteTime.Ticks, extraDir);
+                string hash = string.Empty;
+                using (var fs = File.OpenRead(Path.Combine(subPath, f.Name)))
+                {
+                    _sha1 = SHA1.Create();
+                    hash = BitConverter.ToString(_sha1.ComputeHash(fs), 0).Replace("-", "");
+                }
+
+                uint? datId = FindDat(subPath, f.Name, f.LastWriteTimeUtc.Ticks, hash, extraDir);
 				if (datId != null)
 				{
 					SetDatFound((uint)datId);
@@ -160,9 +203,7 @@ namespace RomVaultX
 				if (DatReader.DatReader.ReadDat(f.FullName, _bgw, out rvDat))
 				{
 					if (rvDat == null)
-					{
 						continue;
-					}
 
 					uint nextDirId = dirId;
 					if (extraDir)
@@ -175,15 +216,14 @@ namespace RomVaultX
 					rvDat.ExtraDir = extraDir;
 					rvDat.Path = subPath;
 					rvDat.DatTimeStamp = f.LastWriteTime.Ticks;
+                    rvDat.SHA1 = hash;
 
 					DatSetRemoveUnneededDirs(rvDat);
 					DatSetCheckParentSets(rvDat);
 					DatSetRenameAndRemoveDups(rvDat);
 
 					if ((rvDat.MergeType ?? "").ToLower() == "full")
-					{
 						DatSetMergeSets(rvDat);
-					}
 
 					DatSetCheckCollect(rvDat);
 
@@ -201,6 +241,10 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tDat"></param>
 		private static void DatSetRemoveUnneededDirs(RvDat tDat)
 		{
 			if (tDat.Games == null)
@@ -243,6 +287,10 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tDat"></param>
 		private static void DatSetCheckParentSets(RvDat tDat)
 		{
 			if (tDat.Games == null)
@@ -349,6 +397,12 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="searchGame"></param>
+        /// <param name="parentDir"></param>
+        /// <param name="lstParentGames"></param>
 		private static void FindParentSet(RvGame searchGame, RvDat parentDir, ref List<RvGame> lstParentGames)
 		{
 			string parentName = searchGame.RomOf;
@@ -371,6 +425,10 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tDat"></param>
 		private static void DatSetRenameAndRemoveDups(RvDat tDat)
 		{
 			if (tDat.Games == null)
@@ -411,6 +469,10 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tDat"></param>
 		private static void DatSetMergeSets(RvDat tDat)
 		{
 			for (int g = tDat.Games.Count - 1; g >= 0; g--)
@@ -481,6 +543,10 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tDat"></param>
 		private static void DatSetCheckCollect(RvDat tDat)
 		{
 			if (tDat.Games == null)
@@ -563,6 +629,11 @@ namespace RomVaultX
 			}
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tRom"></param>
+        /// <param name="merge"></param>
 		private static void RomCheckCollect(RvRom tRom, bool merge)
 		{
 			if (merge)
@@ -596,8 +667,12 @@ namespace RomVaultX
 		private static SQLiteCommand _commandClearfoundDirDATs;
 		private static SQLiteCommand CommandFindDat;
 		private static SQLiteCommand CommandSetDatFound;
-		private static SQLiteCommand _commandCleanupNotFoundDaTs;
+		private static SQLiteCommand _commandCleanupNotFoundDats;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
 		private static int DatDBCount()
 		{
 			if (_commandCountDaTs == null)
@@ -613,6 +688,9 @@ namespace RomVaultX
 			return 0;
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
 		private static void ClearFoundDATs()
 		{
 			if (_commandClearfoundDirDATs == null)
@@ -626,35 +704,48 @@ namespace RomVaultX
 			_commandClearfoundDirDATs.ExecuteNonQuery();
 		}
 
-		private static uint? FindDat(string fulldir, string filename, long DatTimeStamp, bool ExtraDir)
-		{
-			if (CommandFindDat == null)
-			{
-				CommandFindDat = new SQLiteCommand(@"
-							SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND DatTimeStamp=@DatTimeStamp AND ExtraDir=@ExtraDir
-					", Program.db.Connection);
-				CommandFindDat.Parameters.Add(new SQLiteParameter("path"));
-				CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
-				CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
-				CommandFindDat.Parameters.Add(new SQLiteParameter("ExtraDir"));
-			}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fulldir"></param>
+        /// <param name="filename"></param>
+        /// <param name="DatTimeStamp"></param>
+        /// <param name="hash"></param>
+        /// <param name="ExtraDir"></param>
+        /// <returns></returns>
+        private static uint? FindDat(string fulldir, string filename, long DatTimeStamp, string hash, bool ExtraDir)
+        {
+            if (CommandFindDat == null)
+            {
+                CommandFindDat = new SQLiteCommand(@"
+                            SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND ExtraDir=@ExtraDir
+                    ", Program.db.Connection);
+                CommandFindDat.Parameters.Add(new SQLiteParameter("path"));
+                CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
+                //CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
+                //CommandFindDat.Parameters.Add(new SQLiteParameter("hash"));
+                CommandFindDat.Parameters.Add(new SQLiteParameter("ExtraDir"));
+            }
 
-			CommandFindDat.Parameters["path"].Value = fulldir;
-			CommandFindDat.Parameters["filename"].Value = filename;
-			CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
-			CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
+            CommandFindDat.Parameters["path"].Value = fulldir;
+            CommandFindDat.Parameters["filename"].Value = filename;
+            //CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            //CommandFindDat.Parameters["hash"].Value = hash;
+            CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
 
-			object res = CommandFindDat.ExecuteScalar();
+            object res = CommandFindDat.ExecuteScalar();
 
-			if (res == null || res == DBNull.Value)
-			{
-				return null;
-			}
-			return Convert.ToUInt32(res);
+            if (res == null || res == DBNull.Value)
+                return null;
 
-		}
+            return Convert.ToUInt32(res);
+        }
 
-		private static void SetDatFound(uint datId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="datId"></param>
+        private static void SetDatFound(uint datId)
 		{
 			if (CommandSetDatFound == null)
 			{
@@ -670,11 +761,14 @@ namespace RomVaultX
 			CommandSetDatFound.ExecuteNonQuery();
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
 		private static void RemoveNotFoundDATs()
 		{
-			if (_commandCleanupNotFoundDaTs == null)
+			if (_commandCleanupNotFoundDats == null)
 			{
-				_commandCleanupNotFoundDaTs = new SQLiteCommand(@"
+				_commandCleanupNotFoundDats = new SQLiteCommand(@"
 					delete from rom where rom.GameId in
 					(
 						select gameid from game where game.datid in
@@ -694,9 +788,12 @@ namespace RomVaultX
 				", Program.db.Connection);
 			}
 
-			_commandCleanupNotFoundDaTs.ExecuteNonQuery();
+			_commandCleanupNotFoundDats.ExecuteNonQuery();
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
 		public static void UpdateGotTotal()
 		{
 			Program.db.ExecuteNonQuery(@"
