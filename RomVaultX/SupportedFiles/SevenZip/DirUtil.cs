@@ -3,29 +3,29 @@ using System.IO;
 
 namespace RomVaultX.SupportedFiles.SevenZip
 {
-	public static class DirUtil
-	{
-		public static void CreateDirForFile(string sFilename)
-		{
-			string strTemp = Path.GetDirectoryName(sFilename);
+    public static class DirUtil
+    {
+        public static void CreateDirForFile(string sFilename)
+        {
+            string strTemp = Path.GetDirectoryName(sFilename);
 
-			if (String.IsNullOrEmpty(strTemp)) return;
+            if (String.IsNullOrEmpty(strTemp)) return;
 
-			if (Directory.Exists(strTemp)) return;
+            if (Directory.Exists(strTemp)) return;
 
 
-			while (strTemp.Length > 0 && !Directory.Exists(strTemp))
-			{
-				int pos = strTemp.LastIndexOf(Path.DirectorySeparatorChar);
-				if (pos < 0) pos = 0;
-				strTemp = strTemp.Substring(0, pos);
-			}
+            while (strTemp.Length > 0 && !Directory.Exists(strTemp))
+            {
+                int pos = strTemp.LastIndexOf(Path.DirectorySeparatorChar);
+                if (pos < 0) pos = 0;
+                strTemp = strTemp.Substring(0, pos);
+            }
 
-			while (sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1) > 0)
-			{
-				strTemp = sFilename.Substring(0, sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1));
-				Directory.CreateDirectory(strTemp);
-			}
-		}
-	}
+            while (sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1) > 0)
+            {
+                strTemp = sFilename.Substring(0, sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1));
+                Directory.CreateDirectory(strTemp);
+            }
+        }
+    }
 }
