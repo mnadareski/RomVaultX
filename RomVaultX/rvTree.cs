@@ -210,7 +210,7 @@ namespace RomVaultX
 
         #endregion
 
-        #region"Mouse Events"
+        #region "Mouse Events"
 
         protected override void OnMouseDown(MouseEventArgs mevent)
         {

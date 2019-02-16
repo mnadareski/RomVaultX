@@ -77,14 +77,6 @@ namespace RomVaultX
 
                 int dbDatCount = DatDBCount();
 
-                bool dropIndex = false; // (_datCount - dbDatCount > 10);
-
-                if (dropIndex)
-                {
-                    _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
-                    Program.db.DropIndex();
-                }
-
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
                 _datsProcessed = 0;
 
@@ -722,14 +714,14 @@ namespace RomVaultX
                     ", Program.db.Connection);
                 CommandFindDat.Parameters.Add(new SQLiteParameter("path"));
                 CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
-                //CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
+                CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
                 //CommandFindDat.Parameters.Add(new SQLiteParameter("hash"));
                 CommandFindDat.Parameters.Add(new SQLiteParameter("ExtraDir"));
             }
 
             CommandFindDat.Parameters["path"].Value = fulldir;
             CommandFindDat.Parameters["filename"].Value = filename;
-            //CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
             //CommandFindDat.Parameters["hash"].Value = hash;
             CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
 
@@ -754,7 +746,6 @@ namespace RomVaultX
                         Update Dir SET Found=1 WHERE DirId=(select DirId from Dat WHERE DatId=@DatId);
                     ", Program.db.Connection);
                 CommandSetDatFound.Parameters.Add(new SQLiteParameter("DatId"));
-
             }
 
             CommandSetDatFound.Parameters["DatId"].Value = datId;
