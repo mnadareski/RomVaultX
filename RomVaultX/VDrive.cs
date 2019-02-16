@@ -24,7 +24,7 @@ namespace RomVaultX
 
         private static long TotalBytes()
         {
-            return 0;
+            return 8L * 1024 * 1024 * 1024;
             using (DbCommand getTotalBytes = Program.db.Command(@"select sum(zipfilelength) from game"))
             {
                 try

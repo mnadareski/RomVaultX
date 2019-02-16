@@ -254,7 +254,7 @@ namespace RomVaultX
                         {
                             IsDirectory = false,
                             FileId = Convert.ToInt32(dr["GameId"]),
-                            //FileName = filePart,
+                            FileName = filePart.Replace('¬', Path.AltDirectorySeparatorChar),
                             Length = Convert.ToInt64(dr["ZipFileLength"]),
                             LastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"])),
                             CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
