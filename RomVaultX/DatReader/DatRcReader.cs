@@ -25,34 +25,29 @@ namespace RomVaultX.DatReader
             }
 
             string filename = Path.GetFileName(strFilename);
-
             DatFileLoader.Gn();
             if (DatFileLoader.EndOfStream())
-            {
                 return false;
-            }
+
             if (DatFileLoader.Next.ToLower() == "[credits]")
             {
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
-                {
                     return false;
-                }
+
                 DatFileLoader.Gn();
             }
             else if (DatFileLoader.Next.ToLower() == "[dat]")
             {
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
-                {
                     return false;
-                }
+
                 DatFileLoader.Gn();
             }
             else if (DatFileLoader.Next.ToLower() == "[emulator]")
             {
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
-                {
                     return false;
-                }
+
                 DatFileLoader.Gn();
             }
 
@@ -68,9 +63,8 @@ namespace RomVaultX.DatReader
                 RvRom rvRom = new RvRom();
 
                 if (!LoadRomFromDat("", datFileType, out rvRom, out game, out description, out romof, out cloneof))
-                {
                     return false;
-                }
+
                 DatFileLoader.Gn();
                 
                 // If we have a new game finally, add the last one
@@ -92,11 +86,9 @@ namespace RomVaultX.DatReader
 
             // If we had a lingering game, add it
             if (foundgame)
-            {
                 rvDat.AddGame(rvGame);
-            }
-            DatFileLoader.Close();
 
+            DatFileLoader.Close();
             return true;
         }
 
@@ -125,13 +117,10 @@ namespace RomVaultX.DatReader
                         break;
                     case "version":
                         if (block == "[credits]")
-                        {
                             rvDat.Date = value;
-                        }
                         else if (block == "[dat]")
-                        {
                             rvDat.Version = value;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "comment":
@@ -214,9 +203,7 @@ namespace RomVaultX.DatReader
 
             // Some old RC DATs have this behavior
             if (DatFileLoader.Next.Contains("¬N¬O"))
-            {
                 DatFileLoader.Next = DatFileLoader.Next.Replace("¬N¬O", "") + "¬¬";
-            }
 
             string[] split = DatFileLoader.Next.Split('¬');
             game = split[3];
@@ -257,6 +244,7 @@ namespace RomVaultX.DatReader
                 {
                     return 1; // Mock error code
                 }
+
                 return 0;
             }
 

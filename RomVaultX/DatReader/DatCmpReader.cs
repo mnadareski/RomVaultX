@@ -28,25 +28,23 @@ namespace RomVaultX.DatReader
 
             DatFileLoader.Gn();
             if (DatFileLoader.EndOfStream())
-            {
                 return false;
-            }
+
             if (DatFileLoader.Next.ToLower() == "clrmamepro")
             {
                 DatFileLoader.Gn();
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
-                {
                     return false;
-                }
+                
                 DatFileLoader.Gn();
             }
+
             if (DatFileLoader.Next.ToLower() == "romvault")
             {
                 DatFileLoader.Gn();
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
-                {
                     return false;
-                }
+
                 DatFileLoader.Gn();
             }
 
@@ -57,33 +55,29 @@ namespace RomVaultX.DatReader
                     case "dir":
                         DatFileLoader.Gn();
                         if (!LoadDirFromDat(rvDat, "", datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "game":
                         DatFileLoader.Gn();
                         if (!LoadGameFromDat(rvDat, "", datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "resource":
                         DatFileLoader.Gn();
                         if (!LoadGameFromDat(rvDat, "", datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "emulator":
                         DatFileLoader.Gn();
                         if (!LoadEmulator())
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "#":
@@ -96,8 +90,8 @@ namespace RomVaultX.DatReader
                         break;
                 }
             }
-            DatFileLoader.Close();
 
+            DatFileLoader.Close();
             return true;
         }
 
@@ -110,8 +104,8 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after clrmamepro on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             rvDat.Filename = filename;
 
             while (DatFileLoader.Next != ")")
@@ -154,7 +148,6 @@ namespace RomVaultX.DatReader
                         rvDat.URL = DatFileLoader.GnRest();
                         DatFileLoader.Gn();
                         break;
-
                     case "comment":
                     case "comments":
                         rvDat.Comment = DatFileLoader.GnRest();
@@ -172,7 +165,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.GnRest();
                         DatFileLoader.Gn();
                         break;
-                        // incorrect usage
+                    // incorrect usage
                     case "forcemerging":
                         rvDat.MergeType = DatFileLoader.GnRest();
                         DatFileLoader.Gn();
@@ -202,6 +195,7 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after emulator on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
+
             DatFileLoader.Gn();
             while (DatFileLoader.Next != ")")
             {
@@ -217,6 +211,7 @@ namespace RomVaultX.DatReader
                         break;
                 }
             }
+
             return true;
         }
 
@@ -227,18 +222,18 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after game on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             if (DatFileLoader.Next.ToLower() != "name")
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( ) on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
+
             string fullname = VarFix.CleanFullFileName(DatFileLoader.GnRest());
             fullname = Path.Combine(rootName, fullname);
 
             DatFileLoader.Gn();
-
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
@@ -246,25 +241,22 @@ namespace RomVaultX.DatReader
                     case "dir":
                         DatFileLoader.Gn();
                         if (!LoadDirFromDat(rvDat, fullname, datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "game":
                         DatFileLoader.Gn();
                         if (!LoadGameFromDat(rvDat, fullname, datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "resource":
                         DatFileLoader.Gn();
                         if (!LoadGameFromDat(rvDat, fullname, datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     default:
@@ -283,8 +275,8 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after game on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             string snext = DatFileLoader.Next.ToLower();
 
             string pathextra = "";
@@ -307,7 +299,6 @@ namespace RomVaultX.DatReader
             name = Path.Combine(rootName, name);
 
             DatFileLoader.Gn();
-
             RvGame rvGame = new RvGame { Name = name };
             while (DatFileLoader.Next != ")")
             {
@@ -325,7 +316,6 @@ namespace RomVaultX.DatReader
                         DatFileLoader.GnRest();
                         DatFileLoader.Gn();
                         break;
-
                     case "sourcefile":
                         rvGame.SourceFile = DatFileLoader.GnRest();
                         DatFileLoader.Gn();
@@ -358,7 +348,6 @@ namespace RomVaultX.DatReader
                         DatFileLoader.GnRest();
                         DatFileLoader.Gn();
                         break;
-
                     case "sample":
                         DatFileLoader.GnRest();
                         DatFileLoader.Gn();
@@ -367,7 +356,6 @@ namespace RomVaultX.DatReader
                         DatFileLoader.GnRest();
                         DatFileLoader.Gn();
                         break;
-
                     case "chip":
                         DatFileLoader.GnRest();
                         DatFileLoader.Gn();
@@ -418,30 +406,25 @@ namespace RomVaultX.DatReader
                         DatFileLoader.GnRest();
                         DatFileLoader.Gn();
                         break;
-
                     case "rom":
                         DatFileLoader.Gn();
                         if (!LoadRomFromDat(rvGame, datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     case "disk":
                         DatFileLoader.Gn();
                         if (!LoadDiskFromDat(rvGame))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
-
                     case "archive":
                         DatFileLoader.Gn();
                         if (!LoadArchiveFromDat())
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
 
@@ -462,8 +445,8 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after rom on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             if (DatFileLoader.Next.ToLower() != "name")
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( ) on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
@@ -475,8 +458,8 @@ namespace RomVaultX.DatReader
                 Name = VarFix.CleanFullFileName(DatFileLoader.Gn()),
                 AltType = datFileType
             };
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
@@ -548,7 +531,6 @@ namespace RomVaultX.DatReader
             }
 
             rvGame.AddRom(rvRom);
-
             return true;
         }
 
@@ -559,8 +541,8 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after rom on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             if (DatFileLoader.Next.ToLower() != "name")
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( ) on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
@@ -574,7 +556,6 @@ namespace RomVaultX.DatReader
             };
 
             DatFileLoader.Gn();
-
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
@@ -632,7 +613,6 @@ namespace RomVaultX.DatReader
             }
 
             rvGame.AddRom(rvRom);
-
             return true;
         }
 
@@ -643,8 +623,8 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after Archive", DatFileLoader.Filename);
                 return false;
             }
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
@@ -720,14 +700,17 @@ namespace RomVaultX.DatReader
                     {
                         _line = "";
                     }
+
                     if (_line.TrimStart().Length > 1 && _line.TrimStart().Substring(0, 1) == @"#")
                     {
                         _line = "";
                     }
+
                     if (_line.TrimStart().Length > 1 && _line.TrimStart().Substring(0, 1) == @";")
                     {
                         _line = "";
                     }
+
                     _line = _line.Trim() + " ";
                 }
 

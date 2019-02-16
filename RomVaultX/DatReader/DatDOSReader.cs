@@ -28,16 +28,14 @@ namespace RomVaultX.DatReader
 
             DatFileLoader.Gn();
             if (DatFileLoader.EndOfStream())
-            {
                 return false;
-            }
+
             if (DatFileLoader.Next.ToLower() == "doscenter")
             {
                 DatFileLoader.Gn();
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
-                {
                     return false;
-                }
+
                 DatFileLoader.Gn();
             }
 
@@ -48,9 +46,8 @@ namespace RomVaultX.DatReader
                     case "game":
                         DatFileLoader.Gn();
                         if (!LoadGameFromDat(rvDat, "", datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     default:
@@ -61,7 +58,6 @@ namespace RomVaultX.DatReader
             }
 
             DatFileLoader.Close();
-
             return true;
         }
 
@@ -74,10 +70,9 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after clrmamepro on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
+
             DatFileLoader.Gn();
-
             rvDat.Filename = filename;
-
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
@@ -169,10 +164,9 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after game on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
+
             DatFileLoader.Gn();
-
             string snext = DatFileLoader.Next.ToLower();
-
             string pathextra = "";
             if (snext == "rebuildto")
             {
@@ -194,7 +188,6 @@ namespace RomVaultX.DatReader
             name = (name.EndsWith(".zip") ? name.Remove(name.Length - 4) : name);
 
             DatFileLoader.Gn();
-
             RvGame rvGame = new RvGame { Name = name };
             while (DatFileLoader.Next != ")")
             {
@@ -275,9 +268,8 @@ namespace RomVaultX.DatReader
                     case "file":
                         DatFileLoader.Gn();
                         if (!LoadRomFromDat(rvGame, datFileType))
-                        {
                             return false;
-                        }
+
                         DatFileLoader.Gn();
                         break;
                     default:
@@ -286,6 +278,7 @@ namespace RomVaultX.DatReader
                         break;
                 }
             }
+
             rvDat.AddGame(rvGame);
             return true;
         }
@@ -297,8 +290,8 @@ namespace RomVaultX.DatReader
                 DatUpdate.SendAndShowDat("( not found after rom on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
                 return false;
             }
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             if (DatFileLoader.Next.ToLower() != "name")
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( ) on line " + DatFileLoader.LineNumber, DatFileLoader.Filename);
@@ -310,8 +303,8 @@ namespace RomVaultX.DatReader
                 Name = VarFix.CleanFullFileName(DatFileLoader.Gn()),
                 AltType = datFileType
             };
-            DatFileLoader.Gn();
 
+            DatFileLoader.Gn();
             while (rvRom.CRC == null || rvRom.Size == null || DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLower())
@@ -324,12 +317,27 @@ namespace RomVaultX.DatReader
                         rvRom.CRC = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 8);
                         DatFileLoader.Gn();
                         break;
+                    case "md5":
+                        rvRom.MD5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
+                        DatFileLoader.Gn();
+                        break;
                     case "sha1":
                         rvRom.SHA1 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40);
                         DatFileLoader.Gn();
                         break;
-                    case "md5":
-                        rvRom.MD5 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 32);
+                    case "sha256":
+                        // No-op until larger hashes are supported
+                        DatFileLoader.Gn();
+                        DatFileLoader.Gn();
+                        break;
+                    case "sha384":
+                        // No-op until larger hashes are supported
+                        DatFileLoader.Gn();
+                        DatFileLoader.Gn();
+                        break;
+                    case "sha512":
+                        // No-op until larger hashes are supported
+                        DatFileLoader.Gn();
                         DatFileLoader.Gn();
                         break;
                     case "date":
@@ -343,8 +351,8 @@ namespace RomVaultX.DatReader
                         break;
                 }
             }
-            rvGame.AddRom(rvRom);
 
+            rvGame.AddRom(rvRom);
             return true;
         }
 
@@ -406,14 +414,17 @@ namespace RomVaultX.DatReader
                     {
                         _line = "";
                     }
+
                     if (_line.TrimStart().Length > 1 && _line.TrimStart().Substring(0, 1) == @"#")
                     {
                         _line = "";
                     }
+
                     if (_line.TrimStart().Length > 1 && _line.TrimStart().Substring(0, 1) == @";")
                     {
                         _line = "";
                     }
+
                     _line = _line.Trim() + " ";
                 }
 

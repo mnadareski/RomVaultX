@@ -55,36 +55,26 @@ namespace RomVaultX.DatReader
 
             // If there's no first line, we don't have a readable file
             if (strLine == null)
-            {
                 return false;
-            }
 
             // XML-based DATs
-            if (strLine.ToLower().IndexOf("xml", StringComparison.Ordinal) >= 0)
-            {
+            if (strLine.IndexOf("xml", StringComparison.OrdinalIgnoreCase) >= 0)
                 return ReadXMLDat(fullname, out rvDat);
-            }
 
             // ClrMamePro DATs
-            else if (strLine.ToLower().IndexOf("clrmamepro", StringComparison.Ordinal) >= 0
-                || strLine.ToLower().IndexOf("romvault", StringComparison.Ordinal) >= 0
-                || strLine.ToLower().IndexOf("game", StringComparison.Ordinal) >= 0)
-            {
+            else if (strLine.IndexOf("clrmamepro", StringComparison.OrdinalIgnoreCase) >= 0
+                || strLine.IndexOf("romvault", StringComparison.OrdinalIgnoreCase) >= 0
+                || strLine.IndexOf("game", StringComparison.OrdinalIgnoreCase) >= 0)
                 return DatCmpReader.ReadDat(fullname, out rvDat);
-            }
 
             // DOSCenter DATs
-            else if (strLine.ToLower().IndexOf("doscenter", StringComparison.Ordinal) >= 0)
-            {
+            else if (strLine.IndexOf("doscenter", StringComparison.OrdinalIgnoreCase) >= 0)
                 return DatDOSReader.ReadDat(fullname, out rvDat);
-            }
 
             // RomCenter DATs
-            else if (strLine.ToLower().IndexOf("[", StringComparison.Ordinal) >= 0
-                && strLine.ToLower().IndexOf("]", StringComparison.Ordinal) >= 0)
-            {
+            else if (strLine.IndexOf("[", StringComparison.OrdinalIgnoreCase) >= 0
+                && strLine.IndexOf("]", StringComparison.OrdinalIgnoreCase) >= 0)
                 return DatRcReader.ReadDat(fullname, out rvDat);
-            }
 
             // Unknown file / DAT type
             else
@@ -130,35 +120,28 @@ namespace RomVaultX.DatReader
                 _bgw.ReportProgress(0, new bgwShowEvent(fullname, string.Format("Error Occured Reading Dat:\r\n{0}\r\n", e.Message)));
                 return false;
             }
+
             fs.Close();
             fs.Dispose();
 
             // If there's no document element, return false
             if (doc.DocumentElement == null)
-            {
                 return false;
-            }
 
             // If there's a node called "mame", we assume it's a MAME DAT
             XmlNode mame = doc.SelectSingleNode("mame");
             if (mame != null)
-            {
                 return DatXmlReader.ReadMameDat(doc, fullname, out rvDat);
-            }
 
             // If there's a node called "header", we assume it's a standard XML DAT
             XmlNode head = doc.DocumentElement?.SelectSingleNode("header");
             if (head != null)
-            {
                 return DatXmlReader.ReadDat(doc, fullname, out rvDat);
-            }
 
             // If there's a node called "softwarelist", we assume it's a software list XML DAT
             XmlNodeList headList = doc.SelectNodes("softwarelist");
             if (headList != null)
-            {
                 return DatMessXmlReader.ReadDat(doc, fullname, out rvDat);
-            }
 
             return false;
         }
