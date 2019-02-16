@@ -34,6 +34,15 @@ RomVaultX is currently Windows-only (though there is the possibility that it can
 
 It is highly recommended that you put the database on an SSD, as there can be massive performance drops or even hard crashes (of both RomVaultX and your computer!) if the database gets too large.
 
+## Known Issues
+
+RomVaultX is by no means a release-grade product, despite our best efforts. Here is a list of known issues (some of which are referenced in the TODO):
+
+- CHDs are inside of zipfiles because unzipped files are not supported on the virtual drive
+- SuperDATs don't produce nested folders
+- 7zip and WinRAR cannot open virtual zips directly from the drive. Teracopy also has issues copying files from the virtual drive. However, built-in Windows extract, open archive, and copy all work as it should. Emulators are hit and miss with this, depending on their methods
+- Virtual drive size is not shown properly. This is deliberate because the original code *did* show it properly, but caused a memory leak which could easily exceed 32GB of RAM used for a moderately big database
+
 
 ## Current TODO (branch only):
 
