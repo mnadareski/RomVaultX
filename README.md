@@ -1,6 +1,8 @@
 RomVaultX
 =========
 
+[![Build status](https://ci.appveyor.com/api/projects/status/gq1kh9sh60ta6ony/branch/master?svg=true)](https://ci.appveyor.com/project/mnadareski/romvaultx/branch/master)
+
 Next generation rom collecting based on [RomVault](https://github.com/gjefferyes/RomVault) and [romba](https://github.com/uwedeportivo/romba/). Uses the intuitive interface from the former and the depot-style file storage from the latter.
 
 ## Features
