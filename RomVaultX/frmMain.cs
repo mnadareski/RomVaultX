@@ -22,7 +22,7 @@ namespace RomVaultX
         private float _scaleFactorX = 1;
         private float _scaleFactorY = 1;
 
-        private char vDriveLetter;
+        public static char vDriveLetter;
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
