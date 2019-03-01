@@ -39,9 +39,9 @@ namespace RomVaultX
         {
             FileInformation fi = new FileInformation
             {
-                FileName = v.FileName + (v.IsDirectory ? "" : ".zip"),
+                FileName = v.FileName + (v.IsDirectory || v.FileName.EndsWith(".zip") ? "" : ".zip"),
                 Length = v.Length,
-                Attributes = v.IsDirectory ? FileAttributes.Directory | FileAttributes.ReadOnly : FileAttributes.Normal | FileAttributes.ReadOnly,
+                Attributes = v.IsDirectory ? FileAttributes.Directory | FileAttributes.ReadOnly : FileAttributes.ReadOnly,
                 CreationTime = v.CreationTime,
                 LastAccessTime = v.LastAccessTime,
                 LastWriteTime = v.LastWriteTime
@@ -295,8 +295,9 @@ namespace RomVaultX
                             GZipSHA1 = VarFix.CleanMD5SHA1(dr["sha1"].ToString(), 40),
                             CompressedDataOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]) + Convert.ToInt64(dr["LocalFileHeaderLength"]),
                             CompressedDataLength = Convert.ToInt64(dr["compressedsize"]),
-                            GZip = null // opened as needed
+                            GZip = null, // opened as needed
                         };
+
                         Files.Add(gf);
                     }
                 }
@@ -315,9 +316,7 @@ namespace RomVaultX
                 using (DbDataReader dr = getCentralDir.ExecuteReader())
                 {
                     if (!dr.Read())
-                    {
                         return false;
-                    }
 
                     VZipFile gf = new VZipFile
                     {
@@ -329,6 +328,7 @@ namespace RomVaultX
                         CompressedDataLength = 0,
                         GZip = null  // not used
                     };
+
                     Files.Add(gf);
                 }
             }
