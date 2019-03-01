@@ -365,9 +365,9 @@ namespace RomVaultX.SupportedFiles.GZ
             if (FileHeaderReader.AltHeaderFile(altType))
             {
                 zipBw.Write((byte)altType);  // 1
-                zipBw.Write(altmd5Hash);	  // 16
-                zipBw.Write(altsha1Hash);	 // 20
-                zipBw.Write(altcrc);		  // 4
+                zipBw.Write(altmd5Hash ?? new byte[16]);	  // 16
+                zipBw.Write(altsha1Hash ?? new byte[20]);	 // 20
+                zipBw.Write(altcrc ?? new byte[8]);		  // 4
                 zipBw.Write((ulong)uncompressedAltSize);  // 8
             }
 
