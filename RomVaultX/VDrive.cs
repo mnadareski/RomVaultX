@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.AccessControl;
 
 using RomVaultX.SupportedFiles.GZ;
@@ -22,6 +23,7 @@ namespace RomVaultX
         private const FileAccess DataWriteAccess = FileAccess.WriteData | FileAccess.AppendData |
                 FileAccess.Delete | FileAccess.GenericWrite;
 
+        // TODO: Can this be cached? Or even populated when the dats are being loaded?
         private static long TotalBytes()
         {
             return 8L * 1024 * 1024 * 1024;
@@ -38,6 +40,7 @@ namespace RomVaultX
             }
         }
 
+        // TODO: Explorer calls through to `LoadVFile` properly but 7z does not... why?
         public NtStatus CreateFile(string fileName, FileAccess access, System.IO.FileShare share, System.IO.FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info)
         {
             Debug.WriteLine("");
@@ -45,6 +48,16 @@ namespace RomVaultX
             Debug.WriteLine("Filename : " + fileName + " IsDirectory : " + info.IsDirectory);
 
             VFile vDir;
+            bool sevenzip = false;
+
+            // If we have a 7zip access
+            if (fileName.EndsWith("\\" + frmMain.vDriveLetter))
+                fileName = fileName.Remove(fileName.Length - 2);
+            if (fileName.EndsWith(".zip") && info.IsDirectory)
+            {
+                //sevenzip = true;
+                info.IsDirectory = false;
+            }
 
             //First check a DIR. (If we know it is a directory.)
             if (info.IsDirectory)
@@ -58,9 +71,8 @@ namespace RomVaultX
                     case FileMode.CreateNew:
                         vDir = VFile.DirInfo(fileName);
                         if (vDir != null)
-                        {
                             return DokanResult.FileExists;
-                        }
+
                         vDir = VFile.CreateDir(fileName);
                         return vDir != null ? DokanResult.Success : DokanResult.PathNotFound;
                     default:
@@ -91,24 +103,29 @@ namespace RomVaultX
                 case FileMode.Open:
                     VFile vfile = VFile.GetFile(fileName);
                     if (vfile == null)
-                    {
                         return DokanResult.FileNotFound;
-                    }
 
                     if (readWriteAttributes)
                     {
+                        if (sevenzip)
+                            info.IsDirectory = true;
+
                         info.Context = vfile;
                         return DokanResult.Success;
                     }
+
                     if (readAccess)
                     {
                         if (!vfile.LoadVFile())
-                        {
                             return DokanResult.Error;
-                        }
+
+                        if (sevenzip)
+                            info.IsDirectory = true;
+
                         info.Context = vfile;
                         return DokanResult.Success;
                     }
+
                     // looks like we are trying to write to the file.
                     return DokanResult.AccessDenied;
                 default:
@@ -131,14 +148,10 @@ namespace RomVaultX
 
             VFile vfile = (VFile)info.Context;
             if (vfile?.Files == null)
-            {
                 return;
-            }
 
             foreach (VFile.VZipFile gf in vfile.Files)
-            {
                 gf.GZip?.Close();
-            }
         }
 
         private void copyData(byte[] source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
@@ -155,9 +168,7 @@ namespace RomVaultX
 
                 // check if source is all before destination
                 if (sourceLength <= 0)
-                {
                     return;
-                }
             }
             else
             {
@@ -167,16 +178,12 @@ namespace RomVaultX
 
                 // check if desination is all before source
                 if (destinationLength <= 0)
-                {
                     return;
-                }
             }
 
             long actualLength = Math.Min(sourceLength, destinationLength);
             for (int i = 0; i < actualLength; i++)
-            {
                 destination[destinationStart + i] = source[sourceStart + i];
-            }
         }
 
         private void copyStream(VFile.VZipFile source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
@@ -193,9 +200,7 @@ namespace RomVaultX
 
                 // check if source is all before destination
                 if (sourceLength <= 0)
-                {
                     return;
-                }
             }
             else
             {
@@ -205,9 +210,7 @@ namespace RomVaultX
 
                 // check if desination is all before source
                 if (destinationLength <= 0)
-                {
                     return;
-                }
             }
 
             if (source.GZip == null)
@@ -218,8 +221,7 @@ namespace RomVaultX
                 source.GZip.ReadGZip(strFilename, false);
             }
 
-            Stream coms;
-            source.GZip.GetRawStream(out coms);
+            source.GZip.GetRawStream(out Stream coms);
             coms.Position += sourceStart;
 
             long actualLength = Math.Min(sourceLength, destinationLength);
@@ -228,7 +230,7 @@ namespace RomVaultX
             coms.Close();
         }
 
-        private static string GetFilename(byte[] SHA1)
+        public static string GetFilename(byte[] SHA1)
         {
             string path = "";
 
@@ -238,9 +240,7 @@ namespace RomVaultX
             {
                 string romRoot = AppSettings.ReadSetting("Depot" + i);
                 if (romRoot == null)
-                {
                     break;
-                }
 
                 path = romRoot + @"\" + VarFix.ToString(SHA1[0]) + @"\" +
                         VarFix.ToString(SHA1[1]) + @"\" +
@@ -263,34 +263,45 @@ namespace RomVaultX
             return path;
         }
 
+        // TODO: Explorer calls this properly but 7z does not... why?
         public NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
         {
             bytesRead = 0;
             VFile vfile = (VFile)info.Context;
             if (vfile == null)
-            {
                 return NtStatus.NoSuchFile;
-            }
 
             // trying to fill all of the buffer
             bytesRead = buffer.Length;
 
             // if reading past the EOF then read 0 bytes
-            if (offset > vfile.Length)
+            if (Math.Abs(offset) > vfile.Length)
             {
                 bytesRead = 0;
                 return NtStatus.Success;
             }
-            // if reading to the EOF then set the number of bytes left to read
-            if (offset + bytesRead > vfile.Length)
-            {
-                bytesRead = (int)(vfile.Length - offset);
-            }
 
-            foreach (VFile.VZipFile gf in vfile.Files)
+            // if reading the entire file then set the number of bytes left to read
+            if (Math.Abs(offset) + bytesRead > vfile.Length)
+                bytesRead = (int)(vfile.Length - Math.Abs(offset));
+
+            // If we have a positive offset (read from begin)
+            if (offset >= 0)
             {
-                copyData(gf.LocalHeader, buffer, gf.LocalHeaderOffset, offset, gf.LocalHeaderLength, bytesRead);
-                copyStream(gf, buffer, gf.CompressedDataOffset, offset, gf.CompressedDataLength, bytesRead);
+                foreach (VFile.VZipFile gf in vfile.Files)
+                {
+                    copyData(gf.LocalHeader, buffer, gf.LocalHeaderOffset, offset, gf.LocalHeaderLength, bytesRead);
+                    copyStream(gf, buffer, gf.CompressedDataOffset, offset, gf.CompressedDataLength, bytesRead);
+                }
+            }
+            // If we have a negative offset (read from end, usually only for archive initial reads)
+            else
+            {
+                foreach (VFile.VZipFile gf in vfile.Files.Reverse())
+                {
+                    //copyStream(gf, buffer, gf.CompressedDataOffset, offset, gf.CompressedDataLength, bytesRead); // This should not even be used
+                    copyData(gf.LocalHeader.Reverse().ToArray(), buffer, gf.LocalHeaderOffset, (vfile.Length + offset), gf.LocalHeaderLength, bytesRead);
+                }
             }
 
             return NtStatus.Success;
@@ -319,6 +330,8 @@ namespace RomVaultX
                 return NtStatus.NoSuchFile;
             }
 
+            vfile.LoadVFile();
+            info.Context = vfile;
             fileInfo = (FileInformation)vfile;
 
             return NtStatus.Success;
