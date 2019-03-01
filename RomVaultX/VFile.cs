@@ -20,7 +20,7 @@ namespace RomVaultX
         private DateTime LastAccessTime;
         private DateTime LastWriteTime;
 
-        public List<VZipFile> Files;
+        public IList<VZipFile> Files;
 
         public class VZipFile
         {
