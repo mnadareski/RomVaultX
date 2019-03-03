@@ -40,8 +40,18 @@ RomVaultX is by no means a release-grade product, despite our best efforts. Here
 
 - CHDs are inside of zipfiles because unzipped files are not supported on the virtual drive
 - SuperDATs don't produce nested folders
-- 7zip cannot open the virtual zips at all, either directly or from the file manager. WinRAR cannot open the files directly but can from the file manager. Teracopy has issues copying files from the virtual drive. However, built-in Windows extract, open archive, and copy all work as it should. Emulators are hit and miss with this, depending on their methods
 - Virtual drive size is not shown properly. This is deliberate because the original code *did* show it properly, but caused a memory leak which could easily exceed 32GB of RAM used for a moderately big database
+
+### Virtual Zip Statuses
+
+- 7Zip cannot open the virtual zips at all, either directly or from the file manager
+- IzArc cannot open the virtual zips at all, either directly or from the file manager
+- PeaZip cannot open the virtual zips at all, either directly or from the file manager. Possibly even has issues navigating the virtual drive
+- StuffIt Expander for Windows extracts files correctly with no issues but doesn't open them directly
+- WinRAR cannot open the files directly but can from the file manager
+- Teracopy has issues copying files from the virtual drive
+- Built-in Windows extract, open archive, and copy all work as it should
+- Emulators are hit and miss with this, depending on their methods. Tested are mGBA, MAME, and RetroArch.
 
 
 ## Current TODO (branch only):
