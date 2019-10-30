@@ -1,13 +1,14 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
-
+using Compress;
+using Compress.gZip;
+using FileHeaderReader;
 using RomVaultX.DB;
-using RomVaultX.SupportedFiles;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
-
-using Alphaleonis.Win32.Filesystem;
+using RVIO;
 
 namespace RomVaultX
 {
@@ -41,6 +42,9 @@ namespace RomVaultX
                 ScanRomRoot(@"RomRoot");
             }
 
+            //for (int i = 0; i < 256; i++)
+            //    ScanRomRoot(RomRootDir.GetRootDir((byte)i));
+
             DatUpdate.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
             _bgw = null;
@@ -71,6 +75,13 @@ namespace RomVaultX
             {
                 ScanRomRoot(@"RomRoot");
             }
+
+            //for (int i = 0; i < 256; i++)
+            //{
+            //    ScanRomRoot(RomRootDir.GetRootDir((byte)i));
+            //    if (_bgw.CancellationPending)
+            //        break;
+            //}
 
             DatUpdate.UpdateGotTotal();
             _bgw.ReportProgress(0, new bgwText("Scanning Files Complete"));
@@ -103,12 +114,16 @@ namespace RomVaultX
                 if (ext.ToLower() == ".gz")
                 {
                     GZip gZipTest = new GZip();
-                    ZipReturn errorcode = gZipTest.ReadGZip(f.FullName, deep);
+                    ZipReturn errorcode = gZipTest.ReadGZip(f.FullName, false);
                     gZipTest.sha1Hash = VarFix.CleanMD5SHA1(Path.GetFileNameWithoutExtension(f.Name), 40);
+                    gZipTest.Close();
 
                     if (errorcode != ZipReturn.ZipGood)
                     {
-                        _bgw.ReportProgress(0, new bgwShowEvent(f.FullName, "gz File corrupt"));
+                        _bgw.ReportProgress(0, new bgwShowError(f.FullName, "gz File corrupt"));
+                        if (!Directory.Exists("corrupt"))
+                            Directory.CreateDirectory("corrupt");
+                        File.Move(f.FullName, Path.Combine("corrupt", f.Name));
                         continue;
                     }
                     RvFile tFile = new RvFile();
@@ -116,7 +131,7 @@ namespace RomVaultX
                     tFile.MD5 = gZipTest.md5Hash;
                     tFile.SHA1 = gZipTest.sha1Hash;
                     tFile.Size = gZipTest.uncompressedSize;
-                    tFile.AltType = gZipTest.altType;
+                    tFile.AltType = (HeaderFileType)gZipTest.altType;
                     tFile.AltCRC = gZipTest.altcrc;
                     tFile.AltMD5 = gZipTest.altmd5Hash;
                     tFile.AltSHA1 = gZipTest.altsha1Hash;
@@ -127,6 +142,36 @@ namespace RomVaultX
 
                     if (res != FindStatus.FoundFileInArchive)
                     {
+                        if (deep)
+                        {
+
+                            gZipTest = new GZip();
+
+                            try
+                            {
+                                errorcode = gZipTest.ReadGZip(f.FullName, true);
+                                gZipTest.sha1Hash = VarFix.CleanMD5SHA1(Path.GetFileNameWithoutExtension(f.Name), 40);
+                                gZipTest.Close();
+                            }
+                            catch (Exception e)
+                            {
+                                gZipTest.Close();
+                                _bgw.ReportProgress(0, new bgwShowError(f.FullName, "gz Crashed Compression"));
+                                if (!Directory.Exists("corrupt"))
+                                    Directory.CreateDirectory("corrupt");
+                                File.Move(f.FullName, Path.Combine("corrupt", f.Name));
+                                continue;
+                            }
+
+                            if (errorcode != ZipReturn.ZipGood)
+                            {
+                                _bgw.ReportProgress(0, new bgwShowError(f.FullName, "gz File corrupt"));
+                                if (!Directory.Exists("corrupt"))
+                                    Directory.CreateDirectory("corrupt");
+                                File.Move(f.FullName, Path.Combine("corrupt", f.Name));
+                                continue;
+                            }
+                        }
                         tFile.DBWrite();
                     }
                 }
@@ -143,23 +188,23 @@ namespace RomVaultX
                 {
                     return;
                 }
-
                 ScanRomRoot(d.FullName);
             }
         }
 
-        private enum FindStatus
-        {
-            FileUnknown,
-            FoundFileInArchive,
-            FileNeededInArchive,
-        };
 
         private static FindStatus fileneededTest(RvFile tFile)
         {
             // first check to see if we already have it in the file table
             bool inFileDB = RvRomFileMatchup.FindInFiles(tFile); // returns true if found in File table
             return inFileDB ? FindStatus.FoundFileInArchive : FindStatus.FileNeededInArchive;
+        }
+
+        private enum FindStatus
+        {
+            FileUnknown,
+            FoundFileInArchive,
+            FileNeededInArchive
         }
     }
 }

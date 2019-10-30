@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
-
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
     public class RvDat
     {
+        private static SQLiteCommand _commandRvDatWrite;
+        private static SQLiteCommand _commandRvDatRead;
         public uint DatId;
         public uint DirId;
         public string Filename;
@@ -25,14 +26,11 @@ namespace RomVaultX.DB
         public string Comment;
         public string Path;
         public long DatTimeStamp;
-        public string SHA1;
         public bool ExtraDir;
         public string MergeType;
 
         public List<RvGame> Games;
 
-        private static SQLiteCommand _commandRvDatWrite;
-        private static SQLiteCommand _commandRvDatRead;
 
         public static void CreateTable()
         {
@@ -60,7 +58,7 @@ namespace RomVaultX.DB
                     [Path] NVARCHAR(10)  NOT NULL,
                     [DatTimeStamp] NVARCHAR(20)  NOT NULL,
                     [ExtraDir] BOOLEAN DEFAULT 0,
-                    [found] BOOLEAN DEFAULT 1,			
+                    [found] BOOLEAN DEFAULT 1,            
                     FOREIGN KEY(DirId) REFERENCES DIR(DirId)
                 );");
         }
@@ -74,6 +72,7 @@ namespace RomVaultX.DB
                 FROM DAT WHERE DatId=@datId ORDER BY Filename", Program.db.Connection);
                 _commandRvDatRead.Parameters.Add(new SQLiteParameter("datId"));
             }
+
 
             _commandRvDatRead.Parameters["DatID"].Value = datId;
 
@@ -112,7 +111,7 @@ namespace RomVaultX.DB
             {
                 _commandRvDatWrite = new SQLiteCommand(@"
                 INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment, MergeType, Path, DatTimeStamp,ExtraDir)
-                VALUES		  (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@MergeType,@Path, @DatTimeStamp,@ExtraDir);
+                VALUES          (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@MergeType,@Path, @DatTimeStamp,@ExtraDir);
 
                 SELECT last_insert_rowid();", Program.db.Connection);
 
@@ -154,7 +153,7 @@ namespace RomVaultX.DB
             _commandRvDatWrite.Parameters["ExtraDir"].Value = ExtraDir;
             object res = _commandRvDatWrite.ExecuteScalar();
 
-            if (res == null || res == DBNull.Value)
+            if ((res == null) || (res == DBNull.Value))
             {
                 return;
             }
@@ -197,6 +196,7 @@ namespace RomVaultX.DB
             return "-unknown-";
         }
 
+
         public int ChildNameSearch(string lGameName, out int index)
         {
             int intBottom = 0;
@@ -205,7 +205,7 @@ namespace RomVaultX.DB
             int intRes = -1;
 
             //Binary chop to find the closest match
-            while (intBottom < intTop && intRes != 0)
+            while ((intBottom < intTop) && (intRes != 0))
             {
                 intMid = (intBottom + intTop) / 2;
 
@@ -225,7 +225,7 @@ namespace RomVaultX.DB
             if (intRes == 0)
             {
                 int intRes1 = 0;
-                while (index > 0 && intRes1 == 0)
+                while ((index > 0) && (intRes1 == 0))
                 {
                     intRes1 = VarFix.CompareName(lGameName, Games[index - 1].Name);
                     if (intRes1 == 0)

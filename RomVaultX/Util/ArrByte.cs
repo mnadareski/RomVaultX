@@ -20,7 +20,7 @@ namespace RomVaultX.Util
 
         public static bool bCompare(byte[] b1, byte[] b2)
         {
-            if (b1 == null || b2 == null)
+            if ((b1 == null) || (b2 == null))
             {
                 return false;
             }
@@ -29,6 +29,7 @@ namespace RomVaultX.Util
             {
                 return false;
             }
+
             for (int i = 0; i < b1.Length; i++)
             {
                 if (b1[i] != b2[i])
@@ -42,15 +43,15 @@ namespace RomVaultX.Util
 
         public static int iCompare(byte[] b1, byte[] b2)
         {
-            int b1Len = (b1 == null) ? 0 : b1.Length;
-            int b2Len = (b2 == null) ? 0 : b2.Length;
+            int b1Len = b1 == null ? 0 : b1.Length;
+            int b2Len = b2 == null ? 0 : b2.Length;
 
             int p = 0;
-            for (;;)
+            for (; ; )
             {
                 if (b1Len == p)
                 {
-                    return (b2Len == p) ? 0 : -1;
+                    return b2Len == p ? 0 : -1;
                 }
                 if (b2Len == p)
                 {

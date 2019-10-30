@@ -17,33 +17,29 @@ namespace RomVaultX
         private static readonly Color CYellow = Color.FromArgb(255, 255, 214);
         private static readonly Color CGray = Color.FromArgb(214, 214, 214);
 
+        private readonly char vDriveLetter;
+
         private bool _updatingGameGrid;
 
         private float _scaleFactorX = 1;
         private float _scaleFactorY = 1;
 
-        public static char vDriveLetter;
+        private FolderBrowserDialog sortDir;
 
-        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
-        {
-            base.ScaleControl(factor, specified);
-            splitContainer1.SplitterDistance = (int)(splitContainer1.SplitterDistance * factor.Width);
-            splitContainer2.SplitterDistance = (int)(splitContainer2.SplitterDistance * factor.Width);
-            splitContainer2.Panel1MinSize = (int)(splitContainer2.Panel1MinSize * factor.Width);
-
-            splitContainer3.SplitterDistance = (int)(splitContainer3.SplitterDistance * factor.Height);
-            splitContainer4.SplitterDistance = (int)(splitContainer4.SplitterDistance * factor.Height);
-
-            _scaleFactorX *= factor.Width;
-            _scaleFactorY *= factor.Height;
-        }
+        private VDrive di;
 
         public frmMain()
         {
             InitializeComponent();
-            ValidateSettings();
+            Text = $@"RomVaultX {Application.StartupPath}";
 
             string driveLetter = AppSettings.ReadSetting("vDriveLetter");
+            if (driveLetter == null)
+            {
+                AppSettings.AddUpdateAppSettings("vDriveLetter", "V");
+
+                driveLetter = AppSettings.ReadSetting("vDriveLetter");
+            }
             vDriveLetter = driveLetter.ToCharArray()[0];
 
             addGameGrid();
@@ -59,77 +55,18 @@ namespace RomVaultX
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
         }
 
-        /// <summary>
-        /// Validate all known settings
-        /// </summary>
-        private void ValidateSettings()
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
         {
-            // Database and Memory
-            string setting = AppSettings.ReadSetting("DBFileName");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("DBFileName", "rom");
-            }
-            setting = AppSettings.ReadSetting("DBMemCacheSize");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("DBMemCacheSize", "2000"); // I use 8000000
-            }
-            setting = AppSettings.ReadSetting("ScanInMemorySize");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("ScanInMemorySize", "1000000"); // I use 1000000
-            }
-            setting = AppSettings.ReadSetting("DBCheckOnStartup");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("DBCheckOnStartup", "false");
-            }
-            setting = AppSettings.ReadSetting("SkipIndexingOnStartup");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("SkipIndexingOnStartup", "false");
-            }
+            base.ScaleControl(factor, specified);
+            splitContainer1.SplitterDistance = (int)(splitContainer1.SplitterDistance * factor.Width);
+            splitContainer2.SplitterDistance = (int)(splitContainer2.SplitterDistance * factor.Width);
+            splitContainer2.Panel1MinSize = (int)(splitContainer2.Panel1MinSize * factor.Width);
 
-            // Virtual Drive
-            setting = AppSettings.ReadSetting("vDriveLetter");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("vDriveLetter", "V");
-            }
+            splitContainer3.SplitterDistance = (int)(splitContainer3.SplitterDistance * factor.Height);
+            splitContainer4.SplitterDistance = (int)(splitContainer4.SplitterDistance * factor.Height);
 
-            // Paths
-            setting = AppSettings.ReadSetting("DatRoot");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("DatRoot", "DatRoot");
-            }
-            setting = AppSettings.ReadSetting("ToSort");
-            if (setting == null)
-            {
-                AppSettings.AddUpdateAppSettings("ToSort", "ToSort");
-            }
-
-            int i = 0;
-            while (true)
-            {
-                setting = AppSettings.ReadSetting("Depot" + i);
-                if (setting == null && i == 0)
-                {
-                    AppSettings.AddUpdateAppSettings("Depot" + i, "RomRoot");
-                }
-                else
-                {
-                    break;
-                }
-                setting = AppSettings.ReadSetting("Size" + i);
-                if (setting == null)
-                {
-                    AppSettings.AddUpdateAppSettings("Size" + i, "-1");
-                }
-
-                i++;
-            }
+            _scaleFactorX *= factor.Width;
+            _scaleFactorY *= factor.Height;
         }
 
         private void btnUpdateDats_Click(object sender, EventArgs e)
@@ -144,33 +81,19 @@ namespace RomVaultX
         private void btnScanRoms_MouseUp(object sender, MouseEventArgs e)
         {
             if (e == null)
-                return;
-            if (e.Button == MouseButtons.Right)
-                setScanDir();
-            else
-                ToSortScanDir();
-        }
-
-        private FolderBrowserDialog sortDir;
-        private void scanADirToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            setScanDir();
-        }
-
-        private void setScanDir()
-        {
-            if (sortDir == null)
             {
-                sortDir = new FolderBrowserDialog { ShowNewFolderButton = false };
-            }
-
-            DialogResult result = sortDir.ShowDialog();
-            if (result != DialogResult.OK)
                 return;
-            RomScanner.RootDir = sortDir.SelectedPath;
-            RomScanner.DelFiles = false;
-            DoScan();
+            }
+            if (e.Button == MouseButtons.Right)
+            {
+                SetScanDir(false);
+            }
+            else
+            {
+                ToSortScanDir();
+            }
         }
+
 
         private void ToSortScanDir()
         {
@@ -196,6 +119,7 @@ namespace RomVaultX
             DirTree.Setup(RvTreeRow.ReadTreeFromDB());
             DatSetSelected(DirTree.Selected);
         }
+
         private void deepReScanToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FrmProgressWindow progress = new FrmProgressWindow(this, "Scanning RomRoot Files", romRootScanner.ScanFilesDeep);
@@ -205,6 +129,7 @@ namespace RomVaultX
             DatSetSelected(DirTree.Selected);
         }
 
+
         private void DirTree_RvSelected(object sender, MouseEventArgs e)
         {
             RvTreeRow tr = (RvTreeRow)sender;
@@ -212,20 +137,102 @@ namespace RomVaultX
             updateSelectedTreeRow(tr);
         }
 
+
+        private void DatSetSelected(RvTreeRow cf)
+        {
+            DirTree.Refresh();
+            GameGrid.Rows.Clear();
+            RomGrid.Rows.Clear();
+
+            if (cf == null)
+            {
+                return;
+            }
+
+            UpdateGameGrid(cf.DatId);
+        }
+
+
+        private void chkBoxShowCorrect_CheckedChanged(object sender, EventArgs e)
+        {
+            DatSetSelected(DirTree.Selected);
+        }
+
+        private void chkBoxShowMissing_CheckedChanged(object sender, EventArgs e)
+        {
+            DatSetSelected(DirTree.Selected);
+        }
+
+        private void romRootScanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void updateZipDBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdateZipDB.UpdateDB();
+        }
+
+        private void startVDriveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Dokan.Unmount(vDriveLetter);
+            di = new VDrive();
+#if DEBUG
+            Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.DebugMode, 1); });
+#else
+            Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.FixedDrive, 10); });
+#endif
+            t2.Start();
+        }
+
+        private void closeVDriveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Dokan.Unmount(vDriveLetter);
+        }
+        private void extractFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (DirTree.Selected == null)
+                return;
+
+            ExtractFiles.extract(DirTree.Selected.dirFullName);
+        }
+
+        private void fixDatsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (DirTree.Selected == null)
+                return;
+
+            FixDatList.extract(DirTree.Selected.dirFullName);
+        }
+
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Dokan.Unmount(vDriveLetter);
+        }
+
+        private void RomGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+        }
+
         #region DAT dsiplay code
+
         private void splitContainer3_Panel1_Resize(object sender, EventArgs e)
         {
-            gbDatInfo.Width = splitContainer3.Panel1.Width - (gbDatInfo.Left * 2);
+            gbDatInfo.Width = splitContainer3.Panel1.Width - gbDatInfo.Left * 2;
         }
+
 
         private void gbDatInfo_Resize(object sender, EventArgs e)
         {
             const int leftPos = 89;
             int rightPos = (int)(gbDatInfo.Width / _scaleFactorX) - 15;
-            if (rightPos > 600) rightPos = 600;
+            if (rightPos > 600)
+            {
+                rightPos = 600;
+            }
             int width = rightPos - leftPos;
             int widthB1 = (int)((double)width * 120 / 340);
             int leftB2 = rightPos - widthB1;
+
 
             int backD = 97;
 
@@ -233,6 +240,7 @@ namespace RomVaultX
             widthB1 = (int)(widthB1 * _scaleFactorX);
             leftB2 = (int)(leftB2 * _scaleFactorX);
             backD = (int)(backD * _scaleFactorX);
+
 
             lblDITName.Width = width;
             lblDITDescription.Width = width;
@@ -263,6 +271,7 @@ namespace RomVaultX
             lblDITRomsNoDump.Width = widthB1;
         }
 
+
         private void updateSelectedTreeRow(RvTreeRow tr)
         {
             lblDITName.Text = tr.datName;
@@ -287,13 +296,11 @@ namespace RomVaultX
                 lblDITDate.Text = "";
             }
             lblDITRomsGot.Text = tr.RomGot.ToString("#,0");
-            long realtotal = tr.RomTotal - tr.RomGot - tr.RomNoDump;
-            lblDITRomsMissing.Text = (realtotal < 0 ? 0 : realtotal).ToString("#,0");
+            lblDITRomsMissing.Text = (tr.RomTotal - tr.RomGot - tr.RomNoDump).ToString("#,0");
             lblDITRomsTotal.Text = tr.RomTotal.ToString("#,0");
             lblDITRomsNoDump.Text = tr.RomNoDump.ToString("#,0");
 
             UpdateGameGrid(tr.DatId);
-
         }
 
         #endregion
@@ -388,6 +395,7 @@ namespace RomVaultX
             gbSetInfo.Controls.Add(lblSIYear);
             gbSetInfo.Controls.Add(lblSITYear);
 
+
             lblSIRomOf = new Label { Location = SPoint(6, 79), Size = SSize(76, 13), Text = "ROM of :", TextAlign = ContentAlignment.TopRight, Visible = false };
             lblSITRomOf = new Label { Location = SPoint(84, 78), Size = SSize(120, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
             gbSetInfo.Controls.Add(lblSIRomOf);
@@ -410,6 +418,7 @@ namespace RomVaultX
             gbSetInfo.Controls.Add(lblSIDeveloper);
             gbSetInfo.Controls.Add(lblSITDeveloper);
 
+
             lblSIEdition = new Label { Location = SPoint(6, 79), Size = SSize(76, 13), Text = "Edition :", TextAlign = ContentAlignment.TopRight, Visible = false };
             lblSITEdition = new Label { Location = SPoint(84, 78), Size = SSize(120, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
             gbSetInfo.Controls.Add(lblSIEdition);
@@ -424,6 +433,7 @@ namespace RomVaultX
             lblSITType = new Label { Location = SPoint(484, 78), Size = SSize(120, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
             gbSetInfo.Controls.Add(lblSIType);
             gbSetInfo.Controls.Add(lblSITType);
+
 
             lblSIMedia = new Label { Location = SPoint(6, 95), Size = SSize(76, 13), Text = "Media :", TextAlign = ContentAlignment.TopRight, Visible = false };
             lblSITMedia = new Label { Location = SPoint(84, 94), Size = SSize(120, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
@@ -440,6 +450,7 @@ namespace RomVaultX
             gbSetInfo.Controls.Add(lblSIPlayers);
             gbSetInfo.Controls.Add(lblSITPlayers);
 
+
             lblSIRatings = new Label { Location = SPoint(6, 111), Size = SSize(76, 13), Text = "Ratings :", TextAlign = ContentAlignment.TopRight, Visible = false };
             lblSITRatings = new Label { Location = SPoint(84, 110), Size = SSize(120, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
             gbSetInfo.Controls.Add(lblSIRatings);
@@ -455,6 +466,7 @@ namespace RomVaultX
             gbSetInfo.Controls.Add(lblSIPeripheral);
             gbSetInfo.Controls.Add(lblSITPeripheral);
 
+
             lblSIBarCode = new Label { Location = SPoint(6, 127), Size = SSize(76, 13), Text = "Barcode :", TextAlign = ContentAlignment.TopRight, Visible = false };
             lblSITBarCode = new Label { Location = SPoint(84, 126), Size = SSize(120, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
             gbSetInfo.Controls.Add(lblSIBarCode);
@@ -464,12 +476,13 @@ namespace RomVaultX
             lblSITMediaCatalogNumber = new Label { Location = SPoint(484, 126), Size = SSize(120, 17), BorderStyle = BorderStyle.FixedSingle, Visible = false };
             gbSetInfo.Controls.Add(lblSIMediaCatalogNumber);
             gbSetInfo.Controls.Add(lblSITMediaCatalogNumber);
-
         }
+
         private Point SPoint(int x, int y)
         {
             return new Point((int)(x * _scaleFactorX), (int)(y * _scaleFactorY));
         }
+
         private Size SSize(int x, int y)
         {
             return new Size((int)(x * _scaleFactorX), (int)(y * _scaleFactorY));
@@ -478,7 +491,10 @@ namespace RomVaultX
         private void splitContainer4_Panel1_Resize(object sender, EventArgs e)
         {
             int chkLeft = splitContainer4.Panel1.Width - 150;
-            if (chkLeft < 430) chkLeft = 430;
+            if (chkLeft < 430)
+            {
+                chkLeft = 430;
+            }
 
             chkBoxShowCorrect.Left = chkLeft;
             chkBoxShowMissing.Left = chkLeft;
@@ -490,13 +506,19 @@ namespace RomVaultX
         {
             int leftPos = 84;
             int rightPos = gbSetInfo.Width - 15;
-            if (rightPos > 750) rightPos = 750;
+            if (rightPos > 750)
+            {
+                rightPos = 750;
+            }
             int width = rightPos - leftPos;
 
             int widthB1 = (int)((double)width * 120 / 340);
             int leftB2 = leftPos + width - widthB1;
 
-            if (lblSITName == null) return;
+            if (lblSITName == null)
+            {
+                return;
+            }
 
             lblSITName.Width = width;
             lblSITDescription.Width = width;
@@ -517,10 +539,10 @@ namespace RomVaultX
             lblSITPublisher.Width = width;
             lblSITDeveloper.Width = width;
 
-            int width3 = (int)((double)width * 0.24);
-            int P2 = (int)((double)width * 0.38);
+            int width3 = (int)(width * 0.24);
+            int P2 = (int)(width * 0.38);
 
-            int width4 = (int)((double)width * 0.24);
+            int width4 = (int)(width * 0.24);
 
             lblSITEdition.Width = width3;
 
@@ -531,6 +553,7 @@ namespace RomVaultX
             lblSIType.Left = leftPos + width - width3 - 78;
             lblSITType.Left = leftPos + width - width3;
             lblSITType.Width = width3;
+
 
             lblSITMedia.Width = width3;
 
@@ -552,13 +575,14 @@ namespace RomVaultX
             lblSITPeripheral.Left = leftPos + width - width3;
             lblSITPeripheral.Width = width3;
 
+
             lblSITBarCode.Width = width4;
 
             lblSIMediaCatalogNumber.Left = leftPos + width - width4 - 78;
             lblSITMediaCatalogNumber.Left = leftPos + width - width4;
             lblSITMediaCatalogNumber.Width = width4;
-
         }
+
 
         private void UpdateGameGrid(uint? DatId)
         {
@@ -567,7 +591,9 @@ namespace RomVaultX
             RomGrid.Rows.Clear();
 
             if (DatId == null)
+            {
                 return;
+            }
 
             List<rvGameGridRow> rows = rvGameGridRow.ReadGames((int)DatId);
 
@@ -576,24 +602,35 @@ namespace RomVaultX
                 bool gCorrect = row.HasCorrect();
                 bool gMissing = row.HasMissing();
 
-                bool show = (chkBoxShowCorrect.Checked && gCorrect && !gMissing);
+                bool show = chkBoxShowCorrect.Checked && gCorrect && !gMissing;
                 show = show || (chkBoxShowMissing.Checked && gMissing);
                 show = show || !(gCorrect || gMissing);
 
-                if (!show) continue;
+                if (!show)
+                {
+                    continue;
+                }
 
                 GameGrid.Rows.Add();
                 int iRow = GameGrid.Rows.Count - 1;
 
                 Color cellColor;
                 if (row.RomGot >= row.RomTotal - row.RomNoDump)
+                {
                     cellColor = CGreen;
-                else if (row.RomGot > 0 && row.RomTotal - row.RomNoDump > 0)
+                }
+                else if ((row.RomGot > 0) && (row.RomTotal - row.RomNoDump > 0))
+                {
                     cellColor = CYellow;
-                else if (row.RomGot == 0 && row.RomTotal - row.RomNoDump > 0)
+                }
+                else if ((row.RomGot == 0) && (row.RomTotal - row.RomNoDump > 0))
+                {
                     cellColor = CRed;
+                }
                 else
+                {
                     cellColor = CGray;
+                }
 
                 GameGrid.Rows[iRow].Selected = false;
                 GameGrid.Rows[iRow].Tag = row.GameId;
@@ -601,18 +638,23 @@ namespace RomVaultX
                 GameGrid.Rows[iRow].Cells[2].Value = row.Description;
                 GameGrid.Rows[iRow].Cells[3].Value = row.RomGot;
                 if (row.RomNoDump > 0)
+                {
                     GameGrid.Rows[iRow].Cells[4].Value = row.RomTotal - row.RomGot - row.RomNoDump + " , (" + row.RomNoDump + ")";
+                }
                 else
+                {
                     GameGrid.Rows[iRow].Cells[4].Value = row.RomTotal - row.RomGot;
+                }
 
                 for (int i = 0; i < 5; i++)
+                {
                     GameGrid.Rows[iRow].DefaultCellStyle.BackColor = cellColor;
-
+                }
             }
             _updatingGameGrid = false;
             UpdateSelectedGame();
-
         }
+
         private void GameGrid_SelectionChanged(object sender, EventArgs e)
         {
             UpdateSelectedGame();
@@ -623,7 +665,9 @@ namespace RomVaultX
             RvGame tGame = null;
 
             if (_updatingGameGrid)
+            {
                 return;
+            }
 
             if (GameGrid.SelectedRows.Count == 1)
             {
@@ -723,6 +767,7 @@ namespace RomVaultX
                 lblSITotalRoms.Visible = false;
                 lblSITTotalRoms.Visible = false;
 
+
                 lblSIPublisher.Visible = true;
                 lblSITPublisher.Visible = true;
                 lblSITPublisher.Text = tGame.Publisher;
@@ -774,7 +819,6 @@ namespace RomVaultX
                 lblSIMediaCatalogNumber.Visible = true;
                 lblSITMediaCatalogNumber.Visible = true;
                 lblSITMediaCatalogNumber.Text = tGame.MediaCatalogNumber;
-
             }
             else
             {
@@ -800,6 +844,7 @@ namespace RomVaultX
 
                 lblSITotalRoms.Visible = true;
                 lblSITTotalRoms.Visible = true;
+
 
                 lblSIPublisher.Visible = false;
                 lblSITPublisher.Visible = false;
@@ -839,8 +884,8 @@ namespace RomVaultX
 
                 lblSIMediaCatalogNumber.Visible = false;
                 lblSITMediaCatalogNumber.Visible = false;
-
             }
+
 
             UpdateRomGrid(tGame.GameId);
         }
@@ -864,7 +909,9 @@ namespace RomVaultX
                 RomGrid.Rows[iRow].Tag = rom.RomId;
                 RomGrid.Rows[iRow].Cells[1].Value = rom.Name;
                 if (rom.Size != null)
+                {
                     RomGrid.Rows[iRow].Cells[2].Value = rom.Size;
+                }
                 else if (rom.FileSize != null)
                 {
                     RomGrid.Rows[iRow].Cells[2].Style.ForeColor = Color.FromArgb(0, 0, 255);
@@ -880,26 +927,28 @@ namespace RomVaultX
                 RomGrid.Rows[iRow].Cells[4].Value = rom.Merge;
 
                 if (rom.CRC != null)
+                {
                     RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.CRC);
+                }
                 else if (rom.FileCRC != null)
                 {
                     RomGrid.Rows[iRow].Cells[5].Style.ForeColor = Color.FromArgb(0, 0, 255);
                     RomGrid.Rows[iRow].Cells[5].Value = VarFix.ToString(rom.FileCRC);
                 }
 
-                if (rom.SHA1CHD != null)
-                    RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1CHD);
-                else if (rom.SHA1 != null)
+                if (rom.SHA1 != null)
+                {
                     RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.SHA1);
+                }
                 else if (rom.FileSHA1 != null)
                 {
                     RomGrid.Rows[iRow].Cells[6].Style.ForeColor = Color.FromArgb(0, 0, 255);
                     RomGrid.Rows[iRow].Cells[6].Value = VarFix.ToString(rom.FileSHA1);
                 }
-                if (rom.MD5CHD != null)
-                    RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5CHD);
-                else if (rom.MD5 != null)
+                if (rom.MD5 != null)
+                {
                     RomGrid.Rows[iRow].Cells[7].Value = VarFix.ToString(rom.MD5);
+                }
                 else if (rom.FileMD5 != null)
                 {
                     RomGrid.Rows[iRow].Cells[7].Style.ForeColor = Color.FromArgb(0, 0, 255);
@@ -908,82 +957,51 @@ namespace RomVaultX
                 RomGrid.Rows[iRow].Cells[8].Value = rom.Status;
                 RomGrid.Rows[iRow].Cells[9].Value = rom.PutInZip;
 
-                if (rom.Status == "nodump"
-                    && rom.CRC == null
-                    && rom.SHA1 == null && rom.SHA1CHD == null
-                    && rom.MD5 == null && rom.MD5CHD == null
-                    && rom.FileId == null || !rom.PutInZip)
+                if (((rom.Status == "nodump") && (rom.CRC == null) && (rom.SHA1 == null) && (rom.MD5 == null) && (rom.FileId == null)) || !rom.PutInZip)
+                {
                     RomGrid.Rows[iRow].DefaultCellStyle.BackColor = CGray;
+                }
                 else
+                {
                     RomGrid.Rows[iRow].DefaultCellStyle.BackColor = rom.FileId != null ? CGreen : CRed;
-
+                }
             }
-
         }
+
         private void RomGrid_SelectionChanged(object sender, EventArgs e)
         {
             RomGrid.ClearSelection();
         }
 
+
         #endregion
 
-        private void DatSetSelected(RvTreeRow cf)
+        private void scanADirToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DirTree.Refresh();
-            GameGrid.Rows.Clear();
-            RomGrid.Rows.Clear();
+            SetScanDir(false);
+        }
 
-            if (cf == null)
+        private void scanWithDeleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetScanDir(true);
+        }
+
+        private void SetScanDir(bool withDelete)
+        {
+            if (sortDir == null)
+            {
+                sortDir = new FolderBrowserDialog { ShowNewFolderButton = false };
+            }
+
+            DialogResult result = sortDir.ShowDialog();
+            if (result != DialogResult.OK)
+            {
                 return;
-
-            UpdateGameGrid(cf.DatId);
+            }
+            RomScanner.RootDir = sortDir.SelectedPath;
+            RomScanner.DelFiles = withDelete;
+            DoScan();
         }
 
-        private void chkBoxShowCorrect_CheckedChanged(object sender, EventArgs e)
-        {
-            DatSetSelected(DirTree.Selected);
-        }
-
-        private void chkBoxShowMissing_CheckedChanged(object sender, EventArgs e)
-        {
-            DatSetSelected(DirTree.Selected);
-        }
-
-        private void romRootScanToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void updateZipDBToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            UpdateZipDB.UpdateDB();
-        }
-
-        private VDrive di;
-        private void startVDriveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Dokan.Unmount(vDriveLetter);
-            di = new VDrive();
-
-            string threadCountSetting = AppSettings.ReadSetting("VirtualDriveThreads");
-            if (!Int32.TryParse(threadCountSetting, out int threadCount))
-                threadCount = 10;
-
-            Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.FixedDrive, threadCount); });
-            t2.Start();
-        }
-
-        private void closeVDriveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Dokan.Unmount(vDriveLetter);
-        }
-
-        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Dokan.Unmount(vDriveLetter);
-        }
-
-        private void RomGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-        }
     }
 }

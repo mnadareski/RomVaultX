@@ -51,6 +51,8 @@
             // 
             // progressBar2
             // 
+            this.progressBar2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar2.Location = new System.Drawing.Point(12, 71);
             this.progressBar2.Name = "progressBar2";
             this.progressBar2.Size = new System.Drawing.Size(400, 22);
@@ -59,6 +61,8 @@
             // 
             // progressBar
             // 
+            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar.Location = new System.Drawing.Point(12, 99);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(400, 23);
@@ -66,15 +70,18 @@
             // 
             // label
             // 
+            this.label.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label.AutoEllipsis = true;
             this.label.Location = new System.Drawing.Point(12, 9);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(368, 15);
+            this.label.Size = new System.Drawing.Size(400, 15);
             this.label.TabIndex = 0;
             this.label.Text = "Starting operation...";
             // 
             // cancelButton
             // 
+            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.Location = new System.Drawing.Point(420, 99);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -84,6 +91,8 @@
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoEllipsis = true;
             this.label2.Location = new System.Drawing.Point(12, 34);
             this.label2.Name = "label2";
@@ -93,9 +102,10 @@
             // 
             // lbl2Prog
             // 
-            this.lbl2Prog.Location = new System.Drawing.Point(386, 9);
+            this.lbl2Prog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbl2Prog.Location = new System.Drawing.Point(412, 9);
             this.lbl2Prog.Name = "lbl2Prog";
-            this.lbl2Prog.Size = new System.Drawing.Size(109, 25);
+            this.lbl2Prog.Size = new System.Drawing.Size(80, 15);
             this.lbl2Prog.TabIndex = 5;
             this.lbl2Prog.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lbl2Prog.Visible = false;
@@ -124,7 +134,7 @@
             this.ErrorGrid.ShowCellToolTips = false;
             this.ErrorGrid.ShowEditingIcon = false;
             this.ErrorGrid.ShowRowErrors = false;
-            this.ErrorGrid.Size = new System.Drawing.Size(591, 186);
+            this.ErrorGrid.Size = new System.Drawing.Size(504, 186);
             this.ErrorGrid.TabIndex = 6;
             this.ErrorGrid.SelectionChanged += new System.EventHandler(this.ErrorGridSelectionChanged);
             // 
@@ -166,7 +176,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.ErrorGrid);
-            this.splitContainer1.Size = new System.Drawing.Size(591, 320);
+            this.splitContainer1.Size = new System.Drawing.Size(504, 320);
             this.splitContainer1.SplitterDistance = 130;
             this.splitContainer1.TabIndex = 8;
             // 
@@ -188,11 +198,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(591, 320);
+            this.ClientSize = new System.Drawing.Size(504, 320);
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimizeBox = true;
-            this.MaximizeBox = true;
             this.Name = "FrmProgressWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "RomVault Progress";

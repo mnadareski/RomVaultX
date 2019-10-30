@@ -1,41 +1,55 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
-
+using Compress;
+using Compress.gZip;
+using Compress.SevenZip;
+using Compress.ZipFile;
+using FileHeaderReader;
 using RomVaultX.DB;
-using RomVaultX.SupportedFiles;
-using RomVaultX.SupportedFiles.CHD;
 using RomVaultX.SupportedFiles.Files;
 using RomVaultX.SupportedFiles.GZ;
-using RomVaultX.SupportedFiles.SevenZip;
-using RomVaultX.SupportedFiles.Zip;
-using RomVaultX.Util;
-
-using Alphaleonis.Win32.Filesystem;
-
-using Stream = System.IO.Stream;
+using DirectoryInfo = RVIO.DirectoryInfo;
+using FileInfo = RVIO.FileInfo;
+using FileStream = RVIO.FileStream;
 
 namespace RomVaultX
 {
     public static class RomScanner
     {
+        private const int Buffersize = 1024 * 1024;
         private static BackgroundWorker _bgw;
 
         public static string RootDir = @"ToSort";
-        public static bool DelFiles = true;
-
-        private const int Buffersize = 1024 * 1024;
         private static readonly byte[] Buffer = new byte[Buffersize];
+        private static string _tmpDir = @"tmp";
 
-        private static ulong inMemorySize;
+        private static ulong _inMemorySize;
+        public static bool DelFiles = true;
 
         public static void ScanFiles(object sender, DoWorkEventArgs e)
         {
             string sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
-            if (!ulong.TryParse(sInMemorySize, out inMemorySize))
-                inMemorySize = 1000000;
+            if (sInMemorySize == null)
+            {
+                // I use 1000000
+                AppSettings.AddUpdateAppSettings("ScanInMemorySize", "1000000");
+                sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
+            }
+
+            if (!ulong.TryParse(sInMemorySize, out _inMemorySize))
+            {
+                _inMemorySize = 1000000;
+            }
+
+            _tmpDir = AppSettings.ReadSetting("ScanInDir") ?? "tmp";
+            if (!Directory.Exists(_tmpDir))
+            {
+                Directory.CreateDirectory(_tmpDir);
+            }
 
             _bgw = sender as BackgroundWorker;
             Program.SyncCont = e.Argument as SynchronizationContext;
@@ -53,20 +67,33 @@ namespace RomVaultX
             Program.SyncCont = null;
         }
 
-        private static bool ScanAFile(string filename, Stream fStream)
+        private static bool ScanAFile(string realFilename, Stream memzip, string displayFilename)
         {
+            Stream fStream;
+            if (string.IsNullOrEmpty(realFilename) && memzip != null)
+            {
+                fStream = memzip;
+            }
+            else
+            {
+                int errorCode = FileStream.OpenFileRead(realFilename, out fStream);
+                if (errorCode != 0)
+                {
+                    return false;
+                }
+            }
+
             bool ret = false;
-            int offset;
-            FileType foundFileType = FileHeaderReader.GetType(fStream, out offset);
+            HeaderFileType foundFileType = FileHeaderReader.FileHeaderReader.GetType(fStream, out int offset);
 
             fStream.Position = 0;
             RvFile tFile = UnCompFiles.CheckSumRead(fStream, offset);
             tFile.AltType = foundFileType;
 
-            if (foundFileType == FileType.CHD)
+
+            if (foundFileType == HeaderFileType.CHD)
             {
-                uint? version;
-                CHD.CheckFile(fStream, out tFile.AltSHA1, out tFile.AltMD5, out version);
+                // read altheader values from CHD file.
             }
 
             // test if needed.
@@ -74,10 +101,10 @@ namespace RomVaultX
 
             if (res == FindStatus.FileNeededInArchive)
             {
-                _bgw?.ReportProgress(0, new bgwShowEvent(filename, "found"));
-                Debug.WriteLine("Reading file as " + VarFix.ToDBString(tFile.SHA1));
+                _bgw?.ReportProgress(0, new bgwShowError(displayFilename, "found"));
+                Debug.WriteLine("Reading file as " + tFile.SHA1);
                 GZip gz = new GZip(tFile);
-                string outfile = GetFilename(tFile.SHA1);
+                string outfile = RomRootDir.Getfilename(tFile.SHA1);
                 fStream.Position = 0;
                 gz.WriteGZip(outfile, fStream, false);
 
@@ -90,38 +117,60 @@ namespace RomVaultX
                 ret = true;
             }
 
-            if (foundFileType == FileType.ZIP)
+            if (foundFileType == HeaderFileType.ZIP || foundFileType == HeaderFileType.SevenZip || foundFileType == HeaderFileType.GZ)
             {
-                ZipFile fz = new ZipFile();
+
+                ICompress fz;
+                switch (foundFileType)
+                {
+                    case HeaderFileType.SevenZip:
+                        fz = new SevenZ();
+                        break;
+                    case HeaderFileType.GZ:
+                        fz = new gZip();
+                        break;
+
+                    //case HeaderFileType.ZIP:
+                    default:
+                        fz = new ZipFile();
+                        break;
+                }
+
                 fStream.Position = 0;
-                ZipReturn zp = fz.ZipFileOpen(fStream);
+
+                ZipReturn zp;
+
+                if (string.IsNullOrEmpty(realFilename) && memzip != null)
+                {
+                    zp = fz.ZipFileOpen(memzip);
+                }
+                else
+                {
+                    zp = fz.ZipFileOpen(realFilename);
+                }
+
                 if (zp == ZipReturn.ZipGood)
                 {
                     bool allZipFound = true;
                     for (int i = 0; i < fz.LocalFilesCount(); i++)
                     {
-                        Stream stream;
-                        ulong streamSize;
-                        ushort compressionMethod;
-                        fz.ZipFileOpenReadStream(i, false, out stream, out streamSize, out compressionMethod);
+                        ZipReturn openFile = fz.ZipFileOpenReadStream(i, out Stream stream, out ulong streamSize);
 
-                        if (streamSize <= inMemorySize)
+                        if (streamSize <= _inMemorySize)
                         {
+                            if (openFile == ZipReturn.ZipTryingToAccessADirectory)
+                                continue;
                             byte[] tmpFile = new byte[streamSize];
                             stream.Read(tmpFile, 0, (int)streamSize);
-                            Stream memFs = new System.IO.MemoryStream(tmpFile, false);
-                            allZipFound &= ScanAFile(fz.Filename(i), memFs);
-                            memFs.Close();
-                            memFs.Dispose();
+                            using (Stream memStream = new MemoryStream(tmpFile, false))
+                            {
+                                allZipFound &= ScanAFile(null, memStream, fz.Filename(i));
+                            }
                         }
                         else
                         {
-                            string file = @"tmp\" + Guid.NewGuid();
-                            if (!Directory.Exists("tmp"))
-                            {
-                                Directory.CreateDirectory("tmp");
-                            }
-                            Stream fs = File.OpenWrite(file);
+                            string file = Path.Combine(_tmpDir, Guid.NewGuid().ToString());
+                            FileStream.OpenFileWrite(file, out Stream fs);
                             ulong sizetogo = streamSize;
                             while (sizetogo > 0)
                             {
@@ -132,23 +181,11 @@ namespace RomVaultX
                             }
                             fs.Close();
 
-                            Stream fstreamNext;
-                            try
-                            {
-                                fstreamNext = File.OpenRead(file);
-                            }
-                            catch
-                            {
-                                return false;
-                            }
+                            allZipFound &= ScanAFile(file, null, fz.Filename(i));
 
-                            allZipFound &= ScanAFile(fz.Filename(i), fstreamNext);
-                            fstreamNext.Close();
-                            fstreamNext.Dispose();
                             File.Delete(file);
                         }
-                        fz.ZipFileCloseReadStream();
-
+                        //fz.ZipFileCloseReadStream();
                     }
                     fz.ZipFileClose();
                     ret |= allZipFound;
@@ -159,135 +196,13 @@ namespace RomVaultX
                 }
             }
 
-            if (foundFileType == FileType.GZ)
+            if (!string.IsNullOrEmpty(realFilename) || memzip == null)
             {
-                GZip gz = new GZip();
-                fStream.Position = 0;
-                ZipReturn zr = gz.ReadGZip(fStream, false);
-                if (zr == ZipReturn.ZipGood)
-                {
-                    ulong streamSize = gz.uncompressedSize;
-                    if (streamSize > 0)
-                    {
-                        Stream stream;
-                        gz.GetStream(out stream);
-                        ulong memkeepSize = 1024 * 1024;
-                        if (streamSize <= memkeepSize)
-                        {
-                            byte[] tmpFile = new byte[streamSize];
-                            stream.Read(tmpFile, 0, (int)streamSize);
-                            Stream memFs = new System.IO.MemoryStream(tmpFile, false);
-                            ret |= ScanAFile(filename, memFs);
-                            memFs.Close();
-                            memFs.Dispose();
-                        }
-                        else
-                        {
-                            string file = @"tmp\" + Guid.NewGuid();
-                            if (!Directory.Exists("tmp"))
-                            {
-                                Directory.CreateDirectory("tmp");
-                            }
-                            Stream fs = File.OpenWrite(file);
-                            ulong sizetogo = streamSize;
-                            while (sizetogo > 0)
-                            {
-                                int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
-                                stream.Read(Buffer, 0, sizenow);
-                                fs.Write(Buffer, 0, sizenow);
-                                sizetogo -= (ulong)sizenow;
-                            }
-                            fs.Close();
-                            stream.Close();
-
-                            Stream fstreamNext;
-                            try
-                            {
-                                fstreamNext = File.OpenRead(file);
-                            }
-                            catch
-                            {
-                                return false;
-                            }
-
-                            ret |= ScanAFile(filename, fstreamNext);
-                            fstreamNext.Close();
-                            fstreamNext.Dispose();
-                            File.Delete(file);
-                        }
-                    }
-                    // gz.Close(); do not close the Stream gZip
-                }
+                fStream.Close();
+                fStream.Dispose();
             }
 
-            if (foundFileType == FileType.SevenZip)
-            {
-                SevenZipFile fz = new SevenZipFile();
-                fStream.Position = 0;
-                ZipReturn zp = fz.ZipFileOpen(fStream);
-                if (zp == ZipReturn.ZipGood)
-                {
-                    bool allZipFound = true;
-                    for (int i = 0; i < fz.LocalFilesCount(); i++)
-                    {
-                        Stream stream;
-                        ulong streamSize;
-                        if (fz.ZipFileOpenReadStream(i, out stream, out streamSize) != ZipReturn.ZipGood || stream == null)
-                        {
-                            return false;
-                        }
 
-                        if (streamSize <= inMemorySize)
-                        {
-                            byte[] tmpFile = new byte[streamSize];
-                            stream.Read(tmpFile, 0, (int)streamSize);
-                            Stream memFs = new System.IO.MemoryStream(tmpFile, false);
-                            allZipFound &= ScanAFile(fz.Filename(i), memFs);
-                            memFs.Close();
-                            memFs.Dispose();
-                        }
-                        else
-                        {
-                            string file = @"tmp\" + Guid.NewGuid();
-                            if (!Directory.Exists("tmp"))
-                            {
-                                Directory.CreateDirectory("tmp");
-                            }
-                            Stream fs = File.OpenWrite(file);
-                            ulong sizetogo = streamSize;
-                            while (sizetogo > 0)
-                            {
-                                int sizenow = sizetogo > (ulong)Buffersize ? Buffersize : (int)sizetogo;
-                                stream.Read(Buffer, 0, sizenow);
-                                fs.Write(Buffer, 0, sizenow);
-                                sizetogo -= (ulong)sizenow;
-                            }
-                            fs.Close();
-
-                            Stream fstreamNext;
-                            try
-                            {
-                                fstreamNext = File.OpenRead(file);
-                            }
-                            catch
-                            {
-                                return false;
-                            }
-
-                            allZipFound &= ScanAFile(fz.Filename(i), fstreamNext);
-                            fstreamNext.Close();
-                            fstreamNext.Dispose();
-                            File.Delete(file);
-                        }
-                        fz.ZipFileCloseReadStream();
-
-                    }
-                    fz.ZipFileClose();
-                    ret |= allZipFound;
-                }
-                else
-                    ret = false;
-            }
             return ret;
         }
 
@@ -304,87 +219,49 @@ namespace RomVaultX
             for (int j = 0; j < fi.Length; j++)
             {
                 if (_bgw.CancellationPending)
+                {
                     return;
+                }
 
                 FileInfo f = fi[j];
                 _bgw.ReportProgress(0, new bgwValue2(j));
                 _bgw.ReportProgress(0, new bgwText2(f.Name));
 
-                Stream fstreamNext;
-                try
-                {
-                    fstreamNext = File.OpenRead(f.FullName);
-                }
-                catch
-                {
-                    return;
-                }
+                bool fileFound = ScanAFile(f.FullName, null, f.Name);
 
-                bool fileFound = ScanAFile(f.FullName, fstreamNext);
-                fstreamNext.Close();
-                fstreamNext.Dispose();
-                if (fileFound)
+                if (fileFound && DelFiles)
+                {
+                    File.SetAttributes(f.FullName, FileAttributes.Normal);
                     File.Delete(f.FullName);
+                }
             }
 
             DirectoryInfo[] childdi = di.GetDirectories();
             foreach (DirectoryInfo d in childdi)
             {
                 if (_bgw.CancellationPending)
+                {
                     return;
+                }
                 ScanADirNew(d.FullName);
             }
 
             if (directory == "ToSort")
+            {
                 return;
+            }
             if (IsDirectoryEmpty(directory))
-                Directory.Delete(directory);
+            {
+                System.IO.DirectoryInfo dii = new System.IO.DirectoryInfo(directory);
+                dii.Attributes &= ~FileAttributes.ReadOnly;
 
+                Directory.Delete(directory);
+            }
         }
 
         private static bool IsDirectoryEmpty(string path)
         {
             return !Directory.EnumerateFileSystemEntries(path).Any();
-        }
-
-        private static string GetFilename(byte[] sha1)
-        {
-            string path = "";
-
-            bool exists = false;
-            int i = 0;
-            while (!exists)
-            {
-                string romRoot = AppSettings.ReadSetting("Depot" + i);
-                if (romRoot == null)
-                {
-                    i++;
-                    break;
-                }
-                else if (!Directory.Exists(romRoot))
-                {
-                    i++;
-                    break;
-                }
-
-                path = romRoot + @"\" + VarFix.ToString(sha1[0]) + @"\" +
-                         VarFix.ToString(sha1[1]) + @"\" +
-                         VarFix.ToString(sha1[2]) + @"\" +
-                         VarFix.ToString(sha1[3]) + @"\" +
-                         VarFix.ToString(sha1) + ".gz";
-                exists = true;
-            }
-
-            if (!exists)
-            {
-                path = @"RomRoot\" + VarFix.ToString(sha1[0]) + @"\" +
-                         VarFix.ToString(sha1[1]) + @"\" +
-                         VarFix.ToString(sha1[2]) + @"\" +
-                         VarFix.ToString(sha1[3]) + @"\" +
-                         VarFix.ToString(sha1) + ".gz";
-            }
-
-            return path;
         }
     }
 }

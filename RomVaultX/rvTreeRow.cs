@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.Drawing;
-using RomVaultX.DB;
 
 namespace RomVaultX
 {
     public class RvTreeRow
     {
+        private static SQLiteCommand CommandReadTree;
+
+
+        private static SQLiteCommand _commandGetFirstExpanded;
         public uint DirId;
         public string dirName;
         public string dirFullName;
@@ -30,8 +33,6 @@ namespace RomVaultX
         public Rectangle RExpand;
         public Rectangle RIcon;
         public Rectangle RText;
-
-        private static SQLiteCommand CommandReadTree;
 
         public static List<RvTreeRow> ReadTreeFromDB()
         {
@@ -79,7 +80,7 @@ namespace RomVaultX
                         description = dr["description"] == DBNull.Value ? null : dr["description"].ToString(),
                         RomTotal = dr["RomTotal"] == DBNull.Value ? Convert.ToInt32(dr["dirRomTotal"]) : Convert.ToInt32(dr["RomTotal"]),
                         RomGot = dr["RomGot"] == DBNull.Value ? Convert.ToInt32(dr["dirRomGot"]) : Convert.ToInt32(dr["RomGot"]),
-                        RomNoDump = dr["RomNoDump"] == DBNull.Value ? Convert.ToInt32(dr["dirNoDump"]) : Convert.ToInt32(dr["RomNoDump"]),
+                        RomNoDump = dr["RomNoDump"] == DBNull.Value ? Convert.ToInt32(dr["dirNoDump"]) : Convert.ToInt32(dr["RomNoDump"])
                     };
 
                     if (!string.IsNullOrEmpty(skipUntil))
@@ -107,7 +108,7 @@ namespace RomVaultX
                     if (lastTree != null)
                     {
                         // if multiple DAT's are in the same directory then we should add another level in the tree to display the directory
-                        bool thisMultiDatDirFound = (lastTree.DirId == pTree.DirId);
+                        bool thisMultiDatDirFound = lastTree.DirId == pTree.DirId;
                         if (thisMultiDatDirFound && !multiDatDirFound)
                         {
                             // found a new multidat
@@ -133,6 +134,7 @@ namespace RomVaultX
 
                         multiDatDirFound = thisMultiDatDirFound;
                     }
+
 
                     lastTree = pTree;
                 }
@@ -160,25 +162,24 @@ namespace RomVaultX
             }
         }
 
-        private static SQLiteCommand _commandGetFirstExpanded;
-
         private static int? GetFirstExpanded(uint DirId)
         {
             if (_commandGetFirstExpanded == null)
             {
                 _commandGetFirstExpanded = new SQLiteCommand(@"
-                    SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1", Program.db.Connection);
+                SELECT expanded FROM dir WHERE ParentDirId=@DirId ORDER BY fullname LIMIT 1", Program.db.Connection);
                 _commandGetFirstExpanded.Parameters.Add(new SQLiteParameter("DirId"));
             }
 
             _commandGetFirstExpanded.Parameters["DirId"].Value = DirId;
             object res = _commandGetFirstExpanded.ExecuteScalar();
-            if (res == null || res == DBNull.Value)
+            if ((res == null) || (res == DBNull.Value))
             {
                 return null;
             }
             return Convert.ToInt32(res);
         }
+
 
         private static void UpdateSelectedFromList(List<uint> todo, int value)
         {

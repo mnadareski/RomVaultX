@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SQLite;
-using System.Security.Cryptography;
 using System.Threading;
-
 using RomVaultX.DB;
 using RomVaultX.Util;
-
-using Alphaleonis.Win32.Filesystem;
-
-using Convert = System.Convert;
+using RVIO;
 
 namespace RomVaultX
 {
@@ -19,41 +14,37 @@ namespace RomVaultX
         private static int _datCount;
         private static int _datsProcessed;
         private static BackgroundWorker _bgw;
-        private static SHA1 _sha1;
         public static bool NoFilesInDb;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="filename"></param>
+        /*********************** dat DB Processing ************************/
+
+
+        private static SQLiteCommand _commandCountDaTs;
+        private static SQLiteCommand _commandClearfoundDirDATs;
+        private static SQLiteCommand CommandFindDat;
+        private static SQLiteCommand CommandSetDatFound;
+        private static SQLiteCommand _commandCleanupNotFoundDaTs;
+
         public static void ShowDat(string message, string filename)
         {
-            _bgw?.ReportProgress(0, new bgwShowEvent(filename, message));
+            _bgw?.ReportProgress(0, new bgwShowError(filename, message));
         }
 
-        /// <summary>
-        /// /
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="filename"></param>
         public static void SendAndShowDat(string message, string filename)
         {
-            _bgw?.ReportProgress(0, new bgwShowEvent(filename, message));
+            _bgw?.ReportProgress(0, new bgwShowError(filename, message));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         public static void UpdateDat(object sender, DoWorkEventArgs e)
         {
             try
             {
                 _bgw = sender as BackgroundWorker;
                 if (_bgw == null)
+                {
                     return;
+                }
 
                 Program.SyncCont = e.Argument as SynchronizationContext;
                 if (Program.SyncCont == null)
@@ -77,6 +68,15 @@ namespace RomVaultX
 
                 int dbDatCount = DatDBCount();
 
+                bool dropIndex = false;
+                //bool dropIndex = _datCount - dbDatCount > 10;
+
+                if (dropIndex)
+                {
+                    _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
+                    Program.db.DropIndex();
+                }
+
                 _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
                 _datsProcessed = 0;
 
@@ -85,11 +85,8 @@ namespace RomVaultX
                 ScanDirs(dirId, datRoot, "DatRoot");
                 Program.db.Commit();
 
-                if (AppSettings.ReadSetting("RemoveMissingDats").ToLowerInvariant() == "true")
-                {
-                    _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
-                    RemoveNotFoundDATs();
-                }
+                _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
+                RemoveNotFoundDATs();
 
                 _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
                 Program.db.MakeIndex(_bgw);
@@ -105,16 +102,12 @@ namespace RomVaultX
             {
                 ReportError.UnhandledExceptionHandler(exc);
 
+
                 _bgw = null;
                 Program.SyncCont = null;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="datRoot"></param>
-        /// <param name="subPath"></param>
         private static void DatCount(string datRoot, string subPath)
         {
             DirectoryInfo di = new DirectoryInfo(Path.Combine(datRoot, subPath));
@@ -132,12 +125,6 @@ namespace RomVaultX
             _datCount += fis.Length;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dirId"></param>
-        /// <param name="datRoot"></param>
-        /// <param name="subPath"></param>
         private static void ScanDirs(uint dirId, string datRoot, string subPath)
         {
             DirectoryInfo di = new DirectoryInfo(Path.Combine(datRoot, subPath));
@@ -158,16 +145,10 @@ namespace RomVaultX
             int datcount = fisDat.Length + fisXml.Length;
 
             ReadDat(fisDat, subPath, dirId, datcount > 1);
+
             ReadDat(fisXml, subPath, dirId, datcount > 1);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fis"></param>
-        /// <param name="subPath"></param>
-        /// <param name="dirId"></param>
-        /// <param name="extraDir"></param>
         private static void ReadDat(FileInfo[] fis, string subPath, uint dirId, bool extraDir)
         {
             foreach (FileInfo f in fis)
@@ -175,14 +156,7 @@ namespace RomVaultX
                 _datsProcessed++;
                 _bgw.ReportProgress(_datsProcessed);
 
-                string hash = string.Empty;
-                using (var fs = File.OpenRead(Path.Combine(subPath, f.Name)))
-                {
-                    _sha1 = SHA1.Create();
-                    hash = BitConverter.ToString(_sha1.ComputeHash(fs), 0).Replace("-", "");
-                }
-
-                uint? datId = FindDat(subPath, f.Name, f.LastWriteTimeUtc.Ticks, hash, extraDir);
+                uint? datId = FindDat(subPath, f.Name, f.LastWriteTime, extraDir);
                 if (datId != null)
                 {
                     SetDatFound((uint)datId);
@@ -191,12 +165,8 @@ namespace RomVaultX
 
                 _bgw.ReportProgress(0, new bgwText("Dat : " + subPath + @"\" + f.Name));
 
-                RvDat rvDat;
-                if (DatReader.DatReader.ReadDat(f.FullName, _bgw, out rvDat))
+                if (DatReader.DatReader.ReadDat(f.FullName, _bgw, out RvDat rvDat))
                 {
-                    if (rvDat == null)
-                        continue;
-
                     uint nextDirId = dirId;
                     if (extraDir)
                     {
@@ -207,15 +177,18 @@ namespace RomVaultX
                     rvDat.DirId = nextDirId;
                     rvDat.ExtraDir = extraDir;
                     rvDat.Path = subPath;
-                    rvDat.DatTimeStamp = f.LastWriteTime.Ticks;
-                    rvDat.SHA1 = hash;
+                    rvDat.DatTimeStamp = f.LastWriteTime;
+
 
                     DatSetRemoveUnneededDirs(rvDat);
                     DatSetCheckParentSets(rvDat);
                     DatSetRenameAndRemoveDups(rvDat);
 
+
                     if ((rvDat.MergeType ?? "").ToLower() == "full")
+                    {
                         DatSetMergeSets(rvDat);
+                    }
 
                     DatSetCheckCollect(rvDat);
 
@@ -233,10 +206,7 @@ namespace RomVaultX
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tDat"></param>
+
         private static void DatSetRemoveUnneededDirs(RvDat tDat)
         {
             if (tDat.Games == null)
@@ -279,10 +249,7 @@ namespace RomVaultX
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tDat"></param>
+
         private static void DatSetCheckParentSets(RvDat tDat)
         {
             if (tDat.Games == null)
@@ -308,6 +275,7 @@ namespace RomVaultX
                 {
                     // get a list of that ROM Sets parents.
                     RvGame mGame = tDat.Games[g];
+
 
                     List<RvGame> lstParentGames = new List<RvGame>();
                     FindParentSet(mGame, tDat, ref lstParentGames);
@@ -342,13 +310,13 @@ namespace RomVaultX
                             for (int r1 = 0; r1 < romofGame.Roms.Count; r1++)
                             {
                                 // don't search fixes for files marked as nodump
-                                if (mGame.Roms[r].Status == "nodump" || romofGame.Roms[r1].Status == "nodump")
+                                if ((mGame.Roms[r].Status == "nodump") || (romofGame.Roms[r1].Status == "nodump"))
                                 {
                                     continue;
                                 }
 
                                 // only find fixes if the Name and the Size of the ROMs are the same
-                                if (mGame.Roms[r].Name != romofGame.Roms[r1].Name || mGame.Roms[r].Size != romofGame.Roms[r1].Size)
+                                if ((mGame.Roms[r].Name != romofGame.Roms[r1].Name) || (mGame.Roms[r].Size != romofGame.Roms[r1].Size))
                                 {
                                     continue;
                                 }
@@ -389,26 +357,20 @@ namespace RomVaultX
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="searchGame"></param>
-        /// <param name="parentDir"></param>
-        /// <param name="lstParentGames"></param>
+
         private static void FindParentSet(RvGame searchGame, RvDat parentDir, ref List<RvGame> lstParentGames)
         {
             string parentName = searchGame.RomOf;
-            if (String.IsNullOrEmpty(parentName) || parentName == searchGame.Name)
+            if (string.IsNullOrEmpty(parentName) || (parentName == searchGame.Name))
             {
                 parentName = searchGame.CloneOf;
             }
-            if (String.IsNullOrEmpty(parentName) || parentName == searchGame.Name)
+            if (string.IsNullOrEmpty(parentName) || (parentName == searchGame.Name))
             {
                 return;
             }
 
-            int intIndex;
-            int intResult = parentDir.ChildNameSearch(parentName, out intIndex);
+            int intResult = parentDir.ChildNameSearch(parentName, out int intIndex);
             if (intResult == 0)
             {
                 RvGame parentGame = parentDir.Games[intIndex];
@@ -417,10 +379,7 @@ namespace RomVaultX
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tDat"></param>
+
         private static void DatSetRenameAndRemoveDups(RvDat tDat)
         {
             if (tDat.Games == null)
@@ -441,7 +400,7 @@ namespace RomVaultX
                         continue;
                     }
 
-                    if (f0.Size != f1.Size || ArrByte.iCompare(f0.CRC, f1.CRC) != 0)
+                    if ((f0.Size != f1.Size) || (ArrByte.iCompare(f0.CRC, f1.CRC) != 0))
                     {
                         tGame.Roms.RemoveAt(r + 1); // remove F1
                         f1.Name = f1.Name + "_" + ArrByte.ToString(f1.CRC); // rename F1;
@@ -461,10 +420,7 @@ namespace RomVaultX
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tDat"></param>
+
         private static void DatSetMergeSets(RvDat tDat)
         {
             for (int g = tDat.Games.Count - 1; g >= 0; g--)
@@ -473,7 +429,7 @@ namespace RomVaultX
 
                 List<RvGame> lstParentGames = new List<RvGame>();
                 FindParentSet(mGame, tDat, ref lstParentGames);
-                while (lstParentGames.Count > 0 && (lstParentGames[lstParentGames.Count - 1].IsBios ?? "").ToLower() == "yes")
+                while ((lstParentGames.Count > 0) && ((lstParentGames[lstParentGames.Count - 1].IsBios ?? "").ToLower() == "yes"))
                 {
                     lstParentGames.RemoveAt(lstParentGames.Count - 1);
                 }
@@ -494,12 +450,13 @@ namespace RomVaultX
                     for (int r1 = 0; r1 < romofGame.RomCount; r1++)
                     {
                         if (
-                            (name == romofGame.Roms[r1].Name.ToLower() || mergename == romofGame.Roms[r1].Name.ToLower())
+                            ((name == romofGame.Roms[r1].Name.ToLower()) || (mergename == romofGame.Roms[r1].Name.ToLower()))
                             &&
-                            (ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) != 0 || (mGame.Roms[r].Size != romofGame.Roms[r1].Size))
-                           )
+                            ((ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) != 0) || (mGame.Roms[r].Size != romofGame.Roms[r1].Size))
+                        )
+                        {
                             founderror = true;
-
+                        }
                     }
                 }
                 if (founderror)
@@ -517,10 +474,10 @@ namespace RomVaultX
                     for (int r1 = 0; r1 < romofGame.RomCount; r1++)
                     {
                         if (
-                            (name == romofGame.Roms[r1].Name.ToLower() || mergename == romofGame.Roms[r1].Name.ToLower())
+                            ((name == romofGame.Roms[r1].Name.ToLower()) || (mergename == romofGame.Roms[r1].Name.ToLower()))
                             &&
-                            ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) == 0 && mGame.Roms[r].Size == romofGame.Roms[r1].Size
-                            )
+                            (ArrByte.iCompare(mGame.Roms[r].CRC, romofGame.Roms[r1].CRC) == 0) && (mGame.Roms[r].Size == romofGame.Roms[r1].Size)
+                        )
                         {
                             found = true;
                             break;
@@ -535,10 +492,7 @@ namespace RomVaultX
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tDat"></param>
+
         private static void DatSetCheckCollect(RvDat tDat)
         {
             if (tDat.Games == null)
@@ -555,7 +509,7 @@ namespace RomVaultX
                 List<RvGame> lstParentGames = new List<RvGame>();
                 FindParentSet(mGame, tDat, ref lstParentGames);
 
-                if (lstParentGames.Count == 0 || mGame.IsBios?.ToLower() == "yes")
+                if ((lstParentGames.Count == 0) || (mGame.IsBios?.ToLower() == "yes"))
                 {
                     for (int r = 0; r < mGame.RomCount; r++)
                     {
@@ -578,34 +532,34 @@ namespace RomVaultX
 
                                 ulong? Size0 = mGame.Roms[r].Size;
                                 ulong? Size1 = romofGame.Roms[r1].Size;
-                                if (Size0 != null && Size1 != null && Size0 != Size1)
+                                if ((Size0 != null) && (Size1 != null) && (Size0 != Size1))
                                 {
                                     continue;
                                 }
 
                                 byte[] CRC0 = mGame.Roms[r].CRC;
                                 byte[] CRC1 = romofGame.Roms[r1].CRC;
-                                if (CRC0 != null && CRC1 != null && !ArrByte.bCompare(CRC0, CRC1))
+                                if ((CRC0 != null) && (CRC1 != null) && !ArrByte.bCompare(CRC0, CRC1))
                                 {
                                     continue;
                                 }
 
-                                byte[] SHA0 = mGame.Roms[r].SHA1CHD ?? mGame.Roms[r].SHA1;
-                                byte[] SHA1 = romofGame.Roms[r1].SHA1CHD ?? romofGame.Roms[r1].SHA1;
-                                if (SHA0 != null && SHA1 != null && !ArrByte.bCompare(SHA0, SHA1))
+                                byte[] SHA0 = mGame.Roms[r].SHA1;
+                                byte[] SHA1 = romofGame.Roms[r1].SHA1;
+                                if ((SHA0 != null) && (SHA1 != null) && !ArrByte.bCompare(SHA0, SHA1))
                                 {
                                     continue;
                                 }
 
-                                byte[] MD50 = mGame.Roms[r].MD5CHD ?? mGame.Roms[r].MD5;
-                                byte[] MD51 = romofGame.Roms[r1].MD5CHD ?? romofGame.Roms[r1].MD5;
-                                if (MD50 != null && MD51 != null && !ArrByte.bCompare(MD50, MD51))
+                                byte[] MD50 = mGame.Roms[r].MD5;
+                                byte[] MD51 = romofGame.Roms[r1].MD5;
+                                if ((MD50 != null) && (MD51 != null) && !ArrByte.bCompare(MD50, MD51))
                                 {
                                     continue;
                                 }
 
                                 // don't merge if only one of the ROM is nodump
-                                if ((romofGame.Roms[r1].Status == "nodump") != (mGame.Roms[r].Status == "nodump"))
+                                if (romofGame.Roms[r1].Status == "nodump" != (mGame.Roms[r].Status == "nodump"))
                                 {
                                     continue;
                                 }
@@ -613,7 +567,10 @@ namespace RomVaultX
                                 found = true;
                                 break;
                             }
-                            if (found) break;
+                            if (found)
+                            {
+                                break;
+                            }
                         }
                         RomCheckCollect(mGame.Roms[r], found);
                     }
@@ -621,11 +578,7 @@ namespace RomVaultX
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tRom"></param>
-        /// <param name="merge"></param>
+
         private static void RomCheckCollect(RvRom tRom, bool merge)
         {
             if (merge)
@@ -644,27 +597,18 @@ namespace RomVaultX
                 tRom.Merge = "(No-Merge) " + tRom.Merge;
             }
 
-            if (ArrByte.bCompare(tRom.CRC, new byte[] { 0, 0, 0, 0 }) && tRom.Size == 0)
+
+            if (ArrByte.bCompare(tRom.CRC, new byte[] { 0, 0, 0, 0 }) && (tRom.Size == 0))
             {
                 tRom.PutInZip = true;
                 return;
             }
 
+
             tRom.PutInZip = true;
         }
 
-        /*********************** dat DB Processing ************************/
 
-        private static SQLiteCommand _commandCountDaTs;
-        private static SQLiteCommand _commandClearfoundDirDATs;
-        private static SQLiteCommand CommandFindDat;
-        private static SQLiteCommand CommandSetDatFound;
-        private static SQLiteCommand _commandCleanupNotFoundDats;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         private static int DatDBCount()
         {
             if (_commandCountDaTs == null)
@@ -673,16 +617,14 @@ namespace RomVaultX
             }
 
             object res = _commandCountDaTs.ExecuteScalar();
-            if (res != null && res != DBNull.Value)
+            if ((res != null) && (res != DBNull.Value))
             {
-                return Convert.ToInt32(res);
+                return System.Convert.ToInt32(res);
             }
             return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         private static void ClearFoundDATs()
         {
             if (_commandClearfoundDirDATs == null)
@@ -696,47 +638,34 @@ namespace RomVaultX
             _commandClearfoundDirDATs.ExecuteNonQuery();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fulldir"></param>
-        /// <param name="filename"></param>
-        /// <param name="DatTimeStamp"></param>
-        /// <param name="hash"></param>
-        /// <param name="ExtraDir"></param>
-        /// <returns></returns>
-        private static uint? FindDat(string fulldir, string filename, long DatTimeStamp, string hash, bool ExtraDir)
+
+        private static uint? FindDat(string fulldir, string filename, long DatTimeStamp, bool ExtraDir)
         {
             if (CommandFindDat == null)
             {
                 CommandFindDat = new SQLiteCommand(@"
-                            SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND ExtraDir=@ExtraDir
+                            SELECT DatId FROM Dat WHERE path=@path AND Filename=@filename AND DatTimeStamp=@DatTimeStamp AND ExtraDir=@ExtraDir
                     ", Program.db.Connection);
                 CommandFindDat.Parameters.Add(new SQLiteParameter("path"));
                 CommandFindDat.Parameters.Add(new SQLiteParameter("filename"));
                 CommandFindDat.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
-                //CommandFindDat.Parameters.Add(new SQLiteParameter("hash"));
                 CommandFindDat.Parameters.Add(new SQLiteParameter("ExtraDir"));
             }
 
             CommandFindDat.Parameters["path"].Value = fulldir;
             CommandFindDat.Parameters["filename"].Value = filename;
             CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
-            //CommandFindDat.Parameters["hash"].Value = hash;
             CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
 
             object res = CommandFindDat.ExecuteScalar();
 
-            if (res == null || res == DBNull.Value)
+            if ((res == null) || (res == DBNull.Value))
+            {
                 return null;
-
-            return Convert.ToUInt32(res);
+            }
+            return System.Convert.ToUInt32(res);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="datId"></param>
         private static void SetDatFound(uint datId)
         {
             if (CommandSetDatFound == null)
@@ -752,14 +681,12 @@ namespace RomVaultX
             CommandSetDatFound.ExecuteNonQuery();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         private static void RemoveNotFoundDATs()
         {
-            if (_commandCleanupNotFoundDats == null)
+            if (_commandCleanupNotFoundDaTs == null)
             {
-                _commandCleanupNotFoundDats = new SQLiteCommand(@"
+                _commandCleanupNotFoundDaTs = new SQLiteCommand(@"
                     delete from rom where rom.GameId in
                     (
                         select gameid from game where game.datid in
@@ -779,12 +706,9 @@ namespace RomVaultX
                 ", Program.db.Connection);
             }
 
-            _commandCleanupNotFoundDats.ExecuteNonQuery();
+            _commandCleanupNotFoundDaTs.ExecuteNonQuery();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public static void UpdateGotTotal()
         {
             Program.db.ExecuteNonQuery(@"
@@ -816,8 +740,7 @@ namespace RomVaultX
                 sqlUpdateCounts.ExecuteNonQuery();
 
                 object res = sqlNullCount.ExecuteScalar();
-                nullcount = Convert.ToInt32(res);
-
+                nullcount = System.Convert.ToInt32(res);
             } while (nullcount > 0);
             sqlNullCount.Dispose();
         }

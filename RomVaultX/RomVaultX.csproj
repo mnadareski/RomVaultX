@@ -108,7 +108,82 @@
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
     <Compile Include="BackGroundWorkerInterface.cs" />
-    <Compile Include="Util\ConsoleManager.cs" />
+    <Compile Include="Compress\CHD\CHD.cs" />
+    <Compile Include="Compress\File\File.cs" />
+    <Compile Include="Compress\gZip\gZip.cs" />
+    <Compile Include="Compress\ICompress.cs" />
+    <Compile Include="Compress\SevenZip\Common\ICoder.cs" />
+    <Compile Include="Compress\SevenZip\Compress\BZip2\BZip2Constants.cs" />
+    <Compile Include="Compress\SevenZip\Compress\BZip2\CBZip2InputStream.cs" />
+    <Compile Include="Compress\SevenZip\Compress\BZip2\CBZip2OutputStream.cs" />
+    <Compile Include="Compress\SevenZip\Compress\BZip2\CRC.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZ\LzBinTree.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZ\LzInWindow.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZ\LzOutWindow.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZMA\LzmaBase.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZMA\LzmaDecoder.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZMA\LzmaEncoder.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZMA\LzmaEncoderProperties.cs" />
+    <Compile Include="Compress\SevenZip\Compress\LZMA\LzmaStream.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\FreqData.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\ModelPPM.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\Pointer.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\PPMContext.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\RangeCoder.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\RarMemBlock.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\RarNode.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\SEE2Context.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\State.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\StateRef.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\H\SubAllocator.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\Allocator.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\Coder.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\MemoryNode.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\Model.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\ModelRestorationMethod.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\Pointer.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\PpmContext.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\PpmState.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\I1\See2Context.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\PpmdProperties.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\PpmdStream.cs" />
+    <Compile Include="Compress\SevenZip\Compress\PPmd\Utility.cs" />
+    <Compile Include="Compress\SevenZip\Compress\RangeCoder\RangeCoder.cs" />
+    <Compile Include="Compress\SevenZip\Compress\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="Compress\SevenZip\Compress\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="Compress\SevenZip\Filters\BCJ2Filter.cs" />
+    <Compile Include="Compress\SevenZip\Filters\BCJFilter.cs" />
+    <Compile Include="Compress\SevenZip\Filters\Delta.cs" />
+    <Compile Include="Compress\SevenZip\Filters\Filter.cs" />
+    <Compile Include="Compress\SevenZip\Structure\BindPair.cs" />
+    <Compile Include="Compress\SevenZip\Structure\Coder.cs" />
+    <Compile Include="Compress\SevenZip\Structure\FileInfo.cs" />
+    <Compile Include="Compress\SevenZip\Structure\Folder.cs" />
+    <Compile Include="Compress\SevenZip\Structure\Header.cs" />
+    <Compile Include="Compress\SevenZip\Structure\PackedStreamInfo.cs" />
+    <Compile Include="Compress\SevenZip\Structure\SignatureHeader.cs" />
+    <Compile Include="Compress\SevenZip\Structure\StreamsInfo.cs" />
+    <Compile Include="Compress\SevenZip\Structure\UnpackedStreamInfo.cs" />
+    <Compile Include="Compress\SevenZip\SevenZip.cs" />
+    <Compile Include="Compress\SevenZip\Util.cs" />
+    <Compile Include="Compress\ThreadReaders\ThreadCRC.cs" />
+    <Compile Include="Compress\ThreadReaders\ThreadLoadBuffer.cs" />
+    <Compile Include="Compress\ThreadReaders\ThreadMD5.cs" />
+    <Compile Include="Compress\ThreadReaders\ThreadSHA1.cs" />
+    <Compile Include="Compress\Utils\CRC.cs" />
+    <Compile Include="Compress\Utils\CRCStream.cs" />
+    <Compile Include="Compress\Utils\DirUtil.cs" />
+    <Compile Include="Compress\Utils\Reporter.cs" />
+    <Compile Include="Compress\ZipEnums.cs" />
+    <Compile Include="Compress\ZipFile\zipFile.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\Deflate.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\Inflate.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\InfTree.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\Tree.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\Zlib.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\ZlibBaseStream.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\ZlibCodec.cs" />
+    <Compile Include="Compress\ZipFile\ZLib\ZlibConstants.cs" />
     <Compile Include="DatReader\DatDOSReader.cs" />
     <Compile Include="DatReader\DatMessXmlReader.cs" />
     <Compile Include="DatReader\DatCmpReader.cs" />
@@ -120,9 +195,13 @@
     <Compile Include="DB\rvDat.cs" />
     <Compile Include="DB\rvDir.cs" />
     <Compile Include="DB\rvFile.cs" />
+    <Compile Include="DB\rvGame.cs" />
     <Compile Include="DB\rvGameGridRow.cs" />
     <Compile Include="DB\rvRom.cs" />
-    <Compile Include="FileHeaderReader.cs" />
+    <Compile Include="ExtractFiles.cs" />
+    <Compile Include="FileHeaderReader\FileHeaders.cs" />
+    <Compile Include="FileScan.cs" />
+    <Compile Include="FixDatList.cs" />
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -143,8 +222,18 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
     <Compile Include="ReportError.cs" />
-    <Compile Include="DB\rvGame.cs" />
+    <Compile Include="RomRootDir.cs" />
     <Compile Include="romRootScanner.cs" />
     <Compile Include="romScanner.cs" />
     <Compile Include="rvImages.cs" />
@@ -153,6 +242,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>rvImages1.resx</DependentUpon>
     </Compile>
+    <Compile Include="RVIO\RVIO.cs" />
+    <Compile Include="RVIO\Win32Native.cs" />
     <Compile Include="rvRomFileMatchup.cs" />
     <Compile Include="rvTree.cs">
       <SubType>UserControl</SubType>
@@ -161,30 +252,11 @@
       <DependentUpon>rvTree.cs</DependentUpon>
     </Compile>
     <Compile Include="rvTreeRow.cs" />
-    <Compile Include="SupportedFiles\CHD\CHD.cs" />
-    <Compile Include="SupportedFiles\Files\ThreadCRC.cs" />
-    <Compile Include="SupportedFiles\Files\ThreadLoadBuffer.cs" />
-    <Compile Include="SupportedFiles\Files\ThreadMD5.cs" />
-    <Compile Include="SupportedFiles\Files\ThreadSHA1.cs" />
     <Compile Include="SupportedFiles\Files\UnCompFiles.cs" />
     <Compile Include="SupportedFiles\GZ\GZip.cs" />
-    <Compile Include="SupportedFiles\SevenZip\**\*.cs" />
-    <Compile Include="SupportedFiles\ZipEnums.cs" />
-    <Compile Include="SupportedFiles\Zip\zipFile.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\Crc32.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\Deflate.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\DeflateStream.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\GZipStream.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\Inflate.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\InfTree.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\Tree.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\Zlib.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\ZlibBaseStream.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\ZlibCodec.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\ZlibConstants.cs" />
-    <Compile Include="SupportedFiles\Zip\ZLib\ZlibStream.cs" />
     <Compile Include="UpdateZipDB.cs" />
     <Compile Include="Util\ArrByte.cs" />
+    <Compile Include="Util\ConsoleManager.cs" />
     <Compile Include="Util\VarFix.cs" />
     <Compile Include="VDrive.cs" />
     <Compile Include="VFile.cs" />
@@ -194,26 +266,25 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmProgressWindow.resx">
       <DependentUpon>frmProgressWindow.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="frmShowError.resx">
       <DependentUpon>frmShowError.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="rvImages1.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
       <LastGenOutput>rvImages1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="rvTree.resx">
       <DependentUpon>rvTree.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
@@ -221,11 +292,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="chdman.exe">

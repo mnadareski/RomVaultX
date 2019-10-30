@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
-
+using System.Linq;
+using DokanNet;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
-
-using DokanNet;
 
 namespace RomVaultX
 {
@@ -14,223 +14,212 @@ namespace RomVaultX
     {
         public string FileName;
         public long Length;
-        public int FileId;
+        private int _fileId;
         public bool IsDirectory;
-        private DateTime CreationTime;
-        private DateTime LastAccessTime;
-        private DateTime LastWriteTime;
+        private int _fileSplitIndex = -1;
+        private DateTime _creationTime;
+        private DateTime _lastAccessTime;
+        private DateTime _lastWriteTime;
 
-        public IList<VZipFile> Files;
-
-        public class VZipFile
-        {
-            public long LocalHeaderOffset;
-            public long LocalHeaderLength;
-            public byte[] LocalHeader;
-
-            public byte[] GZipSHA1;
-            public long CompressedDataOffset;
-            public long CompressedDataLength;
-
-            public GZip GZip;
-        }
+        public List<VZipFile> Files;
 
         public static explicit operator FileInformation(VFile v)
         {
             FileInformation fi = new FileInformation
             {
-                FileName = v.FileName + (v.IsDirectory || v.FileName.EndsWith(".zip") ? "" : ".zip"),
+                FileName = v.FileName,
                 Length = v.Length,
-                Attributes = v.IsDirectory ? FileAttributes.Directory | FileAttributes.ReadOnly : FileAttributes.ReadOnly,
-                CreationTime = v.CreationTime,
-                LastAccessTime = v.LastAccessTime,
-                LastWriteTime = v.LastWriteTime
+                Attributes = v.IsDirectory ? FileAttributes.Directory | FileAttributes.ReadOnly : FileAttributes.Normal | FileAttributes.ReadOnly,
+                CreationTime = v._creationTime,
+                LastAccessTime = v._lastAccessTime,
+                LastWriteTime = v._lastWriteTime
             };
             return fi;
         }
 
+        /*
         private static string path = @"D:\tmp";
-        private static string GetPath(string fileName)
+        private static string GetPath(string searchFilename)
         {
-            return path + fileName;
+            return path + searchFilename;
         }
+        */
 
-        public static VFile DirInfo(string dirFullname)
+        /*
+        Dokan Filename format:
+        \DatRoot
+        \DatRoot\Rom
+        \DatRoot\Rom\file.zip
+
+        DB DIR -> fullname
+        DatRoot\
+        DatRoot\Rom\
+
+        */
+
+        // using the supplied filename, try and find and return the information (vFile) about this testFilename
+        // this may be a file or a directory, so we need to also figure that out.
+        public static VFile FindFilename(string filename)
         {
-            if (dirFullname == "\\")
+            Debug.WriteLine("Trying to find information about  " + filename);
+
+            // 1) test for the root direction
+            VFile retVal = FindRoot(filename);
+            if (retVal != null)
             {
-                VFile vfile = new VFile
-                {
-                    FileName = dirFullname,
-                    IsDirectory = true,
-                    FileId = 0,
-                    CreationTime = DateTime.Today,
-                    LastWriteTime = DateTime.Today,
-                    LastAccessTime = DateTime.Today
-                };
-                return vfile;
+                return retVal;
             }
 
-            string testName = dirFullname.Substring(1) + @"\";
-            using (DbCommand getDirectoryId = Program.db.Command(@"select DirId,CreationTime,LastAccessTime,LastWriteTime From DIR where fullname=@FName"))
+            // 2) test for a regular DB Directory
+            retVal = FindInDBDir(filename);
+            if (retVal != null)
+            {
+                return retVal;
+            }
+
+            // 3) test for a Dat Entry
+            retVal = FindInDBDat(filename);
+            if (retVal != null)
+            {
+                return retVal;
+            }
+
+            // Failed to file this filename
+            return null;
+        }
+
+        private static VFile FindRoot(string filename)
+        {
+            if (filename != @"\")
+            {
+                return null;
+            }
+
+            VFile vfile = new VFile
+            {
+                FileName = filename,
+                IsDirectory = true,
+                _fileId = 0,
+                _creationTime = DateTime.Today,
+                _lastWriteTime = DateTime.Today,
+                _lastAccessTime = DateTime.Today
+            };
+            return vfile;
+        }
+
+
+        private static VFile FindInDBDir(string filename)
+        {
+            // try and find this directory in the DIR table
+            string testName = filename.Substring(1) + @"\"; // takes the slash of the front of the string and add one on the end
+            Debug.WriteLine("Looking in DIR from  " + testName);
+            using (DbCommand getDirectoryId = Program.db.Command(@"
+                                    SELECT 
+                                        DirId,
+                                        CreationTime,
+                                        LastAccessTime,
+                                        LastWriteTime
+                                    FROM
+                                        Dir 
+                                    WHERE 
+                                        fullname=@FName"))
             {
                 DbParameter pFName = Program.db.Parameter("FName", testName);
                 getDirectoryId.Parameters.Add(pFName);
 
                 using (DbDataReader reader = getDirectoryId.ExecuteReader())
                 {
-                    while (reader.Read())
+                    if (!reader.Read())
                     {
-                        VFile vDir = new VFile
-                        {
-                            FileName = dirFullname,
-                            IsDirectory = true,
-                            FileId = Convert.ToInt32(reader["DirId"]),
-                            CreationTime = new DateTime(Convert.ToInt64(reader["CreationTime"])),
-                            LastAccessTime = new DateTime(Convert.ToInt64(reader["LastAccessTime"])),
-                            LastWriteTime = new DateTime(Convert.ToInt64(reader["LastWriteTime"]))
-                        };
-                        return vDir;
+                        return null;
                     }
+                    VFile vDir = new VFile
+                    {
+                        FileName = filename,
+                        IsDirectory = true,
+                        _fileId = Convert.ToInt32(reader["DirId"]),
+                        _creationTime = new DateTime(Convert.ToInt64(reader["CreationTime"])),
+                        _lastAccessTime = new DateTime(Convert.ToInt64(reader["LastAccessTime"])),
+                        _lastWriteTime = new DateTime(Convert.ToInt64(reader["LastWriteTime"]))
+                    };
+                    return vDir;
                 }
             }
-
-            Alphaleonis.Win32.Filesystem.DirectoryInfo di = new Alphaleonis.Win32.Filesystem.DirectoryInfo(GetPath(dirFullname));
-            if (di.Exists)
-            {
-                VFile vDir = new VFile
-                {
-                    FileName = dirFullname,
-                    IsDirectory = true,
-                    FileId = -1,
-                    CreationTime = di.CreationTime,
-                    LastWriteTime = di.LastWriteTime,
-                    LastAccessTime = di.LastAccessTime
-                };
-                return vDir;
-            }
-
-            return null;
         }
 
-        public static VFile CreateDir(string dirFullname)
+        private static VFile FindInDBDat(string filename)
         {
-            Alphaleonis.Win32.Filesystem.DirectoryInfo di = Alphaleonis.Win32.Filesystem.Directory.CreateDirectory(GetPath(dirFullname));
-            if (di.Exists)
-            {
-                VFile vDir = new VFile
-                {
-                    FileName = dirFullname,
-                    IsDirectory = true,
-                    FileId = -1,
-                    CreationTime = di.CreationTime,
-                    LastWriteTime = di.LastWriteTime,
-                    LastAccessTime = di.LastAccessTime
-                };
-                return vDir;
-            }
-            return null;
-        }
+            int filenameLength = filename.Length;
+            // we only search in the DB for .zip files so test for that extension
+            bool isFile = (filenameLength > 4) && (filename.Substring(filenameLength - 4).ToLower() == ".zip");
 
-        public static List<VFile> DirGetSubDirs(int dirId)
-        {
-            List<VFile> dirs = new List<VFile>();
-            using (DbCommand getDirectory = Program.db.Command(@"select DirId,name,CreationTime,LastAccessTime,LastWriteTime From DIR where ParentDirId=@ParentId"))
+            string testFilename = filename;
+            if (isFile)
             {
-                DbParameter pParentDirId = Program.db.Parameter("ParentId", dirId);
-                getDirectory.Parameters.Add(pParentDirId);
-                using (DbDataReader dr = getDirectory.ExecuteReader())
+                // if is File remove the .zip file extension
+                testFilename = testFilename.Substring(0, filenameLength - 4);
+            }
+
+            string dirName = testFilename;
+            while (true)
+            {
+                int slashPos = dirName.LastIndexOf(@"\", StringComparison.Ordinal);
+                if (slashPos <= 0)
                 {
-                    while (dr.Read())
+                    return null;
+                }
+                dirName = testFilename.Substring(0, slashPos);
+                int? dirId = DirFind(dirName);
+                if (dirId == null)
+                {
+                    continue; // loop to next slash
+                }
+
+                string filePart = testFilename.Substring(slashPos + 1);
+                if (isFile)
+                {
+                    VFile vFile = DBGameFindFile((int)dirId, filePart, filename);
+                    if (vFile != null)
                     {
-                        dirs.Add(
-                            new VFile
-                            {
-                                IsDirectory = true,
-                                FileId = Convert.ToInt32(dr["DirId"]),
-                                FileName = (string)dr["name"],
-                                CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
-                                LastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
-                                LastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
-                            }
-                            );
+                        vFile._fileSplitIndex = slashPos;
+                        return vFile;
                     }
                 }
-            }
-            return dirs;
-        }
-
-        public static List<VFile> DirGetFiles(int dirId)
-        {
-            List<VFile> files = new List<VFile>();
-            using (DbCommand getFilesInDirectory = Program.db.Command(@"select game.gameId, game.name,ZipFileLength,LastWriteTime,CreationTime,LastAccessTime from Dat,game where dat.DatId=game.datId and ZipFileLength>0 and dirId=@dirId"))
-            {
-                DbParameter pDirId = Program.db.Parameter("DirId", dirId);
-                getFilesInDirectory.Parameters.Add(pDirId);
-                using (DbDataReader dr = getFilesInDirectory.ExecuteReader())
+                else
                 {
-                    while (dr.Read())
+                    VFile vFile = DBGameFindDir((int)dirId, filePart, filename);
+                    if (vFile != null)
                     {
-                        // Here, we want to do a check if the name contains AltDirSepChar
-                        // This means the file is from a SuperDAT
-                        // Try to add a directory at each level down until the last one
-                        // Then add the file to that last dir
-                        // Only problem is how that would be opened since it wouldn't be a valid dirid
-
-                        files.Add(
-                            new VFile
-                            {
-                                IsDirectory = false,
-                                FileId = Convert.ToInt32(dr["GameId"]),
-                                FileName = ((string)dr["name"]).Replace(Path.AltDirectorySeparatorChar, '¬'),
-                                Length = Convert.ToInt64(dr["ZipFileLength"]),
-                                CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
-                                LastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
-                                LastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
-                            }
-                            );
+                        vFile._fileSplitIndex = slashPos;
+                        return vFile;
                     }
                 }
+                return null;
             }
-            return files;
         }
 
-        public static VFile GetFile(string filename)
-        {
-            string dirPart = Alphaleonis.Win32.Filesystem.Path.GetDirectoryName(filename);
-            string filePart = Alphaleonis.Win32.Filesystem.Path.GetFileNameWithoutExtension(filename);
 
-            int? dirId = DirFind(dirPart);
-            if (dirId == null)
+        private static int? DirFind(string dirName)
+        {
+            if (string.IsNullOrEmpty(dirName))
             {
                 return null;
             }
 
-            VFile retFile = DirGetFile((int)dirId, filePart);
-            if (retFile != null)
-            {
-                retFile.FileName = filename;
-            }
-
-            return retFile;
-
-        }
-
-        private static int? DirFind(string dirPart)
-        {
-            if (string.IsNullOrEmpty(dirPart))
-            {
-                return 0;
-            }
-
-            string testName = dirPart.Substring(1) + @"\";
-            using (DbCommand getDirectoryId = Program.db.Command(@"select DirId From DIR where fullname=@FName"))
+            string testName = dirName.Substring(1) + @"\";
+            using (DbCommand getDirectoryId = Program.db.Command(@"
+                    SELECT 
+                        DirId 
+                    FROM
+                        Dir 
+                    WHERE 
+                        Fullname=@FName"))
             {
                 DbParameter pFName = Program.db.Parameter("FName", testName);
                 getDirectoryId.Parameters.Add(pFName);
 
                 object ret = getDirectoryId.ExecuteScalar();
-                if (ret == null || ret == DBNull.Value)
+                if ((ret == null) || (ret == DBNull.Value))
                 {
                     return null;
                 }
@@ -238,50 +227,348 @@ namespace RomVaultX
             }
         }
 
-        private static VFile DirGetFile(int dirId, string filePart)
+        private static VFile DBGameFindFile(int dirId, string searchFilename, string realFilename)
         {
-            using (DbCommand getFileInDirectory = Program.db.Command(@"select game.gameId, ZipFileLength,LastWriteTime,CreationTime,LastAccessTime from Dat, game where dat.DatId = game.datId and ZipFileLength > 0 and dirid = @dirId and game.name = @name"))
+            using (DbCommand getFileInDirectory = Program.db.Command(@"
+                            SELECT 
+                                GameId, 
+                                ZipFileLength,
+                                LastWriteTime,
+                                CreationTime,
+                                LastAccessTime 
+                            FROM
+                                Game 
+                            WHERE 
+                                Dirid = @dirId AND
+                                ZipFileLength > 0 AND
+                                name = @name
+                                "))
             {
                 DbParameter pDirId = Program.db.Parameter("DirId", dirId);
                 getFileInDirectory.Parameters.Add(pDirId);
-                DbParameter pName = Program.db.Parameter("Name", filePart.Replace('¬', Path.AltDirectorySeparatorChar));
+                DbParameter pName = Program.db.Parameter("Name", searchFilename.Replace(@"\", @"/"));
                 getFileInDirectory.Parameters.Add(pName);
                 using (DbDataReader dr = getFileInDirectory.ExecuteReader())
                 {
-                    while (dr.Read())
+                    if (!dr.Read())
                     {
-                        VFile vFile = new VFile
+                        return null;
+                    }
+                    VFile vFile = new VFile
+                    {
+                        IsDirectory = false,
+                        _fileId = Convert.ToInt32(dr["GameId"]),
+                        FileName = realFilename,
+                        Length = Convert.ToInt64(dr["ZipFileLength"]),
+                        _lastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"])),
+                        _creationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
+                        _lastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"]))
+                    };
+                    return vFile;
+                }
+            }
+        }
+
+        private static VFile DBGameFindDir(int dirId, string searchDirectoryName, string realFilename)
+        {
+            using (DbCommand getFileInDirectory = Program.db.Command(@"
+                            SELECT 
+                                GameId, 
+                                ZipFileLength,
+                                LastWriteTime,
+                                CreationTime,
+                                LastAccessTime 
+                            FROM
+                                Game 
+                            WHERE 
+                                Dirid = @dirId AND
+                                ZipFileLength > 0 AND 
+                                name Like @name
+                            LIMIT 1"))
+            {
+                DbParameter pDirId = Program.db.Parameter("DirId", dirId);
+                getFileInDirectory.Parameters.Add(pDirId);
+                DbParameter pName = Program.db.Parameter("Name", searchDirectoryName.Replace(@"\", @"/") + @"/%");
+                getFileInDirectory.Parameters.Add(pName);
+                using (DbDataReader dr = getFileInDirectory.ExecuteReader())
+                {
+                    if (!dr.Read())
+                    {
+                        return null;
+                    }
+                    VFile vFile = new VFile
+                    {
+                        IsDirectory = true,
+                        _fileId = dirId, // we are storing the id of the DIR not the GameId (So we can use the dirId later)
+                        FileName = realFilename,
+                        Length = Convert.ToInt64(dr["ZipFileLength"]),
+                        _lastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"])),
+                        _creationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
+                        _lastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"]))
+                    };
+                    return vFile;
+                }
+            }
+        }
+
+        public static List<VFile> DirGetSubItems(VFile vDir)
+        {
+            int dirId = vDir._fileId;
+            List<VFile> dirs = new List<VFile>();
+
+            if (!vDir.IsDirectory)
+            {
+                return dirs;
+            }
+
+            if (vDir._fileSplitIndex == -1)
+            {
+                // we are not inside a DAT directory structure
+
+                // find any child DIR's from this DIR level
+                using (DbCommand getDirectory = Program.db.Command(@"
+                    SELECT 
+                        DirId,
+                        Name,
+                        CreationTime,
+                        LastAccessTime,
+                        LastWriteTime 
+                    FROM
+                        Dir
+                    WHERE 
+                        ParentDirId=@DirId"))
+                {
+                    DbParameter pParentDirId = Program.db.Parameter("DirId", dirId);
+                    getDirectory.Parameters.Add(pParentDirId);
+                    using (DbDataReader dr = getDirectory.ExecuteReader())
+                    {
+                        while (dr.Read())
                         {
-                            IsDirectory = false,
-                            FileId = Convert.ToInt32(dr["GameId"]),
-                            FileName = filePart.Replace('¬', Path.AltDirectorySeparatorChar),
-                            Length = Convert.ToInt64(dr["ZipFileLength"]),
-                            LastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"])),
-                            CreationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
-                            LastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"]))
-                        };
-                        return vFile;
+                            string filename = (string)dr["name"];
+                            bool found = dirs.Any(t => t.FileName == filename);
+                            if (!found)
+                            {
+                                dirs.Add(
+                                    new VFile
+                                    {
+                                        IsDirectory = true,
+                                        _fileId = Convert.ToInt32(dr["DirId"]),
+                                        FileName = filename,
+                                        _creationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
+                                        _lastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
+                                        _lastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
+                                    }
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // find any DB items from top filename level
+                using (DbCommand getFilesInDirectory = Program.db.Command(@"
+                        SELECT 
+                            GameId, 
+                            Name,
+                            ZipFileLength,
+                            LastWriteTime,
+                            CreationTime,
+                            LastAccessTime
+                        FROM 
+                            Game 
+                        WHERE 
+                            DirId=@dirId AND
+                            ZipFileLength>0 
+                            "))
+                {
+                    DbParameter pDirId = Program.db.Parameter("DirId", vDir._fileId);
+                    getFilesInDirectory.Parameters.Add(pDirId);
+                    using (DbDataReader dr = getFilesInDirectory.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            string filename = (string)dr["name"];
+                            // test if filename is a directory
+                            int filenameSplit = filename.IndexOf(@"/", StringComparison.Ordinal);
+                            if (filenameSplit >= 0)
+                            {
+                                string dirFilename = filename.Substring(0, filenameSplit);
+                                bool found = dirs.Any(t => t.FileName == dirFilename);
+                                if (!found)
+                                {
+                                    dirs.Add(new VFile
+                                    {
+                                        IsDirectory = true,
+                                        _fileId = Convert.ToInt32(dr["GameId"]),
+                                        FileName = dirFilename,
+                                        _fileSplitIndex = filenameSplit,
+                                        Length = Convert.ToInt64(dr["ZipFileLength"]),
+                                        _creationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
+                                        _lastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
+                                        _lastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                string zipFilename = filename + ".zip";
+                                bool found = dirs.Any(t => t.FileName == zipFilename);
+                                if (!found)
+                                    dirs.Add(new VFile
+                                    {
+                                        IsDirectory = false,
+                                        _fileId = Convert.ToInt32(dr["GameId"]),
+                                        FileName = zipFilename,
+                                        Length = Convert.ToInt64(dr["ZipFileLength"]),
+                                        _creationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
+                                        _lastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
+                                        _lastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
+                                    });
+                            }
+                        }
                     }
                 }
             }
-            return null;
+            else
+            {
+                // we are in a DAT with sub directories
+
+                string datfilePart = vDir.FileName.Substring(1 + vDir._fileSplitIndex).Replace(@"\", @"/") + @"/";
+                int datfilePartLength = datfilePart.Length;
+                // find any DB items from top filename level
+                using (DbCommand getFilesInDirectory = Program.db.Command(@"
+                        SELECT 
+                            GameId, 
+                            Name,
+                            ZipFileLength,
+                            LastWriteTime,
+                            CreationTime,
+                            LastAccessTime
+                        FROM 
+                            Game 
+                        WHERE 
+                            DirId=@dirId AND
+                            ZipFileLength>0 AND 
+                            Name LIKE @dirName
+                            "))
+                {
+                    DbParameter pDirName = Program.db.Parameter("DirName", datfilePart + "%");
+                    getFilesInDirectory.Parameters.Add(pDirName);
+
+                    DbParameter pDirId = Program.db.Parameter("DirId", vDir._fileId);
+                    getFilesInDirectory.Parameters.Add(pDirId);
+                    using (DbDataReader dr = getFilesInDirectory.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            string filename = (string)dr["name"];
+                            filename = filename.Substring(datfilePartLength);
+                            int filenameSplit = filename.IndexOf(@"/", StringComparison.Ordinal);
+                            if (filenameSplit >= 0)
+                            {
+                                string dirFilename = filename.Substring(0, filenameSplit);
+                                bool found = dirs.Any(t => t.FileName == dirFilename);
+                                if (!found)
+                                {
+                                    dirs.Add(new VFile
+                                    {
+                                        IsDirectory = true,
+                                        _fileId = Convert.ToInt32(dr["GameId"]),
+                                        FileName = dirFilename,
+                                        _fileSplitIndex = vDir._fileSplitIndex + filenameSplit, // check this is correct
+                                        Length = Convert.ToInt64(dr["ZipFileLength"]),
+                                        _creationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
+                                        _lastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
+                                        _lastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                string zipFilename = filename + ".zip";
+                                bool found = dirs.Any(t => t.FileName == zipFilename);
+                                if (!found)
+                                {
+                                    dirs.Add(new VFile
+                                    {
+                                        IsDirectory = false,
+                                        _fileId = Convert.ToInt32(dr["GameId"]),
+                                        FileName = zipFilename,
+                                        Length = Convert.ToInt64(dr["ZipFileLength"]),
+                                        _creationTime = new DateTime(Convert.ToInt64(dr["CreationTime"])),
+                                        _lastAccessTime = new DateTime(Convert.ToInt64(dr["LastAccessTime"])),
+                                        _lastWriteTime = new DateTime(Convert.ToInt64(dr["LastWriteTime"]))
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dirs;
         }
 
-        public bool LoadVFile()
+
+
+        /*
+        private static VFile FindInRealRoot(string filename)
+        {
+            string fullPath = "RealRoot" + filename;
+            DirectoryInfo di = new DirectoryInfo(fullPath);
+            if (di.Exists)
+            {
+                VFile vfile = new VFile
+                {
+                    FileName = filename,
+                    IsDirectory = true,
+                    _creationTime = di.CreationTime,
+                    _lastWriteTime = di.LastWriteTime,
+                    _lastAccessTime = di.LastAccessTime,
+                    _IsRealFile = true
+                };
+                return vfile;
+            }
+
+            FileInfo fi = new FileInfo(fullPath);
+            if (fi.Exists)
+            {
+                VFile vfile = new VFile
+                {
+                    FileName = filename,
+                    Length = fi.Length,
+                    _creationTime = fi.CreationTime,
+                    _lastWriteTime = fi.LastWriteTime,
+                    _lastAccessTime = fi.LastAccessTime,
+                    _IsRealFile = true
+                };
+                return vfile;
+            }
+
+            return null;
+        }
+        */
+
+
+        public bool LoadVFileZipData() // used to get ready to load an actual ZIP file
         {
             Files = new List<VZipFile>();
 
             using (DbCommand getRoms = Program.db.Command(
                 @"SELECT
-                    FILES.sha1,
-                    FILES.compressedsize,
+                    LocalFileSha1,
+                    LocalFileCompressedSize,
                     LocalFileHeader,
                     LocalFileHeaderOffset,
                     LocalFileHeaderLength
-                FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND putinzip
-                ORDER BY Rom.RomId"))
+                 FROM 
+                    ROM
+                 WHERE 
+                    ROM.GameId=@GameId AND
+                    LocalFileHeaderLength > 0
+                 ORDER BY 
+                    Rom.RomId"))
             {
-                DbParameter pGameId = Program.db.Parameter("GameId", FileId);
+                DbParameter pGameId = Program.db.Parameter("GameId", _fileId);
                 getRoms.Parameters.Add(pGameId);
                 using (DbDataReader dr = getRoms.ExecuteReader())
                 {
@@ -292,48 +579,63 @@ namespace RomVaultX
                             LocalHeaderOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]),
                             LocalHeaderLength = Convert.ToInt64(dr["LocalFileHeaderLength"]),
                             LocalHeader = (byte[])dr["LocalFileHeader"],
-                            GZipSHA1 = VarFix.CleanMD5SHA1(dr["sha1"].ToString(), 40),
+                            GZipSha1 = VarFix.CleanMD5SHA1(dr["LocalFileSha1"].ToString(), 20),
                             CompressedDataOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]) + Convert.ToInt64(dr["LocalFileHeaderLength"]),
-                            CompressedDataLength = Convert.ToInt64(dr["compressedsize"]),
-                            GZip = null, // opened as needed
+                            CompressedDataLength = Convert.ToInt64(dr["LocalFileCompressedsize"]),
+                            GZip = null // opened as needed
                         };
-
                         Files.Add(gf);
                     }
                 }
             }
 
+
             // the central directory is now added on to the end of the file list, like is another file with zero bytes of compressed data.
             using (DbCommand getCentralDir = Program.db.Command(
-                @"SELECT
+                @"select 
                     CentralDirectory, 
                     CentralDirectoryOffset, 
                     CentralDirectoryLength 
-                FROM game WHERE GameId=@gameId"))
+                 from game where GameId=@gameId"))
             {
-                DbParameter pGameId = Program.db.Parameter("GameId", FileId);
+                DbParameter pGameId = Program.db.Parameter("GameId", _fileId);
                 getCentralDir.Parameters.Add(pGameId);
                 using (DbDataReader dr = getCentralDir.ExecuteReader())
                 {
                     if (!dr.Read())
+                    {
                         return false;
+                    }
 
                     VZipFile gf = new VZipFile
                     {
                         LocalHeaderOffset = Convert.ToInt64(dr["CentralDirectoryOffset"]),
                         LocalHeaderLength = Convert.ToInt64(dr["CentralDirectoryLength"]),
                         LocalHeader = (byte[])dr["CentralDirectory"],
-                        GZipSHA1 = null,
+                        GZipSha1 = null,
                         CompressedDataOffset = Convert.ToInt64(dr["CentralDirectoryOffset"]) + Convert.ToInt64(dr["CentralDirectoryLength"]),
                         CompressedDataLength = 0,
-                        GZip = null  // not used
+                        GZip = null // not used
                     };
-
                     Files.Add(gf);
                 }
             }
 
+
             return true;
+        }
+
+        public class VZipFile
+        {
+            public long LocalHeaderOffset;
+            public long LocalHeaderLength;
+            public byte[] LocalHeader;
+
+            public byte[] GZipSha1;
+            public long CompressedDataOffset;
+            public long CompressedDataLength;
+
+            public GZip GZip;
         }
     }
 }

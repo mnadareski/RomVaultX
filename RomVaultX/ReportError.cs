@@ -20,7 +20,9 @@ namespace RomVaultX
                 fshow.settype(message);
                 fshow.ShowDialog();
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 }

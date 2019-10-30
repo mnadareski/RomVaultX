@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
-
+using FileHeaderReader;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
     public class RvRom
     {
+        private static SQLiteCommand _commandRvRomReader;
+        private static SQLiteCommand _commandRvRomWrite;
         public uint RomId;
         public uint GameId;
         public string Name;
         public ulong? Size;
-        public FileType AltType;
+        public HeaderFileType AltType;
         public byte[] CRC;
         public byte[] SHA1;
-        public byte[] SHA1CHD;
         public byte[] MD5;
-        public byte[] MD5CHD;
         public string Merge;
         public string Status;
         public string Date;
@@ -30,9 +30,6 @@ namespace RomVaultX.DB
         public byte[] FileCRC;
         public byte[] FileSHA1;
         public byte[] FileMD5;
-
-        private static SQLiteCommand _commandRvRomReader;
-        private static SQLiteCommand _commandRvRomWrite;
 
         public static void CreateTable()
         {
@@ -53,10 +50,13 @@ namespace RomVaultX.DB
                     [LocalFileHeader] BLOB NULL,
                     [LocalFileHeaderOffset] INTEGER NULL,
                     [LocalFileHeaderLength] INTEGER NULL,
+                    [LocalFileSha1] VARCHAR(40) NULL,
+                    [LocalFileCompressedSize] INTEGER NULL,
                     FOREIGN KEY(GameId) REFERENCES Game(GameId),
                     FOREIGN KEY(FileId) REFERENCES Files(FileId)
                 );");
         }
+
 
         public static List<RvRom> ReadRoms(uint gameId)
         {
@@ -80,6 +80,7 @@ namespace RomVaultX.DB
                 _commandRvRomReader.Parameters.Add(new SQLiteParameter("GameId"));
             }
 
+
             List<RvRom> roms = new List<RvRom>();
             _commandRvRomReader.Parameters["GameId"].Value = gameId;
 
@@ -100,7 +101,6 @@ namespace RomVaultX.DB
                         Merge = dr["merge"].ToString(),
                         Status = dr["status"].ToString(),
                         PutInZip = (bool)dr["putinzip"],
-
                         FileId = VarFix.FixLong(dr["FileId"]),
                         FileSize = VarFix.FixLong(dr["fileSize"]),
                         FileCompressedSize = VarFix.FixLong(dr["fileCompressedSize"]),
@@ -139,14 +139,15 @@ namespace RomVaultX.DB
                 _commandRvRomWrite.Parameters.Add(new SQLiteParameter("FileId"));
             }
 
+
             FileId = DatUpdate.NoFilesInDb ? null : RvRomFileMatchup.FindAFile(this);
             _commandRvRomWrite.Parameters["GameId"].Value = GameId;
             _commandRvRomWrite.Parameters["name"].Value = Name;
             _commandRvRomWrite.Parameters["type"].Value = (int)AltType;
             _commandRvRomWrite.Parameters["size"].Value = Size;
             _commandRvRomWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
-            _commandRvRomWrite.Parameters["sha1"].Value = (SHA1CHD != null ? VarFix.ToDBString(SHA1CHD) : VarFix.ToDBString(SHA1));
-            _commandRvRomWrite.Parameters["md5"].Value = (MD5CHD != null ? VarFix.ToDBString(MD5CHD) : VarFix.ToDBString(MD5));
+            _commandRvRomWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
+            _commandRvRomWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
             _commandRvRomWrite.Parameters["merge"].Value = Merge;
             _commandRvRomWrite.Parameters["status"].Value = Status;
             _commandRvRomWrite.Parameters["putinzip"].Value = PutInZip;

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Data.SQLite;
-
+using FileHeaderReader;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
     public class RvFile
     {
+        private static SQLiteCommand _commandRvFileWrite;
+        private static SQLiteCommand _commandCheckForAnyFiles;
         public uint FileId;
         public ulong Size;
         public ulong CompressedSize;
@@ -14,14 +16,11 @@ namespace RomVaultX.DB
         public byte[] SHA1;
         public byte[] MD5;
 
-        public FileType AltType;
+        public HeaderFileType AltType;
         public ulong? AltSize;
         public byte[] AltCRC;
         public byte[] AltSHA1;
         public byte[] AltMD5;
-
-        private static SQLiteCommand _commandRvFileWrite;
-        private static SQLiteCommand _commandCheckForAnyFiles;
 
         public static void CreateTable()
         {
@@ -50,12 +49,13 @@ namespace RomVaultX.DB
             Program.db.Commit();
         }
 
+
         private void RvFileWrite()
         {
             if (_commandRvFileWrite == null)
             {
                 _commandRvFileWrite = new SQLiteCommand(
-                   @"INSERT INTO FILES (size,compressedsize,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5)
+                    @"INSERT INTO FILES (size,compressedsize,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5)
                         VALUES (@Size,@compressedsize,@CRC,@SHA1,@MD5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
                     SELECT last_insert_rowid();", Program.db.Connection);
 
@@ -86,6 +86,7 @@ namespace RomVaultX.DB
             FileId = Convert.ToUInt32(res);
         }
 
+
         public static bool FilesinDBCheck()
         {
             if (_commandCheckForAnyFiles == null)
@@ -94,7 +95,7 @@ namespace RomVaultX.DB
             }
 
             object res = _commandCheckForAnyFiles.ExecuteScalar();
-            if (res == null || res == DBNull.Value)
+            if ((res == null) || (res == DBNull.Value))
             {
                 return true;
             }

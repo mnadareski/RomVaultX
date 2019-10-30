@@ -4,17 +4,6 @@ namespace RomVaultX
 {
     public static class RvImages
     {
-        public static Bitmap GetBitmap(string bitmapName)
-        {
-            object bmObj = rvImages1.ResourceManager.GetObject(bitmapName);
-
-            Bitmap bm = null;
-            if (bmObj != null)
-                bm = (Bitmap)bmObj;
-
-            return bm;
-        }
-
         public static Bitmap TickBoxDisabled
         {
             get { return GetBitmap("TickBoxDisabled"); }
@@ -38,6 +27,19 @@ namespace RomVaultX
         public static Bitmap ExpandBoxPlus
         {
             get { return GetBitmap("ExpandBoxPlus"); }
+        }
+
+        public static Bitmap GetBitmap(string bitmapName)
+        {
+            object bmObj = rvImages1.ResourceManager.GetObject(bitmapName);
+
+            Bitmap bm = null;
+            if (bmObj != null)
+            {
+                bm = (Bitmap)bmObj;
+            }
+
+            return bm;
         }
     }
 }

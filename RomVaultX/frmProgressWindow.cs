@@ -9,9 +9,9 @@ namespace RomVaultX
     public partial class FrmProgressWindow : Form
     {
         private readonly string _titleRoot;
+        private readonly Form _parentForm;
         private bool _errorOpen;
         private bool _bDone;
-        private Form _parentForm;
 
         public FrmProgressWindow(Form parentForm, string titleRoot, DoWorkEventHandler function)
         {
@@ -37,6 +37,7 @@ namespace RomVaultX
             }
         }
 
+
         private void FrmProgressWindowNewShown(object sender, EventArgs e)
         {
             bgWork.ProgressChanged += BgwProgressChanged;
@@ -48,8 +49,10 @@ namespace RomVaultX
         {
             if (e.UserState == null)
             {
-                if (e.ProgressPercentage >= progressBar.Minimum && e.ProgressPercentage <= progressBar.Maximum)
+                if ((e.ProgressPercentage >= progressBar.Minimum) && (e.ProgressPercentage <= progressBar.Maximum))
+                {
                     progressBar.Value = e.ProgressPercentage;
+                }
                 UpdateStatusText();
                 return;
             }
@@ -70,6 +73,7 @@ namespace RomVaultX
                 return;
             }
 
+
             bgwText2 bgwT2 = e.UserState as bgwText2;
             if (bgwT2 != null)
             {
@@ -80,8 +84,10 @@ namespace RomVaultX
             bgwValue2 bgwV2 = e.UserState as bgwValue2;
             if (bgwV2 != null)
             {
-                if (bgwV2.Value >= progressBar2.Minimum && bgwV2.Value <= progressBar2.Maximum)
+                if ((bgwV2.Value >= progressBar2.Minimum) && (bgwV2.Value <= progressBar2.Maximum))
+                {
                     progressBar2.Value = bgwV2.Value;
+                }
                 UpdateStatusText2();
                 return;
             }
@@ -104,6 +110,7 @@ namespace RomVaultX
                 return;
             }
 
+
             bgwText3 bgwT3 = e.UserState as bgwText3;
             if (bgwT3 != null)
             {
@@ -111,7 +118,8 @@ namespace RomVaultX
                 return;
             }
 
-            bgwShowEvent bgwSDE = e.UserState as bgwShowEvent;
+
+            bgwShowError bgwSDE = e.UserState as bgwShowError;
             if (bgwSDE != null)
             {
                 if (!_errorOpen)
@@ -119,6 +127,7 @@ namespace RomVaultX
                     _errorOpen = true;
                     ClientSize = new Size(498, 292);
                     MinimumSize = new Size(498, 292);
+                    FormBorderStyle = FormBorderStyle.SizableToolWindow;
                 }
 
                 ErrorGrid.Rows.Add();
@@ -128,18 +137,21 @@ namespace RomVaultX
 
                 ErrorGrid.Rows[row].Cells["CErrorFile"].Value = bgwSDE.filename;
 
-                if (row >= 0) ErrorGrid.FirstDisplayedScrollingRowIndex = row;
-
+                if (row >= 0)
+                {
+                    ErrorGrid.FirstDisplayedScrollingRowIndex = row;
+                }
             }
-
         }
+
         private void UpdateStatusText()
         {
             int range = progressBar.Maximum - progressBar.Minimum;
-            int percent = range > 0 ? (progressBar.Value * 100) / range : 0;
+            int percent = range > 0 ? progressBar.Value * 100 / range : 0;
 
-            Text = _titleRoot + String.Format(" - {0}% complete", percent);
+            Text = _titleRoot + string.Format(" - {0}% complete", percent);
         }
+
         private void UpdateStatusText2()
         {
             lbl2Prog.Text = progressBar2.Maximum > 0 ? string.Format("{0}/{1}", progressBar2.Value, progressBar2.Maximum) : "";
@@ -164,7 +176,10 @@ namespace RomVaultX
         {
             if (_bDone)
             {
-                if (!_parentForm.Visible) _parentForm.Show();
+                if (!_parentForm.Visible)
+                {
+                    _parentForm.Show();
+                }
                 Close();
             }
             else
@@ -185,13 +200,22 @@ namespace RomVaultX
             switch (WindowState)
             {
                 case FormWindowState.Minimized:
-                    if (_parentForm.Visible) _parentForm.Hide();
+                    if (_parentForm.Visible)
+                    {
+                        _parentForm.Hide();
+                    }
                     return;
                 case FormWindowState.Maximized:
-                    if (!_parentForm.Visible) _parentForm.Show();
+                    if (!_parentForm.Visible)
+                    {
+                        _parentForm.Show();
+                    }
                     return;
                 case FormWindowState.Normal:
-                    if (!_parentForm.Visible) _parentForm.Show();
+                    if (!_parentForm.Visible)
+                    {
+                        _parentForm.Show();
+                    }
                     return;
             }
         }
@@ -200,8 +224,9 @@ namespace RomVaultX
         {
             Exception er = e.Error;
             if (er != null)
+            {
                 MessageBox.Show(e.Error.ToString(), "RomVault", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-
     }
 }

@@ -2,14 +2,17 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
+using FileHeaderReader;
 
 namespace RomVaultX.Util
 {
     public static class VarFix
     {
+        private const string ValidHexChar = "0123456789abcdef";
+
         public static bool StringYesNo(string b)
         {
-            return b != null && ((b.ToLower() == "yes") || (b.ToLower() == "true"));
+            return (b != null) && ((b.ToLower() == "yes") || (b.ToLower() == "true"));
         }
 
         public static ulong? ULong(XmlNode n)
@@ -19,16 +22,19 @@ namespace RomVaultX.Util
 
         public static ulong? ULong(string n)
         {
-            if (String.IsNullOrWhiteSpace(n)
-                || n.ToLower() == "null"
-                || n == "-")
+            if (string.IsNullOrEmpty(n))
+            {
+                return null;
+            }
+
+            if (n == "-")
             {
                 return null;
             }
 
             try
             {
-                if (n.Length >= 2 && n.Substring(0, 2).ToLower() == "0x")
+                if ((n.Length >= 2) && (n.Substring(0, 2).ToLower() == "0x"))
                 {
                     return Convert.ToUInt64(n.Substring(2), 16);
                 }
@@ -41,17 +47,46 @@ namespace RomVaultX.Util
             }
         }
 
-        public static string StringFromXmlNode(XmlNode n)
+        public static string String(XmlNode n)
         {
-            return EnsureStringNotNull(n == null ? "" : n.InnerText);
+            return String(n == null ? "" : n.InnerText);
         }
 
-        public static string EnsureStringNotNull(string n)
+        public static string String(string n)
         {
             return n ?? "";
         }
 
-        private const string ValidHexChar = "0123456789abcdef";
+        private static string CleanCheck(string crc, int length)
+        {
+            string retcrc = crc ?? "";
+            retcrc = retcrc.ToLower().Trim();
+
+            if ((retcrc.Length >= 2) && (retcrc.Substring(0, 2).ToLower() == "0x"))
+            {
+                retcrc = retcrc.Substring(2);
+            }
+
+            if (retcrc == "-")
+            {
+                retcrc = "00000000";
+            }
+
+            for (int i = 0; i < retcrc.Length; i++)
+            {
+                if (ValidHexChar.IndexOf(retcrc.Substring(i, 1), StringComparison.Ordinal) < 0)
+                {
+                    return "";
+                }
+            }
+
+
+            retcrc = new string('0', length) + retcrc;
+            retcrc = retcrc.Substring(retcrc.Length - length);
+
+            return retcrc;
+        }
+
 
         //CleanMD5SHA1 with a null or empty string will return null
         public static byte[] CleanMD5SHA1(XmlNode n, int length)
@@ -61,7 +96,7 @@ namespace RomVaultX.Util
 
         public static byte[] CleanMD5SHA1(string checksum, int length)
         {
-            if (String.IsNullOrWhiteSpace(checksum))
+            if (string.IsNullOrEmpty(checksum))
             {
                 return null;
             }
@@ -76,31 +111,22 @@ namespace RomVaultX.Util
                 }
             }
 
-            if (String.IsNullOrWhiteSpace(checksum)
-                || checksum == "null"
-                || checksum == "-")
+
+            if (string.IsNullOrEmpty(checksum))
             {
                 return null;
             }
 
-            // If we have non-hex characters left, we return null
-            for (int i = 0; i < checksum.Length; i++)
+            if (checksum == "-")
             {
-                if (ValidHexChar.IndexOf(checksum[i]) < 0)
-                {
-                    return null;
-                }
+                return null;
             }
 
-            // Make sure the length of the checksum is proper
-            if (checksum.Length < length)
-            {
-                checksum = checksum.PadLeft(length, '0');
-            }
-            else if (checksum.Length > length)
-            {
-                checksum = checksum.Remove(length);
-            }
+            //if (checksum.Length % 2 == 1)
+            //    checksum = "0" + checksum;
+
+            //if (checksum.Length != length)
+            //    return null;
 
             while (checksum.Length < length)
             {
@@ -112,18 +138,12 @@ namespace RomVaultX.Util
 
             for (int i = 0; i < retL; i++)
             {
-                try
-                {
-                    retB[i] = Convert.ToByte(checksum.Substring(i * 2, 2), 16);
-                }
-                catch (Exception ex)
-                {
-                    ex.ToString();
-                }
+                retB[i] = Convert.ToByte(checksum.Substring(i * 2, 2), 16);
             }
 
             return retB;
         }
+
 
         public static string CleanFullFileName(XmlNode n)
         {
@@ -132,20 +152,20 @@ namespace RomVaultX.Util
 
         public static string CleanFullFileName(string name)
         {
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 return "";
             }
 
             string retName = name;
             retName = retName.TrimStart();
-            retName = retName.TrimEnd(new[] { '.', ' ' });
+            retName = retName.TrimEnd('.', ' ');
 
             char[] charName = retName.ToCharArray();
             for (int i = 0; i < charName.Length; i++)
             {
                 int c = charName[i];
-                if (c == ':' || c == '*' || c == '?' || c == '<' || c == '>' || c == '|' || c < 32)
+                if ((c == ':') || (c == '*') || (c == '?') || (c == '<') || (c == '>') || (c == '|') || (c < 32))
                 {
                     charName[i] = '-';
                 }
@@ -164,19 +184,19 @@ namespace RomVaultX.Util
 
         public static string CleanFileName(string name, char crep = '-')
         {
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 return "";
             }
             string retName = name;
             retName = retName.TrimStart();
-            retName = retName.TrimEnd(new[] { '.', ' ' });
+            retName = retName.TrimEnd('.', ' ');
 
             char[] charName = retName.ToCharArray();
             for (int i = 0; i < charName.Length; i++)
             {
                 int c = charName[i];
-                if (c == ':' || c == '*' || c == '?' || c == '<' || c == '>' || c == '|' || c == '\\' || c == '/' || c < 32)
+                if ((c == ':') || (c == '*') || (c == '?') || (c == '<') || (c == '>') || (c == '|') || (c == '\\') || (c == '/') || (c < 32))
                 {
                     charName[i] = crep;
                 }
@@ -209,13 +229,14 @@ namespace RomVaultX.Util
             return name == null ? "" : name.ToLower();
         }
 
+
         public static string PCombine(string path1, string path2)
         {
-            if (String.IsNullOrEmpty(path1))
+            if (string.IsNullOrEmpty(path1))
             {
                 return path2;
             }
-            if (String.IsNullOrEmpty(path2))
+            if (string.IsNullOrEmpty(path2))
             {
                 return path1;
             }
@@ -233,26 +254,19 @@ namespace RomVaultX.Util
             return ToString(new[] { b });
         }
 
-        public static object ToDBString(Byte[] b)
+        public static object ToDBString(byte[] b)
         {
             return b == null ? DBNull.Value : (object)BitConverter.ToString(b).ToLower().Replace("-", "");
         }
 
         public static ulong? FixLong(object v)
         {
-            try
-            {
-                return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
-            }
-            catch
-            {
-                return null;
-            }
+            return v == DBNull.Value ? null : (ulong?)Convert.ToInt64(v);
         }
 
-        public static FileType FixFileType(object v)
+        public static HeaderFileType FixFileType(object v)
         {
-            return v == DBNull.Value ? FileType.Nothing : (FileType)Convert.ToInt32(v);
+            return v == DBNull.Value ? HeaderFileType.Nothing : (HeaderFileType)Convert.ToInt32(v);
         }
 
         public static int CompareName(string var1, string var2)
@@ -269,11 +283,11 @@ namespace RomVaultX.Util
             int pos1 = 0;
             int pos2 = 0;
 
-            for (;;)
+            for (; ; )
             {
                 if (pos1 == bytes1.Length)
                 {
-                    return ((pos2 == bytes2.Length) ? 0 : -1);
+                    return pos2 == bytes2.Length ? 0 : -1;
                 }
                 if (pos2 == bytes2.Length)
                 {
@@ -283,11 +297,11 @@ namespace RomVaultX.Util
                 int byte1 = bytes1[pos1++];
                 int byte2 = bytes2[pos2++];
 
-                if (byte1 >= 65 && byte1 <= 90)
+                if ((byte1 >= 65) && (byte1 <= 90))
                 {
                     byte1 += 0x20;
                 }
-                if (byte2 >= 65 && byte2 <= 90)
+                if ((byte2 >= 65) && (byte2 <= 90))
                 {
                     byte2 += 0x20;
                 }

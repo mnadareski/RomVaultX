@@ -7,14 +7,13 @@ namespace RomVaultX.DB
 {
     public class rvGameGridRow
     {
+        private static SQLiteCommand _commandRvGameGridRowRead;
         public int GameId;
         public string Name;
         public string Description;
         public int RomGot;
         public int RomTotal;
         public int RomNoDump;
-
-        private static SQLiteCommand _commandRvGameGridRowRead;
 
         public static List<rvGameGridRow> ReadGames(int datId)
         {

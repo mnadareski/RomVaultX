@@ -28,6 +28,7 @@ namespace RomVaultX.DB
                 );");
         }
 
+
         public static uint FindOrInsertIntoDir(uint parentDirId, string name, string fullName)
         {
             uint? foundDatId = FindInDir(fullName);
@@ -40,6 +41,7 @@ namespace RomVaultX.DB
             return (uint)foundDatId;
         }
 
+
         private static uint? FindInDir(string fullname)
         {
             if (CommandFindInDir == null)
@@ -50,12 +52,13 @@ namespace RomVaultX.DB
 
             CommandFindInDir.Parameters["FullName"].Value = fullname;
             object resFind = CommandFindInDir.ExecuteScalar();
-            if (resFind == null || resFind == DBNull.Value)
+            if ((resFind == null) || (resFind == DBNull.Value))
             {
                 return null;
             }
             return (uint?)Convert.ToInt32(resFind);
         }
+
 
         private static void SetDirFound(uint foundDatId)
         {
@@ -93,7 +96,7 @@ namespace RomVaultX.DB
 
             object res = CommandInsertIntoDir.ExecuteScalar();
 
-            if (res == null || res == DBNull.Value)
+            if ((res == null) || (res == DBNull.Value))
             {
                 return 0;
             }

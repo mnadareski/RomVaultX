@@ -30,6 +30,7 @@
         public string Text { get; private set; }
     }
 
+
     public class bgwSetRange
     {
         public bgwSetRange(int MaxVal)
@@ -50,6 +51,7 @@
         public int MaxVal { get; private set; }
     }
 
+
     public class bgwValue2
     {
         public bgwValue2(int Value)
@@ -59,6 +61,7 @@
 
         public int Value { get; private set; }
     }
+
 
     public class bgwRange2Visible
     {
@@ -70,9 +73,9 @@
         public bool Visible { get; private set; }
     }
 
-    public class bgwShowEvent
+    public class bgwShowError
     {
-        public bgwShowEvent(string filename, string error)
+        public bgwShowError(string filename, string error)
         {
             this.error = error;
             this.filename = filename;
@@ -81,6 +84,7 @@
         public string filename { get; private set; }
         public string error { get; private set; }
     }
+
 
     public class bgwShowFix
     {

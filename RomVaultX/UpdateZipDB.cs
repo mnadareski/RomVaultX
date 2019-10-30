@@ -3,8 +3,7 @@ using System.Data.Common;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Windows.Forms;
-
-using RomVaultX.SupportedFiles.Zip;
+using Compress.ZipFile;
 using RomVaultX.Util;
 
 namespace RomVaultX
@@ -19,6 +18,8 @@ namespace RomVaultX
         public static void UpdateDB()
         {
             SetupSQLCommands();
+
+            Program.db.ExecuteNonQuery(@"update game set dirid=(select dirId from DAT where game.Datid=dat.datid) where dirid is null;");
 
             using (DbDataReader drGame = ZipSetGetAllGames())
             {
@@ -46,12 +47,13 @@ namespace RomVaultX
                             ulong size = Convert.ToUInt64(drRom["size"]);
                             ulong compressedSize = Convert.ToUInt64(drRom["compressedsize"]);
                             byte[] CRC = VarFix.CleanMD5SHA1(drRom["crc"].ToString(), 8);
-                            Debug.WriteLine("	Rom " + RomId + " Name: " + RomName + "  Size: " + size + "  Compressed: " + compressedSize + "  CRC: " + VarFix.ToString(CRC));
+                            byte[] SHA1 = VarFix.CleanMD5SHA1(drRom["sha1"].ToString(), 40);
+                            Debug.WriteLine("    Rom " + RomId + " Name: " + RomName + "  Size: " + size + "  Compressed: " + compressedSize + "  CRC: " + VarFix.ToString(CRC));
 
                             byte[] localHeader;
                             memZip.ZipFileAddFake(RomName, fileOffset, size, compressedSize, CRC, out localHeader);
 
-                            ZipSetLocalFileHeader(RomId, localHeader, fileOffset);
+                            ZipSetLocalFileHeader(RomId, localHeader, fileOffset, compressedSize, SHA1);
 
                             fileOffset += (ulong)localHeader.Length + compressedSize;
                             commitCount += 1;
@@ -90,23 +92,29 @@ namespace RomVaultX
 
             CommandGetAllGamesWithRoms = new SQLiteCommand(@"SELECT GameId,name FROM game WHERE RomGot>0 AND ZipFileLength is null", Program.db.Connection);
 
+
             CommandFindRomsInGame = new SQLiteCommand(
                 @"SELECT
-                    ROM.RomId, ROM.name, FILES.size, FILES.compressedsize, FILES.crc
-                    FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND ROM.PutInZip ORDER BY ROM.RomId", Program.db.Connection);
+                    ROM.RomId, ROM.name, FILES.size, FILES.compressedsize, FILES.crc,FILES.sha1
+                 FROM ROM,FILES WHERE ROM.FileId=FILES.FileId AND ROM.GameId=@GameId AND ROM.PutInZip ORDER BY ROM.RomId", Program.db.Connection);
             CommandFindRomsInGame.Parameters.Add(new SQLiteParameter("GameId"));
 
             CommandWriteLocalHeaderToRom = new SQLiteCommand(
                 @"UPDATE ROM SET 
                     LocalFileHeader=@localFileHeader,
                     LocalFileHeaderOffset=@localFileHeaderOffset,
-                    LocalFileHeaderLength=@localFileHeaderLength
+                    LocalFileHeaderLength=@localFileHeaderLength,
+                    LocalFileSha1=@localFileSha1,
+                    LocalFileCompressedSize=@localFileCompressedSize
                 WHERE
                     RomId=@romID", Program.db.Connection);
             CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeader"));
             CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderOffset"));
             CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileHeaderLength"));
+            CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileSha1"));
+            CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("localFileCompressedSize"));
             CommandWriteLocalHeaderToRom.Parameters.Add(new SQLiteParameter("RomId"));
+
 
             CommandWriteCentralDirToGame = new SQLiteCommand(
                 @"UPDATE GAME SET 
@@ -138,11 +146,14 @@ namespace RomVaultX
             return CommandFindRomsInGame.ExecuteReader();
         }
 
-        private static void ZipSetLocalFileHeader(int RomId, byte[] localHeader, ulong fileOffset)
+        private static void ZipSetLocalFileHeader(int RomId, byte[] localHeader, ulong fileOffset, ulong compressedSize, byte[] sha1)
         {
             CommandWriteLocalHeaderToRom.Parameters["localFileHeader"].Value = localHeader;
             CommandWriteLocalHeaderToRom.Parameters["localFileHeaderOffset"].Value = fileOffset;
             CommandWriteLocalHeaderToRom.Parameters["localFileHeaderLength"].Value = localHeader.Length;
+            CommandWriteLocalHeaderToRom.Parameters["localFileSha1"].Value = VarFix.ToString(sha1);
+            CommandWriteLocalHeaderToRom.Parameters["localFileCompressedSize"].Value = compressedSize;
+
             CommandWriteLocalHeaderToRom.Parameters["RomId"].Value = RomId;
             CommandWriteLocalHeaderToRom.ExecuteNonQuery();
         }

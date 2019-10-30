@@ -2,7 +2,6 @@
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-
 using RomVaultX.DB;
 
 namespace RomVaultX
@@ -12,8 +11,9 @@ namespace RomVaultX
         public static DBSqlite db;
         public static readonly Encoding Enc = Encoding.GetEncoding(28591);
         public static SynchronizationContext SyncCont;
+
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             Application.EnableVisualStyles();
             //db = new DBSqlServer();

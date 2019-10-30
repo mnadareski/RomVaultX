@@ -63,7 +63,6 @@
             this.lblDITDescription = new System.Windows.Forms.Label();
             this.lblDITName = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.DirTree = new RomVaultX.RvTree();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.chkBoxShowMissing = new System.Windows.Forms.CheckBox();
             this.chkBoxShowCorrect = new System.Windows.Forms.CheckBox();
@@ -91,9 +90,14 @@
             this.quickReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deepReScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanADirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSubScanADir = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSubScanADirWithDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.updateZipDBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeVDriveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fixDatsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DirTree = new RomVaultX.RvTree();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -425,16 +429,6 @@
             this.label8.Text = "ROMs Missing :";
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // DirTree
-            // 
-            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DirTree.Location = new System.Drawing.Point(0, 0);
-            this.DirTree.Name = "DirTree";
-            this.DirTree.Size = new System.Drawing.Size(533, 585);
-            this.DirTree.TabIndex = 0;
-            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
-            // 
             // splitContainer4
             // 
             this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -739,7 +733,9 @@
             this.scanADirToolStripMenuItem,
             this.updateZipDBToolStripMenuItem,
             this.startVDriveToolStripMenuItem,
-            this.closeVDriveToolStripMenuItem});
+            this.closeVDriveToolStripMenuItem,
+            this.extractFilesToolStripMenuItem,
+            this.fixDatsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1264, 24);
@@ -759,23 +755,39 @@
             // quickReScanToolStripMenuItem
             // 
             this.quickReScanToolStripMenuItem.Name = "quickReScanToolStripMenuItem";
-            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
             this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
             // 
             // deepReScanToolStripMenuItem
             // 
             this.deepReScanToolStripMenuItem.Name = "deepReScanToolStripMenuItem";
-            this.deepReScanToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.deepReScanToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.deepReScanToolStripMenuItem.Text = "Deep ReScan";
             this.deepReScanToolStripMenuItem.Click += new System.EventHandler(this.deepReScanToolStripMenuItem_Click);
             // 
             // scanADirToolStripMenuItem
             // 
+            this.scanADirToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSubScanADir,
+            this.toolStripSubScanADirWithDelete});
             this.scanADirToolStripMenuItem.Name = "scanADirToolStripMenuItem";
             this.scanADirToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
             this.scanADirToolStripMenuItem.Text = "Scan A Dir";
-            this.scanADirToolStripMenuItem.Click += new System.EventHandler(this.scanADirToolStripMenuItem_Click);
+            // 
+            // toolStripSubScanADir
+            // 
+            this.toolStripSubScanADir.Name = "toolStripSubScanADir";
+            this.toolStripSubScanADir.Size = new System.Drawing.Size(180, 22);
+            this.toolStripSubScanADir.Text = "Scan A Dir";
+            this.toolStripSubScanADir.Click += new System.EventHandler(this.scanADirToolStripMenuItem_Click);
+            // 
+            // toolStripSubScanADirWithDelete
+            // 
+            this.toolStripSubScanADirWithDelete.Name = "toolStripSubScanADirWithDelete";
+            this.toolStripSubScanADirWithDelete.Size = new System.Drawing.Size(180, 22);
+            this.toolStripSubScanADirWithDelete.Text = "Scan With Delete";
+            this.toolStripSubScanADirWithDelete.Click += new System.EventHandler(this.scanWithDeleteToolStripMenuItem_Click);
             // 
             // updateZipDBToolStripMenuItem
             // 
@@ -797,6 +809,30 @@
             this.closeVDriveToolStripMenuItem.Size = new System.Drawing.Size(88, 20);
             this.closeVDriveToolStripMenuItem.Text = "Close V Drive";
             this.closeVDriveToolStripMenuItem.Click += new System.EventHandler(this.closeVDriveToolStripMenuItem_Click);
+            // 
+            // extractFilesToolStripMenuItem
+            // 
+            this.extractFilesToolStripMenuItem.Name = "extractFilesToolStripMenuItem";
+            this.extractFilesToolStripMenuItem.Size = new System.Drawing.Size(78, 20);
+            this.extractFilesToolStripMenuItem.Text = "ExtractFiles";
+            this.extractFilesToolStripMenuItem.Click += new System.EventHandler(this.extractFilesToolStripMenuItem_Click);
+            // 
+            // fixDatsToolStripMenuItem
+            // 
+            this.fixDatsToolStripMenuItem.Name = "fixDatsToolStripMenuItem";
+            this.fixDatsToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
+            this.fixDatsToolStripMenuItem.Text = "FixDats";
+            this.fixDatsToolStripMenuItem.Click += new System.EventHandler(this.fixDatsToolStripMenuItem_Click);
+            // 
+            // DirTree
+            // 
+            this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DirTree.Location = new System.Drawing.Point(0, 0);
+            this.DirTree.Name = "DirTree";
+            this.DirTree.Size = new System.Drawing.Size(533, 585);
+            this.DirTree.TabIndex = 0;
+            this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
             // 
             // frmMain
             // 
@@ -902,6 +938,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CMD5;
         private System.Windows.Forms.DataGridViewTextBoxColumn CStatus;
         private System.Windows.Forms.DataGridViewTextBoxColumn CInZip;
+        private System.Windows.Forms.ToolStripMenuItem extractFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fixDatsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripSubScanADir;
+        private System.Windows.Forms.ToolStripMenuItem toolStripSubScanADirWithDelete;
     }
 }
-

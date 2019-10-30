@@ -9,8 +9,6 @@ namespace RomVaultX
 {
     public partial class RvTree : UserControl
     {
-        public event MouseEventHandler RvSelected;
-
         private List<RvTreeRow> _rows;
 
         public RvTree()
@@ -18,6 +16,8 @@ namespace RomVaultX
             _rows = new List<RvTreeRow>();
             InitializeComponent();
         }
+
+        public event MouseEventHandler RvSelected;
 
         #region "Setup"
 
@@ -45,6 +45,7 @@ namespace RomVaultX
                 yPos = yPos + 16;
             }
             AutoScrollMinSize = new Size(500, yPos);
+
 
             string lastBranch = "";
             for (int i = treeCount - 1; i >= 0; i--)
@@ -97,6 +98,7 @@ namespace RomVaultX
 
             g.FillRectangle(Brushes.White, e.ClipRectangle);
 
+
             int treeCount = _rows.Count;
             for (int i = 0; i < treeCount; i++)
             {
@@ -144,7 +146,7 @@ namespace RomVaultX
             {
                 int icon;
 
-                if (pTree.RomGot >= (pTree.RomTotal - pTree.RomNoDump))
+                if (pTree.RomGot == pTree.RomTotal - pTree.RomNoDump)
                 {
                     icon = 3;
                 }
@@ -157,6 +159,7 @@ namespace RomVaultX
                     icon = 1;
                 }
 
+
                 Bitmap bm;
                 //if (pTree.Dat == null && pTree.DirDatCount != 1) // Directory above DAT's in Tree
                 bm = string.IsNullOrEmpty(pTree.datName) ?
@@ -168,6 +171,7 @@ namespace RomVaultX
                     g.DrawImage(bm, RSub(pTree.RIcon, _hScroll, _vScroll));
                 }
             }
+
 
             Rectangle recBackGround = new Rectangle(pTree.RText.X, pTree.RText.Y, Width - pTree.RText.X + _hScroll, pTree.RText.Height);
 
@@ -185,10 +189,9 @@ namespace RomVaultX
                         thistxt += ": " + pTree.datName;
                     }
                 }
-                if (pTree.RomTotal > 0 || pTree.RomGot > 0 || pTree.RomNoDump > 0)
+                if ((pTree.RomTotal > 0) || (pTree.RomGot > 0) || (pTree.RomNoDump > 0))
                 {
-                    long realtotal = pTree.RomTotal - pTree.RomGot - pTree.RomNoDump;
-                    thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (realtotal < 0 ? 0 : realtotal).ToString("#,0") + " )";
+                    thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (pTree.RomTotal - pTree.RomGot - pTree.RomNoDump).ToString("#,0") + " )";
                 }
                 if (Selected == pTree)
                 {
@@ -202,6 +205,7 @@ namespace RomVaultX
             }
         }
 
+
         private static Rectangle RSub(Rectangle r, int h, int v)
         {
             Rectangle ret = new Rectangle(r.Left - h, r.Top - v, r.Width, r.Height);
@@ -210,7 +214,7 @@ namespace RomVaultX
 
         #endregion
 
-        #region "Mouse Events"
+        #region"Mouse Events"
 
         protected override void OnMouseDown(MouseEventArgs mevent)
         {
@@ -223,7 +227,10 @@ namespace RomVaultX
             {
                 foreach (RvTreeRow tDir in _rows)
                 {
-                    if (!CheckMouseDown(tDir, x, y, mevent)) continue;
+                    if (!CheckMouseDown(tDir, x, y, mevent))
+                    {
+                        continue;
+                    }
 
                     mousehit = true;
                     break;
@@ -236,36 +243,6 @@ namespace RomVaultX
             }
 
             base.OnMouseDown(mevent);
-        }
-
-        protected override void OnMouseClick(MouseEventArgs mevent)
-        {
-            if (mevent.Button == MouseButtons.Right && Selected != null)
-            {
-                var result = MessageBox.Show($"Do you really want to delete {Selected.description}?", "Remove DAT?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
-                {
-                    var removeDatCommand = new SQLiteCommand(@"
-                    delete from rom where rom.GameId in
-                    (
-                        select gameid from game where game.datid = @DatID
-                    );
-
-                    delete from game where game.datid = @DatID;
-
-                    delete from dir where DirId=(select DirId from Dat WHERE DatId=@DatID); // TODO: Check this
-
-                    delete from dat where datid = @DatID;
-                    ", Program.db.Connection);
-
-                    removeDatCommand.Parameters.Add(new SQLiteParameter("DatID", Selected.DatId.ToString()));
-                    removeDatCommand.ExecuteNonQuery();
-
-                    Refresh();
-                }
-            }
-
-            base.OnMouseClick(mevent);
         }
 
         private bool CheckMouseDown(RvTreeRow pTree, int x, int y, MouseEventArgs mevent)
@@ -303,6 +280,7 @@ namespace RomVaultX
                 Setup(RvTreeRow.ReadTreeFromDB());
             }
         }
+
 
         private static SQLiteCommand _commandSetTreeExpanded;
 

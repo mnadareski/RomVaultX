@@ -1,13 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
-
+using System.IO;
+using FileHeaderReader;
 using RomVaultX.DB;
 using RomVaultX.Util;
-
-using Alphaleonis.Win32.Filesystem;
-
-using Stream = System.IO.Stream;
-using StreamReader = System.IO.StreamReader;
+using Path = RVIO.Path;
 
 namespace RomVaultX.DatReader
 {
@@ -15,7 +12,7 @@ namespace RomVaultX.DatReader
     {
         public static bool ReadDat(string strFilename, out RvDat rvDat)
         {
-            FileType datFileType = FileType.Nothing;
+            HeaderFileType datFileType = HeaderFileType.Nothing;
             rvDat = new RvDat();
             int errorCode = DatFileLoader.LoadDat(strFilename);
             if (errorCode != 0)
@@ -92,9 +89,9 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadHeaderFromDat(string filename, RvDat rvDat, out FileType datFileType, string blockstart)
+        private static bool LoadHeaderFromDat(string filename, RvDat rvDat, out HeaderFileType datFileType, string blockstart)
         {
-            datFileType = FileType.Nothing;
+            datFileType = HeaderFileType.Nothing;
             rvDat.Filename = filename;
 
             while (DatFileLoader.Next.ToLower() != "[games]")
@@ -186,7 +183,7 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadRomFromDat(string rootName, FileType datFileType, out RvRom rvRom, out string game, out string description, out string romof, out string cloneof)
+        private static bool LoadRomFromDat(string rootName, HeaderFileType datFileType, out RvRom rvRom, out string game, out string description, out string romof, out string cloneof)
         {
             // Set the current out vars to blank for the time being
             rvRom = new RvRom();

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
-
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
     public class RvGame
     {
+        private static SQLiteCommand _commandRvGameWrite;
+        private static SQLiteCommand _commandRvGameRead;
+        private static SQLiteCommand _commandRvGameReadDatGames;
         public uint GameId;
         public uint DatId;
         public string Name;
@@ -40,9 +42,7 @@ namespace RomVaultX.DB
 
         public List<RvRom> Roms;
 
-        private static SQLiteCommand _commandRvGameWrite;
-        private static SQLiteCommand _commandRvGameRead;
-        private static SQLiteCommand _commandRvGameReadDatGames;
+        public int RomCount => Roms?.Count ?? 0;
 
         public static void CreateTable()
         {
@@ -50,6 +50,7 @@ namespace RomVaultX.DB
                  CREATE TABLE IF NOT EXISTS [GAME] (
                     [GameId] INTEGER  PRIMARY KEY NOT NULL,
                     [DatId] INTEGER NOT NULL,
+                    [DirId] INTEGER NULL,
                     [name] NVARCHAR(200) NOT NULL,
                     [description] NVARCHAR(220) NULL,
                     [manufacturer] NVARCHAR(200) NULL,
@@ -85,6 +86,7 @@ namespace RomVaultX.DB
                     [CentralDirectoryOffset] INTEGER NULL,
                     [CentralDirectoryLength] INTEGER NULL,
                     FOREIGN KEY(DatId) REFERENCES DAT(DatId)
+                    FOREIGN KEY(DirId) REFERENCES DIR(DirId)
                 );");
         }
 
@@ -216,8 +218,9 @@ namespace RomVaultX.DB
                 _commandRvGameWrite.Parameters.Add(new SQLiteParameter("Genre")); //Genre;
                 _commandRvGameWrite.Parameters.Add(new SQLiteParameter("Peripheral")); //Peripheral;
                 _commandRvGameWrite.Parameters.Add(new SQLiteParameter("BarCode")); //BarCode;
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("MediaCatalogNumber")); //MediaCatalogNumber;		
+                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("MediaCatalogNumber")); //MediaCatalogNumber;        
             }
+
 
             _commandRvGameWrite.Parameters["DatId"].Value = DatId;
             _commandRvGameWrite.Parameters["Name"].Value = Name;
@@ -249,7 +252,7 @@ namespace RomVaultX.DB
 
             object res = _commandRvGameWrite.ExecuteScalar();
 
-            if (res == null || res == DBNull.Value)
+            if ((res == null) || (res == DBNull.Value))
             {
                 return;
             }
@@ -275,10 +278,8 @@ namespace RomVaultX.DB
             int index;
             ChildNameSearch(rvRom.Name, out index);
             Roms.Insert(index, rvRom);
-            return Roms.Count - 1;
+            return index;
         }
-
-        public int RomCount => Roms?.Count ?? 0;
 
         private int ChildNameSearch(string lRomName, out int index)
         {
@@ -288,7 +289,7 @@ namespace RomVaultX.DB
             int intRes = -1;
 
             //Binary chop to find the closest match
-            while (intBottom < intTop && intRes != 0)
+            while ((intBottom < intTop) && (intRes != 0))
             {
                 intMid = (intBottom + intTop) / 2;
 
@@ -308,7 +309,7 @@ namespace RomVaultX.DB
             if (intRes == 0)
             {
                 int intRes1 = 0;
-                while (index > 0 && intRes1 == 0)
+                while ((index > 0) && (intRes1 == 0))
                 {
                     intRes1 = VarFix.CompareName(lRomName, Roms[index - 1].Name);
                     if (intRes1 == 0)

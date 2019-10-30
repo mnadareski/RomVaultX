@@ -1,13 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
-
+using System.IO;
+using FileHeaderReader;
 using RomVaultX.DB;
 using RomVaultX.Util;
-
-using Alphaleonis.Win32.Filesystem;
-
-using Stream = System.IO.Stream;
-using StreamReader = System.IO.StreamReader;
+using Path = RVIO.Path;
 
 namespace RomVaultX.DatReader
 {
@@ -15,7 +12,7 @@ namespace RomVaultX.DatReader
     {
         public static bool ReadDat(string strFilename, out RvDat rvDat)
         {
-            FileType datFileType = FileType.Nothing;
+            HeaderFileType datFileType = HeaderFileType.Nothing;
             rvDat = new RvDat();
             int errorCode = DatFileLoader.LoadDat(strFilename);
             if (errorCode != 0)
@@ -61,9 +58,9 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadHeaderFromDat(string filename, RvDat rvDat, out FileType datFileType)
+        private static bool LoadHeaderFromDat(string filename, RvDat rvDat, out HeaderFileType datFileType)
         {
-            datFileType = FileType.Nothing;
+            datFileType = HeaderFileType.Nothing;
 
             if (DatFileLoader.Next != "(")
             {
@@ -118,7 +115,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.Gn();
                         break;
                     case "header:":
-                        datFileType = FileHeaderReader.GetFileTypeFromHeader(DatFileLoader.GnRest());
+                        datFileType = FileHeaderReader.FileHeaderReader.GetFileTypeFromHeader(DatFileLoader.GnRest());
                         DatFileLoader.Gn();
                         break;
                     case "forcezipping:":
@@ -157,7 +154,7 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadGameFromDat(RvDat rvDat, string rootName, FileType datFileType)
+        private static bool LoadGameFromDat(RvDat rvDat, string rootName, HeaderFileType datFileType)
         {
             if (DatFileLoader.Next != "(")
             {
@@ -283,7 +280,7 @@ namespace RomVaultX.DatReader
             return true;
         }
 
-        private static bool LoadRomFromDat(RvGame rvGame, FileType datFileType)
+        private static bool LoadRomFromDat(RvGame rvGame, HeaderFileType datFileType)
         {
             if (DatFileLoader.Next != "(")
             {
