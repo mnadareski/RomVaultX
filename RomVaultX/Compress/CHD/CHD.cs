@@ -7,19 +7,45 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Text.RegularExpressions;
 using RomVaultX;
-using RomVaultX.Util;
-using Alphaleonis.Win32.Filesystem;
-using BinaryReader = System.IO.BinaryReader;
-using Path = System.IO.Path;
-using Stream = System.IO.Stream;
-using SystemFile = System.IO.File;
+using RVIO;
+using File = RVIO.File;
+using FileInfo = RVIO.FileInfo;
+using FileStream = RVIO.FileStream;
+using Path = RVIO.Path;
 
 namespace Compress.CHD
 {
     public static class CHD
     {
+        public enum CHDManCheck
+        {
+            Unset,
+            Good,
+            Corrupt,
+            CHDNotFound,
+            ChdmanNotFound,
+            CHDUnknownError,
+            CHDReturnError
+        }
+
         private const int MaxHeader = 124;
+
+        private static string _result;
+        private static BackgroundWorker _bgw;
+        private static CHDManCheck _resultType;
+
+        /*
+        chdman - MAME Compressed Hunks of Data (CHD) manager 0.147 (Sep 18 2012)
+        Raw SHA1 verification successful!
+        Overall SHA1 verification successful!
+        */
+
+        private static int _outputLineCount;
+
+        private static int _errorLines;
 
         public static int CheckFile(FileInfo ofile, out byte[] SHA1CHD, out byte[] MD5CHD, out uint? version)
         {
@@ -33,19 +59,18 @@ namespace Compress.CHD
                 return 0;
             }
 
+
             if (ofile.Length < MaxHeader)
             {
                 return 0;
             }
 
+
             Stream s;
-            try
+            int retval = FileStream.OpenFileRead(ofile.FullName, out s);
+            if (retval != 0)
             {
-                s = SystemFile.OpenRead(ofile.FullName);
-            }
-            catch
-            {
-                return 1;
+                return retval;
             }
             if (s == null)
             {
@@ -60,13 +85,15 @@ namespace Compress.CHD
             return 0;
         }
 
-        public static void CheckFile(Stream s, out byte[] SHA1CHD, out byte[] MD5CHD, out uint? version)
-        {
-            s.Position = 0;
-            BinaryReader br = new BinaryReader(s);
-            byte[] buff = br.ReadBytes(MaxHeader);
 
-            CheckFile(buff, out SHA1CHD, out MD5CHD, out version);
+        private static void CheckFile(Stream s, out byte[] SHA1CHD, out byte[] MD5CHD, out uint? version)
+        {
+            using (BinaryReader br = new BinaryReader(s))
+            {
+                byte[] buff = br.ReadBytes(MaxHeader);
+
+                CheckFile(buff, out SHA1CHD, out MD5CHD, out version);
+            }
         }
 
         private static void CheckFile(byte[] buff, out byte[] SHA1CHD, out byte[] MD5CHD, out uint? version)
@@ -74,9 +101,9 @@ namespace Compress.CHD
             SHA1CHD = null;
             MD5CHD = null;
             version = null;
-            UInt32 compression = 0;
+            uint compression = 0;
 
-            byte[] header = new[] { (byte)'M', (byte)'C', (byte)'o', (byte)'m', (byte)'p', (byte)'r', (byte)'H', (byte)'D' };
+            byte[] header = { (byte)'M', (byte)'C', (byte)'o', (byte)'m', (byte)'p', (byte)'r', (byte)'H', (byte)'D' };
 
             for (int i = 0; i < header.Length; i++)
             {
@@ -86,7 +113,7 @@ namespace Compress.CHD
                 }
             }
 
-            UInt32 length = ReadUInt32(buff, 8);
+            uint length = ReadUInt32(buff, 8);
             version = ReadUInt32(buff, 12);
 
             if (version > 5)
@@ -225,11 +252,11 @@ namespace Compress.CHD
                     //    [  8] UINT32 length;        // length of header (including tag and length fields)
                     //    [ 12] UINT32 version;       // drive format version
                     //    [ 16] UINT32 compressors[4];// which custom compressors are used?
-                    UInt32 compression0 = ReadUInt32(buff, 16);
-                    UInt32 compression1 = ReadUInt32(buff, 20);
-                    UInt32 compression2 = ReadUInt32(buff, 24);
-                    UInt32 compression3 = ReadUInt32(buff, 28);
-                    if (compression0 == 0 && compression1 == 0 && compression2 == 0 && compression3 == 0)
+                    uint compression0 = ReadUInt32(buff, 16);
+                    uint compression1 = ReadUInt32(buff, 20);
+                    uint compression2 = ReadUInt32(buff, 24);
+                    uint compression3 = ReadUInt32(buff, 28);
+                    if ((compression0 == 0) && (compression1 == 0) && (compression2 == 0) && (compression3 == 0))
                     {
                         return;
                     }
@@ -247,13 +274,14 @@ namespace Compress.CHD
             }
         }
 
-        private static UInt32 ReadUInt32(byte[] b, int p)
+
+        private static uint ReadUInt32(byte[] b, int p)
         {
             return
-                ((UInt32)b[p + 0]) << 24 |
-                ((UInt32)b[p + 1]) << 16 |
-                ((UInt32)b[p + 2]) << 8 |
-                (b[p + 3]);
+                ((uint)b[p + 0] << 24) |
+                ((uint)b[p + 1] << 16) |
+                ((uint)b[p + 2] << 8) |
+                b[p + 3];
         }
 
         private static byte[] ReadBytes(byte[] b, int p, int length)
@@ -266,20 +294,6 @@ namespace Compress.CHD
             return ret;
         }
 
-        private static string _result;
-        private static BackgroundWorker _bgw;
-        private static CHDManCheck _resultType;
-
-        public enum CHDManCheck
-        {
-            Unset,
-            Good,
-            Corrupt,
-            CHDNotFound,
-            ChdmanNotFound,
-            CHDUnknownError,
-            CHDReturnError
-        }
 
         public static CHDManCheck ChdmanCheck(string filename, BackgroundWorker bgw, out string result)
         {
@@ -290,25 +304,29 @@ namespace Compress.CHD
             string chdExe = "chdman.exe";
 
             string chdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, chdExe);
-            if (!SystemFile.Exists(chdPath))
+            if (!System.IO.File.Exists(chdPath))
             {
                 result = chdExe + " Not Found.";
                 return CHDManCheck.ChdmanNotFound;
             }
 
-            if (!SystemFile.Exists(filename))
+            if (!System.IO.File.Exists(filename))
             {
                 result = filename + " Not Found.";
                 return CHDManCheck.CHDNotFound;
             }
 
-            string shortName = VarFix.GetShortPathName(filename);
+            string shortName = NameFix.GetShortPath(filename);
 
 
             using (Process exeProcess = new Process())
             {
                 exeProcess.StartInfo.FileName = chdPath;
+                ReportError.LogOut("CHD: FileName :" + exeProcess.StartInfo.FileName);
+
+
                 exeProcess.StartInfo.Arguments = "verify -i \"" + shortName + "\"";
+                ReportError.LogOut("CHD: Arguments :" + exeProcess.StartInfo.Arguments);
 
                 // Set UseShellExecute to false for redirection.
                 exeProcess.StartInfo.UseShellExecute = false;
@@ -327,6 +345,7 @@ namespace Compress.CHD
                 _outputLineCount = 0;
                 _errorLines = 0;
 
+                ReportError.LogOut("CHD: Scanning Starting");
                 exeProcess.Start();
 
                 // Start the asynchronous read of the process output stream.
@@ -335,6 +354,7 @@ namespace Compress.CHD
 
                 // Wait for the process finish.
                 exeProcess.WaitForExit();
+                ReportError.LogOut("CHD: Scanning Finished");
             }
 
             result = _result;
@@ -346,28 +366,25 @@ namespace Compress.CHD
 
             _bgw.ReportProgress(0, new bgwText3(""));
 
+            ReportError.LogOut("CHD: returning result " + _resultType + " " + result);
+
             return _resultType;
         }
-
-        /*
-        chdman - MAME Compressed Hunks of Data (CHD) manager 0.147 (Sep 18 2012)
-        Raw SHA1 verification successful!
-        Overall SHA1 verification successful!
-        */
-
-        private static int _outputLineCount;
 
         private static void CHDOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             // Collect the process command output.
-            if (String.IsNullOrEmpty(outLine.Data)) return;
+            if (string.IsNullOrEmpty(outLine.Data))
+            {
+                return;
+            }
 
             string sOut = outLine.Data;
             //ReportError.LogOut("CHDOutput: " + _outputLineCount + " : " + sOut);
             switch (_outputLineCount)
             {
                 case 0:
-                    if (!System.Text.RegularExpressions.Regex.IsMatch(sOut, @"^chdman - MAME Compressed Hunks of Data \(CHD\) manager ([0-9\.]+) \(.*\)"))
+                    if (!Regex.IsMatch(sOut, @"^chdman - MAME Compressed Hunks of Data \(CHD\) manager ([0-9\.]+) \(.*\)"))
                     {
                         _result = "Incorrect startup of CHDMan :" + sOut;
                         _resultType = CHDManCheck.CHDReturnError;
@@ -396,21 +413,25 @@ namespace Compress.CHD
             _outputLineCount++;
         }
 
-        private static int _errorLines;
-
         private static void CHDErrorHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             // Collect the process command output.
-            if (String.IsNullOrEmpty(outLine.Data)) return;
+            if (string.IsNullOrEmpty(outLine.Data))
+            {
+                return;
+            }
 
             // We can get fed multiple lines worth of data because of \r line feeds
-            string[] sLines = outLine.Data.Split(new string[] { "\r" }, StringSplitOptions.None);
+            string[] sLines = outLine.Data.Split(new[] { "\r" }, StringSplitOptions.None);
 
             foreach (string sLine in sLines)
             {
+                if (string.IsNullOrEmpty(sLine))
+                {
+                    continue;
+                }
 
-                if (string.IsNullOrEmpty(sLine)) continue;
-
+                ReportError.LogOut("CHDError: " + sLine);
                 _bgw.ReportProgress(0, new bgwText3(sLine));
 
                 if (_resultType != CHDManCheck.Unset)
@@ -421,35 +442,34 @@ namespace Compress.CHD
                         _result += "\r\n" + sLine;
                     }
                 }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(sLine, @"^No verification to be done; CHD has (uncompressed|no checksum)"))
+                else if (Regex.IsMatch(sLine, @"^No verification to be done; CHD has (uncompressed|no checksum)"))
                 {
                     _result = sLine;
                     _resultType = CHDManCheck.Corrupt;
                 }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(sLine, @"^Error (opening|reading) CHD file.*"))
+                else if (Regex.IsMatch(sLine, @"^Error (opening|reading) CHD file.*"))
                 {
                     _result = sLine;
                     _resultType = CHDManCheck.Corrupt;
                 }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(sLine, @"^Error opening parent CHD file .*:"))
+                else if (Regex.IsMatch(sLine, @"^Error opening parent CHD file .*:"))
                 {
                     _result = sLine;
                     _resultType = CHDManCheck.Corrupt;
                 }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(sLine, @"^Error: (Raw|Overall) SHA1 in header"))
+                else if (Regex.IsMatch(sLine, @"^Error: (Raw|Overall) SHA1 in header"))
                 {
                     _result = sLine;
                     _resultType = CHDManCheck.Corrupt;
                 }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(sLine, @"^Out of memory"))
+                else if (Regex.IsMatch(sLine, @"^Out of memory"))
                 {
                     _result = sLine;
                     _resultType = CHDManCheck.Corrupt;
                 }
                 // Verifying messages are a non-error
-                else if (System.Text.RegularExpressions.Regex.IsMatch(sLine, @"Verifying, \d+\.\d+\% complete\.\.\."))
+                else if (Regex.IsMatch(sLine, @"Verifying, \d+\.\d+\% complete\.\.\."))
                 {
-
                 }
                 else
                 {
