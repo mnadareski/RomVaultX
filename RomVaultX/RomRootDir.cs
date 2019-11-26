@@ -54,7 +54,7 @@ namespace RomVaultX
                 return rootDirs[b0];
         }
 
-        public static string Getfilename(byte[] sha1)
+        public static string GetFilename(byte[] sha1, bool checkExists)
         {
             string path = "";
 
@@ -71,7 +71,8 @@ namespace RomVaultX
                         VarFix.ToString(sha1[2]) + @"\" +
                         VarFix.ToString(sha1[3]) + @"\" +
                         VarFix.ToString(sha1) + ".gz";
-                exists = Alphaleonis.Win32.Filesystem.File.Exists(path);
+
+                exists = (checkExists ? Alphaleonis.Win32.Filesystem.File.Exists(path) : true);
                 i++;
             }
 

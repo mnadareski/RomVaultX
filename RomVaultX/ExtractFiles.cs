@@ -87,7 +87,7 @@ namespace RomVaultX
                         _zipFs.Write(localHeader, 0, localHeader.Length);
 
                         GZip GZip = new GZip();
-                        string strFilename = RomRootDir.Getfilename(sha1);
+                        string strFilename = RomRootDir.GetFilename(sha1, true);
                         GZip.ReadGZip(strFilename, false);
                         Stream oStr;
                         GZip.GetRawStream(out oStr);

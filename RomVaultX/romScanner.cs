@@ -104,7 +104,7 @@ namespace RomVaultX
                 _bgw?.ReportProgress(0, new bgwShowError(displayFilename, "found"));
                 Debug.WriteLine("Reading file as " + tFile.SHA1);
                 GZip gz = new GZip(tFile);
-                string outfile = RomRootDir.Getfilename(tFile.SHA1);
+                string outfile = RomRootDir.GetFilename(tFile.SHA1, false);
                 fStream.Position = 0;
                 gz.WriteGZip(outfile, fStream, false);
 

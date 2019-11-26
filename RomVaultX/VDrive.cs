@@ -431,7 +431,7 @@ namespace RomVaultX
             {
                 source.GZip = new GZip();
 
-                string strFilename = RomRootDir.Getfilename(source.GZipSha1);
+                string strFilename = RomRootDir.GetFilename(source.GZipSha1, true);
                 source.GZip.ReadGZip(strFilename, false);
             }
 
