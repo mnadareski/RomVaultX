@@ -23,9 +23,9 @@ namespace RomVaultX
         private const int Buffersize = 1024 * 1024;
         private static BackgroundWorker _bgw;
 
-        public static string RootDir = @"ToSort";
+        public static string RootDir = AppSettings.ReadSetting("ToSort");
         private static readonly byte[] Buffer = new byte[Buffersize];
-        private static string _tmpDir = @"tmp";
+        private static string _tmpDir = AppSettings.ReadSetting("TempDir");
 
         private static ulong _inMemorySize;
         public static bool DelFiles = true;
