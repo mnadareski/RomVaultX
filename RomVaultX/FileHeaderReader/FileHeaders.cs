@@ -123,8 +123,8 @@ namespace FileHeaderReader
                    (fileType == HeaderFileType.PCE) ||
                    (fileType == HeaderFileType.PSID) ||
                    (fileType == HeaderFileType.SNES) ||
-                   (fileType == HeaderFileType.SPC) ||
-                   (fileType == HeaderFileType.CHD);
+                   (fileType == HeaderFileType.SPC);
+                   // || (fileType == HeaderFileType.CHD);
         }
 
         public static HeaderFileType GetType(Stream sIn, out int offset)

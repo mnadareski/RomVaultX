@@ -45,7 +45,7 @@ namespace RomVaultX
                 _inMemorySize = 1000000;
             }
 
-            _tmpDir = AppSettings.ReadSetting("ScanInDir") ?? "tmp";
+            _tmpDir = AppSettings.ReadSetting("TempDir") ?? "tmp";
             if (!Directory.Exists(_tmpDir))
             {
                 Directory.CreateDirectory(_tmpDir);
@@ -90,11 +90,13 @@ namespace RomVaultX
             RvFile tFile = UnCompFiles.CheckSumRead(fStream, offset);
             tFile.AltType = foundFileType;
 
-
+            // CHDs are handled like regular files
+            /*
             if (foundFileType == HeaderFileType.CHD)
             {
                 // read altheader values from CHD file.
             }
+            */
 
             // test if needed.
             FindStatus res = RvRomFileMatchup.FileneededTest(tFile);
@@ -201,7 +203,6 @@ namespace RomVaultX
                 fStream.Close();
                 fStream.Dispose();
             }
-
 
             return ret;
         }
