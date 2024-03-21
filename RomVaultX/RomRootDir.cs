@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using RomVaultX.Util;
 
 namespace RomVaultX
@@ -9,9 +10,9 @@ namespace RomVaultX
 
         static RomRootDir()
         {
-            if (!System.IO.File.Exists("DirPaths.conf"))
+            if (!File.Exists("DirPaths.conf"))
                 return;
-            string text = System.IO.File.ReadAllText(@"DirPaths.conf");
+            string text = File.ReadAllText(@"DirPaths.conf");
 
             text = text.Replace("\r", "");
             string[] rules = text.Split('\n');
@@ -72,7 +73,7 @@ namespace RomVaultX
                         VarFix.ToString(sha1[3]) + @"\" +
                         VarFix.ToString(sha1) + ".gz";
 
-                exists = (checkExists ? Alphaleonis.Win32.Filesystem.File.Exists(path) : true);
+                exists = (checkExists ? File.Exists(path) : true);
                 i++;
             }
 
