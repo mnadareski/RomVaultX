@@ -330,11 +330,6 @@ namespace RomVaultX
             return NtStatus.Success;
         }
 
-        public NtStatus Mounted(IDokanFileInfo info)
-        {
-            return NtStatus.Success;
-        }
-
         public NtStatus Unmounted(IDokanFileInfo info)
         {
             return NtStatus.Success;
