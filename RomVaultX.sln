@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30406.217
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomVaultX", "RomVaultX\RomVaultX.csproj", "{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9F4B82BC-8AE1-43DE-88DD-A49BBB65CC16}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomVaultX", "RomVaultX\RomVaultX.csproj", "{67BC7BA5-F177-40EE-AA43-09A5768137B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,18 +20,18 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Debug|x64.ActiveCfg = Debug|x64
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Debug|x64.Build.0 = Debug|x64
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Debug|x86.ActiveCfg = Debug|x86
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Debug|x86.Build.0 = Debug|x86
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Release|x64.ActiveCfg = Release|x64
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Release|x64.Build.0 = Release|x64
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Release|x86.ActiveCfg = Release|x86
-		{B5A4FB1B-FF88-4EB8-95F0-BCE4ED52E020}.Release|x86.Build.0 = Release|x86
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Debug|x64.Build.0 = Debug|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Debug|x86.Build.0 = Debug|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Release|x64.ActiveCfg = Release|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Release|x64.Build.0 = Release|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Release|x86.ActiveCfg = Release|Any CPU
+		{67BC7BA5-F177-40EE-AA43-09A5768137B0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
