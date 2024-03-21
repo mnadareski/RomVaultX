@@ -189,7 +189,9 @@ namespace RomVaultX
 #else
                 options.Options = DokanOptions.FixedDrive;
 #endif
-                options.TimeOut = TimeSpan.FromSeconds(10);
+                options.SingleThread = false;
+                options.TimeOut = TimeSpan.FromSeconds(30);
+                options.UNCName = "RomVaultX";
             });
 
             Thread t2 = new Thread(() => { builder.Build(di); });
