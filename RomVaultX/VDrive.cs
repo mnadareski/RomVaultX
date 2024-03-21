@@ -6,7 +6,6 @@ using System.IO;
 using System.Security.AccessControl;
 using DokanNet;
 using RomVaultX.SupportedFiles.GZ;
-using RomVaultX.Util;
 using FileAccess = DokanNet.FileAccess;
 
 namespace RomVaultX
@@ -324,6 +323,11 @@ namespace RomVaultX
         public NtStatus SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, IDokanFileInfo info)
         {
             throw new NotImplementedException();
+        }
+
+        public NtStatus Mounted(string mountPoint, IDokanFileInfo info)
+        {
+            return NtStatus.Success;
         }
 
         public NtStatus Mounted(IDokanFileInfo info)

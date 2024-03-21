@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using DokanNet;
+using DokanNet.Native;
 using RomVaultX.DB;
 using RomVaultX.Util;
 
@@ -26,12 +27,14 @@ namespace RomVaultX
 
         private FolderBrowserDialog sortDir;
 
+        private readonly Dokan dk;
         private VDrive di;
 
         public frmMain()
         {
             InitializeComponent();
             Text = $@"RomVaultX {Application.StartupPath}";
+            dk = new Dokan(null);
 
             string driveLetter = AppSettings.ReadSetting("vDriveLetter");
             if (driveLetter == null)
@@ -174,19 +177,28 @@ namespace RomVaultX
 
         private void startVDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Dokan.Unmount(vDriveLetter);
+            dk.Unmount(vDriveLetter);
             di = new VDrive();
+
+            DokanInstanceBuilder builder = new DokanInstanceBuilder(dk);
+            builder.ConfigureOptions((DOKAN_OPTIONS options) =>
+            {
+                options.MountPoint = $"{vDriveLetter}:\\";
 #if DEBUG
-            Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.DebugMode, 1); });
+                options.Options = DokanOptions.DebugMode;
 #else
-            Thread t2 = new Thread(() => { di.Mount(vDriveLetter + ":\\", DokanOptions.FixedDrive, 10); });
+                options.Options = DokanOptions.FixedDrive;
 #endif
+                options.TimeOut = TimeSpan.FromSeconds(10);
+            });
+
+            Thread t2 = new Thread(() => { builder.Build(di); });
             t2.Start();
         }
 
         private void closeVDriveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Dokan.Unmount(vDriveLetter);
+            dk.Unmount(vDriveLetter);
         }
         private void extractFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -206,7 +218,7 @@ namespace RomVaultX
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Dokan.Unmount(vDriveLetter);
+            dk.Unmount(vDriveLetter);
         }
 
         private void RomGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)

@@ -63,13 +63,16 @@ namespace RomVaultX.DB
             if (_commandRvRomReader == null)
             {
                 _commandRvRomReader = new SQLiteCommand(
-                    @"SELECT RomId,name,
+                    @"SELECT RomId,
+                    name,
                     type,
                     rom.size,
                     rom.crc,
                     rom.sha1,
                     rom.md5,
-                    merge,status,putinzip,
+                    merge,
+                    status,
+                    putinzip,
                     rom.FileId,
                     files.size as fileSize,
                     files.compressedsize as fileCompressedSize,
@@ -95,18 +98,18 @@ namespace RomVaultX.DB
                         Name = dr["name"].ToString(),
                         AltType = VarFix.FixFileType(dr["type"]),
                         Size = VarFix.FixLong(dr["size"]),
-                        CRC = VarFix.CleanMD5SHA1(dr["CRC"].ToString(), 8),
-                        SHA1 = VarFix.CleanMD5SHA1(dr["SHA1"].ToString(), 40),
-                        MD5 = VarFix.CleanMD5SHA1(dr["MD5"].ToString(), 32),
+                        CRC = VarFix.CleanMD5SHA1(dr["crc"].ToString(), 8),
+                        SHA1 = VarFix.CleanMD5SHA1(dr["sha1"].ToString(), 40),
+                        MD5 = VarFix.CleanMD5SHA1(dr["md5"].ToString(), 32),
                         Merge = dr["merge"].ToString(),
                         Status = dr["status"].ToString(),
                         PutInZip = (bool)dr["putinzip"],
                         FileId = VarFix.FixLong(dr["FileId"]),
                         FileSize = VarFix.FixLong(dr["fileSize"]),
                         FileCompressedSize = VarFix.FixLong(dr["fileCompressedSize"]),
-                        FileCRC = VarFix.CleanMD5SHA1(dr["fileCRC"].ToString(), 8),
-                        FileSHA1 = VarFix.CleanMD5SHA1(dr["fileSHA1"].ToString(), 40),
-                        FileMD5 = VarFix.CleanMD5SHA1(dr["fileMD5"].ToString(), 32)
+                        FileCRC = VarFix.CleanMD5SHA1(dr["filecrc"].ToString(), 8),
+                        FileSHA1 = VarFix.CleanMD5SHA1(dr["filesha1"].ToString(), 40),
+                        FileMD5 = VarFix.CleanMD5SHA1(dr["filemd5"].ToString(), 32)
                     };
 
                     roms.Add(row);
@@ -122,20 +125,20 @@ namespace RomVaultX.DB
             {
                 _commandRvRomWrite = new SQLiteCommand(@"
                 INSERT INTO ROM  ( GameId, name, type, size, crc, sha1, md5, merge, status, putinzip, FileId)
-                          VALUES (@GameId,@Name,@Type,@Size,@CRC,@SHA1,@MD5,@Merge,@Status,@PutInZip,@FileId);
+                          VALUES (@GameId,@name,@type,@size,@crc,@sha1,@md5,@merge,@status,@putinzip,@FileId);
 
                 SELECT last_insert_rowid();", Program.db.Connection);
 
                 _commandRvRomWrite.Parameters.Add(new SQLiteParameter("GameId"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("Name"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("Type"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("Size"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("CRC"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("SHA1"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("MD5"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("Merge"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("Status"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("PutInZip"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("name"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("type"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("size"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("crc"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("sha1"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("md5"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("merge"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("status"));
+                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("putinzip"));
                 _commandRvRomWrite.Parameters.Add(new SQLiteParameter("FileId"));
             }
 
@@ -151,7 +154,7 @@ namespace RomVaultX.DB
             _commandRvRomWrite.Parameters["merge"].Value = Merge;
             _commandRvRomWrite.Parameters["status"].Value = Status;
             _commandRvRomWrite.Parameters["putinzip"].Value = PutInZip;
-            _commandRvRomWrite.Parameters["FileID"].Value = FileId;
+            _commandRvRomWrite.Parameters["FileId"].Value = FileId;
             _commandRvRomWrite.ExecuteNonQuery();
         }
     }

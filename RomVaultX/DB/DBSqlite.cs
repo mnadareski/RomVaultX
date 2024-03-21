@@ -129,7 +129,7 @@ namespace RomVaultX.DB
                 CREATE TABLE IF NOT EXISTS [VERSION] (
                     [Version] INTEGER NOT NULL);
                 INSERT INTO VERSION (version) VALUES (@Version);",
-                "version", DBVersion);
+                "Version", DBVersion);
 
             RvDir.CreateTable();
             RvDat.CreateTable();

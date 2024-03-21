@@ -50,7 +50,7 @@ namespace RomVaultX
             {
                 _commandFindInFiles = new SQLiteCommand(@"
                     SELECT COUNT(1) FROM FILES WHERE
-                        size=@size AND crc=@CRC and sha1=@SHA1 and md5=@MD5", Program.db.Connection);
+                        size=@size AND crc=@crc and sha1=@sha1 and md5=@md5", Program.db.Connection);
                 _commandFindInFiles.Parameters.Add(new SQLiteParameter("size"));
                 _commandFindInFiles.Parameters.Add(new SQLiteParameter("crc"));
                 _commandFindInFiles.Parameters.Add(new SQLiteParameter("sha1"));
@@ -78,9 +78,9 @@ namespace RomVaultX
             {
                 _commandFindInRoMsZero = new SQLiteCommand(@"
                     SELECT count(1) AS TotalFound FROM ROM WHERE
-                        ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                        ( md5=@MD5 OR md5 is NULL) AND
-                        ( crc=@CRC OR crc is NULL ) AND
+                        ( sha1=@sha1 OR sha1 is NULL ) AND 
+                        ( md5=@md5 OR md5 is NULL) AND
+                        ( crc=@crc OR crc is NULL ) AND
                         ( size=0 and (status !='nodump' or status is null)) ", Program.db.Connection);
                 _commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("crc"));
                 _commandFindInRoMsZero.Parameters.Add(new SQLiteParameter("sha1"));
@@ -91,23 +91,23 @@ namespace RomVaultX
                         SELECT
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( sha1=@SHA1 ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
-                                ( crc=@CRC OR crc is NULL ) AND
+                                ( sha1=@sha1 ) AND 
+                                ( md5=@md5 OR md5 is NULL) AND
+                                ( crc=@crc OR crc is NULL ) AND
                                 ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( md5=@MD5 ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( crc=@CRC OR crc is NULL ) AND
+                                ( md5=@md5 ) AND
+                                ( sha1=@sha1 OR sha1 is NULL ) AND 
+                                ( crc=@crc OR crc is NULL ) AND
                                 ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( crc=@CRC ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
+                                ( crc=@crc ) AND
+                                ( sha1=@sha1 OR sha1 is NULL ) AND 
+                                ( md5=@md5 OR md5 is NULL) AND
                                 ( size=@size OR size is NULL )
                         ) 
                         AS TotalFound", Program.db.Connection);
@@ -158,37 +158,37 @@ namespace RomVaultX
                         SELECT
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( type=@type ) AND
-                                ( sha1=@SHA1 ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
-                                ( crc=@CRC OR crc is NULL ) AND
+                                ( type=@Type ) AND
+                                ( sha1=@sha1 ) AND 
+                                ( md5=@md5 OR md5 is NULL) AND
+                                ( crc=@crc OR crc is NULL ) AND
                                 ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( type=@type ) AND
-                                ( md5=@MD5 ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( crc=@CRC OR crc is NULL ) AND
+                                ( type=@Type ) AND
+                                ( md5=@md5 ) AND
+                                ( sha1=@sha1 OR sha1 is NULL ) AND 
+                                ( crc=@crc OR crc is NULL ) AND
                                 ( size=@size OR size is NULL )
                         ) +
                         (
                             SELECT count(1) FROM ROM WHERE
-                                ( type=@type ) AND
-                                ( crc=@CRC ) AND
-                                ( sha1=@SHA1 OR sha1 is NULL ) AND 
-                                ( md5=@MD5 OR md5 is NULL) AND
+                                ( type=@Type ) AND
+                                ( crc=@crc ) AND
+                                ( sha1=@sha1 OR sha1 is NULL ) AND 
+                                ( md5=@md5 OR md5 is NULL) AND
                                 ( size=@size OR size is NULL )
                         ) 
                         AS TotalFound", Program.db.Connection);
-                _commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("type"));
+                _commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("Type"));
                 _commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("size"));
                 _commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("crc"));
                 _commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("sha1"));
                 _commandFindInRoMsAlt.Parameters.Add(new SQLiteParameter("md5"));
             }
 
-            _commandFindInRoMsAlt.Parameters["type"].Value = (int)tFile.AltType;
+            _commandFindInRoMsAlt.Parameters["Type"].Value = (int)tFile.AltType;
             _commandFindInRoMsAlt.Parameters["size"].Value = tFile.AltSize;
             _commandFindInRoMsAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.AltCRC);
             _commandFindInRoMsAlt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.AltSHA1);
@@ -245,7 +245,7 @@ namespace RomVaultX
 	                    (                 sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
+	                    ( size is NULL OR size = @size ) AND
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -257,7 +257,7 @@ namespace RomVaultX
 	                    (                 md5  = @md5  ) AND 
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
+	                    ( size is NULL OR size = @size ) AND
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -269,7 +269,7 @@ namespace RomVaultX
 	                    (                 crc  = @crc  ) AND
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
-	                    ( size is NULL OR size = @Size ) AND
+	                    ( size is NULL OR size = @size ) AND
                         FileId IS NULL;
                 ", Program.db.Connection);
                 _commandRvFileUpdateRom.Parameters.Add(new SQLiteParameter("FileId"));
@@ -299,11 +299,11 @@ namespace RomVaultX
                         LocalFileHeaderOffset = null,
                         LocalFileHeaderLength=null
                     WHERE
-                        (                 type = @type ) AND
+                        (                 type = @Type ) AND
 	                    (                 sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
 	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
+	                    ( size is NULL OR size = @size ) AND
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -312,11 +312,11 @@ namespace RomVaultX
                         LocalFileHeaderOffset = null,
                         LocalFileHeaderLength=null
                     WHERE
-                        (                 type = @type ) AND
+                        (                 type = @Type ) AND
 	                    (                 md5  = @md5  ) AND 
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( crc  is NULL OR crc  = @crc  ) AND
-	                    ( size is NULL OR size = @Size ) AND
+	                    ( size is NULL OR size = @size ) AND
                         FileId IS NULL;
 		
                     UPDATE ROM SET 
@@ -325,15 +325,15 @@ namespace RomVaultX
                         LocalFileHeaderOffset = null,
                         LocalFileHeaderLength=null
                     WHERE
-                        (                 type = @type ) AND
+                        (                 type = @Type ) AND
 	                    (                 crc  = @crc  ) AND
 	                    ( sha1 is NULL OR sha1 = @sha1 ) AND
 	                    ( md5  is NULL OR md5  = @md5  ) AND 
-	                    ( size is NULL OR size = @Size ) AND
+	                    ( size is NULL OR size = @size ) AND
                         FileId IS NULL;
                 ", Program.db.Connection);
                 _commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("FileId"));
-                _commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("type"));
+                _commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("Type"));
                 _commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("size"));
                 _commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("crc"));
                 _commandRvFileUpdateRomAlt.Parameters.Add(new SQLiteParameter("sha1"));
@@ -341,7 +341,7 @@ namespace RomVaultX
             }
 
             _commandRvFileUpdateRomAlt.Parameters["FileId"].Value = file.FileId;
-            _commandRvFileUpdateRomAlt.Parameters["type"].Value = file.AltType;
+            _commandRvFileUpdateRomAlt.Parameters["Type"].Value = file.AltType;
             _commandRvFileUpdateRomAlt.Parameters["size"].Value = file.AltSize;
             _commandRvFileUpdateRomAlt.Parameters["crc"].Value = VarFix.ToDBString(file.AltCRC);
             _commandRvFileUpdateRomAlt.Parameters["sha1"].Value = VarFix.ToDBString(file.AltSHA1);

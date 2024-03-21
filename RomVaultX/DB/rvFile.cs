@@ -56,7 +56,7 @@ namespace RomVaultX.DB
             {
                 _commandRvFileWrite = new SQLiteCommand(
                     @"INSERT INTO FILES (size,compressedsize,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5)
-                        VALUES (@Size,@compressedsize,@CRC,@SHA1,@MD5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
+                        VALUES (@size,@compressedsize,@crc,@sha1,@md5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
                     SELECT last_insert_rowid();", Program.db.Connection);
 
                 _commandRvFileWrite.Parameters.Add(new SQLiteParameter("size"));

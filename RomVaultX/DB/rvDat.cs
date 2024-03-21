@@ -69,12 +69,12 @@ namespace RomVaultX.DB
             {
                 _commandRvDatRead = new SQLiteCommand(@"
                 SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment,mergetype
-                FROM DAT WHERE DatId=@datId ORDER BY Filename", Program.db.Connection);
-                _commandRvDatRead.Parameters.Add(new SQLiteParameter("datId"));
+                FROM DAT WHERE DatId=@DatId ORDER BY Filename", Program.db.Connection);
+                _commandRvDatRead.Parameters.Add(new SQLiteParameter("DatId"));
             }
 
 
-            _commandRvDatRead.Parameters["DatID"].Value = datId;
+            _commandRvDatRead.Parameters["DatId"].Value = datId;
 
             using (DbDataReader dr = _commandRvDatRead.ExecuteReader())
             {
@@ -82,7 +82,7 @@ namespace RomVaultX.DB
                 {
                     DatId = datId;
                     DirId = Convert.ToUInt32(dr["DirId"]);
-                    Filename = dr["filename"].ToString();
+                    Filename = dr["Filename"].ToString();
                     Name = dr["name"].ToString();
                     RootDir = dr["rootdir"].ToString();
                     Description = dr["description"].ToString();
@@ -128,7 +128,7 @@ namespace RomVaultX.DB
                 _commandRvDatWrite.Parameters.Add(new SQLiteParameter("homepage"));
                 _commandRvDatWrite.Parameters.Add(new SQLiteParameter("url"));
                 _commandRvDatWrite.Parameters.Add(new SQLiteParameter("comment"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("mergetype"));
+                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("MergeType"));
                 _commandRvDatWrite.Parameters.Add(new SQLiteParameter("Path"));
                 _commandRvDatWrite.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
                 _commandRvDatWrite.Parameters.Add(new SQLiteParameter("ExtraDir"));
@@ -147,8 +147,8 @@ namespace RomVaultX.DB
             _commandRvDatWrite.Parameters["homepage"].Value = Homepage;
             _commandRvDatWrite.Parameters["url"].Value = URL;
             _commandRvDatWrite.Parameters["comment"].Value = Comment;
-            _commandRvDatWrite.Parameters["mergetype"].Value = MergeType;
-            _commandRvDatWrite.Parameters["path"].Value = Path;
+            _commandRvDatWrite.Parameters["MergeType"].Value = MergeType;
+            _commandRvDatWrite.Parameters["Path"].Value = Path;
             _commandRvDatWrite.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
             _commandRvDatWrite.Parameters["ExtraDir"].Value = ExtraDir;
             object res = _commandRvDatWrite.ExecuteScalar();

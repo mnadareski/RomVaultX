@@ -120,11 +120,11 @@ namespace RomVaultX
                                         LastAccessTime,
                                         LastWriteTime
                                     FROM
-                                        Dir 
+                                        DIR 
                                     WHERE 
-                                        fullname=@FName"))
+                                        fullname=@fullname"))
             {
-                DbParameter pFName = Program.db.Parameter("FName", testName);
+                DbParameter pFName = Program.db.Parameter("fullname", testName);
                 getDirectoryId.Parameters.Add(pFName);
 
                 using (DbDataReader reader = getDirectoryId.ExecuteReader())
@@ -211,11 +211,11 @@ namespace RomVaultX
                     SELECT 
                         DirId 
                     FROM
-                        Dir 
+                        DIR 
                     WHERE 
-                        Fullname=@FName"))
+                        fullname=@fullname"))
             {
-                DbParameter pFName = Program.db.Parameter("FName", testName);
+                DbParameter pFName = Program.db.Parameter("fullname", testName);
                 getDirectoryId.Parameters.Add(pFName);
 
                 object ret = getDirectoryId.ExecuteScalar();
@@ -237,16 +237,16 @@ namespace RomVaultX
                                 CreationTime,
                                 LastAccessTime 
                             FROM
-                                Game 
+                                GAME 
                             WHERE 
-                                Dirid = @dirId AND
+                                DirId = @DirId AND
                                 ZipFileLength > 0 AND
                                 name = @name
                                 "))
             {
                 DbParameter pDirId = Program.db.Parameter("DirId", dirId);
                 getFileInDirectory.Parameters.Add(pDirId);
-                DbParameter pName = Program.db.Parameter("Name", searchFilename.Replace(@"\", @"/"));
+                DbParameter pName = Program.db.Parameter("name", searchFilename.Replace(@"\", @"/"));
                 getFileInDirectory.Parameters.Add(pName);
                 using (DbDataReader dr = getFileInDirectory.ExecuteReader())
                 {
@@ -279,16 +279,16 @@ namespace RomVaultX
                                 CreationTime,
                                 LastAccessTime 
                             FROM
-                                Game 
+                                GAME 
                             WHERE 
-                                Dirid = @dirId AND
+                                DirId = @DirId AND
                                 ZipFileLength > 0 AND 
                                 name Like @name
                             LIMIT 1"))
             {
                 DbParameter pDirId = Program.db.Parameter("DirId", dirId);
                 getFileInDirectory.Parameters.Add(pDirId);
-                DbParameter pName = Program.db.Parameter("Name", searchDirectoryName.Replace(@"\", @"/") + @"/%");
+                DbParameter pName = Program.db.Parameter("name", searchDirectoryName.Replace(@"\", @"/") + @"/%");
                 getFileInDirectory.Parameters.Add(pName);
                 using (DbDataReader dr = getFileInDirectory.ExecuteReader())
                 {
@@ -329,12 +329,12 @@ namespace RomVaultX
                 using (DbCommand getDirectory = Program.db.Command(@"
                     SELECT 
                         DirId,
-                        Name,
+                        name,
                         CreationTime,
                         LastAccessTime,
                         LastWriteTime 
                     FROM
-                        Dir
+                        DIR
                     WHERE 
                         ParentDirId=@DirId"))
                 {
@@ -368,15 +368,15 @@ namespace RomVaultX
                 using (DbCommand getFilesInDirectory = Program.db.Command(@"
                         SELECT 
                             GameId, 
-                            Name,
+                            name,
                             ZipFileLength,
                             LastWriteTime,
                             CreationTime,
                             LastAccessTime
                         FROM 
-                            Game 
+                            GAME 
                         WHERE 
-                            DirId=@dirId AND
+                            DirId=@DirId AND
                             ZipFileLength>0 
                             "))
                 {
@@ -438,20 +438,20 @@ namespace RomVaultX
                 using (DbCommand getFilesInDirectory = Program.db.Command(@"
                         SELECT 
                             GameId, 
-                            Name,
+                            name,
                             ZipFileLength,
                             LastWriteTime,
                             CreationTime,
                             LastAccessTime
                         FROM 
-                            Game 
+                            GAME 
                         WHERE 
                             DirId=@dirId AND
-                            ZipFileLength>0 AND 
-                            Name LIKE @dirName
+                            ZipFileLength  >0 AND 
+                            name LIKE @dirName
                             "))
                 {
-                    DbParameter pDirName = Program.db.Parameter("DirName", datfilePart + "%");
+                    DbParameter pDirName = Program.db.Parameter("dirName", datfilePart + "%");
                     getFilesInDirectory.Parameters.Add(pDirName);
 
                     DbParameter pDirId = Program.db.Parameter("DirId", vDir._fileId);
@@ -596,7 +596,7 @@ namespace RomVaultX
                     CentralDirectory, 
                     CentralDirectoryOffset, 
                     CentralDirectoryLength 
-                 from game where GameId=@gameId"))
+                 from GAME where GameId=@GameId"))
             {
                 DbParameter pGameId = Program.db.Parameter("GameId", _fileId);
                 getCentralDir.Parameters.Add(pGameId);

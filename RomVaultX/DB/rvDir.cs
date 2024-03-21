@@ -50,7 +50,7 @@ namespace RomVaultX.DB
                 CommandFindInDir.Parameters.Add(new SQLiteParameter("fullname"));
             }
 
-            CommandFindInDir.Parameters["FullName"].Value = fullname;
+            CommandFindInDir.Parameters["fullname"].Value = fullname;
             object resFind = CommandFindInDir.ExecuteScalar();
             if ((resFind == null) || (resFind == DBNull.Value))
             {
