@@ -29,7 +29,7 @@ namespace RomVaultX.DatReader
             {
                 return false;
             }
-            if (DatFileLoader.Next.ToLower() == "clrmamepro")
+            if (DatFileLoader.Next.ToLowerInvariant() == "clrmamepro")
             {
                 DatFileLoader.Gn();
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
@@ -38,7 +38,7 @@ namespace RomVaultX.DatReader
                 }
                 DatFileLoader.Gn();
             }
-            if (DatFileLoader.Next.ToLower() == "romvault")
+            if (DatFileLoader.Next.ToLowerInvariant() == "romvault")
             {
                 DatFileLoader.Gn();
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
@@ -50,7 +50,7 @@ namespace RomVaultX.DatReader
 
             while (!DatFileLoader.EndOfStream())
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "dir":
                         DatFileLoader.Gn();
@@ -111,7 +111,7 @@ namespace RomVaultX.DatReader
 
             while (DatFileLoader.Next != ")")
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "name":
                         rvDat.Name = VarFix.CleanFileName(DatFileLoader.GnRest());
@@ -198,7 +198,7 @@ namespace RomVaultX.DatReader
             DatFileLoader.Gn();
             while (DatFileLoader.Next != ")")
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "name":
                         DatFileLoader.GnRest();
@@ -222,7 +222,7 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-            if (DatFileLoader.Next.ToLower() != "name")
+            if (DatFileLoader.Next.ToLowerInvariant() != "name")
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
                 return false;
@@ -234,7 +234,7 @@ namespace RomVaultX.DatReader
 
             while (DatFileLoader.Next != ")")
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "dir":
                         DatFileLoader.Gn();
@@ -278,14 +278,14 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-            string snext = DatFileLoader.Next.ToLower();
+            string snext = DatFileLoader.Next.ToLowerInvariant();
 
             string pathextra = "";
             if (snext == "rebuildto")
             {
                 pathextra = VarFix.CleanFullFileName(DatFileLoader.Gn());
                 DatFileLoader.Gn();
-                snext = DatFileLoader.Next.ToLower();
+                snext = DatFileLoader.Next.ToLowerInvariant();
             }
 
             if (snext != "name")
@@ -305,7 +305,7 @@ namespace RomVaultX.DatReader
             RvGame rvGame = new RvGame {Name = name};
             while (DatFileLoader.Next != ")")
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "romof":
                         rvGame.RomOf = VarFix.CleanFileName(DatFileLoader.GnRest());
@@ -429,7 +429,7 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-            if (DatFileLoader.Next.ToLower() != "name")
+            if (DatFileLoader.Next.ToLowerInvariant() != "name")
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
                 return false;
@@ -446,7 +446,7 @@ namespace RomVaultX.DatReader
 
             while (DatFileLoader.Next != ")")
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "size":
                         rvRom.Size = VarFix.ULong(DatFileLoader.Gn());
@@ -513,7 +513,7 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-            if (DatFileLoader.Next.ToLower() != "name")
+            if (DatFileLoader.Next.ToLowerInvariant() != "name")
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
                 return false;
@@ -530,7 +530,7 @@ namespace RomVaultX.DatReader
 
             while (DatFileLoader.Next != ")")
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "sha1":
                         sha1 = VarFix.CleanMD5SHA1(DatFileLoader.Gn(), 40);
@@ -573,7 +573,7 @@ namespace RomVaultX.DatReader
 
             while (DatFileLoader.Next != ")")
             {
-                switch (DatFileLoader.Next.ToLower())
+                switch (DatFileLoader.Next.ToLowerInvariant())
                 {
                     case "name":
                         DatFileLoader.Gn();

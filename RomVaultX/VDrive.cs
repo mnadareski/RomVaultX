@@ -345,16 +345,13 @@ namespace RomVaultX
             return NtStatus.Success;
         }
 
-
         private static long TotalBytes()
         {
             return (long)10 * 1024 * 1024 * 1024 * 1024;
-            using (DbCommand getTotalBytes = Program.db.Command(@"select sum(zipfilelength) from game"))
-            {
-                return Convert.ToInt64(getTotalBytes.ExecuteScalar());
-            }
-        }
 
+            using DbCommand getTotalBytes = Program.db.Command(@"SELECT SUM(ZipFileLength) FROM GAME");
+            return Convert.ToInt64(getTotalBytes.ExecuteScalar());
+        }
 
         private void copyData(byte[] source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
         {
@@ -393,7 +390,6 @@ namespace RomVaultX
                 destination[destinationStart + i] = source[sourceStart + i];
             }
         }
-
 
         private void copyStream(VFile.VZipFile source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
         {

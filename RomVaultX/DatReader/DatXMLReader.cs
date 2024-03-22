@@ -136,7 +136,7 @@ namespace RomVaultX.DatReader
                 // dat Header XML filename
                 datFileType = FileHeaderReader.FileHeaderReader.GetFileTypeFromHeader(VarFix.String(packingNode.Attributes.GetNamedItem("header")));
 
-                rvDat.MergeType = VarFix.String(packingNode.Attributes.GetNamedItem("forcemerging")).ToLower();
+                rvDat.MergeType = VarFix.String(packingNode.Attributes.GetNamedItem("forcemerging")).ToLowerInvariant();
             }
 
             return true;

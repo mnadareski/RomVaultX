@@ -53,7 +53,7 @@ namespace Compress.CHD
             MD5CHD = null;
             version = null;
 
-            string ext = Path.GetExtension(ofile.Name).ToLower();
+            string ext = Path.GetExtension(ofile.Name).ToLowerInvariant();
             if (ext != ".chd")
             {
                 return 0;

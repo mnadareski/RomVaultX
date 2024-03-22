@@ -111,7 +111,7 @@ namespace RomVaultX
                 _bgw.ReportProgress(0, new bgwText2(f.Name));
                 string ext = Path.GetExtension(f.Name);
 
-                if (ext.ToLower() == ".gz")
+                if (ext.ToLowerInvariant() == ".gz")
                 {
                     GZip gZipTest = new GZip();
                     ZipReturn errorcode = gZipTest.ReadGZip(f.FullName, false);

@@ -26,23 +26,23 @@ namespace RomVaultX.DatReader
             if (DatFileLoader.EndOfStream())
                 return false;
 
-            if (DatFileLoader.Next.ToLower() == "[credits]")
+            if (DatFileLoader.Next.ToLowerInvariant() == "[credits]")
             {
-                if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
+                if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLowerInvariant()))
                     return false;
 
                 DatFileLoader.Gn();
             }
-            else if (DatFileLoader.Next.ToLower() == "[dat]")
+            else if (DatFileLoader.Next.ToLowerInvariant() == "[dat]")
             {
-                if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
+                if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLowerInvariant()))
                     return false;
 
                 DatFileLoader.Gn();
             }
-            else if (DatFileLoader.Next.ToLower() == "[emulator]")
+            else if (DatFileLoader.Next.ToLowerInvariant() == "[emulator]")
             {
-                if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLower()))
+                if (!LoadHeaderFromDat(filename, rvDat, out datFileType, DatFileLoader.Next.ToLowerInvariant()))
                     return false;
 
                 DatFileLoader.Gn();
@@ -94,14 +94,14 @@ namespace RomVaultX.DatReader
             datFileType = HeaderFileType.Nothing;
             rvDat.Filename = filename;
 
-            while (DatFileLoader.Next.ToLower() != "[games]")
+            while (DatFileLoader.Next.ToLowerInvariant() != "[games]")
             {
                 // Split the line by '='
                 string key = DatFileLoader.Next.Split('=')[0];
                 string value = DatFileLoader.Next.Remove(0, key.Length + (DatFileLoader.Next.Contains("=") ? 1 : 0));
                 string block = blockstart;
 
-                switch (key.ToLower())
+                switch (key.ToLowerInvariant())
                 {
                     // CREDITS block
                     case "[credits]":

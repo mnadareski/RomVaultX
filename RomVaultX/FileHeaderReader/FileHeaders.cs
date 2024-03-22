@@ -97,7 +97,7 @@ namespace FileHeaderReader
             if (string.IsNullOrWhiteSpace(header))
                 return HeaderFileType.Nothing;
 
-            string theader = header.ToLower();
+            string theader = header.ToLowerInvariant();
             foreach (Detector d in Detectors)
             {
                 if (string.IsNullOrEmpty(d.HeaderId))
@@ -105,7 +105,7 @@ namespace FileHeaderReader
                     continue;
                 }
 
-                if (theader == d.HeaderId.ToLower())
+                if (theader == d.HeaderId.ToLowerInvariant())
                 {
                     return d.FType;
                 }
@@ -192,7 +192,7 @@ namespace FileHeaderReader
                 FType = fType;
                 HeaderLength = headerLength;
                 FileOffset = fileOffset;
-                HeaderId = headerId.ToLower();
+                HeaderId = headerId.ToLowerInvariant();
                 Data = data;
             }
         }

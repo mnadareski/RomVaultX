@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using Microsoft.Data.Sqlite;
 
 namespace RomVaultX
 {
@@ -13,7 +13,7 @@ namespace RomVaultX
 
         public RvTree()
         {
-            _rows = new List<RvTreeRow>();
+            _rows = [];
             InitializeComponent();
         }
 
@@ -32,20 +32,18 @@ namespace RomVaultX
                 RvTreeRow pTree = _rows[i];
                 int nodeDepth = pTree.dirFullName.Count(x => x == '\\') - 1;
                 if (pTree.MultiDatDir)
-                {
                     nodeDepth += 1;
-                }
+
                 pTree.RTree = new Rectangle(0, yPos - 8, nodeDepth * 18, 16);
                 if (pTree.DatId == null)
-                {
                     pTree.RExpand = new Rectangle(5 + nodeDepth * 18, yPos + 4, 9, 9);
-                }
+
                 pTree.RIcon = new Rectangle(20 + nodeDepth * 18, yPos, 16, 16);
                 pTree.RText = new Rectangle(36 + nodeDepth * 18, yPos, 500, 16);
                 yPos = yPos + 16;
             }
-            AutoScrollMinSize = new Size(500, yPos);
 
+            AutoScrollMinSize = new Size(500, yPos);
 
             string lastBranch = "";
             for (int i = treeCount - 1; i >= 0; i--)
@@ -53,23 +51,15 @@ namespace RomVaultX
                 RvTreeRow pTree = _rows[i];
                 int nodeDepth = pTree.dirFullName.Count(x => x == '\\');
                 if (pTree.MultiDatDir)
-                {
                     nodeDepth += 1;
-                }
 
                 string thisBranch;
                 if (nodeDepth - 1 == 0)
-                {
                     thisBranch = "";
-                }
                 else if (nodeDepth - 1 > lastBranch.Length)
-                {
                     thisBranch = lastBranch + new string(' ', nodeDepth - 1 - lastBranch.Length);
-                }
                 else
-                {
                     thisBranch = lastBranch.Substring(0, nodeDepth - 1);
-                }
 
                 thisBranch = thisBranch.Replace("└", "│");
                 thisBranch += "└";
@@ -77,6 +67,7 @@ namespace RomVaultX
                 pTree.TreeBranches = thisBranch;
                 lastBranch = thisBranch;
             }
+
             Refresh();
         }
 
@@ -94,10 +85,9 @@ namespace RomVaultX
             _hScroll = HorizontalScroll.Value;
             _vScroll = VerticalScroll.Value;
 
-            Rectangle t = new Rectangle(e.ClipRectangle.Left + _hScroll, e.ClipRectangle.Top + _vScroll, e.ClipRectangle.Width, e.ClipRectangle.Height);
+            var t = new Rectangle(e.ClipRectangle.Left + _hScroll, e.ClipRectangle.Top + _vScroll, e.ClipRectangle.Width, e.ClipRectangle.Height);
 
             g.FillRectangle(Brushes.White, e.ClipRectangle);
-
 
             int treeCount = _rows.Count;
             for (int i = 0; i < treeCount; i++)
@@ -113,7 +103,7 @@ namespace RomVaultX
 
             if (pTree.RTree.IntersectsWith(t))
             {
-                Pen p = new Pen(Brushes.Gray, 1) { DashStyle = DashStyle.Dot };
+                var p = new Pen(Brushes.Gray, 1) { DashStyle = DashStyle.Dot };
 
                 string lTree = pTree.TreeBranches;
                 for (int j = 0; j < lTree.Length; j++)
@@ -137,9 +127,7 @@ namespace RomVaultX
             if (!pTree.RExpand.IsEmpty)
             {
                 if (pTree.RExpand.IntersectsWith(t))
-                {
                     g.DrawImage(pTree.Expanded ? RvImages.ExpandBoxMinus : RvImages.ExpandBoxPlus, RSub(pTree.RExpand, _hScroll, _vScroll));
-                }
             }
 
             if (pTree.RIcon.IntersectsWith(t))
@@ -147,33 +135,23 @@ namespace RomVaultX
                 int icon;
 
                 if (pTree.RomGot == pTree.RomTotal - pTree.RomNoDump)
-                {
                     icon = 3;
-                }
                 else if (pTree.RomGot > 0)
-                {
                     icon = 2;
-                }
                 else
-                {
                     icon = 1;
-                }
-
 
                 Bitmap bm;
                 //if (pTree.Dat == null && pTree.DirDatCount != 1) // Directory above DAT's in Tree
-                bm = string.IsNullOrEmpty(pTree.datName) ?
-                    RvImages.GetBitmap("DirectoryTree" + icon) :
-                    RvImages.GetBitmap("Tree" + icon);
+                bm = string.IsNullOrEmpty(pTree.datName)
+                    ? RvImages.GetBitmap("DirectoryTree" + icon)
+                    : RvImages.GetBitmap("Tree" + icon);
 
                 if (bm != null)
-                {
                     g.DrawImage(bm, RSub(pTree.RIcon, _hScroll, _vScroll));
-                }
             }
 
-
-            Rectangle recBackGround = new Rectangle(pTree.RText.X, pTree.RText.Y, Width - pTree.RText.X + _hScroll, pTree.RText.Height);
+            var recBackGround = new Rectangle(pTree.RText.X, pTree.RText.Y, Width - pTree.RText.X + _hScroll, pTree.RText.Height);
 
             if (recBackGround.IntersectsWith(t))
             {
@@ -181,18 +159,14 @@ namespace RomVaultX
                 if (!string.IsNullOrEmpty(pTree.datName) || !string.IsNullOrEmpty(pTree.description))
                 {
                     if (!string.IsNullOrEmpty(pTree.description))
-                    {
                         thistxt += ": " + pTree.description;
-                    }
                     else
-                    {
                         thistxt += ": " + pTree.datName;
-                    }
                 }
+
                 if ((pTree.RomTotal > 0) || (pTree.RomGot > 0) || (pTree.RomNoDump > 0))
-                {
                     thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (pTree.RomTotal - pTree.RomGot - pTree.RomNoDump).ToString("#,0") + " )";
-                }
+
                 if (Selected == pTree)
                 {
                     g.FillRectangle(new SolidBrush(Color.FromArgb(51, 153, 255)), RSub(recBackGround, _hScroll, _vScroll));
@@ -205,11 +179,9 @@ namespace RomVaultX
             }
         }
 
-
         private static Rectangle RSub(Rectangle r, int h, int v)
         {
-            Rectangle ret = new Rectangle(r.Left - h, r.Top - v, r.Width, r.Height);
-            return ret;
+            return new Rectangle(r.Left - h, r.Top - v, r.Width, r.Height);
         }
 
         #endregion
@@ -228,9 +200,7 @@ namespace RomVaultX
                 foreach (RvTreeRow tDir in _rows)
                 {
                     if (!CheckMouseDown(tDir, x, y, mevent))
-                    {
                         continue;
-                    }
 
                     mousehit = true;
                     break;
@@ -238,9 +208,7 @@ namespace RomVaultX
             }
 
             if (mousehit)
-            {
                 return;
-            }
 
             base.OnMouseDown(mevent);
         }
@@ -281,21 +249,35 @@ namespace RomVaultX
             }
         }
 
+        public static SqliteCommand CommandSetTreeExpanded
+        {
+            get
+            {
+                if (_commandSetTreeExpanded == null)
+                {
+                    _commandSetTreeExpanded = new SqliteCommand(@"
+                        UPDATE DIR
+                        SET
+                            expanded = @expanded
+                        WHERE
+                            DirId = @DirId",
+                    Program.db.Connection);
 
-        private static SQLiteCommand _commandSetTreeExpanded;
+                    _commandSetTreeExpanded.Parameters.Add(new SqliteParameter("expanded", SqliteType.Integer));
+                    _commandSetTreeExpanded.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
+                }
+
+                return _commandSetTreeExpanded;
+            }
+        }
+        private static SqliteCommand? _commandSetTreeExpanded;
 
         private static void SetTreeExpanded(uint DirId, bool expanded)
         {
-            if (_commandSetTreeExpanded == null)
-            {
-                _commandSetTreeExpanded = new SQLiteCommand(@"
-                    UPDATE dir SET expanded=@expanded WHERE DirId=@dirId", Program.db.Connection);
-                _commandSetTreeExpanded.Parameters.Add(new SQLiteParameter("expanded"));
-                _commandSetTreeExpanded.Parameters.Add(new SQLiteParameter("dirId"));
-            }
-            _commandSetTreeExpanded.Parameters["dirId"].Value = DirId;
-            _commandSetTreeExpanded.Parameters["expanded"].Value = expanded;
-            _commandSetTreeExpanded.ExecuteNonQuery();
+            CommandSetTreeExpanded.Parameters["DirId"].Value = DirId;
+            CommandSetTreeExpanded.Parameters["expanded"].Value = expanded;
+
+            CommandSetTreeExpanded.ExecuteNonQuery();
         }
 
         #endregion

@@ -180,7 +180,7 @@ namespace RomVaultX
             dk.Unmount(vDriveLetter);
             di = new VDrive();
 
-            DokanInstanceBuilder builder = new DokanInstanceBuilder(dk);
+            var builder = new DokanInstanceBuilder(dk);
             builder.ConfigureOptions((DOKAN_OPTIONS options) =>
             {
                 options.MountPoint = $"{vDriveLetter}:\\";
@@ -207,7 +207,7 @@ namespace RomVaultX
             if (DirTree.Selected == null)
                 return;
 
-            ExtractFiles.extract(DirTree.Selected.dirFullName);
+            ExtractFiles.Extract(DirTree.Selected.dirFullName);
         }
 
         private void fixDatsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -215,7 +215,7 @@ namespace RomVaultX
             if (DirTree.Selected == null)
                 return;
 
-            FixDatList.extract(DirTree.Selected.dirFullName);
+            FixDatList.Extract(DirTree.Selected.dirFullName);
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)

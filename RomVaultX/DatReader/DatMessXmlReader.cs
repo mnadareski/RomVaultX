@@ -154,12 +154,12 @@ namespace RomVaultX.DatReader
 
                 _indexContinue = rvGame.AddRom(rvRom);
             }
-            else if (loadflag.ToLower() == "continue")
+            else if (loadflag.ToLowerInvariant() == "continue")
             {
                 RvRom tROM = rvGame.Roms[_indexContinue];
                 tROM.Size += VarFix.ULong(romNode.Attributes.GetNamedItem("size"));
             }
-            else if (loadflag.ToLower() == "ignore")
+            else if (loadflag.ToLowerInvariant() == "ignore")
             {
                 RvRom tROM = rvGame.Roms[_indexContinue];
                 tROM.Size += VarFix.ULong(romNode.Attributes.GetNamedItem("size"));

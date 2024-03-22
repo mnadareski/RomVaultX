@@ -1,36 +1,130 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
     public class RvDat
     {
-        private static SQLiteCommand _commandRvDatWrite;
-        private static SQLiteCommand _commandRvDatRead;
+        public static SqliteCommand CommandRead
+        {
+            get
+            {
+                if (_commandRead == null)
+                {
+                    _commandRead = new SqliteCommand(@"
+                        SELECT *
+                        FROM DAT
+                        WHERE
+                            DatId = @DatId
+                        ORDER BY Filename",
+                    Program.db.Connection);
+
+                    _commandRead.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                }
+
+                return _commandRead;
+            }
+        }
+        private static SqliteCommand? _commandRead;
+
+        public static SqliteCommand CommandWrite
+        {
+            get
+            {
+                if (_commandWrite == null)
+                {
+                    _commandWrite = new SqliteCommand(@"
+                        INSERT INTO DAT
+                        (
+                            DirId,
+                            Filename,
+                            name,
+                            rootdir,
+                            description,
+                            category,
+                            version,
+                            date,
+                            author,
+                            email,
+                            homepage,
+                            url,
+                            comment,
+                            mergetype,
+                            Path,
+                            DatTimeStamp,
+                            ExtraDir
+                        )
+                        VALUES
+                        (
+                            @DirId,
+                            @Filename,
+                            @name,
+                            @rootdir,
+                            @description,
+                            @category,
+                            @version,
+                            @date,
+                            @author,
+                            @email,
+                            @homepage,
+                            @url,
+                            @comment,
+                            @mergetype,
+                            @Path,
+                            @DatTimeStamp,
+                            @ExtraDir
+                        );
+
+                        SELECT last_insert_rowid();",
+                    Program.db.Connection);
+
+                    _commandWrite.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
+                    _commandWrite.Parameters.Add(new SqliteParameter("Filename", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("rootdir", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("description", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("category", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("version", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("date", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("author", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("email", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("homepage", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("url", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("comment", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("mergetype", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("Path", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("DatTimeStamp", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("ExtraDir", SqliteType.Integer));
+                }
+
+                return _commandWrite;
+            }
+        }
+        private static SqliteCommand? _commandWrite;
+
         public uint DatId;
         public uint DirId;
-        public string Filename;
-        public string Name;
-        public string RootDir;
-        public string Description;
-        public string Category;
-        public string Version;
-        public string Date;
-        public string Author;
-        public string Email;
-        public string Homepage;
-        public string URL;
-        public string Comment;
-        public string Path;
+        public string? Filename;
+        public string? Name;
+        public string? RootDir;
+        public string? Description;
+        public string? Category;
+        public string? Version;
+        public string? Date;
+        public string? Author;
+        public string? Email;
+        public string? Homepage;
+        public string? URL;
+        public string? Comment;
+        public string? Path;
         public long DatTimeStamp;
         public bool ExtraDir;
-        public string MergeType;
+        public string? MergeType;
 
-        public List<RvGame> Games;
-
+        public List<RvGame>? Games;
 
         public static void CreateTable()
         {
@@ -65,18 +159,9 @@ namespace RomVaultX.DB
 
         public void DbRead(uint datId, bool readGames = false)
         {
-            if (_commandRvDatRead == null)
-            {
-                _commandRvDatRead = new SQLiteCommand(@"
-                SELECT DirId,Filename,name,rootdir,description,category,version,date,author,email,homepage,url,comment,mergetype
-                FROM DAT WHERE DatId=@DatId ORDER BY Filename", Program.db.Connection);
-                _commandRvDatRead.Parameters.Add(new SQLiteParameter("DatId"));
-            }
+            CommandRead.Parameters["DatId"].Value = datId;
 
-
-            _commandRvDatRead.Parameters["DatId"].Value = datId;
-
-            using (DbDataReader dr = _commandRvDatRead.ExecuteReader())
+            using (DbDataReader dr = CommandRead.ExecuteReader())
             {
                 if (dr.Read())
                 {
@@ -100,69 +185,38 @@ namespace RomVaultX.DB
             }
 
             if (readGames)
-            {
                 Games = RvGame.ReadGames(DatId, true);
-            }
         }
 
         public void DbWrite()
         {
-            if (_commandRvDatWrite == null)
-            {
-                _commandRvDatWrite = new SQLiteCommand(@"
-                INSERT INTO DAT ( DirId, Filename, name, rootdir, description, category, version, date, author, email, homepage, url, comment, MergeType, Path, DatTimeStamp,ExtraDir)
-                VALUES          (@DirId,@Filename,@name,@rootdir,@description,@category,@version,@date,@author,@email,@homepage,@url,@comment,@MergeType,@Path, @DatTimeStamp,@ExtraDir);
+            CommandWrite.Parameters["DirId"].Value = DirId;
+            CommandWrite.Parameters["Filename"].Value = Filename;
+            CommandWrite.Parameters["name"].Value = Name;
+            CommandWrite.Parameters["rootdir"].Value = RootDir;
+            CommandWrite.Parameters["description"].Value = Description;
+            CommandWrite.Parameters["category"].Value = Category;
+            CommandWrite.Parameters["version"].Value = Version;
+            CommandWrite.Parameters["date"].Value = Date;
+            CommandWrite.Parameters["author"].Value = Author;
+            CommandWrite.Parameters["email"].Value = Email;
+            CommandWrite.Parameters["homepage"].Value = Homepage;
+            CommandWrite.Parameters["url"].Value = URL;
+            CommandWrite.Parameters["comment"].Value = Comment;
+            CommandWrite.Parameters["mergetype"].Value = MergeType;
+            CommandWrite.Parameters["Path"].Value = Path;
+            CommandWrite.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            CommandWrite.Parameters["ExtraDir"].Value = ExtraDir;
 
-                SELECT last_insert_rowid();", Program.db.Connection);
+            var res = CommandWrite.ExecuteScalar();
 
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("DirId"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("Filename"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("name"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("rootdir"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("description"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("category"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("version"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("date"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("author"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("email"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("homepage"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("url"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("comment"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("MergeType"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("Path"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("DatTimeStamp"));
-                _commandRvDatWrite.Parameters.Add(new SQLiteParameter("ExtraDir"));
-            }
-
-            _commandRvDatWrite.Parameters["DirId"].Value = DirId;
-            _commandRvDatWrite.Parameters["Filename"].Value = Filename;
-            _commandRvDatWrite.Parameters["name"].Value = Name;
-            _commandRvDatWrite.Parameters["rootdir"].Value = RootDir;
-            _commandRvDatWrite.Parameters["description"].Value = Description;
-            _commandRvDatWrite.Parameters["category"].Value = Category;
-            _commandRvDatWrite.Parameters["version"].Value = Version;
-            _commandRvDatWrite.Parameters["date"].Value = Date;
-            _commandRvDatWrite.Parameters["author"].Value = Author;
-            _commandRvDatWrite.Parameters["email"].Value = Email;
-            _commandRvDatWrite.Parameters["homepage"].Value = Homepage;
-            _commandRvDatWrite.Parameters["url"].Value = URL;
-            _commandRvDatWrite.Parameters["comment"].Value = Comment;
-            _commandRvDatWrite.Parameters["MergeType"].Value = MergeType;
-            _commandRvDatWrite.Parameters["Path"].Value = Path;
-            _commandRvDatWrite.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
-            _commandRvDatWrite.Parameters["ExtraDir"].Value = ExtraDir;
-            object res = _commandRvDatWrite.ExecuteScalar();
-
-            if ((res == null) || (res == DBNull.Value))
-            {
+            if (res == null || res == DBNull.Value)
                 return;
-            }
+
             DatId = Convert.ToUInt32(res);
 
             if (Games == null)
-            {
                 return;
-            }
 
             foreach (RvGame rvGame in Games)
             {
@@ -173,32 +227,29 @@ namespace RomVaultX.DB
 
         public void AddGame(RvGame rvGame)
         {
-            if (Games == null)
-            {
-                Games = new List<RvGame>();
-            }
+            Games ??= [];
 
-            int index;
-            ChildNameSearch(rvGame.Name, out index);
+            ChildNameSearch(rvGame.Name, out int index);
             Games.Insert(index, rvGame);
         }
 
         public string GetExtraDirName()
         {
             if (!string.IsNullOrWhiteSpace(Description))
-            {
-                return Description;
-            }
+                return Description!;
+
             if (!string.IsNullOrWhiteSpace(Name))
-            {
-                return Name;
-            }
+                return Name!;
+
             return "-unknown-";
         }
 
-
         public int ChildNameSearch(string lGameName, out int index)
         {
+            index = -1;
+            if (Games == null)
+                return -1;
+
             int intBottom = 0;
             int intTop = Games.Count;
             int intMid = 0;
@@ -211,13 +262,9 @@ namespace RomVaultX.DB
 
                 intRes = VarFix.CompareName(lGameName, Games[intMid].Name);
                 if (intRes < 0)
-                {
                     intTop = intMid;
-                }
                 else if (intRes > 0)
-                {
                     intBottom = intMid + 1;
-                }
             }
             index = intMid;
 
@@ -229,11 +276,10 @@ namespace RomVaultX.DB
                 {
                     intRes1 = VarFix.CompareName(lGameName, Games[index - 1].Name);
                     if (intRes1 == 0)
-                    {
                         index--;
-                    }
                 }
             }
+
             // if the search is greater than the closest match move one up the list
             else if (intRes > 0)
             {

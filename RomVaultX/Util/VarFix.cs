@@ -12,7 +12,7 @@ namespace RomVaultX.Util
 
         public static bool StringYesNo(string b)
         {
-            return (b != null) && ((b.ToLower() == "yes") || (b.ToLower() == "true"));
+            return (b != null) && ((b.ToLowerInvariant() == "yes") || (b.ToLowerInvariant() == "true"));
         }
 
         public static ulong? ULong(XmlNode n)
@@ -34,7 +34,7 @@ namespace RomVaultX.Util
 
             try
             {
-                if ((n.Length >= 2) && (n.Substring(0, 2).ToLower() == "0x"))
+                if ((n.Length >= 2) && (n.Substring(0, 2).ToLowerInvariant() == "0x"))
                 {
                     return Convert.ToUInt64(n.Substring(2), 16);
                 }
@@ -60,9 +60,9 @@ namespace RomVaultX.Util
         private static string CleanCheck(string crc, int length)
         {
             string retcrc = crc ?? "";
-            retcrc = retcrc.ToLower().Trim();
+            retcrc = retcrc.ToLowerInvariant().Trim();
 
-            if ((retcrc.Length >= 2) && (retcrc.Substring(0, 2).ToLower() == "0x"))
+            if ((retcrc.Length >= 2) && (retcrc.Substring(0, 2).ToLowerInvariant() == "0x"))
             {
                 retcrc = retcrc.Substring(2);
             }
@@ -101,7 +101,7 @@ namespace RomVaultX.Util
                 return null;
             }
 
-            checksum = checksum.ToLower().Trim();
+            checksum = checksum.ToLowerInvariant().Trim();
 
             if (checksum.Length >= 2)
             {
@@ -226,7 +226,7 @@ namespace RomVaultX.Util
 
         public static string ToLower(string name)
         {
-            return name == null ? "" : name.ToLower();
+            return name == null ? "" : name.ToLowerInvariant();
         }
 
 
@@ -244,19 +244,19 @@ namespace RomVaultX.Util
             return path1 + "/" + path2;
         }
 
-        public static string ToString(byte[] b)
+        public static string ToString(byte[]? b)
         {
-            return b == null ? "" : BitConverter.ToString(b).ToLower().Replace("-", "");
+            return b == null ? "" : BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
         }
 
         public static string ToString(byte b)
         {
-            return ToString(new[] { b });
+            return ToString([b]);
         }
 
-        public static object ToDBString(byte[] b)
+        public static object ToDBString(byte[]? b)
         {
-            return b == null ? DBNull.Value : (object)BitConverter.ToString(b).ToLower().Replace("-", "");
+            return b == null ? DBNull.Value : (object)BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
         }
 
         public static ulong? FixLong(object v)

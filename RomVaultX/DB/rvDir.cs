@@ -1,13 +1,93 @@
 ﻿using System;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 
 namespace RomVaultX.DB
 {
     public class RvDir
     {
-        private static SQLiteCommand CommandFindInDir;
-        private static SQLiteCommand CommandSetDirFound;
-        private static SQLiteCommand CommandInsertIntoDir;
+        public static SqliteCommand CommandFindInDir
+        {
+            get
+            {
+                if (_commandFindInDir == null)
+                {
+                    _commandFindInDir = new SqliteCommand(@"
+                        SELECT DirId
+                        FROM DIR
+                        WHERE
+                            fullname = @fullname
+                        LIMIT 1",
+                    Program.db.Connection);
+
+                    _commandFindInDir.Parameters.Add(new SqliteParameter("fullname", SqliteType.Text));
+                }
+
+                return _commandFindInDir;
+            }
+        }
+        private static SqliteCommand? _commandFindInDir;
+
+        public static SqliteCommand CommandSetDirFound
+        {
+            get
+            {
+                if (_commandSetDirFound == null)
+                {
+                    _commandSetDirFound = new SqliteCommand(@"
+                        UPDATE DIR
+                        SET
+                            found = 1
+                        WHERE
+                            DirId = @DirId",
+                    Program.db.Connection);
+
+                    _commandSetDirFound.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
+                }
+
+                return _commandSetDirFound;
+            }
+        }
+        private static SqliteCommand? _commandSetDirFound;
+
+        public static SqliteCommand CommandInsertIntoDir
+        {
+            get
+            {
+                if (_commandInsertIntoDir == null)
+                {
+                    _commandInsertIntoDir = new SqliteCommand(@"
+                        INSERT INTO DIR
+                        (
+                            ParentDirId,
+                            name,
+                            fullname,
+                            CreationTime,
+                            LastAccessTime,
+                            LastWriteTime
+                        )
+                        VALUES
+                        (
+                            @ParentDirId,
+                            @name,
+                            @fullname,
+                            @TimeStamp,
+                            @TimeStamp,
+                            @TimeStamp
+                        );
+
+                        SELECT last_insert_rowid();",
+                    Program.db.Connection);
+
+                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("ParentDirId", SqliteType.Integer));
+                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("fullname", SqliteType.Text));
+                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("TimeStamp", SqliteType.Integer));
+                }
+
+                return _commandInsertIntoDir;
+            }
+        }
+        private static SqliteCommand? _commandInsertIntoDir;
 
         public static void CreateTable()
         {
@@ -28,78 +108,47 @@ namespace RomVaultX.DB
                 );");
         }
 
-
         public static uint FindOrInsertIntoDir(uint parentDirId, string name, string fullName)
         {
             uint? foundDatId = FindInDir(fullName);
             if (foundDatId == null)
-            {
                 return InsertIntoDir(parentDirId, name, fullName);
-            }
 
             SetDirFound((uint)foundDatId);
             return (uint)foundDatId;
         }
 
-
         private static uint? FindInDir(string fullname)
         {
-            if (CommandFindInDir == null)
-            {
-                CommandFindInDir = new SQLiteCommand(@"SELECT DirId FROM dir WHERE fullname=@fullname LIMIT 1", Program.db.Connection);
-                CommandFindInDir.Parameters.Add(new SQLiteParameter("fullname"));
-            }
-
             CommandFindInDir.Parameters["fullname"].Value = fullname;
-            object resFind = CommandFindInDir.ExecuteScalar();
-            if ((resFind == null) || (resFind == DBNull.Value))
-            {
+
+            var resFind = CommandFindInDir.ExecuteScalar();
+
+            if (resFind == null || resFind == DBNull.Value)
                 return null;
-            }
+
             return (uint?)Convert.ToInt32(resFind);
         }
 
-
         private static void SetDirFound(uint foundDatId)
         {
-            if (CommandSetDirFound == null)
-            {
-                CommandSetDirFound = new SQLiteCommand(@"Update Dir SET Found=1 WHERE DirId=@DirId", Program.db.Connection);
-                CommandSetDirFound.Parameters.Add(new SQLiteParameter("DirId"));
-            }
-
             CommandSetDirFound.Parameters["DirId"].Value = foundDatId;
+
             CommandSetDirFound.ExecuteNonQuery();
         }
 
         private static uint InsertIntoDir(uint parentDirId, string name, string fullName)
         {
-            if (CommandInsertIntoDir == null)
-            {
-                CommandInsertIntoDir = new SQLiteCommand(@"
-                    INSERT INTO DIR (ParentDirId,Name,FullName,CreationTime,LastAccessTime,LastWriteTime)
-                         VALUES (@ParentDirId,@Name,@FullName,@TimeStamp,@TimeStamp,@TimeStamp);
-
-                         SELECT last_insert_rowid();
-                    ", Program.db.Connection);
-
-                CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("ParentDirId"));
-                CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("Name"));
-                CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("FullName"));
-                CommandInsertIntoDir.Parameters.Add(new SQLiteParameter("TimeStamp"));
-            }
-
             CommandInsertIntoDir.Parameters["ParentDirId"].Value = parentDirId;
-            CommandInsertIntoDir.Parameters["Name"].Value = name;
-            CommandInsertIntoDir.Parameters["FullName"].Value = fullName;
-            CommandInsertIntoDir.Parameters["TimeStamp"].Value = DateTime.Now.Ticks;
+            CommandInsertIntoDir.Parameters["name"].Value = name;
+            CommandInsertIntoDir.Parameters["fullname"].Value = fullName;
+            CommandInsertIntoDir.Parameters["TimeStamp"].Value = DateTime.UtcNow.Ticks;
 
-            object res = CommandInsertIntoDir.ExecuteScalar();
+            var res = CommandInsertIntoDir.ExecuteScalar();
 
-            if ((res == null) || (res == DBNull.Value))
-            {
+            if (res == null || res == DBNull.Value)
                 return 0;
-            }
+
             return Convert.ToUInt32(res);
         }
     }

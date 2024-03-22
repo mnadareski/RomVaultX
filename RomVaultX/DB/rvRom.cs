@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using FileHeaderReader;
 using RomVaultX.Util;
 
@@ -9,27 +9,123 @@ namespace RomVaultX.DB
 {
     public class RvRom
     {
-        private static SQLiteCommand _commandRvRomReader;
-        private static SQLiteCommand _commandRvRomWrite;
+        public static SqliteCommand CommandRead
+        {
+            get
+            {
+                if (_commandRead == null)
+                {
+                    _commandRead = new SqliteCommand(@"
+                        SELECT
+                            RomId,
+                            name,
+                            type,
+                            ROM.size,
+                            ROM.crc,
+                            ROM.sha1,
+                            ROM.md5,
+                            merge,
+                            status,
+                            putinzip,
+                            ROM.FileId,
+                            FILES.size as fileSize,
+                            FILES.compressedsize as fileCompressedSize,
+                            FILES.crc as filecrc,
+                            FILES.sha1 as filesha1,
+                            FILES.md5 as filemd5
+                        FROM ROM
+                        LEFT OUTER JOIN FILES
+                        ON
+                            FILES.FileId = ROM.FileId
+                        WHERE
+                            GameId = @GameId
+                        ORDER BY RomId",
+                    Program.db.Connection);
+
+                    _commandRead.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                }
+
+                return _commandRead;
+            }
+        }
+        private static SqliteCommand? _commandRead;
+
+        public static SqliteCommand CommandWrite
+        {
+            get
+            {
+                if (_commandRvRomWrite == null)
+                {
+                    _commandRvRomWrite = new SqliteCommand(@"
+                        INSERT INTO ROM 
+                        (
+                            GameId,
+                            name,
+                            type,
+                            size,
+                            crc,
+                            sha1,
+                            md5,
+                            merge,
+                            status,
+                            putinzip,
+                            FileId
+                        )
+                        VALUES
+                        (
+                            @GameId,
+                            @name,
+                            @type,
+                            @size,
+                            @crc,
+                            @sha1,
+                            @md5,
+                            @merge,
+                            @status,
+                            @putinzip,
+                            @FileId
+                        );
+
+                        SELECT last_insert_rowid();",
+                    Program.db.Connection);
+
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("merge", SqliteType.Text));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("status", SqliteType.Text));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("putinzip", SqliteType.Integer));
+                    _commandRvRomWrite.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
+                }
+
+                return _commandRvRomWrite;
+            }
+        }
+        private static SqliteCommand? _commandRvRomWrite;
+
         public uint RomId;
         public uint GameId;
-        public string Name;
+        public string? Name;
         public ulong? Size;
         public HeaderFileType AltType;
-        public byte[] CRC;
-        public byte[] SHA1;
-        public byte[] MD5;
-        public string Merge;
-        public string Status;
-        public string Date;
+        public byte[]? CRC;
+        public byte[]? SHA1;
+        public byte[]? MD5;
+        public string? Merge;
+        public string? Status;
+        public string? Date;
         public bool PutInZip;
         public ulong? FileId;
 
         public ulong? FileSize;
         public ulong? FileCompressedSize;
-        public byte[] FileCRC;
-        public byte[] FileSHA1;
-        public byte[] FileMD5;
+        public byte[]? FileCRC;
+        public byte[]? FileSHA1;
+        public byte[]? FileMD5;
 
         public static void CreateTable()
         {
@@ -57,41 +153,16 @@ namespace RomVaultX.DB
                 );");
         }
 
-
         public static List<RvRom> ReadRoms(uint gameId)
         {
-            if (_commandRvRomReader == null)
-            {
-                _commandRvRomReader = new SQLiteCommand(
-                    @"SELECT RomId,
-                    name,
-                    type,
-                    rom.size,
-                    rom.crc,
-                    rom.sha1,
-                    rom.md5,
-                    merge,
-                    status,
-                    putinzip,
-                    rom.FileId,
-                    files.size as fileSize,
-                    files.compressedsize as fileCompressedSize,
-                    files.crc as filecrc,
-                    files.sha1 as filesha1,
-                    files.md5 as filemd5
-                FROM rom LEFT OUTER JOIN files ON files.FileId=rom.FileId WHERE GameId=@GameId ORDER BY RomId", Program.db.Connection);
-                _commandRvRomReader.Parameters.Add(new SQLiteParameter("GameId"));
-            }
+            CommandRead.Parameters["GameId"].Value = gameId;
 
-
-            List<RvRom> roms = new List<RvRom>();
-            _commandRvRomReader.Parameters["GameId"].Value = gameId;
-
-            using (DbDataReader dr = _commandRvRomReader.ExecuteReader())
+            List<RvRom> roms = [];
+            using (DbDataReader dr = CommandRead.ExecuteReader())
             {
                 while (dr.Read())
                 {
-                    RvRom row = new RvRom
+                    var row = new RvRom
                     {
                         RomId = Convert.ToUInt32(dr["RomId"]),
                         GameId = gameId,
@@ -114,6 +185,7 @@ namespace RomVaultX.DB
 
                     roms.Add(row);
                 }
+
                 dr.Close();
             }
             return roms;
@@ -121,41 +193,21 @@ namespace RomVaultX.DB
 
         public void DBWrite()
         {
-            if (_commandRvRomWrite == null)
-            {
-                _commandRvRomWrite = new SQLiteCommand(@"
-                INSERT INTO ROM  ( GameId, name, type, size, crc, sha1, md5, merge, status, putinzip, FileId)
-                          VALUES (@GameId,@name,@type,@size,@crc,@sha1,@md5,@merge,@status,@putinzip,@FileId);
-
-                SELECT last_insert_rowid();", Program.db.Connection);
-
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("GameId"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("name"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("type"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("size"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("crc"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("sha1"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("md5"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("merge"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("status"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("putinzip"));
-                _commandRvRomWrite.Parameters.Add(new SQLiteParameter("FileId"));
-            }
-
-
             FileId = DatUpdate.NoFilesInDb ? null : RvRomFileMatchup.FindAFile(this);
-            _commandRvRomWrite.Parameters["GameId"].Value = GameId;
-            _commandRvRomWrite.Parameters["name"].Value = Name;
-            _commandRvRomWrite.Parameters["type"].Value = (int)AltType;
-            _commandRvRomWrite.Parameters["size"].Value = Size;
-            _commandRvRomWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
-            _commandRvRomWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
-            _commandRvRomWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
-            _commandRvRomWrite.Parameters["merge"].Value = Merge;
-            _commandRvRomWrite.Parameters["status"].Value = Status;
-            _commandRvRomWrite.Parameters["putinzip"].Value = PutInZip;
-            _commandRvRomWrite.Parameters["FileId"].Value = FileId;
-            _commandRvRomWrite.ExecuteNonQuery();
+
+            CommandWrite.Parameters["GameId"].Value = GameId;
+            CommandWrite.Parameters["name"].Value = Name;
+            CommandWrite.Parameters["type"].Value = (int)AltType;
+            CommandWrite.Parameters["size"].Value = Size;
+            CommandWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
+            CommandWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
+            CommandWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
+            CommandWrite.Parameters["merge"].Value = Merge;
+            CommandWrite.Parameters["status"].Value = Status;
+            CommandWrite.Parameters["putinzip"].Value = PutInZip;
+            CommandWrite.Parameters["FileId"].Value = FileId;
+
+            CommandWrite.ExecuteNonQuery();
         }
     }
 }

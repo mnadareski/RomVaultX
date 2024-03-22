@@ -1,46 +1,188 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
 {
     public class RvGame
     {
-        private static SQLiteCommand _commandRvGameWrite;
-        private static SQLiteCommand _commandRvGameRead;
-        private static SQLiteCommand _commandRvGameReadDatGames;
+        public static SqliteCommand CommandRead
+        {
+            get
+            {
+                if (_commandRead == null)
+                {
+                    _commandRead = new SqliteCommand(@"
+                        SELECT *
+                        FROM GAME
+                        WHERE
+                            GameId = @GameId
+                        ORDER BY name",
+                    Program.db.Connection);
+
+                    _commandRead.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                }
+
+                return _commandRead;
+            }
+        }
+        private static SqliteCommand? _commandRead;
+
+        public static SqliteCommand CommandReadGames
+        {
+            get
+            {
+                if (_commandReadGames == null)
+                {
+                    _commandReadGames = new SqliteCommand(@"
+                        SELECT *
+                        FROM GAME
+                        WHERE
+                            DatId = @DatId
+                        ORDER BY name",
+                    Program.db.Connection);
+
+                    _commandReadGames.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                }
+
+                return _commandReadGames;
+            }
+        }
+        private static SqliteCommand? _commandReadGames;
+
+        public static SqliteCommand CommandWrite
+        {
+            get
+            {
+                if (_commandWrite == null)
+                {
+                    _commandWrite = new SqliteCommand(@"
+                        INSERT INTO GAME
+                        (
+                            DatId,
+                            name,
+                            description,
+                            manufacturer,
+                            cloneof,
+                            romof,
+                            sampleof,
+                            sourcefile,
+                            isbios,
+                            board,
+                            year,
+                            istrurip,
+                            publisher,
+                            developer,
+                            edition,
+                            version,
+                            type,
+                            media,
+                            language,
+                            players,
+                            ratings,
+                            genre,
+                            peripheral,
+                            barcode,
+                            mediacatalognumber
+                        )
+                        VALUES
+                        (
+                            @DatId,
+                            @name,
+                            @description,
+                            @manufacturer,
+                            @cloneof,
+                            @romof,
+                            @sampleof,
+                            @sourcefile,
+                            @isbios,
+                            @board,
+                            @year,
+                            @istrurip,
+                            @publisher,
+                            @developer,
+                            @edition,
+                            @version,
+                            @type,
+                            @media,
+                            @language,
+                            @players,
+                            @ratings,
+                            @genre,
+                            @peripheral,
+                            @barcode,
+                            @mediacatalognumber
+                        );
+
+                        SELECT last_insert_rowid();",
+                    Program.db.Connection);
+
+                    _commandWrite.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                    _commandWrite.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("description", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("manufacturer", SqliteType.Text));
+
+                    _commandWrite.Parameters.Add(new SqliteParameter("cloneof", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("romof", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("sampleof", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("sourcefile", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("isbios", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("board", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("year", SqliteType.Text));
+
+                    _commandWrite.Parameters.Add(new SqliteParameter("istrurip", SqliteType.Integer));
+                    _commandWrite.Parameters.Add(new SqliteParameter("publisher", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("developer", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("edition", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("version", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("type", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("media", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("language", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("players", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("ratings", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("genre", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("peripheral", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("barcode", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("mediacatalognumber", SqliteType.Text));
+                }
+
+                return _commandWrite;
+            }
+        }
+        private static SqliteCommand? _commandWrite;
+
         public uint GameId;
         public uint DatId;
-        public string Name;
-        public string Description;
+        public string? Name;
+        public string? Description;
 
-        public string Manufacturer;
-        public string CloneOf;
-        public string RomOf;
-        public string SampleOf;
-        public string SourceFile;
-        public string IsBios;
-        public string Board;
-        public string Year;
+        public string? Manufacturer;
+        public string? CloneOf;
+        public string? RomOf;
+        public string? SampleOf;
+        public string? SourceFile;
+        public string? IsBios;
+        public string? Board;
+        public string? Year;
 
         public bool IsTrurip;
-        public string Publisher;
-        public string Developer;
-        public string Edition;
-        public string Version;
-        public string Type;
-        public string Media;
-        public string Language;
-        public string Players;
-        public string Ratings;
-        public string Genre;
-        public string Peripheral;
-        public string BarCode;
-        public string MediaCatalogNumber;
+        public string? Publisher;
+        public string? Developer;
+        public string? Edition;
+        public string? Version;
+        public string? Type;
+        public string? Media;
+        public string? Language;
+        public string? Players;
+        public string? Ratings;
+        public string? Genre;
+        public string? Peripheral;
+        public string? BarCode;
+        public string? MediaCatalogNumber;
 
-        public List<RvRom> Roms;
+        public List<RvRom>? Roms;
 
         public int RomCount => Roms?.Count ?? 0;
 
@@ -92,53 +234,34 @@ namespace RomVaultX.DB
 
         public void DBRead(int gameId, bool readRoms = false)
         {
-            if (_commandRvGameRead == null)
-            {
-                _commandRvGameRead = new SQLiteCommand(@"
-                SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE GameId=@GameId ORDER BY name", Program.db.Connection);
-                _commandRvGameRead.Parameters.Add(new SQLiteParameter("GameId"));
-            }
+            CommandRead.Parameters["GameId"].Value = gameId;
 
-            _commandRvGameRead.Parameters["GameId"].Value = gameId;
-
-            using (DbDataReader dr = _commandRvGameRead.ExecuteReader())
+            using (DbDataReader dr = CommandRead.ExecuteReader())
             {
                 if (dr.Read())
-                {
                     RvGameReadFromReader(dr, this);
-                }
 
                 dr.Close();
             }
 
             if (readRoms)
-            {
                 Roms = RvRom.ReadRoms(GameId);
-            }
         }
 
         public static List<RvGame> ReadGames(uint datId, bool readRoms = false)
         {
-            if (_commandRvGameReadDatGames == null)
-            {
-                _commandRvGameReadDatGames = new SQLiteCommand(@"
-                SELECT GameId, DatId, name, description, manufacturer, cloneof, romof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber
-                    FROM GAME WHERE DatId=@DatId ORDER BY name", Program.db.Connection);
-                _commandRvGameReadDatGames.Parameters.Add(new SQLiteParameter("DatId"));
-            }
+            CommandReadGames.Parameters["DatId"].Value = datId;
 
-            List<RvGame> games = new List<RvGame>();
-            _commandRvGameReadDatGames.Parameters["DatId"].Value = datId;
-
-            using (DbDataReader dr = _commandRvGameReadDatGames.ExecuteReader())
+            List<RvGame> games = [];
+            using (DbDataReader dr = CommandReadGames.ExecuteReader())
             {
                 while (dr.Read())
                 {
-                    RvGame rvGame = new RvGame();
+                    var rvGame = new RvGame();
                     RvGameReadFromReader(dr, rvGame);
                     games.Add(rvGame);
                 }
+
                 dr.Close();
             }
 
@@ -185,78 +308,39 @@ namespace RomVaultX.DB
 
         public void DBWrite()
         {
-            if (_commandRvGameWrite == null)
-            {
-                _commandRvGameWrite = new SQLiteCommand(@"
-                INSERT INTO GAME ( DatId, name, description, manufacturer, cloneof, romof, sampleof, sourcefile, isbios, board, year, istrurip, publisher, developer, edition, version, type, media, language, players, ratings, genre, peripheral, barcode, mediacatalognumber)
-                          VALUES (@DatId,@name,@description,@manufacturer,@cloneof,@romof,@sampleof,@sourcefile,@isbios,@board,@year,@istrurip,@publisher,@developer,@edition,@version,@type,@media,@language,@players,@ratings,@genre,@peripheral,@barcode,@mediacatalognumber);
+            CommandWrite.Parameters["DatId"].Value = DatId;
+            CommandWrite.Parameters["name"].Value = Name;
+            CommandWrite.Parameters["description"].Value = Description;
+            CommandWrite.Parameters["manufacturer"].Value = Manufacturer;
 
-                SELECT last_insert_rowid();", Program.db.Connection);
+            CommandWrite.Parameters["cloneof"].Value = CloneOf;
+            CommandWrite.Parameters["romof"].Value = RomOf;
+            CommandWrite.Parameters["sampleof"].Value = SampleOf;
+            CommandWrite.Parameters["sourcefile"].Value = SourceFile;
+            CommandWrite.Parameters["isbios"].Value = IsBios;
+            CommandWrite.Parameters["board"].Value = Board;
+            CommandWrite.Parameters["year"].Value = Year;
 
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("DatId"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("name"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("description"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("manufacturer"));
+            CommandWrite.Parameters["istrurip"].Value = IsTrurip;
+            CommandWrite.Parameters["publisher"].Value = Publisher;
+            CommandWrite.Parameters["developer"].Value = Developer;
+            CommandWrite.Parameters["edition"].Value = Edition;
+            CommandWrite.Parameters["version"].Value = Version;
+            CommandWrite.Parameters["type"].Value = Type;
+            CommandWrite.Parameters["media"].Value = Media;
+            CommandWrite.Parameters["language"].Value = Language;
+            CommandWrite.Parameters["players"].Value = Players;
+            CommandWrite.Parameters["ratings"].Value = Ratings;
+            CommandWrite.Parameters["genre"].Value = Genre;
+            CommandWrite.Parameters["peripheral"].Value = Peripheral;
+            CommandWrite.Parameters["barcode"].Value = BarCode;
+            CommandWrite.Parameters["mediacatalognumber"].Value = MediaCatalogNumber;
 
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("cloneof"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("romof"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("sampleof"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("sourcefile"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("isbios"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("board"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("year"));
+            var res = CommandWrite.ExecuteScalar();
 
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("istrurip"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("publisher"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("developer"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("edition"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("version"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("type"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("media"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("language"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("players"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("ratings"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("genre"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("peripheral"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("barcode"));
-                _commandRvGameWrite.Parameters.Add(new SQLiteParameter("mediacatalognumber"));
-            }
-
-
-            _commandRvGameWrite.Parameters["DatId"].Value = DatId;
-            _commandRvGameWrite.Parameters["name"].Value = Name;
-            _commandRvGameWrite.Parameters["description"].Value = Description;
-            _commandRvGameWrite.Parameters["manufacturer"].Value = Manufacturer;
-
-            _commandRvGameWrite.Parameters["cloneof"].Value = CloneOf;
-            _commandRvGameWrite.Parameters["romof"].Value = RomOf;
-            _commandRvGameWrite.Parameters["sampleof"].Value = SampleOf;
-            _commandRvGameWrite.Parameters["sourcefile"].Value = SourceFile;
-            _commandRvGameWrite.Parameters["isbios"].Value = IsBios;
-            _commandRvGameWrite.Parameters["board"].Value = Board;
-            _commandRvGameWrite.Parameters["year"].Value = Year;
-
-            _commandRvGameWrite.Parameters["istrurip"].Value = IsTrurip;
-            _commandRvGameWrite.Parameters["publisher"].Value = Publisher;
-            _commandRvGameWrite.Parameters["developer"].Value = Developer;
-            _commandRvGameWrite.Parameters["edition"].Value = Edition;
-            _commandRvGameWrite.Parameters["version"].Value = Version;
-            _commandRvGameWrite.Parameters["type"].Value = Type;
-            _commandRvGameWrite.Parameters["media"].Value = Media;
-            _commandRvGameWrite.Parameters["language"].Value = Language;
-            _commandRvGameWrite.Parameters["players"].Value = Players;
-            _commandRvGameWrite.Parameters["ratings"].Value = Ratings;
-            _commandRvGameWrite.Parameters["genre"].Value = Genre;
-            _commandRvGameWrite.Parameters["peripheral"].Value = Peripheral;
-            _commandRvGameWrite.Parameters["barcode"].Value = BarCode;
-            _commandRvGameWrite.Parameters["mediacatalognumber"].Value = MediaCatalogNumber;
-
-            object res = _commandRvGameWrite.ExecuteScalar();
-
-            if ((res == null) || (res == DBNull.Value))
-            {
+            if (res == null || res == DBNull.Value)
                 return;
-            }
+
             GameId = Convert.ToUInt32(res);
 
             if (Roms != null)
@@ -271,13 +355,8 @@ namespace RomVaultX.DB
 
         public int AddRom(RvRom rvRom)
         {
-            if (Roms == null)
-            {
-                Roms = new List<RvRom>();
-            }
-
-            int index;
-            ChildNameSearch(rvRom.Name, out index);
+            Roms ??= [];
+            ChildNameSearch(rvRom.Name, out int index);
             Roms.Insert(index, rvRom);
             return index;
         }
@@ -285,7 +364,7 @@ namespace RomVaultX.DB
         private int ChildNameSearch(string lRomName, out int index)
         {
             int intBottom = 0;
-            int intTop = Roms.Count;
+            int intTop = Roms!.Count;
             int intMid = 0;
             int intRes = -1;
 

@@ -12,7 +12,7 @@ namespace RomVaultX
 {
     public class VFile
     {
-        public string FileName;
+        public string? FileName;
         public long Length;
         private int _fileId;
         public bool IsDirectory;
@@ -21,11 +21,11 @@ namespace RomVaultX
         private DateTime _lastAccessTime;
         private DateTime _lastWriteTime;
 
-        public List<VZipFile> Files;
+        public List<VZipFile>? Files;
 
         public static explicit operator FileInformation(VFile v)
         {
-            FileInformation fi = new FileInformation
+            return new FileInformation
             {
                 FileName = v.FileName,
                 Length = v.Length,
@@ -34,7 +34,6 @@ namespace RomVaultX
                 LastAccessTime = v._lastAccessTime,
                 LastWriteTime = v._lastWriteTime
             };
-            return fi;
         }
 
         /*
@@ -59,43 +58,35 @@ namespace RomVaultX
 
         // using the supplied filename, try and find and return the information (vFile) about this testFilename
         // this may be a file or a directory, so we need to also figure that out.
-        public static VFile FindFilename(string filename)
+        public static VFile? FindFilename(string filename)
         {
             Debug.WriteLine("Trying to find information about  " + filename);
 
             // 1) test for the root direction
-            VFile retVal = FindRoot(filename);
+            VFile? retVal = FindRoot(filename);
             if (retVal != null)
-            {
                 return retVal;
-            }
 
             // 2) test for a regular DB Directory
             retVal = FindInDBDir(filename);
             if (retVal != null)
-            {
                 return retVal;
-            }
 
             // 3) test for a Dat Entry
             retVal = FindInDBDat(filename);
             if (retVal != null)
-            {
                 return retVal;
-            }
 
             // Failed to file this filename
             return null;
         }
 
-        private static VFile FindRoot(string filename)
+        private static VFile? FindRoot(string filename)
         {
             if (filename != @"\")
-            {
                 return null;
-            }
 
-            VFile vfile = new VFile
+            return new VFile
             {
                 FileName = filename,
                 IsDirectory = true,
@@ -104,11 +95,9 @@ namespace RomVaultX
                 _lastWriteTime = DateTime.Today,
                 _lastAccessTime = DateTime.Today
             };
-            return vfile;
         }
 
-
-        private static VFile FindInDBDir(string filename)
+        private static VFile? FindInDBDir(string filename)
         {
             // try and find this directory in the DIR table
             string testName = filename.Substring(1) + @"\"; // takes the slash of the front of the string and add one on the end
@@ -122,7 +111,7 @@ namespace RomVaultX
                                     FROM
                                         DIR 
                                     WHERE 
-                                        fullname=@fullname"))
+                                        fullname = @fullname"))
             {
                 DbParameter pFName = Program.db.Parameter("fullname", testName);
                 getDirectoryId.Parameters.Add(pFName);
@@ -130,10 +119,9 @@ namespace RomVaultX
                 using (DbDataReader reader = getDirectoryId.ExecuteReader())
                 {
                     if (!reader.Read())
-                    {
                         return null;
-                    }
-                    VFile vDir = new VFile
+
+                    return new VFile
                     {
                         FileName = filename,
                         IsDirectory = true,
@@ -142,16 +130,15 @@ namespace RomVaultX
                         _lastAccessTime = new DateTime(Convert.ToInt64(reader["LastAccessTime"])),
                         _lastWriteTime = new DateTime(Convert.ToInt64(reader["LastWriteTime"]))
                     };
-                    return vDir;
                 }
             }
         }
 
-        private static VFile FindInDBDat(string filename)
+        private static VFile? FindInDBDat(string filename)
         {
             int filenameLength = filename.Length;
             // we only search in the DB for .zip files so test for that extension
-            bool isFile = (filenameLength > 4) && (filename.Substring(filenameLength - 4).ToLower() == ".zip");
+            bool isFile = (filenameLength > 4) && (filename.Substring(filenameLength - 4).ToLowerInvariant() == ".zip");
 
             string testFilename = filename;
             if (isFile)
@@ -165,15 +152,12 @@ namespace RomVaultX
             {
                 int slashPos = dirName.LastIndexOf(@"\", StringComparison.Ordinal);
                 if (slashPos <= 0)
-                {
                     return null;
-                }
+
                 dirName = testFilename.Substring(0, slashPos);
                 int? dirId = DirFind(dirName);
                 if (dirId == null)
-                {
                     continue; // loop to next slash
-                }
 
                 string filePart = testFilename.Substring(slashPos + 1);
                 if (isFile)
@@ -194,37 +178,27 @@ namespace RomVaultX
                         return vFile;
                     }
                 }
+
                 return null;
             }
         }
 
-
         private static int? DirFind(string dirName)
         {
             if (string.IsNullOrEmpty(dirName))
-            {
                 return null;
-            }
 
             string testName = dirName.Substring(1) + @"\";
-            using (DbCommand getDirectoryId = Program.db.Command(@"
-                    SELECT 
-                        DirId 
-                    FROM
-                        DIR 
-                    WHERE 
-                        fullname=@fullname"))
-            {
-                DbParameter pFName = Program.db.Parameter("fullname", testName);
-                getDirectoryId.Parameters.Add(pFName);
+            using DbCommand getDirectoryId = Program.db.Command(@"SELECT DirId FROM DIR WHERE fullname = @fullname");
+            DbParameter pFName = Program.db.Parameter("fullname", testName);
 
-                object ret = getDirectoryId.ExecuteScalar();
-                if ((ret == null) || (ret == DBNull.Value))
-                {
-                    return null;
-                }
-                return Convert.ToInt32(ret);
-            }
+            getDirectoryId.Parameters.Add(pFName);
+
+            var ret = getDirectoryId.ExecuteScalar();
+            if (ret == null || ret == DBNull.Value)
+                return null;
+
+            return Convert.ToInt32(ret);
         }
 
         private static VFile DBGameFindFile(int dirId, string searchFilename, string realFilename)
@@ -241,8 +215,7 @@ namespace RomVaultX
                             WHERE 
                                 DirId = @DirId AND
                                 ZipFileLength > 0 AND
-                                name = @name
-                                "))
+                                name = @name"))
             {
                 DbParameter pDirId = Program.db.Parameter("DirId", dirId);
                 getFileInDirectory.Parameters.Add(pDirId);
@@ -314,12 +287,10 @@ namespace RomVaultX
         public static List<VFile> DirGetSubItems(VFile vDir)
         {
             int dirId = vDir._fileId;
-            List<VFile> dirs = new List<VFile>();
+            List<VFile> dirs = [];
 
             if (!vDir.IsDirectory)
-            {
                 return dirs;
-            }
 
             if (vDir._fileSplitIndex == -1)
             {
@@ -336,7 +307,7 @@ namespace RomVaultX
                     FROM
                         DIR
                     WHERE 
-                        ParentDirId=@DirId"))
+                        ParentDirId = @DirId"))
                 {
                     DbParameter pParentDirId = Program.db.Parameter("DirId", dirId);
                     getDirectory.Parameters.Add(pParentDirId);
@@ -376,9 +347,8 @@ namespace RomVaultX
                         FROM 
                             GAME 
                         WHERE 
-                            DirId=@DirId AND
-                            ZipFileLength>0 
-                            "))
+                            DirId = @DirId AND
+                            ZipFileLength > 0"))
                 {
                     DbParameter pDirId = Program.db.Parameter("DirId", vDir._fileId);
                     getFilesInDirectory.Parameters.Add(pDirId);
@@ -446,12 +416,11 @@ namespace RomVaultX
                         FROM 
                             GAME 
                         WHERE 
-                            DirId=@dirId AND
-                            ZipFileLength  >0 AND 
-                            name LIKE @dirName
-                            "))
+                            DirId = @DirId AND
+                            ZipFileLength > 0 AND 
+                            name LIKE @name"))
                 {
-                    DbParameter pDirName = Program.db.Parameter("dirName", datfilePart + "%");
+                    DbParameter pDirName = Program.db.Parameter("name", datfilePart + "%");
                     getFilesInDirectory.Parameters.Add(pDirName);
 
                     DbParameter pDirId = Program.db.Parameter("DirId", vDir._fileId);
@@ -508,8 +477,6 @@ namespace RomVaultX
             return dirs;
         }
 
-
-
         /*
         private static VFile FindInRealRoot(string filename)
         {
@@ -548,7 +515,6 @@ namespace RomVaultX
         }
         */
 
-
         public bool LoadVFileZipData() // used to get ready to load an actual ZIP file
         {
             Files = new List<VZipFile>();
@@ -563,10 +529,10 @@ namespace RomVaultX
                  FROM 
                     ROM
                  WHERE 
-                    ROM.GameId=@GameId AND
-                    LocalFileHeaderLength > 0
+                    ROM.GameId = @GameId
+                    AND LocalFileHeaderLength > 0
                  ORDER BY 
-                    Rom.RomId"))
+                    ROM.RomId"))
             {
                 DbParameter pGameId = Program.db.Parameter("GameId", _fileId);
                 getRoms.Parameters.Add(pGameId);
@@ -574,7 +540,7 @@ namespace RomVaultX
                 {
                     while (dr.Read())
                     {
-                        VZipFile gf = new VZipFile
+                        var gf = new VZipFile
                         {
                             LocalHeaderOffset = Convert.ToInt64(dr["LocalFileHeaderOffset"]),
                             LocalHeaderLength = Convert.ToInt64(dr["LocalFileHeaderLength"]),
@@ -589,25 +555,24 @@ namespace RomVaultX
                 }
             }
 
-
             // the central directory is now added on to the end of the file list, like is another file with zero bytes of compressed data.
             using (DbCommand getCentralDir = Program.db.Command(
-                @"select 
+                @"SELECT 
                     CentralDirectory, 
                     CentralDirectoryOffset, 
                     CentralDirectoryLength 
-                 from GAME where GameId=@GameId"))
+                FROM GAME
+                WHERE
+                    GameId = @GameId"))
             {
                 DbParameter pGameId = Program.db.Parameter("GameId", _fileId);
                 getCentralDir.Parameters.Add(pGameId);
                 using (DbDataReader dr = getCentralDir.ExecuteReader())
                 {
                     if (!dr.Read())
-                    {
                         return false;
-                    }
 
-                    VZipFile gf = new VZipFile
+                    var gf = new VZipFile
                     {
                         LocalHeaderOffset = Convert.ToInt64(dr["CentralDirectoryOffset"]),
                         LocalHeaderLength = Convert.ToInt64(dr["CentralDirectoryLength"]),
@@ -621,7 +586,6 @@ namespace RomVaultX
                 }
             }
 
-
             return true;
         }
 
@@ -629,13 +593,13 @@ namespace RomVaultX
         {
             public long LocalHeaderOffset;
             public long LocalHeaderLength;
-            public byte[] LocalHeader;
+            public byte[]? LocalHeader;
 
-            public byte[] GZipSha1;
+            public byte[]? GZipSha1;
             public long CompressedDataOffset;
             public long CompressedDataLength;
 
-            public GZip GZip;
+            public GZip? GZip;
         }
     }
 }

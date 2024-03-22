@@ -11,7 +11,7 @@ namespace RomVaultX.DatReader
     {
         private static BackgroundWorker _bgw;
 
-        public static bool ReadDat(string fullname, BackgroundWorker bgw, out RvDat rvDat)
+        public static bool ReadDat(string fullname, BackgroundWorker? bgw, out RvDat rvDat)
         {
             _bgw = bgw;
 

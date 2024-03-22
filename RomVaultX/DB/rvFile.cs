@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using FileHeaderReader;
 using RomVaultX.Util;
 
@@ -7,20 +7,82 @@ namespace RomVaultX.DB
 {
     public class RvFile
     {
-        private static SQLiteCommand _commandRvFileWrite;
-        private static SQLiteCommand _commandCheckForAnyFiles;
+        public static SqliteCommand CommandWrite
+        {
+            get
+            {
+                if (_commandWrite == null)
+                {
+                    _commandWrite = new SqliteCommand(@"
+                        INSERT INTO FILES
+                        (
+                            size,
+                            compressedsize,
+                            crc,
+                            sha1,
+                            md5,
+                            alttype,
+                            altsize,
+                            altcrc,
+                            altsha1,
+                            altmd5
+                        )
+                        VALUES
+                        (
+                            @size,
+                            @compressedsize,
+                            @crc,
+                            @sha1,
+                            @md5,
+                            @alttype,
+                            @altsize,
+                            @altcrc,
+                            @altsha1,
+                            @altmd5
+                        );
+
+                        SELECT last_insert_rowid();",
+                    Program.db.Connection);
+
+                    _commandWrite.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    _commandWrite.Parameters.Add(new SqliteParameter("compressedsize", SqliteType.Integer));
+                    _commandWrite.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("altsize", SqliteType.Integer));
+                    _commandWrite.Parameters.Add(new SqliteParameter("altcrc", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("altsha1", SqliteType.Text));
+                    _commandWrite.Parameters.Add(new SqliteParameter("altmd5", SqliteType.Text));
+                }
+
+                return _commandWrite;
+            }
+        }
+        private static SqliteCommand? _commandWrite;
+
+        public static SqliteCommand CommandCheckForAnyFiles
+        {
+            get
+            {
+                _commandCheckForAnyFiles ??= new SqliteCommand("SELECT COUNT(1) FROM FILES LIMIT 1", Program.db.Connection);
+                return _commandCheckForAnyFiles;
+            }
+        }
+        private static SqliteCommand? _commandCheckForAnyFiles;
+
         public uint FileId;
         public ulong Size;
         public ulong CompressedSize;
-        public byte[] CRC;
-        public byte[] SHA1;
-        public byte[] MD5;
+        public byte[]? CRC;
+        public byte[]? SHA1;
+        public byte[]? MD5;
 
         public HeaderFileType AltType;
         public ulong? AltSize;
-        public byte[] AltCRC;
-        public byte[] AltSHA1;
-        public byte[] AltMD5;
+        public byte[]? AltCRC;
+        public byte[]? AltSHA1;
+        public byte[]? AltMD5;
 
         public static void CreateTable()
         {
@@ -49,56 +111,30 @@ namespace RomVaultX.DB
             Program.db.Commit();
         }
 
-
         private void RvFileWrite()
         {
-            if (_commandRvFileWrite == null)
-            {
-                _commandRvFileWrite = new SQLiteCommand(
-                    @"INSERT INTO FILES (size,compressedsize,crc,sha1,md5,alttype,altsize,altcrc,altsha1,altmd5)
-                        VALUES (@size,@compressedsize,@crc,@sha1,@md5,@alttype,@altsize,@altcrc,@altsha1,@altmd5);
-                    SELECT last_insert_rowid();", Program.db.Connection);
+            CommandWrite.Parameters["size"].Value = Size;
+            CommandWrite.Parameters["compressedsize"].Value = CompressedSize;
+            CommandWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
+            CommandWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
+            CommandWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
+            CommandWrite.Parameters["alttype"].Value = ((int)AltType).ToString();
+            CommandWrite.Parameters["altsize"].Value = AltSize;
+            CommandWrite.Parameters["altcrc"].Value = VarFix.ToDBString(AltCRC);
+            CommandWrite.Parameters["altsha1"].Value = VarFix.ToDBString(AltSHA1);
+            CommandWrite.Parameters["altmd5"].Value = VarFix.ToDBString(AltMD5);
 
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("size"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("compressedsize"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("crc"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("sha1"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("md5"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("alttype"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("altsize"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("altcrc"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("altsha1"));
-                _commandRvFileWrite.Parameters.Add(new SQLiteParameter("altmd5"));
-            }
+            var res = CommandWrite.ExecuteScalar();
 
-            _commandRvFileWrite.Parameters["size"].Value = Size;
-            _commandRvFileWrite.Parameters["compressedsize"].Value = CompressedSize;
-            _commandRvFileWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
-            _commandRvFileWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
-            _commandRvFileWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
-            _commandRvFileWrite.Parameters["alttype"].Value = (int)AltType;
-            _commandRvFileWrite.Parameters["altsize"].Value = AltSize;
-            _commandRvFileWrite.Parameters["altcrc"].Value = VarFix.ToDBString(AltCRC);
-            _commandRvFileWrite.Parameters["altsha1"].Value = VarFix.ToDBString(AltSHA1);
-            _commandRvFileWrite.Parameters["altmd5"].Value = VarFix.ToDBString(AltMD5);
-
-            object res = _commandRvFileWrite.ExecuteScalar();
             FileId = Convert.ToUInt32(res);
         }
 
-
         public static bool FilesinDBCheck()
         {
-            if (_commandCheckForAnyFiles == null)
-            {
-                _commandCheckForAnyFiles = new SQLiteCommand("SELECT COUNT(1) FROM FILES LIMIT 1", Program.db.Connection);
-            }
-
-            object res = _commandCheckForAnyFiles.ExecuteScalar();
-            if ((res == null) || (res == DBNull.Value))
-            {
+            var res = CommandCheckForAnyFiles.ExecuteScalar();
+            if (res == null || res == DBNull.Value)
                 return true;
-            }
+
             return Convert.ToInt32(res) == 0;
         }
     }
