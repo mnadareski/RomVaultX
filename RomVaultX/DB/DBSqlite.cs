@@ -34,7 +34,11 @@ namespace RomVaultX.DB
 
             bool datFound = File.Exists(_dbFilename);
 
-            Connection = new SqliteConnection($"data source={_dbFilename};Version=3");
+            var builder = new SqliteConnectionStringBuilder();
+            builder.DataSource = _dbFilename;
+            builder.Mode = SqliteOpenMode.ReadWriteCreate;
+            Connection = new SqliteConnection(builder.ConnectionString);
+
             Connection.Open();
 
             // ExecuteNonQuery("PRAGMA temp_store = MEMORY");

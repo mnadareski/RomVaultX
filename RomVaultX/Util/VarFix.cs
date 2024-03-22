@@ -94,7 +94,7 @@ namespace RomVaultX.Util
             return CleanMD5SHA1(n == null ? null : n.InnerText, length);
         }
 
-        public static byte[] CleanMD5SHA1(string checksum, int length)
+        public static byte[] CleanMD5SHA1(string? checksum, int length)
         {
             if (string.IsNullOrEmpty(checksum))
             {

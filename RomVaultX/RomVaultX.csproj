@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- Assembly Properties -->
-    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
     <OutputType>WinExe</OutputType>
     <ApplicationIcon>chip.ico</ApplicationIcon>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>

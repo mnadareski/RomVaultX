@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -72,26 +73,23 @@ namespace RomVaultX.Util
 
         static void InvalidateOutAndError()
         {
-            Type type = typeof(System.Console);
+            Type type = typeof(Console);
 
-            System.Reflection.FieldInfo _out = type.GetField("_out",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-
-            System.Reflection.FieldInfo _error = type.GetField("_error",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-
-            System.Reflection.MethodInfo _InitializeStdOutError = type.GetMethod("InitializeStdOutError",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-
+            FieldInfo? _out = type.GetField("_out", BindingFlags.Static | BindingFlags.NonPublic)
+                ?? type.GetField("s_out", BindingFlags.Static | BindingFlags.NonPublic);
             Debug.Assert(_out != null);
+
+            FieldInfo? _error = type.GetField("_error", BindingFlags.Static | BindingFlags.NonPublic)
+                ?? type.GetField("s_error", BindingFlags.Static | BindingFlags.NonPublic);
             Debug.Assert(_error != null);
 
-            Debug.Assert(_InitializeStdOutError != null);
+            MethodInfo? _InitializeStdOutError = type.GetMethod("InitializeStdOutError", BindingFlags.Static | BindingFlags.NonPublic);
+            //Debug.Assert(_InitializeStdOutError != null);
 
-            _out.SetValue(null, null);
-            _error.SetValue(null, null);
+            _out?.SetValue(null, null);
+            _error?.SetValue(null, null);
 
-            _InitializeStdOutError.Invoke(null, new object[] { true });
+            _InitializeStdOutError?.Invoke(null, [true]);
         }
 
         static void SetOutAndErrorNull()
