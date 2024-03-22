@@ -115,14 +115,14 @@ namespace RomVaultX.DB
         {
             CommandWrite.Parameters["size"].Value = Size;
             CommandWrite.Parameters["compressedsize"].Value = CompressedSize;
-            CommandWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC);
-            CommandWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1);
-            CommandWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5);
-            CommandWrite.Parameters["alttype"].Value = ((int)AltType).ToString();
-            CommandWrite.Parameters["altsize"].Value = AltSize;
-            CommandWrite.Parameters["altcrc"].Value = VarFix.ToDBString(AltCRC);
-            CommandWrite.Parameters["altsha1"].Value = VarFix.ToDBString(AltSHA1);
-            CommandWrite.Parameters["altmd5"].Value = VarFix.ToDBString(AltMD5);
+            CommandWrite.Parameters["crc"].Value = VarFix.ToDBString(CRC) ?? string.Empty;
+            CommandWrite.Parameters["sha1"].Value = VarFix.ToDBString(SHA1) ?? string.Empty;
+            CommandWrite.Parameters["md5"].Value = VarFix.ToDBString(MD5) ?? string.Empty;
+            CommandWrite.Parameters["alttype"].Value = ((int)AltType).ToString() ?? string.Empty;
+            CommandWrite.Parameters["altsize"].Value = AltSize ?? 0;
+            CommandWrite.Parameters["altcrc"].Value = VarFix.ToDBString(AltCRC) ?? string.Empty;
+            CommandWrite.Parameters["altsha1"].Value = VarFix.ToDBString(AltSHA1) ?? string.Empty;
+            CommandWrite.Parameters["altmd5"].Value = VarFix.ToDBString(AltMD5) ?? string.Empty;
 
             var res = CommandWrite.ExecuteScalar();
 

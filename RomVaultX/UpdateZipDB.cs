@@ -203,7 +203,7 @@ namespace RomVaultX
             CommandWriteLocalHeaderToRom.Parameters["LocalFileHeader"].Value = localHeader;
             CommandWriteLocalHeaderToRom.Parameters["LocalFileHeaderOffset"].Value = fileOffset;
             CommandWriteLocalHeaderToRom.Parameters["LocalFileHeaderLength"].Value = localHeader.Length;
-            CommandWriteLocalHeaderToRom.Parameters["LocalFileSha1"].Value = VarFix.ToString(sha1);
+            CommandWriteLocalHeaderToRom.Parameters["LocalFileSha1"].Value = VarFix.ToString(sha1) ?? string.Empty;
             CommandWriteLocalHeaderToRom.Parameters["LocalFileCompressedSize"].Value = compressedSize;
             CommandWriteLocalHeaderToRom.Parameters["RomId"].Value = RomId;
 

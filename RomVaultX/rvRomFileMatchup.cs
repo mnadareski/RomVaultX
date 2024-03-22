@@ -177,9 +177,9 @@ namespace RomVaultX
         public static bool FindInFiles(RvFile tFile)
         {
             CommandFindInFiles.Parameters["size"].Value = tFile.Size;
-            CommandFindInFiles.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
-            CommandFindInFiles.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-            CommandFindInFiles.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+            CommandFindInFiles.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
+            CommandFindInFiles.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1) ?? string.Empty;
+            CommandFindInFiles.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5) ?? string.Empty;
 
             var res = CommandFindInFiles.ExecuteScalar();
             if (res == null || res == DBNull.Value)
@@ -193,9 +193,9 @@ namespace RomVaultX
         {
             if (tFile.Size == 0)
             {
-                CommandFindInRomsZero.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
-                CommandFindInRomsZero.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-                CommandFindInRomsZero.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+                CommandFindInRomsZero.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
+                CommandFindInRomsZero.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1) ?? string.Empty;
+                CommandFindInRomsZero.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5) ?? string.Empty;
 
                 var resZero = CommandFindInRomsZero.ExecuteScalar();
                 if (resZero == null || resZero == DBNull.Value)
@@ -206,9 +206,9 @@ namespace RomVaultX
             }
 
             CommandFindInRoms.Parameters["size"].Value = tFile.Size;
-            CommandFindInRoms.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
-            CommandFindInRoms.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-            CommandFindInRoms.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
+            CommandFindInRoms.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
+            CommandFindInRoms.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1) ?? string.Empty;
+            CommandFindInRoms.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5) ?? string.Empty;
 
             var res = CommandFindInRoms.ExecuteScalar();
             if (res == null || res == DBNull.Value)
@@ -222,9 +222,9 @@ namespace RomVaultX
         {
             CommandFindInRomsAlt.Parameters["type"].Value = (int)tFile.AltType;
             CommandFindInRomsAlt.Parameters["size"].Value = tFile.AltSize;
-            CommandFindInRomsAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.AltCRC);
-            CommandFindInRomsAlt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.AltSHA1);
-            CommandFindInRomsAlt.Parameters["md5"].Value = VarFix.ToDBString(tFile.AltMD5);
+            CommandFindInRomsAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.AltCRC) ?? string.Empty;
+            CommandFindInRomsAlt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.AltSHA1) ?? string.Empty;
+            CommandFindInRomsAlt.Parameters["md5"].Value = VarFix.ToDBString(tFile.AltMD5) ?? string.Empty;
 
             var res = CommandFindInRomsAlt.ExecuteScalar();
             if (res == null || res == DBNull.Value)
@@ -403,9 +403,9 @@ namespace RomVaultX
         {
             CommandUpdateRom.Parameters["FileId"].Value = file.FileId;
             CommandUpdateRom.Parameters["size"].Value = file.Size;
-            CommandUpdateRom.Parameters["crc"].Value = VarFix.ToDBString(file.CRC);
-            CommandUpdateRom.Parameters["sha1"].Value = VarFix.ToDBString(file.SHA1);
-            CommandUpdateRom.Parameters["md5"].Value = VarFix.ToDBString(file.MD5);
+            CommandUpdateRom.Parameters["crc"].Value = VarFix.ToDBString(file.CRC) ?? string.Empty;
+            CommandUpdateRom.Parameters["sha1"].Value = VarFix.ToDBString(file.SHA1) ?? string.Empty;
+            CommandUpdateRom.Parameters["md5"].Value = VarFix.ToDBString(file.MD5) ?? string.Empty;
 
             CommandUpdateRom.ExecuteNonQuery();
         }
@@ -415,9 +415,9 @@ namespace RomVaultX
             CommandUpdateRomAlt.Parameters["FileId"].Value = file.FileId;
             CommandUpdateRomAlt.Parameters["Type"].Value = file.AltType;
             CommandUpdateRomAlt.Parameters["size"].Value = file.AltSize;
-            CommandUpdateRomAlt.Parameters["crc"].Value = VarFix.ToDBString(file.AltCRC);
-            CommandUpdateRomAlt.Parameters["sha1"].Value = VarFix.ToDBString(file.AltSHA1);
-            CommandUpdateRomAlt.Parameters["md5"].Value = VarFix.ToDBString(file.AltMD5);
+            CommandUpdateRomAlt.Parameters["crc"].Value = VarFix.ToDBString(file.AltCRC) ?? string.Empty;
+            CommandUpdateRomAlt.Parameters["sha1"].Value = VarFix.ToDBString(file.AltSHA1) ?? string.Empty;
+            CommandUpdateRomAlt.Parameters["md5"].Value = VarFix.ToDBString(file.AltMD5) ?? string.Empty;
 
             CommandUpdateRomAlt.ExecuteNonQuery();
         }
@@ -425,9 +425,9 @@ namespace RomVaultX
         private static void FileUpdateZeroRom(RvFile file)
         {
             CommandUpdateRomZero.Parameters["FileId"].Value = file.FileId;
-            CommandUpdateRomZero.Parameters["crc"].Value = VarFix.ToDBString(file.CRC);
-            CommandUpdateRomZero.Parameters["sha1"].Value = VarFix.ToDBString(file.SHA1);
-            CommandUpdateRomZero.Parameters["md5"].Value = VarFix.ToDBString(file.MD5);
+            CommandUpdateRomZero.Parameters["crc"].Value = VarFix.ToDBString(file.CRC) ?? string.Empty;
+            CommandUpdateRomZero.Parameters["sha1"].Value = VarFix.ToDBString(file.SHA1) ?? string.Empty;
+            CommandUpdateRomZero.Parameters["md5"].Value = VarFix.ToDBString(file.MD5) ?? string.Empty;
 
             CommandUpdateRomZero.ExecuteNonQuery();
         }
@@ -617,9 +617,9 @@ namespace RomVaultX
         {
             if (tFile.SHA1 != null)
             {
-                CommandSHA1.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-                CommandSHA1.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
-                CommandSHA1.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandSHA1.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1) ?? string.Empty;
+                CommandSHA1.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5) ?? string.Empty;
+                CommandSHA1.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
                 CommandSHA1.Parameters["size"].Value = tFile.Size;
 
                 var res = CommandSHA1.ExecuteScalar();
@@ -630,9 +630,9 @@ namespace RomVaultX
                     return null;
 
                 CommandSHA1Alt.Parameters["alttype"].Value = (int)tFile.AltType;
-                CommandSHA1Alt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1);
-                CommandSHA1Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
-                CommandSHA1Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandSHA1Alt.Parameters["sha1"].Value = VarFix.ToDBString(tFile.SHA1) ?? string.Empty;
+                CommandSHA1Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5) ?? string.Empty;
+                CommandSHA1Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
                 CommandSHA1Alt.Parameters["size"].Value = tFile.Size;
 
                 res = CommandSHA1Alt.ExecuteScalar();
@@ -644,8 +644,8 @@ namespace RomVaultX
 
             if (tFile.MD5 != null)
             {
-                CommandMD5.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
-                CommandMD5.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandMD5.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5) ?? string.Empty;
+                CommandMD5.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
                 CommandMD5.Parameters["size"].Value = tFile.Size;
 
                 var res = CommandMD5.ExecuteScalar();
@@ -656,8 +656,8 @@ namespace RomVaultX
                     return null;
 
                 CommandMD5Alt.Parameters["alttype"].Value = (int)tFile.AltType;
-                CommandMD5Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5);
-                CommandMD5Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandMD5Alt.Parameters["md5"].Value = VarFix.ToDBString(tFile.MD5) ?? string.Empty;
+                CommandMD5Alt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
                 CommandMD5Alt.Parameters["size"].Value = tFile.Size;
 
                 res = CommandMD5Alt.ExecuteScalar();
@@ -669,7 +669,7 @@ namespace RomVaultX
 
             if (tFile.CRC != null)
             {
-                CommandCRC.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandCRC.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
                 CommandCRC.Parameters["size"].Value = tFile.Size;
 
                 var res = CommandCRC.ExecuteScalar();
@@ -680,7 +680,7 @@ namespace RomVaultX
                     return null;
 
                 CommandCRCAlt.Parameters["alttype"].Value = (int)tFile.AltType;
-                CommandCRCAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC);
+                CommandCRCAlt.Parameters["crc"].Value = VarFix.ToDBString(tFile.CRC) ?? string.Empty;
                 CommandCRCAlt.Parameters["size"].Value = tFile.Size;
 
                 res = CommandCRCAlt.ExecuteScalar();

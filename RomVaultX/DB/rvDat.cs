@@ -191,21 +191,21 @@ namespace RomVaultX.DB
         public void DbWrite()
         {
             CommandWrite.Parameters["DirId"].Value = DirId;
-            CommandWrite.Parameters["Filename"].Value = Filename;
-            CommandWrite.Parameters["name"].Value = Name;
-            CommandWrite.Parameters["rootdir"].Value = RootDir;
-            CommandWrite.Parameters["description"].Value = Description;
-            CommandWrite.Parameters["category"].Value = Category;
-            CommandWrite.Parameters["version"].Value = Version;
-            CommandWrite.Parameters["date"].Value = Date;
-            CommandWrite.Parameters["author"].Value = Author;
-            CommandWrite.Parameters["email"].Value = Email;
-            CommandWrite.Parameters["homepage"].Value = Homepage;
-            CommandWrite.Parameters["url"].Value = URL;
-            CommandWrite.Parameters["comment"].Value = Comment;
-            CommandWrite.Parameters["mergetype"].Value = MergeType;
-            CommandWrite.Parameters["Path"].Value = Path;
-            CommandWrite.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            CommandWrite.Parameters["Filename"].Value = Filename ?? string.Empty;
+            CommandWrite.Parameters["name"].Value = Name ?? string.Empty;
+            CommandWrite.Parameters["rootdir"].Value = RootDir ?? string.Empty;
+            CommandWrite.Parameters["description"].Value = Description ?? string.Empty;
+            CommandWrite.Parameters["category"].Value = Category ?? string.Empty;
+            CommandWrite.Parameters["version"].Value = Version ?? string.Empty;
+            CommandWrite.Parameters["date"].Value = Date ?? string.Empty;
+            CommandWrite.Parameters["author"].Value = Author ?? string.Empty;
+            CommandWrite.Parameters["email"].Value = Email ?? string.Empty;
+            CommandWrite.Parameters["homepage"].Value = Homepage ?? string.Empty;
+            CommandWrite.Parameters["url"].Value = URL ?? string.Empty;
+            CommandWrite.Parameters["comment"].Value = Comment ?? string.Empty;
+            CommandWrite.Parameters["mergetype"].Value = MergeType ?? string.Empty;
+            CommandWrite.Parameters["Path"].Value = Path ?? string.Empty;
+            CommandWrite.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString() ?? string.Empty;
             CommandWrite.Parameters["ExtraDir"].Value = ExtraDir;
 
             var res = CommandWrite.ExecuteScalar();

@@ -647,9 +647,9 @@ namespace RomVaultX
 
         private static uint? FindDat(string fulldir, string filename, long DatTimeStamp, bool ExtraDir)
         {
-            CommandFindDat.Parameters["Path"].Value = fulldir;
-            CommandFindDat.Parameters["Filename"].Value = filename;
-            CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString();
+            CommandFindDat.Parameters["Path"].Value = fulldir ?? string.Empty;
+            CommandFindDat.Parameters["Filename"].Value = filename ?? string.Empty;
+            CommandFindDat.Parameters["DatTimeStamp"].Value = DatTimeStamp.ToString() ?? string.Empty;
             CommandFindDat.Parameters["ExtraDir"].Value = ExtraDir;
 
             var res = CommandFindDat.ExecuteScalar();

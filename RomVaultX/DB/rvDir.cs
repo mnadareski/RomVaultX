@@ -120,7 +120,7 @@ namespace RomVaultX.DB
 
         private static uint? FindInDir(string fullname)
         {
-            CommandFindInDir.Parameters["fullname"].Value = fullname;
+            CommandFindInDir.Parameters["fullname"].Value = fullname ?? string.Empty;
 
             var resFind = CommandFindInDir.ExecuteScalar();
 
@@ -140,8 +140,8 @@ namespace RomVaultX.DB
         private static uint InsertIntoDir(uint parentDirId, string name, string fullName)
         {
             CommandInsertIntoDir.Parameters["ParentDirId"].Value = parentDirId;
-            CommandInsertIntoDir.Parameters["name"].Value = name;
-            CommandInsertIntoDir.Parameters["fullname"].Value = fullName;
+            CommandInsertIntoDir.Parameters["name"].Value = name ?? string.Empty;
+            CommandInsertIntoDir.Parameters["fullname"].Value = fullName ?? string.Empty;
             CommandInsertIntoDir.Parameters["TimeStamp"].Value = DateTime.UtcNow.Ticks;
 
             var res = CommandInsertIntoDir.ExecuteScalar();

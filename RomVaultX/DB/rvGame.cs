@@ -309,32 +309,32 @@ namespace RomVaultX.DB
         public void DBWrite()
         {
             CommandWrite.Parameters["DatId"].Value = DatId;
-            CommandWrite.Parameters["name"].Value = Name;
-            CommandWrite.Parameters["description"].Value = Description;
-            CommandWrite.Parameters["manufacturer"].Value = Manufacturer;
+            CommandWrite.Parameters["name"].Value = Name ?? string.Empty;
+            CommandWrite.Parameters["description"].Value = Description ?? string.Empty;
+            CommandWrite.Parameters["manufacturer"].Value = Manufacturer ?? string.Empty;
 
-            CommandWrite.Parameters["cloneof"].Value = CloneOf;
-            CommandWrite.Parameters["romof"].Value = RomOf;
-            CommandWrite.Parameters["sampleof"].Value = SampleOf;
-            CommandWrite.Parameters["sourcefile"].Value = SourceFile;
-            CommandWrite.Parameters["isbios"].Value = IsBios;
-            CommandWrite.Parameters["board"].Value = Board;
-            CommandWrite.Parameters["year"].Value = Year;
+            CommandWrite.Parameters["cloneof"].Value = CloneOf ?? string.Empty;
+            CommandWrite.Parameters["romof"].Value = RomOf ?? string.Empty;
+            CommandWrite.Parameters["sampleof"].Value = SampleOf ?? string.Empty;
+            CommandWrite.Parameters["sourcefile"].Value = SourceFile ?? string.Empty;
+            CommandWrite.Parameters["isbios"].Value = IsBios ?? string.Empty;
+            CommandWrite.Parameters["board"].Value = Board ?? string.Empty;
+            CommandWrite.Parameters["year"].Value = Year ?? string.Empty;
 
             CommandWrite.Parameters["istrurip"].Value = IsTrurip;
-            CommandWrite.Parameters["publisher"].Value = Publisher;
-            CommandWrite.Parameters["developer"].Value = Developer;
-            CommandWrite.Parameters["edition"].Value = Edition;
-            CommandWrite.Parameters["version"].Value = Version;
-            CommandWrite.Parameters["type"].Value = Type;
-            CommandWrite.Parameters["media"].Value = Media;
-            CommandWrite.Parameters["language"].Value = Language;
-            CommandWrite.Parameters["players"].Value = Players;
-            CommandWrite.Parameters["ratings"].Value = Ratings;
-            CommandWrite.Parameters["genre"].Value = Genre;
-            CommandWrite.Parameters["peripheral"].Value = Peripheral;
-            CommandWrite.Parameters["barcode"].Value = BarCode;
-            CommandWrite.Parameters["mediacatalognumber"].Value = MediaCatalogNumber;
+            CommandWrite.Parameters["publisher"].Value = Publisher ?? string.Empty;
+            CommandWrite.Parameters["developer"].Value = Developer ?? string.Empty;
+            CommandWrite.Parameters["edition"].Value = Edition ?? string.Empty;
+            CommandWrite.Parameters["version"].Value = Version ?? string.Empty;
+            CommandWrite.Parameters["type"].Value = Type ?? string.Empty;
+            CommandWrite.Parameters["media"].Value = Media ?? string.Empty;
+            CommandWrite.Parameters["language"].Value = Language ?? string.Empty;
+            CommandWrite.Parameters["players"].Value = Players ?? string.Empty;
+            CommandWrite.Parameters["ratings"].Value = Ratings ?? string.Empty;
+            CommandWrite.Parameters["genre"].Value = Genre ?? string.Empty;
+            CommandWrite.Parameters["peripheral"].Value = Peripheral ?? string.Empty;
+            CommandWrite.Parameters["barcode"].Value = BarCode ?? string.Empty;
+            CommandWrite.Parameters["mediacatalognumber"].Value = MediaCatalogNumber ?? string.Empty;
 
             var res = CommandWrite.ExecuteScalar();
 
