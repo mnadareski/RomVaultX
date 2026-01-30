@@ -364,7 +364,7 @@ namespace Compress.CHD
                 _resultType = CHDManCheck.Good;
             }
 
-            _bgw.ReportProgress(0, new bgwText3(""));
+            _bgw.ReportProgress(0, new BgwText3(""));
 
             ReportError.LogOut("CHD: returning result " + _resultType + " " + result);
 
@@ -432,7 +432,7 @@ namespace Compress.CHD
                 }
 
                 ReportError.LogOut("CHDError: " + sLine);
-                _bgw.ReportProgress(0, new bgwText3(sLine));
+                _bgw.ReportProgress(0, new BgwText3(sLine));
 
                 if (_resultType != CHDManCheck.Unset)
                 {

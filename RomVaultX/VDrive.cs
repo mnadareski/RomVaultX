@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
@@ -18,16 +17,16 @@ namespace RomVaultX
         private const FileAccess DataWriteAccess = FileAccess.WriteData | FileAccess.AppendData |
                                                    FileAccess.Delete | FileAccess.GenericWrite;
 
-        public static string romRoot = @"RomRoot";
+        public const string romRoot = @"RomRoot";
 
 
         public NtStatus CreateFile(string fileName, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, IDokanFileInfo info)
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------CreateFile---------------------------------");
-            Debug.WriteLine("Filename : " + fileName + " IsDirectory : " + info.IsDirectory);
+            Debug.WriteLine($"Filename : {fileName} IsDirectory : {info.IsDirectory}");
 
-            VFile vDir = VFile.FindFilename(fileName);
+            var vDir = VFile.FindFilename(fileName);
 
             //First check a DIR. (If we know it is a directory.)
             if (info.IsDirectory)
@@ -50,7 +49,7 @@ namespace RomVaultX
                         }
                     default:
                         {
-                            throw new NotImplementedException("Missing Directory Mode " + mode);
+                            throw new NotImplementedException($"Missing Directory Mode {mode}");
                         }
                 }
             }
@@ -68,7 +67,7 @@ namespace RomVaultX
                         }
                     default:
                         {
-                            throw new NotImplementedException("Missing Directory Mode " + mode);
+                            throw new NotImplementedException($"Missing Directory Mode {mode}");
                         }
                 }
             }
@@ -104,7 +103,7 @@ namespace RomVaultX
                     }
                 default:
                     {
-                        throw new NotImplementedException("Missing Directory Mode " + mode);
+                        throw new NotImplementedException($"Missing Directory Mode {mode}");
                     }
             }
         }
@@ -113,14 +112,14 @@ namespace RomVaultX
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------Cleanup---------------------------------");
-            Debug.WriteLine("Filename : " + fileName);
+            Debug.WriteLine($"Filename : {fileName}");
         }
 
         public void CloseFile(string fileName, IDokanFileInfo info)
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------CloseFile---------------------------------");
-            Debug.WriteLine("Filename : " + fileName);
+            Debug.WriteLine($"Filename : {fileName}");
 
             VFile vfile = (VFile)info.Context;
             if (vfile?.Files == null)
@@ -138,7 +137,7 @@ namespace RomVaultX
         {
             bytesRead = 0;
             VFile vfile = (VFile)info.Context;
-            if (vfile == null)
+            if (vfile?.Files == null)
             {
                 return NtStatus.NoSuchFile;
             }
@@ -160,8 +159,8 @@ namespace RomVaultX
 
             foreach (VFile.VZipFile gf in vfile.Files)
             {
-                copyData(gf.LocalHeader, buffer, gf.LocalHeaderOffset, offset, gf.LocalHeaderLength, bytesRead);
-                copyStream(gf, buffer, gf.CompressedDataOffset, offset, gf.CompressedDataLength, bytesRead);
+                CopyData(gf.LocalHeader, buffer, gf.LocalHeaderOffset, offset, gf.LocalHeaderLength, bytesRead);
+                CopyStream(gf, buffer, gf.CompressedDataOffset, offset, gf.CompressedDataLength, bytesRead);
             }
 
             return NtStatus.Success;
@@ -181,7 +180,7 @@ namespace RomVaultX
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------GetFileInformation---------------------------------");
-            Debug.WriteLine("Filename : " + fileName);
+            Debug.WriteLine($"Filename : {fileName}");
 
 
             VFile vfile = (VFile)info.Context;
@@ -193,7 +192,7 @@ namespace RomVaultX
             }
 
             fileInfo = (FileInformation)vfile;
-            Debug.WriteLine("Returning File Info " + fileInfo.FileName);
+            Debug.WriteLine($"Returning File Info {fileInfo.FileName}");
             return NtStatus.Success;
         }
 
@@ -201,7 +200,7 @@ namespace RomVaultX
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------FindFiles---------------------------------");
-            Debug.WriteLine("Filename : " + fileName);
+            Debug.WriteLine($"Filename : {fileName}");
 
             return FindFilesWithPattern(fileName, "*", out files, info);
         }
@@ -210,13 +209,13 @@ namespace RomVaultX
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------FindFilesWithPattern---------------------------------");
-            Debug.WriteLine("Filename : " + fileName);
-            Debug.WriteLine("searchPattern : " + searchPattern);
+            Debug.WriteLine($"Filename : {fileName}");
+            Debug.WriteLine($"searchPattern : {searchPattern}");
 
             // if (searchPattern != "*" && searchPattern !="DatRoot")
             //     Debug.WriteLine("Unknown search pattern");
 
-            files = new List<FileInformation>();
+            files = [];
 
             VFile vfile = (VFile)info.Context;
             if (vfile == null)
@@ -314,7 +313,7 @@ namespace RomVaultX
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------GetFileSecurity---------------------------------");
-            Debug.WriteLine("Filename : " + fileName);
+            Debug.WriteLine($"Filename : {fileName}");
 
             security = new DirectorySecurity();
             return NtStatus.Success;
@@ -339,9 +338,9 @@ namespace RomVaultX
         {
             Debug.WriteLine("");
             Debug.WriteLine("-----------FindStreams---------------------------------");
-            Debug.WriteLine("Filename : " + fileName);
+            Debug.WriteLine($"Filename : {fileName}");
 
-            streams = new FileInformation[0];
+            streams = Array.Empty<FileInformation>();
             return NtStatus.Success;
         }
 
@@ -349,11 +348,11 @@ namespace RomVaultX
         {
             return (long)10 * 1024 * 1024 * 1024 * 1024;
 
-            using DbCommand getTotalBytes = Program.db.Command(@"SELECT SUM(ZipFileLength) FROM GAME");
-            return Convert.ToInt64(getTotalBytes.ExecuteScalar());
+            // using DbCommand getTotalBytes = Program.db.Command(@"SELECT SUM(ZipFileLength) FROM GAME");
+            // return Convert.ToInt64(getTotalBytes.ExecuteScalar());
         }
 
-        private void copyData(byte[] source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
+        private static void CopyData(byte[] source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
         {
             // this is where to start reading in the source array
             long sourceStart;
@@ -391,7 +390,7 @@ namespace RomVaultX
             }
         }
 
-        private void copyStream(VFile.VZipFile source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
+        private static void CopyStream(VFile.VZipFile source, byte[] destination, long sourceOffset, long destinationOffset, long sourceLength, long destinationLength)
         {
             // this is where to start reading in the source array
             long sourceStart;
@@ -430,8 +429,7 @@ namespace RomVaultX
                 source.GZip.ReadGZip(strFilename, false);
             }
 
-            Stream coms;
-            source.GZip.GetRawStream(out coms);
+            source.GZip.GetRawStream(out Stream coms);
             coms.Position += sourceStart;
 
             long actualLength = Math.Min(sourceLength, destinationLength);
@@ -439,6 +437,5 @@ namespace RomVaultX
 
             coms.Close();
         }
-
     }
 }

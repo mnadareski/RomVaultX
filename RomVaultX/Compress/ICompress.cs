@@ -15,7 +15,7 @@ namespace Compress
 
         ZipOpenType ZipOpen { get; }
 
-        ZipReturn ZipFileOpen(string newFilename, long timestamp =-1, bool readHeaders=true);
+        ZipReturn ZipFileOpen(string newFilename, long timestamp = -1, bool readHeaders = true);
 
         ZipReturn ZipFileOpen(Stream inStream);
         void ZipFileClose();

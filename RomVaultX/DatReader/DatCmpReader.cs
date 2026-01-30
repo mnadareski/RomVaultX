@@ -29,7 +29,7 @@ namespace RomVaultX.DatReader
             {
                 return false;
             }
-            if (DatFileLoader.Next.ToLowerInvariant() == "clrmamepro")
+            if (DatFileLoader.Next.Equals("clrmamepro", StringComparison.OrdinalIgnoreCase))
             {
                 DatFileLoader.Gn();
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
@@ -38,7 +38,7 @@ namespace RomVaultX.DatReader
                 }
                 DatFileLoader.Gn();
             }
-            if (DatFileLoader.Next.ToLowerInvariant() == "romvault")
+            if (DatFileLoader.Next.Equals("romvault", StringComparison.OrdinalIgnoreCase))
             {
                 DatFileLoader.Gn();
                 if (!LoadHeaderFromDat(filename, rvDat, out datFileType))
@@ -85,7 +85,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.Gn();
                         break;
                     default:
-                        DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known", DatFileLoader.Filename);
+                        DatUpdate.SendAndShowDat($"Error: key word '{DatFileLoader.Next}' not known", DatFileLoader.Filename);
                         DatFileLoader.Gn();
                         break;
                 }
@@ -179,7 +179,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.Gn();
                         break;
                     default:
-                        DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in clrmamepro", DatFileLoader.Filename);
+                        DatUpdate.SendAndShowDat($"Error: key word '{DatFileLoader.Next}' not known in clrmamepro", DatFileLoader.Filename);
                         DatFileLoader.Gn();
                         break;
                 }
@@ -222,7 +222,7 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-            if (DatFileLoader.Next.ToLowerInvariant() != "name")
+            if (!DatFileLoader.Next.Equals("name", StringComparison.OrdinalIgnoreCase))
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
                 return false;
@@ -261,7 +261,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.Gn();
                         break;
                     default:
-                        DatUpdate.SendAndShowDat("Error Keyword " + DatFileLoader.Next + " not know in dir", DatFileLoader.Filename);
+                        DatUpdate.SendAndShowDat($"Error Keyword {DatFileLoader.Next} not know in dir", DatFileLoader.Filename);
                         DatFileLoader.Gn();
                         break;
                 }
@@ -302,7 +302,7 @@ namespace RomVaultX.DatReader
 
             DatFileLoader.Gn();
 
-            RvGame rvGame = new RvGame {Name = name};
+            var rvGame = new RvGame { Name = name };
             while (DatFileLoader.Next != ")")
             {
                 switch (DatFileLoader.Next.ToLowerInvariant())
@@ -411,7 +411,7 @@ namespace RomVaultX.DatReader
                         break;
 
                     default:
-                        DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in game", DatFileLoader.Filename);
+                        DatUpdate.SendAndShowDat($"Error: key word '{DatFileLoader.Next}' not known in game", DatFileLoader.Filename);
                         DatFileLoader.Gn();
                         break;
                 }
@@ -429,14 +429,14 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-            if (DatFileLoader.Next.ToLowerInvariant() != "name")
+            if (!DatFileLoader.Next.Equals("name", StringComparison.OrdinalIgnoreCase))
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
                 return false;
             }
 
 
-            RvRom rvRom = new RvRom
+            var rvRom = new RvRom
             {
                 Name = VarFix.CleanFullFileName(DatFileLoader.Gn()),
                 AltType = datFileType
@@ -493,7 +493,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.Gn();
                         break;
                     default:
-                        DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in rom", DatFileLoader.Filename);
+                        DatUpdate.SendAndShowDat($"Error: key word '{DatFileLoader.Next}' not known in rom", DatFileLoader.Filename);
                         DatFileLoader.Gn();
                         break;
                 }
@@ -513,7 +513,7 @@ namespace RomVaultX.DatReader
             }
             DatFileLoader.Gn();
 
-            if (DatFileLoader.Next.ToLowerInvariant() != "name")
+            if (!DatFileLoader.Next.Equals("name", StringComparison.OrdinalIgnoreCase))
             {
                 DatUpdate.SendAndShowDat("Name not found as first object in ( )", DatFileLoader.Filename);
                 return false;
@@ -553,7 +553,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.Gn();
                         break;
                     default:
-                        DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not known in rom", DatFileLoader.Filename);
+                        DatUpdate.SendAndShowDat($"Error: key word '{DatFileLoader.Next}' not known in rom", DatFileLoader.Filename);
                         DatFileLoader.Gn();
                         break;
                 }
@@ -580,7 +580,7 @@ namespace RomVaultX.DatReader
                         DatFileLoader.Gn();
                         break;
                     default:
-                        DatUpdate.SendAndShowDat("Error: key word '" + DatFileLoader.Next + "' not know in Archive", DatFileLoader.Filename);
+                        DatUpdate.SendAndShowDat($"Error: key word '{DatFileLoader.Next}' not know in Archive", DatFileLoader.Filename);
                         DatFileLoader.Gn();
                         break;
                 }
@@ -590,11 +590,11 @@ namespace RomVaultX.DatReader
 
         private static class DatFileLoader
         {
-            private static Stream _fileStream;
-            private static StreamReader _streamReader;
-            private static string _line = "";
-            public static string Next;
-            public static string Filename { get; private set; }
+            private static Stream? _fileStream;
+            private static StreamReader? _streamReader;
+            private static string? _line = "";
+            public static string? Next;
+            public static string? Filename { get; private set; }
 
             public static int LoadDat(string strFilename)
             {
@@ -611,15 +611,15 @@ namespace RomVaultX.DatReader
 
             public static void Close()
             {
-                _streamReader.Close();
-                _fileStream.Close();
-                _streamReader.Dispose();
-                _fileStream.Dispose();
+                _streamReader?.Close();
+                _fileStream?.Close();
+                _streamReader?.Dispose();
+                _fileStream?.Dispose();
             }
 
             public static bool EndOfStream()
             {
-                return _streamReader.EndOfStream;
+                return _streamReader?.EndOfStream ?? true;
             }
 
             public static string GnRest()
@@ -633,19 +633,19 @@ namespace RomVaultX.DatReader
             public static string Gn()
             {
                 string ret;
-                while ((_line.Trim().Length == 0) && !_streamReader.EndOfStream)
+                while ((_line!.Trim().Length == 0) && !EndOfStream())
                 {
-                    _line = _streamReader.ReadLine();
-                    _line = (_line ?? "").Replace("" + (char) 9, " ");
-                    if ((_line.TrimStart().Length > 2) && (_line.TrimStart().Substring(0, 2) == @"//"))
+                    _line = _streamReader!.ReadLine();
+                    _line = (_line ?? "").Replace("" + (char)9, " ");
+                    if ((_line.TrimStart().Length > 2) && (_line.TrimStart()[..2] == @"//"))
                     {
                         _line = "";
                     }
-                    if ((_line.TrimStart().Length > 1) && (_line.TrimStart().Substring(0, 1) == @"#"))
+                    if ((_line.TrimStart().Length > 1) && (_line.TrimStart()[..1] == @"#"))
                     {
                         _line = "";
                     }
-                    if ((_line.TrimStart().Length > 1) && (_line.TrimStart().Substring(0, 1) == @";"))
+                    if ((_line.TrimStart().Length > 1) && (_line.TrimStart()[..1] == @";"))
                     {
                         _line = "";
                     }
@@ -655,17 +655,17 @@ namespace RomVaultX.DatReader
                 if (_line.Trim().Length > 0)
                 {
                     int intS;
-                    if (_line.Substring(0, 1) == "\"")
+                    if (_line[..1] == "\"")
                     {
-                        intS = (_line + "\"").IndexOf("\"", 1, StringComparison.Ordinal);
-                        ret = _line.Substring(1, intS - 1);
-                        _line = (_line + " ").Substring(intS + 1).Trim();
+                        intS = (_line + "\"").IndexOf("\"", 1, StringComparison.OrdinalIgnoreCase);
+                        ret = _line[1..intS];
+                        _line = (_line + " ")[(intS + 1)..].Trim();
                     }
                     else
                     {
-                        intS = (_line + " ").IndexOf(" ", StringComparison.Ordinal);
-                        ret = _line.Substring(0, intS);
-                        _line = (_line + " ").Substring(intS).Trim();
+                        intS = (_line + " ").IndexOf(" ", StringComparison.OrdinalIgnoreCase);
+                        ret = _line[..intS];
+                        _line = (_line + " ")[intS..].Trim();
                     }
                 }
                 else

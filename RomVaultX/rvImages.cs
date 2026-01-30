@@ -29,11 +29,11 @@ namespace RomVaultX
             get { return GetBitmap("ExpandBoxPlus"); }
         }
 
-        public static Bitmap GetBitmap(string bitmapName)
+        public static Bitmap? GetBitmap(string bitmapName)
         {
-            object bmObj = rvImages1.ResourceManager.GetObject(bitmapName);
+            object? bmObj = rvImages1.ResourceManager.GetObject(bitmapName);
 
-            Bitmap bm = null;
+            Bitmap? bm = null;
             if (bmObj != null)
             {
                 bm = (Bitmap)bmObj;

@@ -61,7 +61,7 @@ namespace RomVaultX.Util
 
         public static string ToString(byte[]? b)
         {
-            return b == null ? "" : BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
+            return b == null ? string.Empty : BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
         }
     }
 }

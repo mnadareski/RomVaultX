@@ -13,7 +13,7 @@ namespace RomVaultX
         public static SynchronizationContext? SyncCont;
 
         [STAThread]
-        private static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             db = new DBSqlite();

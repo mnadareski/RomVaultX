@@ -35,14 +35,14 @@ namespace RVIO
         }
     }
 
-    public static class unix
+    public static class Unix
     {
         public static bool IsUnix
         {
             get
             {
                 int p = (int)Environment.OSVersion.Platform;
-                return ((p == 4) || (p == 6) || (p == 128));
+                return (p == 4) || (p == 6) || (p == 128);
             }
         }
     }
@@ -63,9 +63,9 @@ namespace RVIO
             FullName = path;
             Name = Path.GetFileName(path);
 
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
-                System.IO.FileInfo fi = new System.IO.FileInfo(path);
+                var fi = new System.IO.FileInfo(path);
 
                 if (!fi.Exists) return;
 
@@ -75,7 +75,7 @@ namespace RVIO
             }
 
             string fileName = NameFix.AddLongPathPrefix(path);
-            Win32Native.WIN32_FILE_ATTRIBUTE_DATA wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
+            var wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
 
             bool b = Win32Native.GetFileAttributesEx(fileName, 0, ref wIn32FileAttributeData);
 
@@ -100,9 +100,9 @@ namespace RVIO
             FullName = path;
             Name = Path.GetFileName(path);
 
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
-                System.IO.DirectoryInfo fi = new System.IO.DirectoryInfo(path);
+                var fi = new System.IO.DirectoryInfo(path);
 
                 if (!fi.Exists) return;
 
@@ -111,7 +111,7 @@ namespace RVIO
             }
 
             string fileName = NameFix.AddLongPathPrefix(path);
-            Win32Native.WIN32_FILE_ATTRIBUTE_DATA wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
+            var wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
 
             bool b = Win32Native.GetFileAttributesEx(fileName, 0, ref wIn32FileAttributeData);
 
@@ -129,7 +129,7 @@ namespace RVIO
         {
             List<DirectoryInfo> dirs = new List<DirectoryInfo>();
 
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(FullName);
                 System.IO.DirectoryInfo[] arrDi = di.GetDirectories(SearchPattern);
@@ -189,7 +189,7 @@ namespace RVIO
         {
             List<FileInfo> files = new List<FileInfo>();
 
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(FullName);
                 System.IO.FileInfo[] arrDi = di.GetFiles(SearchPattern);
@@ -245,35 +245,33 @@ namespace RVIO
     {
         public static bool Exists(string path)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
                 return System.IO.Directory.Exists(path);
 
 
             string fixPath = NameFix.AddLongPathPrefix(path);
 
-            Win32Native.WIN32_FILE_ATTRIBUTE_DATA wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
+            var wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
 
             bool b = Win32Native.GetFileAttributesEx(fixPath, 0, ref wIn32FileAttributeData);
             return b && (wIn32FileAttributeData.fileAttributes & Win32Native.FILE_ATTRIBUTE_DIRECTORY) != 0;
         }
         public static void Move(string sourceDirName, string destDirName)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.Directory.Move(sourceDirName, destDirName);
                 return;
             }
 
 
-            if (sourceDirName == null)
-                throw new ArgumentNullException("sourceDirName");
+            ArgumentNullException.ThrowIfNull(sourceDirName);
             if (sourceDirName.Length == 0)
-                throw new ArgumentException("Argument_EmptyFileName", "sourceDirName");
+                throw new ArgumentException("Argument_EmptyFileName", nameof(sourceDirName));
 
-            if (destDirName == null)
-                throw new ArgumentNullException("destDirName");
+            ArgumentNullException.ThrowIfNull(destDirName);
             if (destDirName.Length == 0)
-                throw new ArgumentException("Argument_EmptyFileName", "destDirName");
+                throw new ArgumentException("Argument_EmptyFileName", nameof(destDirName));
 
             string fullsourceDirName = NameFix.AddLongPathPrefix(sourceDirName);
 
@@ -282,7 +280,7 @@ namespace RVIO
             if (!Win32Native.MoveFile(fullsourceDirName, fulldestDirName))
             {
                 int hr = Marshal.GetLastWin32Error();
-                if (hr == Win32Native.ERROR_FILE_NOT_FOUND) // Source dir not found 
+                if (hr == Win32Native.ERROR_FILE_NOT_FOUND) // Source dir not found
                 {
                     throw new Exception("ERROR_PATH_NOT_FOUND " + fullsourceDirName);
                 }
@@ -294,7 +292,7 @@ namespace RVIO
         }
         public static void Delete(string path)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.Directory.Delete(path);
                 return;
@@ -307,15 +305,14 @@ namespace RVIO
 
         public static void CreateDirectory(string path)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.Directory.CreateDirectory(path);
                 return;
             }
 
 
-            if (path == null)
-                throw new ArgumentNullException("path");
+            ArgumentNullException.ThrowIfNull(path);
             if (path.Length == 0)
                 throw new ArgumentException("Argument_PathEmpty");
 
@@ -329,13 +326,13 @@ namespace RVIO
     {
         public static bool Exists(string path)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
                 return System.IO.File.Exists(path);
 
 
             string fixPath = NameFix.AddLongPathPrefix(path);
 
-            Win32Native.WIN32_FILE_ATTRIBUTE_DATA wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
+            var wIn32FileAttributeData = new Win32Native.WIN32_FILE_ATTRIBUTE_DATA();
 
             bool b = Win32Native.GetFileAttributesEx(fixPath, 0, ref wIn32FileAttributeData);
             return b && (wIn32FileAttributeData.fileAttributes & Win32Native.FILE_ATTRIBUTE_DIRECTORY) == 0;
@@ -346,16 +343,16 @@ namespace RVIO
         }
         public static void Copy(string sourceFileName, string destFileName, bool overwrite)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.File.Copy(sourceFileName, destFileName, overwrite);
                 return;
             }
 
             if (sourceFileName == null || destFileName == null)
-                throw new ArgumentNullException((sourceFileName == null ? "sourceFileName" : "destFileName"), "ArgumentNull_FileName");
+                throw new ArgumentNullException(sourceFileName == null ? "sourceFileName" : "destFileName", "ArgumentNull_FileName");
             if (sourceFileName.Length == 0 || destFileName.Length == 0)
-                throw new ArgumentException("Argument_EmptyFileName", (sourceFileName.Length == 0 ? "sourceFileName" : "destFileName"));
+                throw new ArgumentException("Argument_EmptyFileName", sourceFileName.Length == 0 ? "sourceFileName" : "destFileName");
 
             string fullSourceFileName = NameFix.AddLongPathPrefix(sourceFileName);
             string fullDestFileName = NameFix.AddLongPathPrefix(destFileName);
@@ -363,7 +360,7 @@ namespace RVIO
             bool r = Win32Native.CopyFile(fullSourceFileName, fullDestFileName, !overwrite);
             if (!r)
             {
-                // Save Win32 error because subsequent checks will overwrite this HRESULT. 
+                // Save Win32 error because subsequent checks will overwrite this HRESULT.
                 int errorCode = Marshal.GetLastWin32Error();
                 string fileName = destFileName;
 
@@ -371,7 +368,7 @@ namespace RVIO
                 if (errorCode != Win32Native.ERROR_FILE_EXISTS)
                 {
                     // For a number of error codes (sharing violation, path
-                    // not found, etc) we don't know if the problem was with 
+                    // not found, etc) we don't know if the problem was with
                     // the source or dest file.  Try reading the source file.
                     using (SafeFileHandle handle = Win32Native.UnsafeCreateFile(fullSourceFileName, FileStream.GENERIC_READ, FileShare.Read, null, FileMode.Open, 0, IntPtr.Zero))
                     {
@@ -393,16 +390,16 @@ namespace RVIO
         }
         public static void Move(string sourceFileName, string destFileName)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.File.Move(sourceFileName, destFileName);
                 return;
             }
 
             if (sourceFileName == null || destFileName == null)
-                throw new ArgumentNullException((sourceFileName == null ? "sourceFileName" : "destFileName"), "ArgumentNull_FileName");
+                throw new ArgumentNullException(sourceFileName == null ? "sourceFileName" : "destFileName", "ArgumentNull_FileName");
             if (sourceFileName.Length == 0 || destFileName.Length == 0)
-                throw new ArgumentException("Argument_EmptyFileName", (sourceFileName.Length == 0 ? "sourceFileName" : "destFileName"));
+                throw new ArgumentException("Argument_EmptyFileName", sourceFileName.Length == 0 ? "sourceFileName" : "destFileName");
 
             string fullSourceFileName = NameFix.AddLongPathPrefix(sourceFileName);
             string fullDestFileName = NameFix.AddLongPathPrefix(destFileName);
@@ -413,13 +410,13 @@ namespace RVIO
             if (!Win32Native.MoveFile(fullSourceFileName, fullDestFileName))
             {
                 int hr = Marshal.GetLastWin32Error();
-                throw new Exception(GetErrorCode(hr), new Exception("ERROR_MOVING_FILE. (" + fullSourceFileName + " to " + fullDestFileName + ")"));
+                throw new Exception(GetErrorCode(hr), new Exception($"ERROR_MOVING_FILE. ({fullSourceFileName} to {fullDestFileName})"));
             }
         }
 
         public static void Delete(string path)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 System.IO.File.Delete(path);
                 return;
@@ -432,27 +429,26 @@ namespace RVIO
             {
                 int hr = Marshal.GetLastWin32Error();
                 if (hr != Win32Native.ERROR_FILE_NOT_FOUND)
-                    throw new Exception(GetErrorCode(hr), new Exception("ERROR_DELETING_FILE. (" + path + ")"));
+                    throw new Exception(GetErrorCode(hr), new Exception($"ERROR_DELETING_FILE. ({path})"));
             }
         }
 
 
         private static string GetErrorCode(int hr)
         {
-            switch (hr)
+            return hr switch
             {
-                case 5: return "ERROR_ACCESS_DENIED: Access is denied.";
-                case 32: return "ERROR_FILE_IN_USE: The file is in use by another process.";
-                case 123: return "ERROR_INVALID_NAME: The filename, directory name, or volume label syntax is incorrect.";
-                case 183: return "ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists.";
-            }
-
-            return hr.ToString();
+                5 => "ERROR_ACCESS_DENIED: Access is denied.",
+                32 => "ERROR_FILE_IN_USE: The file is in use by another process.",
+                123 => "ERROR_INVALID_NAME: The filename, directory name, or volume label syntax is incorrect.",
+                183 => "ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists.",
+                _ => hr.ToString(),
+            };
         }
 
         public static bool SetAttributes(string path, FileAttributes fileAttributes)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 try
                 {
@@ -468,12 +464,12 @@ namespace RVIO
             string fullPath = NameFix.AddLongPathPrefix(path);
             return Win32Native.SetFileAttributes(fullPath, (int)fileAttributes);
         }
-        public static StreamWriter CreateText(string filename)
+        public static StreamWriter? CreateText(string filename)
         {
             int errorCode = FileStream.OpenFileWrite(filename, out Stream fStream);
             return errorCode != 0 ? null : new StreamWriter(fStream);
         }
-        public static StreamReader OpenText(string filename, Encoding Enc)
+        public static StreamReader? OpenText(string filename, Encoding Enc)
         {
             int errorCode = FileStream.OpenFileRead(filename, out Stream fStream);
             return errorCode != 0 ? null : new StreamReader(fStream, Enc);
@@ -495,7 +491,7 @@ namespace RVIO
         }
         public static string Combine(string path1, string path2)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
                 return System.IO.Path.Combine(path1, path2);
 
             if (path1 == null || path2 == null)
@@ -512,7 +508,7 @@ namespace RVIO
             if (IsPathRooted(path2))
                 return path2;
 
-            char ch = path1[path1.Length - 1];
+            char ch = path1[^1];
             if (ch != DirectorySeparatorChar && ch != AltDirectorySeparatorChar && ch != VolumeSeparatorChar)
                 return path1 + DirectorySeparatorChar + path2;
             return path1 + path2;
@@ -565,9 +561,9 @@ namespace RVIO
         {
             return System.IO.Path.GetFileName(path);
         }
-        public static string GetDirectoryName(string path)
+        public static string? GetDirectoryName(string path)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
                 return System.IO.Path.GetDirectoryName(path);
 
 
@@ -580,7 +576,7 @@ namespace RVIO
                     i = path.Length;
                     if (i == root) return null;
                     while (i > root && path[--i] != DirectorySeparatorChar && path[i] != AltDirectorySeparatorChar) ;
-                    return path.Substring(0, i);
+                    return path[..i];
                 }
             }
             return null;
@@ -591,11 +587,11 @@ namespace RVIO
             int i = 0;
             int length = path.Length;
 
-            if (length >= 1 && (IsDirectorySeparator(path[0])))
+            if (length >= 1 && IsDirectorySeparator(path[0]))
             {
                 // handles UNC names and directories off current drive's root.
                 i = 1;
-                if (length >= 2 && (IsDirectorySeparator(path[1])))
+                if (length >= 2 && IsDirectorySeparator(path[1]))
                 {
                     i = 2;
                     int n = 2;
@@ -606,13 +602,13 @@ namespace RVIO
             {
                 // handles A:\foo.
                 i = 2;
-                if (length >= 3 && (IsDirectorySeparator(path[2]))) i++;
+                if (length >= 3 && IsDirectorySeparator(path[2])) i++;
             }
             return i;
         }
         private static bool IsDirectorySeparator(char c)
         {
-            return (c == DirectorySeparatorChar || c == AltDirectorySeparatorChar);
+            return c == DirectorySeparatorChar || c == AltDirectorySeparatorChar;
         }
 
     }
@@ -633,9 +629,9 @@ namespace RVIO
             return stream;
         }
 
-        public static int OpenFileRead(string path, out Stream stream)
+        public static int OpenFileRead(string path, out Stream? stream)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 try
                 {
@@ -668,9 +664,9 @@ namespace RVIO
             return 0;
         }
 
-        public static int OpenFileWrite(string path, out Stream stream)
+        public static int OpenFileWrite(string path, out Stream? stream)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
             {
                 try
                 {
@@ -711,14 +707,14 @@ namespace RVIO
     {
         public static string GetShortPath(string path)
         {
-            if (unix.IsUnix)
+            if (Unix.IsUnix)
                 return path;
 
-            int remove = 0;
+            int remove;
             string retPath;
             if (path.StartsWith(@"\\"))
             {
-                retPath = @"\\?\UNC\" + path.Substring(2);
+                retPath = string.Concat(@"\\?\UNC\", path.AsSpan(2));
                 remove = 8;
             }
             else
@@ -734,11 +730,11 @@ namespace RVIO
 
 
             const int MAX_PATH = 300;
-            StringBuilder shortPath = new StringBuilder(MAX_PATH);
-            Win32Native.GetShortPathName(retPath, shortPath, MAX_PATH);
+            var shortPath = new StringBuilder(MAX_PATH);
+            _ = Win32Native.GetShortPathName(retPath, shortPath, MAX_PATH);
             retPath = shortPath.ToString();
 
-            retPath = retPath.Substring(remove);
+            retPath = retPath[remove..];
             if (remove == 8) retPath = "\\" + retPath;
 
             return retPath;
@@ -752,7 +748,7 @@ namespace RVIO
                 return path;
 
             if (path.StartsWith(@"\\"))
-                return @"\\?\UNC\" + path.Substring(2);
+                return string.Concat(@"\\?\UNC\", path.AsSpan(2));
 
             string retPath = path;
             if (path.Substring(1, 1) != ":")
@@ -760,7 +756,7 @@ namespace RVIO
 
             retPath = cleandots(retPath);
 
-            return @"\\?\" + retPath;
+            return $@"\\?\{retPath}";
 
         }
 
@@ -770,12 +766,12 @@ namespace RVIO
             while (retPath.Contains(@"\..\"))
             {
                 int index = retPath.IndexOf(@"\..\");
-                string path1 = retPath.Substring(0, index);
-                string path2 = retPath.Substring(index + 4);
+                string path1 = retPath[..index];
+                string path2 = retPath[(index + 4)..];
 
-                int path1Back = path1.LastIndexOf(@"\");
+                int path1Back = path1.LastIndexOf('\\');
 
-                retPath = path1.Substring(0, path1Back + 1) + path2;
+                retPath = path1[..(path1Back + 1)] + path2;
             }
             return retPath;
 

@@ -59,7 +59,7 @@ namespace RomVaultX
                 else if (nodeDepth - 1 > lastBranch.Length)
                     thisBranch = lastBranch + new string(' ', nodeDepth - 1 - lastBranch.Length);
                 else
-                    thisBranch = lastBranch.Substring(0, nodeDepth - 1);
+                    thisBranch = lastBranch[..(nodeDepth - 1)];
 
                 thisBranch = thisBranch.Replace("└", "│");
                 thisBranch += "└";
@@ -144,8 +144,8 @@ namespace RomVaultX
                 Bitmap bm;
                 //if (pTree.Dat == null && pTree.DirDatCount != 1) // Directory above DAT's in Tree
                 bm = string.IsNullOrEmpty(pTree.datName)
-                    ? RvImages.GetBitmap("DirectoryTree" + icon)
-                    : RvImages.GetBitmap("Tree" + icon);
+                    ? RvImages.GetBitmap($"DirectoryTree{icon}")
+                    : RvImages.GetBitmap($"Tree{icon}");
 
                 if (bm != null)
                     g.DrawImage(bm, RSub(pTree.RIcon, _hScroll, _vScroll));
@@ -155,17 +155,17 @@ namespace RomVaultX
 
             if (recBackGround.IntersectsWith(t))
             {
-                string thistxt = pTree.dirName;
+                string thistxt = pTree.dirName!;
                 if (!string.IsNullOrEmpty(pTree.datName) || !string.IsNullOrEmpty(pTree.description))
                 {
                     if (!string.IsNullOrEmpty(pTree.description))
-                        thistxt += ": " + pTree.description;
+                        thistxt += $": {pTree.description}";
                     else
-                        thistxt += ": " + pTree.datName;
+                        thistxt += $": {pTree.datName}";
                 }
 
                 if ((pTree.RomTotal > 0) || (pTree.RomGot > 0) || (pTree.RomNoDump > 0))
-                    thistxt += " ( Have: " + pTree.RomGot.ToString("#,0") + " / Missing: " + (pTree.RomTotal - pTree.RomGot - pTree.RomNoDump).ToString("#,0") + " )";
+                    thistxt += $" ( Have: {pTree.RomGot:#,0} / Missing: {pTree.RomTotal - pTree.RomGot - pTree.RomNoDump:#,0} )";
 
                 if (Selected == pTree)
                 {
@@ -253,9 +253,9 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandSetTreeExpanded == null)
+                if (field == null)
                 {
-                    _commandSetTreeExpanded = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         UPDATE DIR
                         SET
                             expanded = @expanded
@@ -263,14 +263,13 @@ namespace RomVaultX
                             DirId = @DirId",
                     Program.db.Connection);
 
-                    _commandSetTreeExpanded.Parameters.Add(new SqliteParameter("expanded", SqliteType.Integer));
-                    _commandSetTreeExpanded.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("expanded", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
                 }
 
-                return _commandSetTreeExpanded;
+                return field;
             }
         }
-        private static SqliteCommand? _commandSetTreeExpanded;
 
         private static void SetTreeExpanded(uint DirId, bool expanded)
         {

@@ -32,20 +32,20 @@ namespace RomVaultX
             {
                 const int CP_NOCLOSE_BUTTON = 0x200;
                 CreateParams mdiCp = base.CreateParams;
-                mdiCp.ClassStyle = mdiCp.ClassStyle | CP_NOCLOSE_BUTTON;
+                mdiCp.ClassStyle |= CP_NOCLOSE_BUTTON;
                 return mdiCp;
             }
         }
 
 
-        private void FrmProgressWindowNewShown(object sender, EventArgs e)
+        private void FrmProgressWindowNewShown(object? sender, EventArgs e)
         {
             bgWork.ProgressChanged += BgwProgressChanged;
             bgWork.RunWorkerCompleted += BgwRunWorkerCompleted;
             bgWork.RunWorkerAsync(SynchronizationContext.Current);
         }
 
-        private void BgwProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void BgwProgressChanged(object? sender, ProgressChangedEventArgs e)
         {
             if (e.UserState == null)
             {
@@ -57,14 +57,12 @@ namespace RomVaultX
                 return;
             }
 
-            bgwText bgwT = e.UserState as bgwText;
-            if (bgwT != null)
+            if (e.UserState is BgwText bgwT)
             {
                 label.Text = bgwT.Text;
                 return;
             }
-            bgwSetRange bgwSR = e.UserState as bgwSetRange;
-            if (bgwSR != null)
+            if (e.UserState is BgwSetRange bgwSR)
             {
                 progressBar.Minimum = 0;
                 progressBar.Maximum = bgwSR.MaxVal >= 0 ? bgwSR.MaxVal : 0;
@@ -74,15 +72,13 @@ namespace RomVaultX
             }
 
 
-            bgwText2 bgwT2 = e.UserState as bgwText2;
-            if (bgwT2 != null)
+            if (e.UserState is BgwText2 bgwT2)
             {
                 label2.Text = bgwT2.Text;
                 return;
             }
 
-            bgwValue2 bgwV2 = e.UserState as bgwValue2;
-            if (bgwV2 != null)
+            if (e.UserState is BgwValue2 bgwV2)
             {
                 if ((bgwV2.Value >= progressBar2.Minimum) && (bgwV2.Value <= progressBar2.Maximum))
                 {
@@ -92,8 +88,7 @@ namespace RomVaultX
                 return;
             }
 
-            bgwSetRange2 bgwSR2 = e.UserState as bgwSetRange2;
-            if (bgwSR2 != null)
+            if (e.UserState is BgwSetRange2 bgwSR2)
             {
                 progressBar2.Minimum = 0;
                 progressBar2.Maximum = bgwSR2.MaxVal >= 0 ? bgwSR2.MaxVal : 0;
@@ -101,8 +96,7 @@ namespace RomVaultX
                 UpdateStatusText2();
                 return;
             }
-            bgwRange2Visible bgwR2V = e.UserState as bgwRange2Visible;
-            if (bgwR2V != null)
+            if (e.UserState is BgwRange2Visible bgwR2V)
             {
                 label2.Visible = bgwR2V.Visible;
                 progressBar2.Visible = bgwR2V.Visible;
@@ -111,16 +105,14 @@ namespace RomVaultX
             }
 
 
-            bgwText3 bgwT3 = e.UserState as bgwText3;
-            if (bgwT3 != null)
+            if (e.UserState is BgwText3 bgwT3)
             {
                 label3.Text = bgwT3.Text;
                 return;
             }
 
 
-            bgwShowError bgwSDE = e.UserState as bgwShowError;
-            if (bgwSDE != null)
+            if (e.UserState is BgwShowError bgwSDE)
             {
                 if (!_errorOpen)
                 {
@@ -149,15 +141,15 @@ namespace RomVaultX
             int range = progressBar.Maximum - progressBar.Minimum;
             int percent = range > 0 ? progressBar.Value * 100 / range : 0;
 
-            Text = _titleRoot + string.Format(" - {0}% complete", percent);
+            Text = _titleRoot + $" - {percent}% complete";
         }
 
         private void UpdateStatusText2()
         {
-            lbl2Prog.Text = progressBar2.Maximum > 0 ? string.Format("{0}/{1}", progressBar2.Value, progressBar2.Maximum) : "";
+            lbl2Prog.Text = progressBar2.Maximum > 0 ? $"{progressBar2.Value}/{progressBar2.Maximum}" : "";
         }
 
-        private void BgwRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void BgwRunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
         {
             if (_errorOpen)
             {
@@ -172,7 +164,7 @@ namespace RomVaultX
             }
         }
 
-        private void CancelButtonClick(object sender, EventArgs e)
+        private void CancelButtonClick(object? sender, EventArgs e)
         {
             if (_bDone)
             {
@@ -190,12 +182,12 @@ namespace RomVaultX
             }
         }
 
-        private void ErrorGridSelectionChanged(object sender, EventArgs e)
+        private void ErrorGridSelectionChanged(object? sender, EventArgs e)
         {
             ErrorGrid.ClearSelection();
         }
 
-        private void FrmProgressWindow_Resize(object sender, EventArgs e)
+        private void FrmProgressWindow_Resize(object? sender, EventArgs e)
         {
             switch (WindowState)
             {
@@ -220,12 +212,12 @@ namespace RomVaultX
             }
         }
 
-        private void Complete(object sender, RunWorkerCompletedEventArgs e)
+        private void Complete(object? sender, RunWorkerCompletedEventArgs e)
         {
-            Exception er = e.Error;
+            Exception? er = e.Error;
             if (er != null)
             {
-                MessageBox.Show(e.Error.ToString(), "RomVault", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(e.Error!.ToString(), "RomVault", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

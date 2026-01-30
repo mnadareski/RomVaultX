@@ -6,7 +6,7 @@ namespace RomVaultX
 {
     public static class RomRootDir
     {
-        private static readonly string[] rootDirs;
+        private static readonly string[] rootDirs = [];
 
         static RomRootDir()
         {
@@ -20,7 +20,7 @@ namespace RomVaultX
             rootDirs = new string[256];
             for (int i = 0; i < 256; i++)
             {
-                rootDirs[i] = @"RomRoot\" + VarFix.ToString((byte)i);
+                rootDirs[i] = $"RomRoot\\{VarFix.ToString((byte)i)}";
             }
 
 
@@ -29,11 +29,11 @@ namespace RomVaultX
                 if (rule.Length < 6)
                     continue;
 
-                string pStart = rule.Substring(0, 2);
+                string pStart = rule[..2];
                 string ps0 = rule.Substring(2, 1);
                 string pEnd = rule.Substring(3, 2);
                 string ps1 = rule.Substring(5, 1);
-                string pDir = rule.Substring(6);
+                string pDir = rule[6..];
                 if (ps0 != "-")
                     continue;
                 if (ps1 != "|")
@@ -43,14 +43,14 @@ namespace RomVaultX
                 int iEnd = Convert.ToInt32(pEnd, 16);
 
                 for (int i = iStart; i <= iEnd; i++)
-                    rootDirs[i] = pDir + @"\" + VarFix.ToString((byte)i);
+                    rootDirs[i] = $"{pDir}\\{VarFix.ToString((byte)i)}";
             }
         }
 
         public static string GetRootDir(byte b0)
         {
             if (rootDirs == null)
-                return @"RomRoot\" + VarFix.ToString(b0);
+                return $"RomRoot\\{VarFix.ToString(b0)}";
             else
                 return rootDirs[b0];
         }
@@ -63,7 +63,7 @@ namespace RomVaultX
             int i = 0;
             while (!exists)
             {
-                string romRoot = AppSettings.ReadSetting("Depot" + i);
+                string? romRoot = AppSettings.ReadSetting($"Depot{i}");
                 if (romRoot == null)
                     break;
 
@@ -73,7 +73,7 @@ namespace RomVaultX
                         VarFix.ToString(sha1[3]) + @"\" +
                         VarFix.ToString(sha1) + ".gz";
 
-                exists = (checkExists ? File.Exists(path) : true);
+                exists = !checkExists || File.Exists(path);
                 i++;
             }
 
@@ -88,9 +88,9 @@ namespace RomVaultX
 
             return path;
 
-            return GetRootDir(sha1[0]) + @"\" +
-                   VarFix.ToString(sha1[1]) + @"\" +
-                   VarFix.ToString(sha1) + ".gz";
+            // return GetRootDir(sha1[0]) + @"\" +
+            //        VarFix.ToString(sha1[1]) + @"\" +
+            //        VarFix.ToString(sha1) + ".gz";
         }
     }
 }

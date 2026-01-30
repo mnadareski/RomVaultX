@@ -5,7 +5,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
     {
         public const int size = 12;
 
-        private int stamp, NU;
+        private int NU;
 
         private int next, prev; // Pointer RarMemBlock
 
@@ -20,14 +20,14 @@ namespace Compress.SevenZip.Compress.PPmd.H
             {
                 if (Memory != null)
                 {
-                    stamp = Utility.readShortLittleEndian(Memory, Address) & 0xffff;
+                    field = Utility.readShortLittleEndian(Memory, Address) & 0xffff;
                 }
-                return stamp;
+                return field;
             }
 
             set
             {
-                this.stamp = value;
+                field = value;
                 if (Memory != null)
                 {
                     Utility.WriteLittleEndian(Memory, Address, (short)value);

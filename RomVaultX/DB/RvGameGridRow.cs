@@ -11,9 +11,9 @@ namespace RomVaultX.DB
         {
             get
             {
-                if (_commandRead == null)
+                if (field == null)
                 {
-                    _commandRead = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                             GameId,
                             name,
@@ -27,13 +27,12 @@ namespace RomVaultX.DB
                         ORDER BY name",
                     Program.db.Connection);
 
-                    _commandRead.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
                 }
 
-                return _commandRead;
+                return field;
             }
         }
-        private static SqliteCommand? _commandRead;
 
         public int GameId;
         public string? Name;

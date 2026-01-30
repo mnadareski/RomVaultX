@@ -22,9 +22,7 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandCleanupNotFoundDats == null)
-                {
-                    _commandCleanupNotFoundDats = new SqliteCommand(@"
+                field ??= new SqliteCommand(@"
                         DELETE FROM ROM
                         WHERE
                             ROM.GameId IN
@@ -44,47 +42,40 @@ namespace RomVaultX
 
                         DELETE FROM DIR WHERE found = 0;",
                     Program.db.Connection);
-                }
 
-                return _commandCleanupNotFoundDats;
+                return field;
             }
         }
-        private static SqliteCommand? _commandCleanupNotFoundDats;
 
         public static SqliteCommand CommandClearFoundDirDats
         {
             get
             {
-                if (_commandClearFoundDirDats == null)
-                {
-                    _commandClearFoundDirDats = new SqliteCommand(@"
+                field ??= new SqliteCommand(@"
                         UPDATE DIR SET found = 0;
                         UPDATE DAT SET found = 0;",
                     Program.db.Connection);
-                }
 
-                return _commandClearFoundDirDats;
+                return field;
             }
         }
-        private static SqliteCommand? _commandClearFoundDirDats;
 
         public static SqliteCommand CommandCountDats
         {
             get
             {
-                _commandCountDats ??= new SqliteCommand(@"SELECT COUNT(1) FROM DAT", Program.db.Connection);
-                return _commandCountDats;
+                field ??= new SqliteCommand(@"SELECT COUNT(1) FROM DAT", Program.db.Connection);
+                return field;
             }
         }
-        private static SqliteCommand? _commandCountDats;
 
         public static SqliteCommand CommandFindDat
         {
             get
             {
-                if (_commandFindDat == null)
+                if (field == null)
                 {
-                    _commandFindDat = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                             DatId
                         FROM DAT
@@ -95,47 +86,45 @@ namespace RomVaultX
                             AND ExtraDir = @ExtraDir",
                         Program.db.Connection);
 
-                    _commandFindDat.Parameters.Add(new SqliteParameter("Path", SqliteType.Text));
-                    _commandFindDat.Parameters.Add(new SqliteParameter("Filename", SqliteType.Text));
-                    _commandFindDat.Parameters.Add(new SqliteParameter("DatTimeStamp", SqliteType.Text));
-                    _commandFindDat.Parameters.Add(new SqliteParameter("ExtraDir", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("Path", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("Filename", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("DatTimeStamp", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("ExtraDir", SqliteType.Integer));
                 }
 
-                return _commandFindDat;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindDat;
 
         public static SqliteCommand CommandSetDatFound
         {
             get
             {
-                if (_commandSetDatFound == null)
+                if (field == null)
                 {
-                    _commandSetDatFound = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         UPDATE DAT SET found = 1 WHERE DatId = @DatId;
                         UPDATE DIR SET found = 1 WHERE DirId = (SELECT DirId FROM DAT WHERE DatId = @DatId);",
                     Program.db.Connection);
 
-                    _commandSetDatFound.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
                 }
 
-                return _commandSetDatFound;
+                return field;
             }
         }
-        private static SqliteCommand? _commandSetDatFound;
 
         public static void ShowDat(string message, string filename)
         {
-            _bgw?.ReportProgress(0, new bgwShowError(filename, message));
+            _bgw?.ReportProgress(0, new BgwShowError(filename, message));
         }
 
         public static void SendAndShowDat(string message, string filename)
         {
-            _bgw?.ReportProgress(0, new bgwShowError(filename, message));
+            _bgw?.ReportProgress(0, new BgwShowError(filename, message));
         }
 
-        public static void UpdateDat(object sender, DoWorkEventArgs e)
+        public static void UpdateDat(object? sender, DoWorkEventArgs e)
         {
             try
             {
@@ -150,16 +139,16 @@ namespace RomVaultX
                     return;
                 }
 
-                _bgw.ReportProgress(0, new bgwText("Clearing Found DAT List"));
+                _bgw.ReportProgress(0, new BgwText("Clearing Found DAT List"));
                 ClearFoundDats();
 
                 const string datRoot = @"";
                 uint dirId = RvDir.FindOrInsertIntoDir(0, "DatRoot", "DatRoot\\");
 
-                _bgw.ReportProgress(0, new bgwText("Pull File DB into memory"));
+                _bgw.ReportProgress(0, new BgwText("Pull File DB into memory"));
                 NoFilesInDb = RvFile.FilesinDBCheck();
 
-                _bgw.ReportProgress(0, new bgwText("Finding Dats"));
+                _bgw.ReportProgress(0, new BgwText("Finding Dats"));
                 _datCount = 0;
                 DatCount(datRoot, "DatRoot");
 
@@ -170,28 +159,28 @@ namespace RomVaultX
 
                 if (dropIndex)
                 {
-                    _bgw.ReportProgress(0, new bgwText("Removing Indexes"));
+                    _bgw.ReportProgress(0, new BgwText("Removing Indexes"));
                     Program.db.DropIndex();
                 }
 
-                _bgw.ReportProgress(0, new bgwText("Scanning Dats"));
+                _bgw.ReportProgress(0, new BgwText("Scanning Dats"));
                 _datsProcessed = 0;
 
-                _bgw.ReportProgress(0, new bgwSetRange(_datCount - 1));
+                _bgw.ReportProgress(0, new BgwSetRange(_datCount - 1));
                 Program.db.Begin();
                 ScanDirs(dirId, datRoot, "DatRoot");
                 Program.db.Commit();
 
-                _bgw.ReportProgress(0, new bgwText("Removing old DATs"));
+                _bgw.ReportProgress(0, new BgwText("Removing old DATs"));
                 RemoveNotFoundDATs();
 
-                _bgw.ReportProgress(0, new bgwText("Re-Creating Indexes"));
+                _bgw.ReportProgress(0, new BgwText("Re-Creating Indexes"));
                 Program.db.MakeIndex(_bgw);
 
-                _bgw.ReportProgress(0, new bgwText("Re-calculating DIR Got Totals"));
+                _bgw.ReportProgress(0, new BgwText("Re-calculating DIR Got Totals"));
                 UpdateGotTotal();
 
-                _bgw.ReportProgress(0, new bgwText("Dat Update Complete"));
+                _bgw.ReportProgress(0, new BgwText("Dat Update Complete"));
                 _bgw = null;
                 Program.SyncCont = null;
             }
@@ -257,7 +246,7 @@ namespace RomVaultX
                     continue;
                 }
 
-                _bgw?.ReportProgress(0, new bgwText("Dat : " + subPath + @"\" + f.Name));
+                _bgw?.ReportProgress(0, new BgwText($"Dat : {subPath}\\{f.Name}"));
 
                 if (DatReader.DatReader.ReadDat(f.FullName, _bgw, out RvDat rvDat))
                 {
@@ -277,7 +266,7 @@ namespace RomVaultX
                     DatSetCheckParentSets(rvDat);
                     DatSetRenameAndRemoveDups(rvDat);
 
-                    if ((rvDat.MergeType ?? "").ToLowerInvariant() == "full")
+                    if ((rvDat.MergeType ?? "").Equals("full", StringComparison.OrdinalIgnoreCase))
                         DatSetMergeSets(rvDat);
 
                     DatSetCheckCollect(rvDat);
@@ -318,7 +307,7 @@ namespace RomVaultX
                     if (f1?.Name == null || f1.Name.Length <= f0.Name.Length)
                         continue;
 
-                    if (f0.Name != f1.Name.Substring(0, f0.Name.Length))
+                    if (f0.Name != f1.Name[..f0.Name.Length])
                         continue;
 
                     tGame.Roms?.RemoveAt(r);
@@ -455,7 +444,7 @@ namespace RomVaultX
                     if (f0.Size != f1.Size || ArrByte.iCompare(f0.CRC, f1.CRC) != 0)
                     {
                         tGame.Roms.RemoveAt(r + 1); // remove F1
-                        f1.Name = f1.Name + "_" + ArrByte.ToString(f1.CRC); // rename F1;
+                        f1.Name = $"{f1.Name}_{ArrByte.ToString(f1.CRC)}"; // rename F1;
                         int pos = tGame.AddRom(f1);
 
                         // if this rename moved the File back up the list, start checking again from that file.
@@ -480,7 +469,7 @@ namespace RomVaultX
 
                 List<RvGame> lstParentGames = [];
                 FindParentSet(mGame, tDat, ref lstParentGames);
-                while ((lstParentGames.Count > 0) && ((lstParentGames[lstParentGames.Count - 1].IsBios ?? "").ToLowerInvariant() == "yes"))
+                while ((lstParentGames.Count > 0) && (lstParentGames[^1].IsBios ?? "").Equals("yes", StringComparison.OrdinalIgnoreCase))
                 {
                     lstParentGames.RemoveAt(lstParentGames.Count - 1);
                 }
@@ -488,7 +477,7 @@ namespace RomVaultX
                 if (lstParentGames.Count <= 0)
                     continue;
 
-                RvGame romofGame = lstParentGames[lstParentGames.Count - 1];
+                RvGame romofGame = lstParentGames[^1];
 
                 bool founderror = false;
                 for (int r = 0; r < mGame.RomCount; r++)
@@ -620,7 +609,7 @@ namespace RomVaultX
             }
 
             if (!string.IsNullOrEmpty(tRom.Merge))
-                tRom.Merge = "(No-Merge) " + tRom.Merge;
+                tRom.Merge = $"(No-Merge) {tRom.Merge}";
 
             if (ArrByte.bCompare(tRom.CRC, [0, 0, 0, 0]) && tRom.Size == 0)
             {
@@ -681,9 +670,9 @@ namespace RomVaultX
                     RomNoDump   = null;
 
                 UPDATE DIR
-                SET 
+                SET
                     RomTotal    = (SELECT SUM(RomTotal ) FROM DAT WHERE DAT.DirId = DIR.DirId),
-                    RomGot      = (SELECT SUM(RomGot   ) FROM DAT WHERE DAT.DirId = DIR.DirId), 
+                    RomGot      = (SELECT SUM(RomGot   ) FROM DAT WHERE DAT.DirId = DIR.DirId),
                     RomNoDump   = (SELECT SUM(RomNoDump) FROM DAT WHERE DAT.DirId = DIR.DirId)
                 WHERE
                     (SELECT COUNT(1) FROM DIR AS dir1 WHERE dir1.ParentDirId = DIR.DirId) = 0;");

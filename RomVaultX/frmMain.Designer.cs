@@ -123,9 +123,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.RomGrid)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // btnUpdateDats
-            // 
+            //
             this.btnUpdateDats.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnUpdateDats.BackgroundImage")));
             this.btnUpdateDats.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.btnUpdateDats.Location = new System.Drawing.Point(0, 0);
@@ -136,30 +136,30 @@
             this.btnUpdateDats.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnUpdateDats.UseVisualStyleBackColor = true;
             this.btnUpdateDats.Click += new System.EventHandler(this.btnUpdateDats_Click);
-            // 
+            //
             // splitContainer1
-            // 
+            //
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(0, 24);
             this.splitContainer1.Name = "splitContainer1";
-            // 
+            //
             // splitContainer1.Panel1
-            // 
+            //
             this.splitContainer1.Panel1.BackColor = System.Drawing.Color.White;
             this.splitContainer1.Panel1.Controls.Add(this.btnScanRoms);
             this.splitContainer1.Panel1.Controls.Add(this.btnUpdateDats);
-            // 
+            //
             // splitContainer1.Panel2
-            // 
+            //
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
             this.splitContainer1.Size = new System.Drawing.Size(1264, 737);
             this.splitContainer1.SplitterDistance = 80;
             this.splitContainer1.TabIndex = 4;
-            // 
+            //
             // btnScanRoms
-            // 
+            //
             this.btnScanRoms.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnScanRoms.BackgroundImage")));
             this.btnScanRoms.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.btnScanRoms.Location = new System.Drawing.Point(0, 79);
@@ -170,48 +170,48 @@
             this.btnScanRoms.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnScanRoms.UseVisualStyleBackColor = true;
             this.btnScanRoms.MouseUp += new System.Windows.Forms.MouseEventHandler(this.btnScanRoms_MouseUp);
-            // 
+            //
             // splitContainer2
-            // 
+            //
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
             this.splitContainer2.Name = "splitContainer2";
-            // 
+            //
             // splitContainer2.Panel1
-            // 
+            //
             this.splitContainer2.Panel1.Controls.Add(this.splitContainer3);
             this.splitContainer2.Panel1MinSize = 450;
-            // 
+            //
             // splitContainer2.Panel2
-            // 
+            //
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer4);
             this.splitContainer2.Size = new System.Drawing.Size(1180, 737);
             this.splitContainer2.SplitterDistance = 533;
             this.splitContainer2.TabIndex = 0;
-            // 
+            //
             // splitContainer3
-            // 
+            //
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer3.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer3.IsSplitterFixed = true;
             this.splitContainer3.Location = new System.Drawing.Point(0, 0);
             this.splitContainer3.Name = "splitContainer3";
             this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
+            //
             // splitContainer3.Panel1
-            // 
+            //
             this.splitContainer3.Panel1.Controls.Add(this.gbDatInfo);
             this.splitContainer3.Panel1.Resize += new System.EventHandler(this.splitContainer3_Panel1_Resize);
-            // 
+            //
             // splitContainer3.Panel2
-            // 
+            //
             this.splitContainer3.Panel2.Controls.Add(this.DirTree);
             this.splitContainer3.Size = new System.Drawing.Size(533, 737);
             this.splitContainer3.SplitterDistance = 148;
             this.splitContainer3.TabIndex = 0;
-            // 
+            //
             // gbDatInfo
-            // 
+            //
             this.gbDatInfo.Controls.Add(this.lblDITRomsNoDump);
             this.gbDatInfo.Controls.Add(this.lblDIRomsNoDump);
             this.gbDatInfo.Controls.Add(this.lblDIRomsTotal);
@@ -241,218 +241,218 @@
             this.gbDatInfo.TabStop = false;
             this.gbDatInfo.Text = "Dat Info :";
             this.gbDatInfo.Resize += new System.EventHandler(this.gbDatInfo_Resize);
-            // 
+            //
             // lblDITRomsNoDump
-            // 
+            //
             this.lblDITRomsNoDump.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITRomsNoDump.Location = new System.Drawing.Point(311, 120);
             this.lblDITRomsNoDump.Name = "lblDITRomsNoDump";
             this.lblDITRomsNoDump.Size = new System.Drawing.Size(120, 17);
             this.lblDITRomsNoDump.TabIndex = 28;
-            // 
+            //
             // lblDIRomsNoDump
-            // 
+            //
             this.lblDIRomsNoDump.Location = new System.Drawing.Point(214, 121);
             this.lblDIRomsNoDump.Name = "lblDIRomsNoDump";
             this.lblDIRomsNoDump.Size = new System.Drawing.Size(92, 13);
             this.lblDIRomsNoDump.TabIndex = 27;
             this.lblDIRomsNoDump.Text = "ROMs NoDump :";
             this.lblDIRomsNoDump.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDIRomsTotal
-            // 
+            //
             this.lblDIRomsTotal.Location = new System.Drawing.Point(214, 105);
             this.lblDIRomsTotal.Name = "lblDIRomsTotal";
             this.lblDIRomsTotal.Size = new System.Drawing.Size(92, 13);
             this.lblDIRomsTotal.TabIndex = 26;
             this.lblDIRomsTotal.Text = "ROMs Total :";
             this.lblDIRomsTotal.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // label9
-            // 
+            //
             this.label9.Location = new System.Drawing.Point(10, 105);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(75, 13);
             this.label9.TabIndex = 23;
             this.label9.Text = "ROMs Got :";
             this.label9.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDITRomsTotal
-            // 
+            //
             this.lblDITRomsTotal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITRomsTotal.Location = new System.Drawing.Point(311, 104);
             this.lblDITRomsTotal.Name = "lblDITRomsTotal";
             this.lblDITRomsTotal.Size = new System.Drawing.Size(120, 17);
             this.lblDITRomsTotal.TabIndex = 21;
-            // 
+            //
             // lblDITRomsMissing
-            // 
+            //
             this.lblDITRomsMissing.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITRomsMissing.Location = new System.Drawing.Point(89, 120);
             this.lblDITRomsMissing.Name = "lblDITRomsMissing";
             this.lblDITRomsMissing.Size = new System.Drawing.Size(120, 17);
             this.lblDITRomsMissing.TabIndex = 19;
-            // 
+            //
             // lblDITRomsGot
-            // 
+            //
             this.lblDITRomsGot.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITRomsGot.Location = new System.Drawing.Point(89, 104);
             this.lblDITRomsGot.Name = "lblDITRomsGot";
             this.lblDITRomsGot.Size = new System.Drawing.Size(120, 17);
             this.lblDITRomsGot.TabIndex = 18;
-            // 
+            //
             // lblDITRomPath
-            // 
+            //
             this.lblDITRomPath.Location = new System.Drawing.Point(10, 79);
             this.lblDITRomPath.Name = "lblDITRomPath";
             this.lblDITRomPath.Size = new System.Drawing.Size(75, 13);
             this.lblDITRomPath.TabIndex = 15;
             this.lblDITRomPath.Text = "ROM Path:";
             this.lblDITRomPath.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDITPath
-            // 
+            //
             this.lblDITPath.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITPath.Location = new System.Drawing.Point(89, 78);
             this.lblDITPath.Name = "lblDITPath";
             this.lblDITPath.Size = new System.Drawing.Size(342, 17);
             this.lblDITPath.TabIndex = 13;
-            // 
+            //
             // lblDIDate
-            // 
+            //
             this.lblDIDate.Location = new System.Drawing.Point(214, 63);
             this.lblDIDate.Name = "lblDIDate";
             this.lblDIDate.Size = new System.Drawing.Size(92, 13);
             this.lblDIDate.TabIndex = 12;
             this.lblDIDate.Text = "Date :";
             this.lblDIDate.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDIAuthor
-            // 
+            //
             this.lblDIAuthor.Location = new System.Drawing.Point(10, 63);
             this.lblDIAuthor.Name = "lblDIAuthor";
             this.lblDIAuthor.Size = new System.Drawing.Size(75, 13);
             this.lblDIAuthor.TabIndex = 11;
             this.lblDIAuthor.Text = "Author :";
             this.lblDIAuthor.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDITDate
-            // 
+            //
             this.lblDITDate.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITDate.Location = new System.Drawing.Point(311, 62);
             this.lblDITDate.Name = "lblDITDate";
             this.lblDITDate.Size = new System.Drawing.Size(120, 17);
             this.lblDITDate.TabIndex = 10;
-            // 
+            //
             // lblDITAuthor
-            // 
+            //
             this.lblDITAuthor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITAuthor.Location = new System.Drawing.Point(89, 62);
             this.lblDITAuthor.Name = "lblDITAuthor";
             this.lblDITAuthor.Size = new System.Drawing.Size(120, 17);
             this.lblDITAuthor.TabIndex = 9;
-            // 
+            //
             // lblDIVersion
-            // 
+            //
             this.lblDIVersion.Location = new System.Drawing.Point(214, 47);
             this.lblDIVersion.Name = "lblDIVersion";
             this.lblDIVersion.Size = new System.Drawing.Size(92, 13);
             this.lblDIVersion.TabIndex = 8;
             this.lblDIVersion.Text = "Version :";
             this.lblDIVersion.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDICategory
-            // 
+            //
             this.lblDICategory.Location = new System.Drawing.Point(10, 47);
             this.lblDICategory.Name = "lblDICategory";
             this.lblDICategory.Size = new System.Drawing.Size(75, 13);
             this.lblDICategory.TabIndex = 7;
             this.lblDICategory.Text = "Category :";
             this.lblDICategory.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDITVersion
-            // 
+            //
             this.lblDITVersion.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITVersion.Location = new System.Drawing.Point(311, 46);
             this.lblDITVersion.Name = "lblDITVersion";
             this.lblDITVersion.Size = new System.Drawing.Size(120, 17);
             this.lblDITVersion.TabIndex = 6;
-            // 
+            //
             // lblDITCategory
-            // 
+            //
             this.lblDITCategory.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITCategory.Location = new System.Drawing.Point(89, 46);
             this.lblDITCategory.Name = "lblDITCategory";
             this.lblDITCategory.Size = new System.Drawing.Size(120, 17);
             this.lblDITCategory.TabIndex = 5;
-            // 
+            //
             // lblDIDescription
-            // 
+            //
             this.lblDIDescription.Location = new System.Drawing.Point(10, 31);
             this.lblDIDescription.Name = "lblDIDescription";
             this.lblDIDescription.Size = new System.Drawing.Size(75, 13);
             this.lblDIDescription.TabIndex = 4;
             this.lblDIDescription.Text = "Description :";
             this.lblDIDescription.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDIName
-            // 
+            //
             this.lblDIName.Location = new System.Drawing.Point(10, 15);
             this.lblDIName.Name = "lblDIName";
             this.lblDIName.Size = new System.Drawing.Size(75, 13);
             this.lblDIName.TabIndex = 3;
             this.lblDIName.Text = "Name :";
             this.lblDIName.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // lblDITDescription
-            // 
+            //
             this.lblDITDescription.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITDescription.Location = new System.Drawing.Point(89, 30);
             this.lblDITDescription.Name = "lblDITDescription";
             this.lblDITDescription.Size = new System.Drawing.Size(342, 17);
             this.lblDITDescription.TabIndex = 2;
-            // 
+            //
             // lblDITName
-            // 
+            //
             this.lblDITName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblDITName.Location = new System.Drawing.Point(89, 14);
             this.lblDITName.Name = "lblDITName";
             this.lblDITName.Size = new System.Drawing.Size(342, 17);
             this.lblDITName.TabIndex = 1;
-            // 
+            //
             // label8
-            // 
+            //
             this.label8.Location = new System.Drawing.Point(2, 121);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(83, 13);
             this.label8.TabIndex = 24;
             this.label8.Text = "ROMs Missing :";
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
+            //
             // splitContainer4
-            // 
+            //
             this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer4.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer4.Location = new System.Drawing.Point(0, 0);
             this.splitContainer4.Name = "splitContainer4";
             this.splitContainer4.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
+            //
             // splitContainer4.Panel1
-            // 
+            //
             this.splitContainer4.Panel1.Controls.Add(this.chkBoxShowMissing);
             this.splitContainer4.Panel1.Controls.Add(this.chkBoxShowCorrect);
             this.splitContainer4.Panel1.Controls.Add(this.gbSetInfo);
             this.splitContainer4.Panel1.Resize += new System.EventHandler(this.splitContainer4_Panel1_Resize);
-            // 
+            //
             // splitContainer4.Panel2
-            // 
+            //
             this.splitContainer4.Panel2.Controls.Add(this.splitContainer5);
             this.splitContainer4.Size = new System.Drawing.Size(643, 737);
             this.splitContainer4.SplitterDistance = 148;
             this.splitContainer4.TabIndex = 0;
-            // 
+            //
             // chkBoxShowMissing
-            // 
+            //
             this.chkBoxShowMissing.AutoSize = true;
             this.chkBoxShowMissing.Checked = true;
             this.chkBoxShowMissing.CheckState = System.Windows.Forms.CheckState.Checked;
@@ -463,9 +463,9 @@
             this.chkBoxShowMissing.Text = "Show Missing ROMs";
             this.chkBoxShowMissing.UseVisualStyleBackColor = true;
             this.chkBoxShowMissing.CheckedChanged += new System.EventHandler(this.chkBoxShowMissing_CheckedChanged);
-            // 
+            //
             // chkBoxShowCorrect
-            // 
+            //
             this.chkBoxShowCorrect.AutoSize = true;
             this.chkBoxShowCorrect.Checked = true;
             this.chkBoxShowCorrect.CheckState = System.Windows.Forms.CheckState.Checked;
@@ -476,9 +476,9 @@
             this.chkBoxShowCorrect.Text = "Show Correct ROMs";
             this.chkBoxShowCorrect.UseVisualStyleBackColor = true;
             this.chkBoxShowCorrect.CheckedChanged += new System.EventHandler(this.chkBoxShowCorrect_CheckedChanged);
-            // 
+            //
             // gbSetInfo
-            // 
+            //
             this.gbSetInfo.Location = new System.Drawing.Point(5, 0);
             this.gbSetInfo.Name = "gbSetInfo";
             this.gbSetInfo.Size = new System.Drawing.Size(416, 147);
@@ -486,27 +486,27 @@
             this.gbSetInfo.TabStop = false;
             this.gbSetInfo.Text = "Game Info :";
             this.gbSetInfo.Resize += new System.EventHandler(this.gbSetInfo_Resize);
-            // 
+            //
             // splitContainer5
-            // 
+            //
             this.splitContainer5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer5.Location = new System.Drawing.Point(0, 0);
             this.splitContainer5.Name = "splitContainer5";
             this.splitContainer5.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
+            //
             // splitContainer5.Panel1
-            // 
+            //
             this.splitContainer5.Panel1.Controls.Add(this.GameGrid);
-            // 
+            //
             // splitContainer5.Panel2
-            // 
+            //
             this.splitContainer5.Panel2.Controls.Add(this.RomGrid);
             this.splitContainer5.Size = new System.Drawing.Size(643, 585);
             this.splitContainer5.SplitterDistance = 276;
             this.splitContainer5.TabIndex = 0;
-            // 
+            //
             // GameGrid
-            // 
+            //
             this.GameGrid.AllowUserToAddRows = false;
             this.GameGrid.AllowUserToDeleteRows = false;
             this.GameGrid.AllowUserToResizeRows = false;
@@ -558,47 +558,47 @@
             this.GameGrid.Size = new System.Drawing.Size(643, 276);
             this.GameGrid.TabIndex = 5;
             this.GameGrid.SelectionChanged += new System.EventHandler(this.GameGrid_SelectionChanged);
-            // 
+            //
             // Type
-            // 
+            //
             this.Type.FillWeight = 40F;
             this.Type.HeaderText = "Type";
             this.Type.Name = "Type";
             this.Type.ReadOnly = true;
             this.Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.Type.Width = 40;
-            // 
+            //
             // CGame
-            // 
+            //
             this.CGame.HeaderText = "Game (Directory / Zip)";
             this.CGame.Name = "CGame";
             this.CGame.ReadOnly = true;
             this.CGame.Width = 220;
-            // 
+            //
             // CDescription
-            // 
+            //
             this.CDescription.HeaderText = "Description";
             this.CDescription.Name = "CDescription";
             this.CDescription.ReadOnly = true;
             this.CDescription.Width = 220;
-            // 
+            //
             // CCorrect
-            // 
+            //
             this.CCorrect.HeaderText = "ROMs Got";
             this.CCorrect.Name = "CCorrect";
             this.CCorrect.ReadOnly = true;
             this.CCorrect.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.CCorrect.Width = 80;
-            // 
+            //
             // CMissing
-            // 
+            //
             this.CMissing.HeaderText = "ROMs Missing";
             this.CMissing.Name = "CMissing";
             this.CMissing.ReadOnly = true;
             this.CMissing.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
+            //
             // RomGrid
-            // 
+            //
             this.RomGrid.AllowUserToAddRows = false;
             this.RomGrid.AllowUserToDeleteRows = false;
             this.RomGrid.AllowUserToResizeRows = false;
@@ -655,79 +655,79 @@
             this.RomGrid.TabIndex = 22;
             this.RomGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.RomGrid_CellContentClick);
             this.RomGrid.SelectionChanged += new System.EventHandler(this.RomGrid_SelectionChanged);
-            // 
+            //
             // CGot
-            // 
+            //
             this.CGot.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.CGot.HeaderText = "Got";
             this.CGot.Name = "CGot";
             this.CGot.ReadOnly = true;
             this.CGot.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.CGot.Width = 65;
-            // 
+            //
             // CRom
-            // 
+            //
             this.CRom.HeaderText = "ROM (File)";
             this.CRom.Name = "CRom";
             this.CRom.ReadOnly = true;
             this.CRom.Width = 150;
-            // 
+            //
             // CSize
-            // 
+            //
             this.CSize.HeaderText = "Size";
             this.CSize.Name = "CSize";
             this.CSize.ReadOnly = true;
             this.CSize.Width = 60;
-            // 
+            //
             // CCompressSize
-            // 
+            //
             this.CCompressSize.HeaderText = "ZipSize";
             this.CCompressSize.Name = "CCompressSize";
             this.CCompressSize.ReadOnly = true;
             this.CCompressSize.Width = 60;
-            // 
+            //
             // CMerge
-            // 
+            //
             this.CMerge.HeaderText = "Merge";
             this.CMerge.Name = "CMerge";
             this.CMerge.ReadOnly = true;
             this.CMerge.Width = 60;
-            // 
+            //
             // CCRC32
-            // 
+            //
             this.CCRC32.HeaderText = "CRC32";
             this.CCRC32.Name = "CCRC32";
             this.CCRC32.ReadOnly = true;
-            // 
+            //
             // CSHA1
-            // 
+            //
             this.CSHA1.HeaderText = "SHA1";
             this.CSHA1.Name = "CSHA1";
             this.CSHA1.ReadOnly = true;
             this.CSHA1.Width = 150;
-            // 
+            //
             // CMD5
-            // 
+            //
             this.CMD5.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.CMD5.HeaderText = "MD5";
             this.CMD5.Name = "CMD5";
             this.CMD5.ReadOnly = true;
             this.CMD5.Width = 150;
-            // 
+            //
             // CStatus
-            // 
+            //
             this.CStatus.HeaderText = "Status";
             this.CStatus.Name = "CStatus";
             this.CStatus.ReadOnly = true;
-            // 
+            //
             // CInZip
-            // 
+            //
             this.CInZip.HeaderText = "In Zip";
             this.CInZip.Name = "CInZip";
             this.CInZip.ReadOnly = true;
-            // 
+            //
             // menuStrip1
-            // 
+            //
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.romRootScanToolStripMenuItem,
             this.scanADirToolStripMenuItem,
@@ -741,9 +741,9 @@
             this.menuStrip1.Size = new System.Drawing.Size(1264, 24);
             this.menuStrip1.TabIndex = 5;
             this.menuStrip1.Text = "menuStrip1";
-            // 
+            //
             // romRootScanToolStripMenuItem
-            // 
+            //
             this.romRootScanToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.quickReScanToolStripMenuItem,
             this.deepReScanToolStripMenuItem});
@@ -751,81 +751,81 @@
             this.romRootScanToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
             this.romRootScanToolStripMenuItem.Text = "RomRoot";
             this.romRootScanToolStripMenuItem.Click += new System.EventHandler(this.romRootScanToolStripMenuItem_Click);
-            // 
+            //
             // quickReScanToolStripMenuItem
-            // 
+            //
             this.quickReScanToolStripMenuItem.Name = "quickReScanToolStripMenuItem";
             this.quickReScanToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.quickReScanToolStripMenuItem.Text = "Quick ReScan";
             this.quickReScanToolStripMenuItem.Click += new System.EventHandler(this.quickReScanToolStripMenuItem_Click);
-            // 
+            //
             // deepReScanToolStripMenuItem
-            // 
+            //
             this.deepReScanToolStripMenuItem.Name = "deepReScanToolStripMenuItem";
             this.deepReScanToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.deepReScanToolStripMenuItem.Text = "Deep ReScan";
             this.deepReScanToolStripMenuItem.Click += new System.EventHandler(this.deepReScanToolStripMenuItem_Click);
-            // 
+            //
             // scanADirToolStripMenuItem
-            // 
+            //
             this.scanADirToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripSubScanADir,
             this.toolStripSubScanADirWithDelete});
             this.scanADirToolStripMenuItem.Name = "scanADirToolStripMenuItem";
             this.scanADirToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
             this.scanADirToolStripMenuItem.Text = "Scan A Dir";
-            // 
+            //
             // toolStripSubScanADir
-            // 
+            //
             this.toolStripSubScanADir.Name = "toolStripSubScanADir";
             this.toolStripSubScanADir.Size = new System.Drawing.Size(180, 22);
             this.toolStripSubScanADir.Text = "Scan A Dir";
             this.toolStripSubScanADir.Click += new System.EventHandler(this.scanADirToolStripMenuItem_Click);
-            // 
+            //
             // toolStripSubScanADirWithDelete
-            // 
+            //
             this.toolStripSubScanADirWithDelete.Name = "toolStripSubScanADirWithDelete";
             this.toolStripSubScanADirWithDelete.Size = new System.Drawing.Size(180, 22);
             this.toolStripSubScanADirWithDelete.Text = "Scan With Delete";
             this.toolStripSubScanADirWithDelete.Click += new System.EventHandler(this.scanWithDeleteToolStripMenuItem_Click);
-            // 
+            //
             // updateZipDBToolStripMenuItem
-            // 
+            //
             this.updateZipDBToolStripMenuItem.Name = "updateZipDBToolStripMenuItem";
             this.updateZipDBToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
             this.updateZipDBToolStripMenuItem.Text = "UpdateZipDB";
             this.updateZipDBToolStripMenuItem.Click += new System.EventHandler(this.updateZipDBToolStripMenuItem_Click);
-            // 
+            //
             // startVDriveToolStripMenuItem
-            // 
+            //
             this.startVDriveToolStripMenuItem.Name = "startVDriveToolStripMenuItem";
             this.startVDriveToolStripMenuItem.Size = new System.Drawing.Size(83, 20);
             this.startVDriveToolStripMenuItem.Text = "Start V Drive";
             this.startVDriveToolStripMenuItem.Click += new System.EventHandler(this.startVDriveToolStripMenuItem_Click);
-            // 
+            //
             // closeVDriveToolStripMenuItem
-            // 
+            //
             this.closeVDriveToolStripMenuItem.Name = "closeVDriveToolStripMenuItem";
             this.closeVDriveToolStripMenuItem.Size = new System.Drawing.Size(88, 20);
             this.closeVDriveToolStripMenuItem.Text = "Close V Drive";
             this.closeVDriveToolStripMenuItem.Click += new System.EventHandler(this.closeVDriveToolStripMenuItem_Click);
-            // 
+            //
             // extractFilesToolStripMenuItem
-            // 
+            //
             this.extractFilesToolStripMenuItem.Name = "extractFilesToolStripMenuItem";
             this.extractFilesToolStripMenuItem.Size = new System.Drawing.Size(78, 20);
             this.extractFilesToolStripMenuItem.Text = "ExtractFiles";
             this.extractFilesToolStripMenuItem.Click += new System.EventHandler(this.extractFilesToolStripMenuItem_Click);
-            // 
+            //
             // fixDatsToolStripMenuItem
-            // 
+            //
             this.fixDatsToolStripMenuItem.Name = "fixDatsToolStripMenuItem";
             this.fixDatsToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.fixDatsToolStripMenuItem.Text = "FixDats";
             this.fixDatsToolStripMenuItem.Click += new System.EventHandler(this.fixDatsToolStripMenuItem_Click);
-            // 
+            //
             // DirTree
-            // 
+            //
             this.DirTree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.DirTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.DirTree.Location = new System.Drawing.Point(0, 0);
@@ -833,9 +833,9 @@
             this.DirTree.Size = new System.Drawing.Size(533, 585);
             this.DirTree.TabIndex = 0;
             this.DirTree.RvSelected += new System.Windows.Forms.MouseEventHandler(this.DirTree_RvSelected);
-            // 
+            //
             // frmMain
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1264, 761);

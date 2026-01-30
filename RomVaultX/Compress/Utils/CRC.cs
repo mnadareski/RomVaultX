@@ -6,7 +6,6 @@ namespace Compress.Utils
     {
         public static readonly uint[] CRC32Lookup;
         private uint _crc;
-        private long _totalBytesRead;
 
         static CRC()
         {
@@ -44,7 +43,7 @@ namespace Compress.Utils
 
         public void Reset()
         {
-            _totalBytesRead = 0;
+            TotalBytesRead = 0;
             _crc = 0xffffffffu;
         }
 
@@ -56,7 +55,7 @@ namespace Compress.Utils
 
         public void SlurpBlock(byte[] block, int offset, int count)
         {
-            _totalBytesRead += count;
+            TotalBytesRead += count;
             uint crc = _crc;
 
             for (; (offset & 7) != 0 && count != 0; count--)
@@ -107,7 +106,7 @@ namespace Compress.Utils
 
         public uint Crc32ResultU => ~_crc;
 
-        public Int64 TotalBytesRead => _totalBytesRead;
+        public Int64 TotalBytesRead { get; private set; }
 
         public static uint CalculateDigest(byte[] data, uint offset, uint size)
         {

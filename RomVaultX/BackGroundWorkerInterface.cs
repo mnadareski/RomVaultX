@@ -1,122 +1,64 @@
 ﻿namespace RomVaultX
 {
-    public class bgwText
+    public class BgwText(string Text)
     {
-        public bgwText(string Text)
-        {
-            this.Text = Text;
-        }
-
-        public string Text { get; private set; }
+        public string Text { get; private set; } = Text;
     }
 
-    public class bgwText2
+    public class BgwText2(string Text)
     {
-        public bgwText2(string Text)
-        {
-            this.Text = Text;
-        }
-
-        public string Text { get; private set; }
+        public string Text { get; private set; } = Text;
     }
 
-    public class bgwText3
+    public class BgwText3(string Text)
     {
-        public bgwText3(string Text)
-        {
-            this.Text = Text;
-        }
-
-        public string Text { get; private set; }
+        public string Text { get; private set; } = Text;
     }
 
 
-    public class bgwSetRange
+    public class BgwSetRange(int MaxVal)
     {
-        public bgwSetRange(int MaxVal)
-        {
-            this.MaxVal = MaxVal;
-        }
-
-        public int MaxVal { get; private set; }
+        public int MaxVal { get; private set; } = MaxVal;
     }
 
-    public class bgwSetRange2
+    public class BgwSetRange2(int MaxVal)
     {
-        public bgwSetRange2(int MaxVal)
-        {
-            this.MaxVal = MaxVal;
-        }
-
-        public int MaxVal { get; private set; }
+        public int MaxVal { get; private set; } = MaxVal;
     }
 
 
-    public class bgwValue2
+    public class BgwValue2(int Value)
     {
-        public bgwValue2(int Value)
-        {
-            this.Value = Value;
-        }
-
-        public int Value { get; private set; }
+        public int Value { get; private set; } = Value;
     }
 
 
-    public class bgwRange2Visible
+    public class BgwRange2Visible(bool Visible)
     {
-        public bgwRange2Visible(bool Visible)
-        {
-            this.Visible = Visible;
-        }
-
-        public bool Visible { get; private set; }
+        public bool Visible { get; private set; } = Visible;
     }
 
-    public class bgwShowError
+    public class BgwShowError(string filename, string error)
     {
-        public bgwShowError(string filename, string error)
-        {
-            this.error = error;
-            this.filename = filename;
-        }
-
-        public string filename { get; private set; }
-        public string error { get; private set; }
+        public string filename { get; private set; } = filename;
+        public string error { get; private set; } = error;
     }
 
 
-    public class bgwShowFix
+    public class BgwShowFix(string fixDir, string fixZip, string fixFile, ulong? size, string dir, string sourceDir, string sourceZip, string sourceFile)
     {
-        public bgwShowFix(string fixDir, string fixZip, string fixFile, ulong? size, string dir, string sourceDir, string sourceZip, string sourceFile)
-        {
-            FixDir = fixDir;
-            FixZip = fixZip;
-            FixFile = fixFile;
-            Size = size.ToString();
-            Dir = dir;
-            SourceDir = sourceDir;
-            SourceZip = sourceZip;
-            SourceFile = sourceFile;
-        }
-
-        public string FixDir { get; private set; }
-        public string FixZip { get; private set; }
-        public string FixFile { get; private set; }
-        public string Size { get; private set; }
-        public string Dir { get; private set; }
-        public string SourceDir { get; private set; }
-        public string SourceZip { get; private set; }
-        public string SourceFile { get; private set; }
+        public string FixDir { get; private set; } = fixDir;
+        public string FixZip { get; private set; } = fixZip;
+        public string FixFile { get; private set; } = fixFile;
+        public string? Size { get; private set; } = size.ToString();
+        public string Dir { get; private set; } = dir;
+        public string SourceDir { get; private set; } = sourceDir;
+        public string SourceZip { get; private set; } = sourceZip;
+        public string SourceFile { get; private set; } = sourceFile;
     }
 
-    public class bgwShowFixError
+    public class BgwShowFixError(string FixError)
     {
-        public bgwShowFixError(string FixError)
-        {
-            this.FixError = FixError;
-        }
-
-        public string FixError { get; private set; }
+        public string FixError { get; private set; } = FixError;
     }
 }

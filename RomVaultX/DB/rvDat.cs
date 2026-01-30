@@ -12,9 +12,9 @@ namespace RomVaultX.DB
         {
             get
             {
-                if (_commandRead == null)
+                if (field == null)
                 {
-                    _commandRead = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT *
                         FROM DAT
                         WHERE
@@ -22,21 +22,20 @@ namespace RomVaultX.DB
                         ORDER BY Filename",
                     Program.db.Connection);
 
-                    _commandRead.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
                 }
 
-                return _commandRead;
+                return field;
             }
         }
-        private static SqliteCommand? _commandRead;
 
         public static SqliteCommand CommandWrite
         {
             get
             {
-                if (_commandWrite == null)
+                if (field == null)
                 {
-                    _commandWrite = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         INSERT INTO DAT
                         (
                             DirId,
@@ -81,29 +80,28 @@ namespace RomVaultX.DB
                         SELECT last_insert_rowid();",
                     Program.db.Connection);
 
-                    _commandWrite.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("Filename", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("rootdir", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("description", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("category", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("version", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("date", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("author", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("email", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("homepage", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("url", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("comment", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("mergetype", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("Path", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("DatTimeStamp", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("ExtraDir", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("Filename", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("rootdir", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("description", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("category", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("version", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("date", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("author", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("email", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("homepage", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("url", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("comment", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("mergetype", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("Path", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("DatTimeStamp", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("ExtraDir", SqliteType.Integer));
                 }
 
-                return _commandWrite;
+                return field;
             }
         }
-        private static SqliteCommand? _commandWrite;
 
         public uint DatId;
         public uint DirId;
@@ -152,7 +150,7 @@ namespace RomVaultX.DB
                     [Path] NVARCHAR(10)  NOT NULL,
                     [DatTimeStamp] NVARCHAR(20)  NOT NULL,
                     [ExtraDir] BOOLEAN DEFAULT 0,
-                    [found] BOOLEAN DEFAULT 1,            
+                    [found] BOOLEAN DEFAULT 1,
                     FOREIGN KEY(DirId) REFERENCES DIR(DirId)
                 );");
         }
@@ -229,7 +227,7 @@ namespace RomVaultX.DB
         {
             Games ??= [];
 
-            ChildNameSearch(rvGame.Name, out int index);
+            ChildNameSearch(rvGame.Name!, out int index);
             Games.Insert(index, rvGame);
         }
 
@@ -260,7 +258,7 @@ namespace RomVaultX.DB
             {
                 intMid = (intBottom + intTop) / 2;
 
-                intRes = VarFix.CompareName(lGameName, Games[intMid].Name);
+                intRes = VarFix.CompareName(lGameName, Games[intMid].Name!);
                 if (intRes < 0)
                     intTop = intMid;
                 else if (intRes > 0)

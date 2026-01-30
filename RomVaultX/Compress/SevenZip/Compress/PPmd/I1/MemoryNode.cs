@@ -224,11 +224,10 @@ namespace Compress.SevenZip.Compress.PPmd.I1
         /// </summary>
         /// <returns>true if obj and this instance are the same type and represent the same value; otherwise, false.</returns>
         /// <param name="obj">Another object to compare to.</param>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (obj is MemoryNode)
+            if (obj is MemoryNode memoryNode)
             {
-                MemoryNode memoryNode = (MemoryNode) obj;
                 return memoryNode.Address == Address;
             }
             return base.Equals(obj);

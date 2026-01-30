@@ -4,22 +4,17 @@ namespace Compress.SevenZip.Compress.PPmd.H
 {
     internal class StateRef
     {
-        private int symbol;
-
         private int freq;
 
         private int successor; // pointer ppmcontext
 
         internal int Symbol
         {
-            get
-            {
-                return symbol;
-            }
+            get;
 
             set
             {
-                this.symbol = value & 0xff;
+                field = value & 0xff;
             }
 
         }

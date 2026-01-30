@@ -48,9 +48,9 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // progressBar2
-            // 
+            //
             this.progressBar2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar2.Location = new System.Drawing.Point(12, 71);
@@ -58,18 +58,18 @@
             this.progressBar2.Size = new System.Drawing.Size(400, 22);
             this.progressBar2.TabIndex = 3;
             this.progressBar2.Visible = false;
-            // 
+            //
             // progressBar
-            // 
+            //
             this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar.Location = new System.Drawing.Point(12, 99);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(400, 23);
             this.progressBar.TabIndex = 1;
-            // 
+            //
             // label
-            // 
+            //
             this.label.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label.AutoEllipsis = true;
@@ -78,9 +78,9 @@
             this.label.Size = new System.Drawing.Size(400, 15);
             this.label.TabIndex = 0;
             this.label.Text = "Starting operation...";
-            // 
+            //
             // cancelButton
-            // 
+            //
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.Location = new System.Drawing.Point(420, 99);
             this.cancelButton.Name = "cancelButton";
@@ -88,9 +88,9 @@
             this.cancelButton.TabIndex = 2;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.Click += new System.EventHandler(this.CancelButtonClick);
-            // 
+            //
             // label2
-            // 
+            //
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoEllipsis = true;
@@ -99,9 +99,9 @@
             this.label2.Size = new System.Drawing.Size(480, 16);
             this.label2.TabIndex = 4;
             this.label2.Visible = false;
-            // 
+            //
             // lbl2Prog
-            // 
+            //
             this.lbl2Prog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lbl2Prog.Location = new System.Drawing.Point(412, 9);
             this.lbl2Prog.Name = "lbl2Prog";
@@ -109,9 +109,9 @@
             this.lbl2Prog.TabIndex = 5;
             this.lbl2Prog.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lbl2Prog.Visible = false;
-            // 
+            //
             // ErrorGrid
-            // 
+            //
             this.ErrorGrid.AllowUserToAddRows = false;
             this.ErrorGrid.AllowUserToDeleteRows = false;
             this.ErrorGrid.AllowUserToResizeRows = false;
@@ -137,34 +137,34 @@
             this.ErrorGrid.Size = new System.Drawing.Size(504, 186);
             this.ErrorGrid.TabIndex = 6;
             this.ErrorGrid.SelectionChanged += new System.EventHandler(this.ErrorGridSelectionChanged);
-            // 
+            //
             // CError
-            // 
+            //
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.CError.DefaultCellStyle = dataGridViewCellStyle1;
             this.CError.HeaderText = "Event";
             this.CError.Name = "CError";
             this.CError.ReadOnly = true;
             this.CError.Width = 200;
-            // 
+            //
             // CErrorFile
-            // 
+            //
             this.CErrorFile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.CErrorFile.HeaderText = "Filename";
             this.CErrorFile.Name = "CErrorFile";
             this.CErrorFile.ReadOnly = true;
-            // 
+            //
             // splitContainer1
-            // 
+            //
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
+            //
             // splitContainer1.Panel1
-            // 
+            //
             this.splitContainer1.Panel1.Controls.Add(this.label3);
             this.splitContainer1.Panel1.Controls.Add(this.progressBar2);
             this.splitContainer1.Panel1.Controls.Add(this.label);
@@ -172,30 +172,30 @@
             this.splitContainer1.Panel1.Controls.Add(this.lbl2Prog);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.cancelButton);
-            // 
+            //
             // splitContainer1.Panel2
-            // 
+            //
             this.splitContainer1.Panel2.Controls.Add(this.ErrorGrid);
             this.splitContainer1.Size = new System.Drawing.Size(504, 320);
             this.splitContainer1.SplitterDistance = 130;
             this.splitContainer1.TabIndex = 8;
-            // 
+            //
             // label3
-            // 
+            //
             this.label3.AutoEllipsis = true;
             this.label3.Location = new System.Drawing.Point(12, 50);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(480, 16);
             this.label3.TabIndex = 6;
-            // 
+            //
             // bgWork
-            // 
+            //
             this.bgWork.WorkerReportsProgress = true;
             this.bgWork.WorkerSupportsCancellation = true;
             this.bgWork.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.Complete);
-            // 
+            //
             // FrmProgressWindow
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(504, 320);

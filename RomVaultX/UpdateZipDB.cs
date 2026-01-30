@@ -14,11 +14,11 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandWriteLocalHeaderToRom == null)
+                if (field == null)
                 {
-                    _commandWriteLocalHeaderToRom = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         UPDATE ROM
-                        SET 
+                        SET
                             LocalFileHeader = @LocalFileHeader,
                             LocalFileHeaderOffset = @LocalFileHeaderOffset,
                             LocalFileHeaderLength = @LocalFileHeaderLength,
@@ -28,28 +28,27 @@ namespace RomVaultX
                             RomId = @RomId",
                     Program.db.Connection);
 
-                    _commandWriteLocalHeaderToRom.Parameters.Add(new SqliteParameter("LocalFileHeader", SqliteType.Blob));
-                    _commandWriteLocalHeaderToRom.Parameters.Add(new SqliteParameter("LocalFileHeaderOffset", SqliteType.Integer));
-                    _commandWriteLocalHeaderToRom.Parameters.Add(new SqliteParameter("LocalFileHeaderLength", SqliteType.Integer));
-                    _commandWriteLocalHeaderToRom.Parameters.Add(new SqliteParameter("LocalFileSha1", SqliteType.Text));
-                    _commandWriteLocalHeaderToRom.Parameters.Add(new SqliteParameter("LocalFileCompressedSize", SqliteType.Integer));
-                    _commandWriteLocalHeaderToRom.Parameters.Add(new SqliteParameter("RomId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("LocalFileHeader", SqliteType.Blob));
+                    field.Parameters.Add(new SqliteParameter("LocalFileHeaderOffset", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("LocalFileHeaderLength", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("LocalFileSha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("LocalFileCompressedSize", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("RomId", SqliteType.Integer));
                 }
 
-                return _commandWriteLocalHeaderToRom;
+                return field;
             }
         }
-        private static SqliteCommand? _commandWriteLocalHeaderToRom;
 
         public static SqliteCommand CommandWriteCentralDirToGame
         {
             get
             {
-                if (_commandWriteCentralDirToGame == null)
+                if (field == null)
                 {
-                    _commandWriteCentralDirToGame = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         UPDATE GAME
-                        SET 
+                        SET
                             ZipFileLength = @ZipFileLength,
                             LastWriteTime = @ZipFileTimeStamp,
                             CreationTime = @ZipFileTimeStamp,
@@ -61,26 +60,23 @@ namespace RomVaultX
                             GameId = @GameId",
                     Program.db.Connection);
 
-                    _commandWriteCentralDirToGame.Parameters.Add(new SqliteParameter("ZipFileLength", SqliteType.Integer));
-                    _commandWriteCentralDirToGame.Parameters.Add(new SqliteParameter("ZipFileTimeStamp", SqliteType.Integer));
-                    _commandWriteCentralDirToGame.Parameters.Add(new SqliteParameter("CentralDirectory", SqliteType.Blob));
-                    _commandWriteCentralDirToGame.Parameters.Add(new SqliteParameter("CentralDirectoryOffset", SqliteType.Integer));
-                    _commandWriteCentralDirToGame.Parameters.Add(new SqliteParameter("CentralDirectoryLength", SqliteType.Integer));
-                    _commandWriteCentralDirToGame.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("ZipFileLength", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("ZipFileTimeStamp", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("CentralDirectory", SqliteType.Blob));
+                    field.Parameters.Add(new SqliteParameter("CentralDirectoryOffset", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("CentralDirectoryLength", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
                 }
 
-                return _commandWriteCentralDirToGame;
+                return field;
             }
         }
-        private static SqliteCommand? _commandWriteCentralDirToGame;
 
         public static SqliteCommand CommandGetAllGamesWithRoms
         {
             get
             {
-                if (_commandGetAllGamesWithRoms == null)
-                {
-                    _commandGetAllGamesWithRoms = new SqliteCommand(@"
+                field ??= new SqliteCommand(@"
                         SELECT
                             GameId,
                             name
@@ -88,20 +84,18 @@ namespace RomVaultX
                             WHERE RomGot > 0
                             AND ZipFileLength IS null",
                     Program.db.Connection);
-                }
 
-                return _commandGetAllGamesWithRoms;
+                return field;
             }
         }
-        private static SqliteCommand? _commandGetAllGamesWithRoms;
 
         public static SqliteCommand CommandFindRomsInGame
         {
             get
             {
-                if (_commandFindRomsInGame == null)
+                if (field == null)
                 {
-                    _commandFindRomsInGame = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                             ROM.RomId,
                             ROM.name,
@@ -117,13 +111,12 @@ namespace RomVaultX
                         ORDER BY ROM.RomId",
                     Program.db.Connection);
 
-                    _commandFindRomsInGame.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
                 }
 
-                return _commandFindRomsInGame;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindRomsInGame;
 
         public static void UpdateDB()
         {
@@ -137,8 +130,8 @@ namespace RomVaultX
                 while (drGame.Read())
                 {
                     int GameId = Convert.ToInt32(drGame["GameId"]);
-                    string GameName = drGame["name"].ToString();
-                    Debug.WriteLine("Game " + GameId + " Name: " + GameName);
+                    string? GameName = drGame["name"].ToString();
+                    Debug.WriteLine($"Game {GameId} Name: {GameName}");
 
                     var memZip = new ZipFile();
                     memZip.ZipCreateFake();
@@ -151,7 +144,7 @@ namespace RomVaultX
                         while (drRom.Read())
                         {
                             int RomId = Convert.ToInt32(drRom["RomId"]);
-                            string RomName = drRom["name"].ToString();
+                            string? RomName = drRom["name"].ToString();
                             ulong size = Convert.ToUInt64(drRom["size"]);
                             ulong compressedSize = Convert.ToUInt64(drRom["compressedsize"]);
                             byte[] CRC = VarFix.CleanMD5SHA1(drRom["crc"].ToString(), 8);

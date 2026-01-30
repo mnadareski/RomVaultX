@@ -16,24 +16,24 @@ namespace RomVaultX.SupportedFiles.GZ
     public class GZip
     {
         private const int Buffersize = 1024 * 1024;
-        private static byte[] Buffer0;
-        private static byte[] Buffer1;
+        private static byte[]? Buffer0;
+        private static byte[]? Buffer1;
 
         private string _filename;
-        public byte[] crc;
-        public byte[] sha1Hash;
-        public byte[] md5Hash;
+        public byte[]? crc;
+        public byte[]? sha1Hash;
+        public byte[]? md5Hash;
         public HeaderFileType altType;
-        public byte[] altcrc;
-        public byte[] altsha1Hash;
-        public byte[] altmd5Hash;
+        public byte[]? altcrc;
+        public byte[]? altsha1Hash;
+        public byte[]? altmd5Hash;
 
         public ulong uncompressedSize;
         public ulong? uncompressedAltSize;
         public ulong compressedSize;
         public long datapos;
 
-        private Stream _zipFs;
+        private Stream? _zipFs;
 
         public GZip()
         {
@@ -81,21 +81,21 @@ namespace RomVaultX.SupportedFiles.GZ
 
         private ZipReturn ReadBody(bool deepScan)
         {
-            using (BinaryReader zipBr = new BinaryReader(_zipFs, Encoding.UTF8, true))
+            using (var zipBr = new BinaryReader(_zipFs!, Encoding.UTF8, true))
             {
                 byte ID1 = zipBr.ReadByte();
                 byte ID2 = zipBr.ReadByte();
 
                 if ((ID1 != 0x1f) || (ID2 != 0x8b))
                 {
-                    _zipFs.Close();
+                    _zipFs?.Close();
                     return ZipReturn.ZipSignatureError;
                 }
 
                 byte CM = zipBr.ReadByte();
                 if (CM != 8)
                 {
-                    _zipFs.Close();
+                    _zipFs?.Close();
                     return ZipReturn.ZipUnsupportedCompression;
                 }
 
@@ -160,28 +160,21 @@ namespace RomVaultX.SupportedFiles.GZ
                 }
             }
 
-            compressedSize = (ulong)(_zipFs.Length - _zipFs.Position) - 8;
+            compressedSize = (ulong)(_zipFs!.Length - _zipFs.Position) - 8;
 
             datapos = _zipFs.Position;
             if (deepScan)
             {
-                if (Buffer0 == null)
-                {
-                    Buffer0 = new byte[Buffersize];
-                }
-
-                if (Buffer1 == null)
-                {
-                    Buffer1 = new byte[Buffersize];
-                }
+                Buffer0 ??= new byte[Buffersize];
+                Buffer1 ??= new byte[Buffersize];
 
                 Stream ds = new ZlibBaseStream(_zipFs, CompressionMode.Decompress, CompressionLevel.Default, ZlibStreamFlavor.DEFLATE, true);
 
-                ThreadLoadBuffer lbuffer = new ThreadLoadBuffer(ds);
+                var lbuffer = new ThreadLoadBuffer(ds);
 
-                ThreadCRC crc32 = new ThreadCRC();
-                ThreadMD5 md5 = new ThreadMD5();
-                ThreadSHA1 sha1 = new ThreadSHA1();
+                var crc32 = new ThreadCRC();
+                var md5 = new ThreadMD5();
+                var sha1 = new ThreadSHA1();
 
                 ulong uncompressedRead = 0;
                 int bufferRead = ds.Read(Buffer0, 0, Buffersize);
@@ -324,7 +317,7 @@ namespace RomVaultX.SupportedFiles.GZ
             }
             else
             {
-                crc = new[] { gzcrc[3], gzcrc[2], gzcrc[1], gzcrc[0] };
+                crc = [gzcrc[3], gzcrc[2], gzcrc[1], gzcrc[0]];
             }
 
             if (uncompressedSize != 0)
@@ -341,14 +334,14 @@ namespace RomVaultX.SupportedFiles.GZ
 
         public ZipReturn GetStream(out Stream st)
         {
-            _zipFs.Position = datapos;
+            _zipFs!.Position = datapos;
 
             st = new ZlibBaseStream(_zipFs, CompressionMode.Decompress, CompressionLevel.Default, ZlibStreamFlavor.DEFLATE, true);
 
             return ZipReturn.ZipGood;
         }
 
-        public ZipReturn GetRawStream(out Stream st)
+        public ZipReturn GetRawStream(out Stream? st)
         {
             st = null;
             if (!File.Exists(_filename))
@@ -366,7 +359,7 @@ namespace RomVaultX.SupportedFiles.GZ
                 return ZipReturn.ZipErrorOpeningFile;
             }
 
-            st.Position = datapos;
+            st!.Position = datapos;
 
             return ZipReturn.ZipGood;
         }
@@ -387,77 +380,73 @@ namespace RomVaultX.SupportedFiles.GZ
         {
             CreateDirForFile(filename);
 
-            Stream _zipFs;
-            FileStream.OpenFileWrite(filename, out _zipFs);
-            using (BinaryWriter zipBw = new BinaryWriter(_zipFs, Encoding.UTF8, true))
+            FileStream.OpenFileWrite(filename, out Stream? _zipFs);
+            using (var zipBw = new BinaryWriter(_zipFs!, Encoding.UTF8, true))
             {
-                zipBw.Write((byte) 0x1f); // ID1 = 0x1f
-                zipBw.Write((byte) 0x8b); // ID2 = 0x8b
-                zipBw.Write((byte) 0x08); // CM  = 0x08
-                zipBw.Write((byte) 0x04); // FLG = 0x04
-                zipBw.Write((uint) 0); // MTime = 0
-                zipBw.Write((byte) 0x00); // XFL = 0x00
-                zipBw.Write((byte) 0xff); // OS  = 0x00
+                zipBw.Write((byte)0x1f); // ID1 = 0x1f
+                zipBw.Write((byte)0x8b); // ID2 = 0x8b
+                zipBw.Write((byte)0x08); // CM  = 0x08
+                zipBw.Write((byte)0x04); // FLG = 0x04
+                zipBw.Write((uint)0); // MTime = 0
+                zipBw.Write((byte)0x00); // XFL = 0x00
+                zipBw.Write((byte)0xff); // OS  = 0x00
 
                 // writing FEXTRA
                 if (FileHeaderReader.FileHeaderReader.AltHeaderFile(altType))
                 {
-                    zipBw.Write((short) 77); // XLEN 16+4+8+1+16+20+4+8
+                    zipBw.Write((short)77); // XLEN 16+4+8+1+16+20+4+8
                 }
                 else
                 {
-                    zipBw.Write((short) 28); // XLEN 16+4+8
+                    zipBw.Write((short)28); // XLEN 16+4+8
                 }
 
-                zipBw.Write(md5Hash); // 16 bytes
-                zipBw.Write(crc); // 4 bytes
+                zipBw.Write(md5Hash!); // 16 bytes
+                zipBw.Write(crc!); // 4 bytes
                 zipBw.Write(uncompressedSize); // 8 bytes
 
                 if (FileHeaderReader.FileHeaderReader.AltHeaderFile(altType))
                 {
-                    zipBw.Write((byte) altType); // 1
-                    zipBw.Write(altmd5Hash); // 16
-                    zipBw.Write(altsha1Hash); // 20
-                    zipBw.Write(altcrc); // 4
-                    zipBw.Write((ulong) uncompressedAltSize); // 8
+                    zipBw.Write((byte)altType); // 1
+                    zipBw.Write(altmd5Hash!); // 16
+                    zipBw.Write(altsha1Hash!); // 20
+                    zipBw.Write(altcrc!); // 4
+                    zipBw.Write((ulong)uncompressedAltSize!); // 8
                 }
 
 
-                if (Buffer0 == null)
-                {
-                    Buffer0 = new byte[Buffersize];
-                }
+                Buffer0 ??= new byte[Buffersize];
 
-                ulong dataStartPos = (ulong) zipBw.BaseStream.Position;
+                ulong dataStartPos = (ulong)zipBw.BaseStream.Position;
                 if (isCompressedStream)
                 {
                     ulong sizetogo = compressedSize;
                     while (sizetogo > 0)
                     {
-                        int sizenow = sizetogo > Buffersize ? Buffersize : (int) sizetogo;
+                        int sizenow = sizetogo > Buffersize ? Buffersize : (int)sizetogo;
                         sInput.Read(Buffer0, 0, sizenow);
-                        _zipFs.Write(Buffer0, 0, sizenow);
-                        sizetogo -= (ulong) sizenow;
+                        _zipFs!.Write(Buffer0, 0, sizenow);
+                        sizetogo -= (ulong)sizenow;
                     }
                 }
                 else
                 {
                     if (uncompressedSize == 0)
                     {
-                        _zipFs.WriteByte(03);
+                        _zipFs!.WriteByte(03);
                         _zipFs.WriteByte(00);
                     }
                     else
                     {
 
                         ulong sizetogo = uncompressedSize;
-                        Stream writeStream =new ZlibBaseStream(_zipFs, CompressionMode.Compress,CompressionLevel.BestCompression, ZlibStreamFlavor.DEFLATE, true);
+                        Stream writeStream = new ZlibBaseStream(_zipFs!, CompressionMode.Compress, CompressionLevel.BestCompression, ZlibStreamFlavor.DEFLATE, true);
                         while (sizetogo > 0)
                         {
-                            int sizenow = sizetogo > Buffersize ? Buffersize : (int) sizetogo;
+                            int sizenow = sizetogo > Buffersize ? Buffersize : (int)sizetogo;
                             sInput.Read(Buffer0, 0, sizenow);
                             writeStream.Write(Buffer0, 0, sizenow);
-                            sizetogo -= (ulong) sizenow;
+                            sizetogo -= (ulong)sizenow;
                         }
 
                         writeStream.Flush();
@@ -466,25 +455,25 @@ namespace RomVaultX.SupportedFiles.GZ
                     }
                 }
 
-                compressedSize = (ulong) zipBw.BaseStream.Position - dataStartPos;
+                compressedSize = (ulong)zipBw.BaseStream.Position - dataStartPos;
 
-                zipBw.Write(crc[3]);
+                zipBw.Write(crc![3]);
                 zipBw.Write(crc[2]);
                 zipBw.Write(crc[1]);
                 zipBw.Write(crc[0]);
-                zipBw.Write((uint) uncompressedSize);
+                zipBw.Write((uint)uncompressedSize);
                 zipBw.Flush();
                 zipBw.Close();
             }
 
-            _zipFs.Close();
+            _zipFs?.Close();
 
             return ZipReturn.ZipGood;
         }
 
         private static void CreateDirForFile(string sFilename)
         {
-            string strTemp = Path.GetDirectoryName(sFilename);
+            string? strTemp = Path.GetDirectoryName(sFilename);
 
             if (string.IsNullOrEmpty(strTemp))
             {
@@ -504,12 +493,12 @@ namespace RomVaultX.SupportedFiles.GZ
                 {
                     pos = 0;
                 }
-                strTemp = strTemp.Substring(0, pos);
+                strTemp = strTemp[..pos];
             }
 
             while (sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1) > 0)
             {
-                strTemp = sFilename.Substring(0, sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1));
+                strTemp = sFilename[..sFilename.IndexOf(Path.DirectorySeparatorChar, strTemp.Length + 1)];
                 Directory.CreateDirectory(strTemp);
             }
         }

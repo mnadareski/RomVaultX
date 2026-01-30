@@ -32,7 +32,6 @@ namespace Compress.Utils
         internal System.IO.Stream _innerStream;
         private CRC _Crc32;
         private Int64 _lengthLimit = -99;
-        private bool _leaveOpen;
 
         /// <summary>
         /// The default constructor.
@@ -150,7 +149,7 @@ namespace Compress.Utils
             _innerStream = stream;
             _Crc32 = crc32 ?? new CRC();
             _lengthLimit = length;
-            _leaveOpen = leaveOpen;
+            LeaveOpen = leaveOpen;
         }
 
 
@@ -191,11 +190,7 @@ namespace Compress.Utils
         ///     Set this at any point before calling <see cref="Close()"/>.
         ///   </para>
         /// </remarks>
-        public bool LeaveOpen
-        {
-            get { return _leaveOpen; }
-            set { _leaveOpen = value; }
-        }
+        public bool LeaveOpen { get; set; }
 
         /// <summary>
         /// Read from the stream
@@ -334,7 +329,7 @@ namespace Compress.Utils
         public override void Close()
         {
             base.Close();
-            if (!_leaveOpen)
+            if (!LeaveOpen)
                 _innerStream.Close();
         }
 

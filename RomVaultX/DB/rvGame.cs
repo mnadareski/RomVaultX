@@ -12,9 +12,9 @@ namespace RomVaultX.DB
         {
             get
             {
-                if (_commandRead == null)
+                if (field == null)
                 {
-                    _commandRead = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT *
                         FROM GAME
                         WHERE
@@ -22,21 +22,20 @@ namespace RomVaultX.DB
                         ORDER BY name",
                     Program.db.Connection);
 
-                    _commandRead.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
                 }
 
-                return _commandRead;
+                return field;
             }
         }
-        private static SqliteCommand? _commandRead;
 
         public static SqliteCommand CommandReadGames
         {
             get
             {
-                if (_commandReadGames == null)
+                if (field == null)
                 {
-                    _commandReadGames = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT *
                         FROM GAME
                         WHERE
@@ -44,21 +43,20 @@ namespace RomVaultX.DB
                         ORDER BY name",
                     Program.db.Connection);
 
-                    _commandReadGames.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
                 }
 
-                return _commandReadGames;
+                return field;
             }
         }
-        private static SqliteCommand? _commandReadGames;
 
         public static SqliteCommand CommandWrite
         {
             get
             {
-                if (_commandWrite == null)
+                if (field == null)
                 {
-                    _commandWrite = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         INSERT INTO GAME
                         (
                             DatId,
@@ -119,39 +117,38 @@ namespace RomVaultX.DB
                         SELECT last_insert_rowid();",
                     Program.db.Connection);
 
-                    _commandWrite.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("description", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("manufacturer", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("DatId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("description", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("manufacturer", SqliteType.Text));
 
-                    _commandWrite.Parameters.Add(new SqliteParameter("cloneof", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("romof", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("sampleof", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("sourcefile", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("isbios", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("board", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("year", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("cloneof", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("romof", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sampleof", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sourcefile", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("isbios", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("board", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("year", SqliteType.Text));
 
-                    _commandWrite.Parameters.Add(new SqliteParameter("istrurip", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("publisher", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("developer", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("edition", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("version", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("type", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("media", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("language", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("players", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("ratings", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("genre", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("peripheral", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("barcode", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("mediacatalognumber", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("istrurip", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("publisher", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("developer", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("edition", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("version", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("type", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("media", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("language", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("players", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("ratings", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("genre", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("peripheral", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("barcode", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("mediacatalognumber", SqliteType.Text));
                 }
 
-                return _commandWrite;
+                return field;
             }
         }
-        private static SqliteCommand? _commandWrite;
 
         public uint GameId;
         public uint DatId;
@@ -220,7 +217,7 @@ namespace RomVaultX.DB
                     [RomTotal] INTEGER DEFAULT 0 NOT NULL,
                     [RomGot] INTEGER DEFAULT 0 NOT NULL,
                     [RomNoDump] INTEGER DEFAULT 0 NOT NULL,
-                    [ZipFileLength] INTEGER NULL, 
+                    [ZipFileLength] INTEGER NULL,
                     [LastWriteTime] INTEGER NULL,
                     [CreationTime] INTEGER NULL,
                     [LastAccessTime] INTEGER NULL,
@@ -361,7 +358,7 @@ namespace RomVaultX.DB
             return index;
         }
 
-        private int ChildNameSearch(string lRomName, out int index)
+        private int ChildNameSearch(string? lRomName, out int index)
         {
             int intBottom = 0;
             int intTop = Roms!.Count;
@@ -373,7 +370,7 @@ namespace RomVaultX.DB
             {
                 intMid = (intBottom + intTop) / 2;
 
-                intRes = VarFix.CompareName(lRomName, Roms[intMid].Name);
+                intRes = VarFix.CompareName(lRomName!, Roms[intMid].Name!);
                 if (intRes < 0)
                 {
                     intTop = intMid;
@@ -391,7 +388,7 @@ namespace RomVaultX.DB
                 int intRes1 = 0;
                 while ((index > 0) && (intRes1 == 0))
                 {
-                    intRes1 = VarFix.CompareName(lRomName, Roms[index - 1].Name);
+                    intRes1 = VarFix.CompareName(lRomName!, Roms[index - 1].Name!);
                     if (intRes1 == 0)
                     {
                         index--;

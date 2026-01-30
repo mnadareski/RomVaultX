@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace FileHeaderReader
@@ -32,53 +33,53 @@ namespace FileHeaderReader
 
         static FileHeaderReader()
         {
-            Detectors = new List<Detector>
-            {
+            Detectors =
+            [
                 // Standard archive types
-                new Detector(HeaderFileType.ZIP, 22, 0, "", new Data(0, new byte[] {0x50, 0x4b, 0x03, 0x04})),
-                new Detector(HeaderFileType.GZ, 18, 0, "", new Data(0, new byte[] {0x1f, 0x8b, 0x08})),
-                new Detector(HeaderFileType.SevenZip, 6, 0, "", new Data(0, new byte[] {0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C})),
-                new Detector(HeaderFileType.RAR, 6, 0, "", new Data(0, new byte[] {0x52, 0x61, 0x72, 0x21, 0x1A, 0x07})),
+                new(HeaderFileType.ZIP, 22, 0, "", new Data(0, [0x50, 0x4b, 0x03, 0x04])),
+                new(HeaderFileType.GZ, 18, 0, "", new Data(0, [0x1f, 0x8b, 0x08])),
+                new(HeaderFileType.SevenZip, 6, 0, "", new Data(0, [0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C])),
+                new(HeaderFileType.RAR, 6, 0, "", new Data(0, [0x52, 0x61, 0x72, 0x21, 0x1A, 0x07])),
 
                 // CHD
-                new Detector(HeaderFileType.CHD, 76, 0, "", new Data(0, new[] {(byte) 'M', (byte) 'C', (byte) 'o', (byte) 'm', (byte) 'p', (byte) 'r', (byte) 'H', (byte) 'D'})),
+                new(HeaderFileType.CHD, 76, 0, "", new Data(0, [(byte) 'M', (byte) 'C', (byte) 'o', (byte) 'm', (byte) 'p', (byte) 'r', (byte) 'H', (byte) 'D'])),
 
                 // Headered files
 
                 // Atari 7800
-                new Detector(HeaderFileType.A7800, 128, 128, "a7800.xml", new Data(1, new byte[] {0x41, 0x54, 0x41, 0x52, 0x49, 0x37, 0x38, 0x30, 0x30})),
-                new Detector(HeaderFileType.A7800, 128, 128, "a7800.xml", new Data(100, new byte[] {0x41, 0x43, 0x54, 0x55, 0x41, 0x4C, 0x20, 0x43, 0x41, 0x52, 0x54, 0x20, 0x44, 0x41, 0x54, 0x41, 0x20, 0x53, 0x54, 0x41, 0x52, 0x54, 0x53, 0x20, 0x48, 0x45, 0x52, 0x45})),
+                new(HeaderFileType.A7800, 128, 128, "a7800.xml", new Data(1, [0x41, 0x54, 0x41, 0x52, 0x49, 0x37, 0x38, 0x30, 0x30])),
+                new(HeaderFileType.A7800, 128, 128, "a7800.xml", new Data(100, [0x41, 0x43, 0x54, 0x55, 0x41, 0x4C, 0x20, 0x43, 0x41, 0x52, 0x54, 0x20, 0x44, 0x41, 0x54, 0x41, 0x20, 0x53, 0x54, 0x41, 0x52, 0x54, 0x53, 0x20, 0x48, 0x45, 0x52, 0x45])),
 
                 // Nintendo Famicom Disk System
-                new Detector(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
-                new Detector(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
-                new Detector(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
-                new Detector(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, new byte[] {0x46, 0x44, 0x53, 0x1A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})),
+                new(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, [0x46, 0x44, 0x53, 0x1A, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])),
+                new(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, [0x46, 0x44, 0x53, 0x1A, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])),
+                new(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, [0x46, 0x44, 0x53, 0x1A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])),
+                new(HeaderFileType.FDS, 16, 16, "fds.xml", new Data(0, [0x46, 0x44, 0x53, 0x1A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])),
 
                 // Atari Lynx
-                new Detector(HeaderFileType.Lynx, 64, 64, "lynx.xml", new Data(0, new byte[] {0x4C, 0x59, 0x4E, 0x58})),
-                new Detector(HeaderFileType.Lynx, 64, 64, "lynx.xml", new Data(6, new byte[] {0x42, 0x53, 0x39})),
+                new(HeaderFileType.Lynx, 64, 64, "lynx.xml", new Data(0, [0x4C, 0x59, 0x4E, 0x58])),
+                new(HeaderFileType.Lynx, 64, 64, "lynx.xml", new Data(6, [0x42, 0x53, 0x39])),
 
                 // Nintendo Entertainment System and Nintendo Famicom
-                new Detector(HeaderFileType.NES, 16, 16, "nes.xml", new Data(0, new byte[] {0x4E, 0x45, 0x53, 0x1A})),
+                new(HeaderFileType.NES, 16, 16, "nes.xml", new Data(0, [0x4E, 0x45, 0x53, 0x1A])),
 
                 // NEC PC-Engine and NEC TurboGrafx-16
-                new Detector(HeaderFileType.PCE, 512, 512, "pce.xml", new Data(0, new byte[] {0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0xBB, 0x02})),
+                new(HeaderFileType.PCE, 512, 512, "pce.xml", new Data(0, [0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAA, 0xBB, 0x02])),
 
                 // Commodore PSID Music Files
-                new Detector(HeaderFileType.PSID, 118, 118, "psid.xml", new Data(0, new byte[] {0x50, 0x53, 0x49, 0x44, 0x00, 0x01, 0x00, 0x76})),
-                new Detector(HeaderFileType.PSID, 118, 118, "psid.xml", new Data(0, new byte[] {0x50, 0x53, 0x49, 0x44, 0x00, 0x03, 0x00, 0x7c})),
-                new Detector(HeaderFileType.PSID, 124, 124, "psid.xml", new Data(0, new byte[] {0x50, 0x53, 0x49, 0x44, 0x00, 0x02, 0x00, 0x7c})),
-                new Detector(HeaderFileType.PSID, 124, 124, "psid.xml", new Data(0, new byte[] {0x50, 0x53, 0x49, 0x44, 0x00, 0x01, 0x00, 0x7c})),
-                new Detector(HeaderFileType.PSID, 124, 124, "psid.xml", new Data(0, new byte[] {0x52, 0x53, 0x49, 0x44, 0x00, 0x02, 0x00, 0x7c})),
+                new(HeaderFileType.PSID, 118, 118, "psid.xml", new Data(0, [0x50, 0x53, 0x49, 0x44, 0x00, 0x01, 0x00, 0x76])),
+                new(HeaderFileType.PSID, 118, 118, "psid.xml", new Data(0, [0x50, 0x53, 0x49, 0x44, 0x00, 0x03, 0x00, 0x7c])),
+                new(HeaderFileType.PSID, 124, 124, "psid.xml", new Data(0, [0x50, 0x53, 0x49, 0x44, 0x00, 0x02, 0x00, 0x7c])),
+                new(HeaderFileType.PSID, 124, 124, "psid.xml", new Data(0, [0x50, 0x53, 0x49, 0x44, 0x00, 0x01, 0x00, 0x7c])),
+                new(HeaderFileType.PSID, 124, 124, "psid.xml", new Data(0, [0x52, 0x53, 0x49, 0x44, 0x00, 0x02, 0x00, 0x7c])),
 
                 // Super Nintendo Entertainment System and Nintendo Super Famicom
-                new Detector(HeaderFileType.SNES, 512, 512, "snes.xml", new Data(22, new byte[] {0xAA, 0xBB, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00})),
-                new Detector(HeaderFileType.SNES, 512, 512, "snes.xml", new Data(22, new byte[] {0x53, 0x55, 0x50, 0x45, 0x52, 0x55, 0x46, 0x4F})),
+                new(HeaderFileType.SNES, 512, 512, "snes.xml", new Data(22, [0xAA, 0xBB, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00])),
+                new(HeaderFileType.SNES, 512, 512, "snes.xml", new Data(22, [0x53, 0x55, 0x50, 0x45, 0x52, 0x55, 0x46, 0x4F])),
 
                 // Super Nintendo Entertainment System and Nintendo Super Famicom Music Files
-                new Detector(HeaderFileType.SPC, 256, 256, "spc.xml", new Data(0, new byte[] {0x53, 0x4E, 0x45, 0x53, 0x2D, 0x53, 0x50, 0x43})),
-            };
+                new(HeaderFileType.SPC, 256, 256, "spc.xml", new Data(0, [0x53, 0x4E, 0x45, 0x53, 0x2D, 0x53, 0x50, 0x43])),
+            ];
         }
 
         public static int GetFileHeaderLength(HeaderFileType FType)
@@ -105,7 +106,7 @@ namespace FileHeaderReader
                     continue;
                 }
 
-                if (theader == d.HeaderId.ToLowerInvariant())
+                if (theader.Equals(d.HeaderId, StringComparison.OrdinalIgnoreCase))
                 {
                     return d.FType;
                 }
@@ -124,7 +125,7 @@ namespace FileHeaderReader
                    (fileType == HeaderFileType.PSID) ||
                    (fileType == HeaderFileType.SNES) ||
                    (fileType == HeaderFileType.SPC);
-                   // || (fileType == HeaderFileType.CHD);
+            // || (fileType == HeaderFileType.CHD);
         }
 
         public static HeaderFileType GetType(Stream sIn, out int offset)

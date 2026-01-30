@@ -73,7 +73,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
 
         internal void AriDecNormalize()
         {
-            //		while ((low ^ (low + range)) < TOP || range < BOT && ((range = -low & (BOT - 1)) != 0 ? true : true)) 
+            //		while ((low ^ (low + range)) < TOP || range < BOT && ((range = -low & (BOT - 1)) != 0 ? true : true))
             //		{
             //			code = ((code << 8) | unpackRead.getChar()&0xff)&uintMask;
             //			range = (range << 8)&uintMask;
@@ -116,7 +116,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
     internal class SubRange
     {
         // uint LowCount, HighCount, scale;
-        private long lowCount, highCount, scale;
+        private long lowCount;
 
         internal void incScale(int dScale)
         {
@@ -125,14 +125,11 @@ namespace Compress.SevenZip.Compress.PPmd.H
 
         internal long HighCount
         {
-            get
-            {
-                return highCount;
-            }
+            get;
 
             set
             {
-                this.highCount = value & RangeCoder.UintMask;
+                field = value & RangeCoder.UintMask;
             }
 
         }
@@ -153,14 +150,11 @@ namespace Compress.SevenZip.Compress.PPmd.H
 
         internal long Scale
         {
-            get
-            {
-                return scale;
-            }
+            get;
 
             set
             {
-                this.scale = value & RangeCoder.UintMask;
+                field = value & RangeCoder.UintMask;
             }
 
         }
@@ -173,9 +167,9 @@ namespace Compress.SevenZip.Compress.PPmd.H
             buffer.Append("\n  lowCount=");
             buffer.Append(lowCount);
             buffer.Append("\n  highCount=");
-            buffer.Append(highCount);
+            buffer.Append(HighCount);
             buffer.Append("\n  scale=");
-            buffer.Append(scale);
+            buffer.Append(Scale);
             buffer.Append("]");
             return buffer.ToString();
         }

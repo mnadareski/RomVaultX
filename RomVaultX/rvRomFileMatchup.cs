@@ -20,9 +20,9 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandFindInFiles == null)
+                if (field == null)
                 {
-                    _commandFindInFiles = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT COUNT(1)
                         FROM FILES
                         WHERE
@@ -32,24 +32,23 @@ namespace RomVaultX
                             AND md5 = @md5",
                     Program.db.Connection);
 
-                    _commandFindInFiles.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandFindInFiles.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandFindInFiles.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandFindInFiles.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
                 }
 
-                return _commandFindInFiles;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindInFiles;
 
         public static SqliteCommand CommandFindInRoms
         {
             get
             {
-                if (_commandFindInRoms == null)
+                if (field == null)
                 {
-                    _commandFindInRoms = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                         (
                             SELECT COUNT(1) FROM ROM WHERE
@@ -71,27 +70,26 @@ namespace RomVaultX
                                 AND (sha1 = @sha1 OR sha1 IS null)
                                 AND (md5 = @md5 OR md5 IS null)
                                 AND (size = @size OR size IS null)
-                        ) 
+                        )
                         AS TotalFound", Program.db.Connection);
 
-                    _commandFindInRoms.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandFindInRoms.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandFindInRoms.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandFindInRoms.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
                 }
 
-                return _commandFindInRoms;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindInRoms;
 
         public static SqliteCommand CommandFindInRomsAlt
         {
             get
             {
-                if (_commandFindInRomsAlt == null)
+                if (field == null)
                 {
-                    _commandFindInRomsAlt = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                         (
                             SELECT COUNT(1) FROM ROM WHERE
@@ -116,28 +114,27 @@ namespace RomVaultX
                                 AND (sha1 = @sha1 OR sha1 IS null)
                                 AND (md5 = @md5 OR md5 IS null)
                                 AND (size = @size OR size IS null)
-                        ) 
+                        )
                         AS TotalFound", Program.db.Connection);
 
-                    _commandFindInRomsAlt.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
-                    _commandFindInRomsAlt.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandFindInRomsAlt.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandFindInRomsAlt.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandFindInRomsAlt.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
                 }
 
-                return _commandFindInRomsAlt;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindInRomsAlt;
 
         public static SqliteCommand CommandFindInRomsZero
         {
             get
             {
-                if (_commandFindInRomsZero == null)
+                if (field == null)
                 {
-                    _commandFindInRomsZero = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT COUNT(1) AS TotalFound
                         FROM ROM
                         WHERE
@@ -147,15 +144,14 @@ namespace RomVaultX
                             AND (size = 0 AND (status != 'nodump' OR status IS null)) ",
                     Program.db.Connection);
 
-                    _commandFindInRomsZero.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandFindInRomsZero.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandFindInRomsZero.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
                 }
 
-                return _commandFindInRomsZero;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindInRomsZero;
 
         public static FindStatus FileneededTest(RvFile tFile)
         {
@@ -242,34 +238,34 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandUpdateRom == null)
+                if (field == null)
                 {
-                    _commandUpdateRom = new SqliteCommand(@"
-                        UPDATE ROM SET 
+                    field = new SqliteCommand(@"
+                        UPDATE ROM SET
 	                        FileId = @FileId,
                             LocalFileHeader = null,
                             LocalFileHeaderOffset = null,
                             LocalFileHeaderLength = null
                         WHERE
 	                        (                 sha1 = @sha1 ) AND
-	                        ( md5  IS null OR md5  = @md5  ) AND 
+	                        ( md5  IS null OR md5  = @md5  ) AND
 	                        ( crc  IS null OR crc  = @crc  ) AND
 	                        ( size IS null OR size = @size ) AND
                             FileId IS null;
-		
-                        UPDATE ROM SET 
+
+                        UPDATE ROM SET
 	                        FileId = @FileId,
                             LocalFileHeader = null,
                             LocalFileHeaderOffset = null,
                             LocalFileHeaderLength = null
                         WHERE
-	                        (                 md5  = @md5  ) AND 
+	                        (                 md5  = @md5  ) AND
 	                        ( sha1 IS null OR sha1 = @sha1 ) AND
 	                        ( crc  IS null OR crc  = @crc  ) AND
 	                        ( size IS null OR size = @size ) AND
                             FileId IS null;
-		
-                        UPDATE ROM SET 
+
+                        UPDATE ROM SET
 	                        FileId = @FileId,
                             LocalFileHeader = null,
                             LocalFileHeaderOffset = null,
@@ -277,31 +273,30 @@ namespace RomVaultX
                         WHERE
 	                        (                 crc  = @crc  ) AND
 	                        ( sha1 IS null OR sha1 = @sha1 ) AND
-	                        ( md5  IS null OR md5  = @md5  ) AND 
+	                        ( md5  IS null OR md5  = @md5  ) AND
 	                        ( size IS null OR size = @size ) AND
                             FileId IS null;",
                     Program.db.Connection);
 
-                    _commandUpdateRom.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
-                    _commandUpdateRom.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandUpdateRom.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandUpdateRom.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandUpdateRom.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
                 }
 
-                return _commandUpdateRom;
+                return field;
             }
         }
-        private static SqliteCommand? _commandUpdateRom;
 
         public static SqliteCommand CommandUpdateRomAlt
         {
             get
             {
-                if (_commandUpdateRomAlt == null)
+                if (field == null)
                 {
-                    _commandUpdateRomAlt = new SqliteCommand(@"
-                        UPDATE ROM SET 
+                    field = new SqliteCommand(@"
+                        UPDATE ROM SET
 	                        FileId = @FileId,
                             LocalFileHeader = null,
                             LocalFileHeaderOffset = null,
@@ -309,25 +304,25 @@ namespace RomVaultX
                         WHERE
                             (                 type = @type ) AND
 	                        (                 sha1 = @sha1 ) AND
-	                        ( md5  IS null OR md5  = @md5  ) AND 
+	                        ( md5  IS null OR md5  = @md5  ) AND
 	                        ( crc  IS null OR crc  = @crc  ) AND
 	                        ( size IS null OR size = @size ) AND
                             FileId IS null;
-		
-                        UPDATE ROM SET 
+
+                        UPDATE ROM SET
 	                        FileId = @FileId,
                             LocalFileHeader = null,
                             LocalFileHeaderOffset = null,
                             LocalFileHeaderLength = null
                         WHERE
                             (                 type = @type ) AND
-	                        (                 md5  = @md5  ) AND 
+	                        (                 md5  = @md5  ) AND
 	                        ( sha1 IS null OR sha1 = @sha1 ) AND
 	                        ( crc  IS null OR crc  = @crc  ) AND
 	                        ( size IS null OR size = @size ) AND
                             FileId IS null;
-		
-                        UPDATE ROM SET 
+
+                        UPDATE ROM SET
 	                        FileId = @FileId,
                             LocalFileHeader = null,
                             LocalFileHeaderOffset = null,
@@ -336,32 +331,31 @@ namespace RomVaultX
                             (                 type = @type ) AND
 	                        (                 crc  = @crc  ) AND
 	                        ( sha1 IS null OR sha1 = @sha1 ) AND
-	                        ( md5  IS null OR md5  = @md5  ) AND 
+	                        ( md5  IS null OR md5  = @md5  ) AND
 	                        ( size IS null OR size = @size ) AND
                             FileId IS null;",
                     Program.db.Connection);
 
-                    _commandUpdateRomAlt.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
-                    _commandUpdateRomAlt.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
-                    _commandUpdateRomAlt.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandUpdateRomAlt.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandUpdateRomAlt.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandUpdateRomAlt.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
                 }
 
-                return _commandUpdateRomAlt;
+                return field;
             }
         }
-        private static SqliteCommand? _commandUpdateRomAlt;
 
         public static SqliteCommand CommandUpdateRomZero
         {
             get
             {
-                if (_commandUpdateRomZero == null)
+                if (field == null)
                 {
-                    _commandUpdateRomZero = new SqliteCommand(@"
-                        UPDATE ROM SET 
+                    field = new SqliteCommand(@"
+                        UPDATE ROM SET
 	                        FileId = @FileId,
                             LocalFileHeader = null,
                             LocalFileHeaderOffset = null,
@@ -370,20 +364,19 @@ namespace RomVaultX
 	                        ( Size=0 ) AND
 	                        ( crc  IS null OR crc  = @crc  ) AND
 	                        ( sha1 IS null OR sha1 = @sha1 ) AND
-	                        ( md5  IS null OR md5  = @md5  ) AND 
+	                        ( md5  IS null OR md5  = @md5  ) AND
                             FileId IS null;",
                     Program.db.Connection);
 
-                    _commandUpdateRomZero.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
-                    _commandUpdateRomZero.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandUpdateRomZero.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandUpdateRomZero.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
                 }
 
-                return _commandUpdateRomZero;
+                return field;
             }
         }
-        private static SqliteCommand? _commandUpdateRomZero;
 
         public static void MatchFiletoRoms(RvFile file)
         {
@@ -440,9 +433,9 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandSHA1 == null)
+                if (field == null)
                 {
-                    _commandSHA1 = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT FileId FROM FILES
                         WHERE
 	                        (                  @sha1 = sha1 ) AND
@@ -452,24 +445,23 @@ namespace RomVaultX
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandSHA1.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandSHA1.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
-                    _commandSHA1.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandSHA1.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
                 }
 
-                return _commandSHA1;
+                return field;
             }
         }
-        private static SqliteCommand? _commandSHA1;
 
         public static SqliteCommand CommandMD5
         {
             get
             {
-                if (_commandMD5 == null)
+                if (field == null)
                 {
-                    _commandMD5 = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT FileId FROM FILES
                         WHERE
 	                        (                  @md5  = md5  ) AND
@@ -478,23 +470,22 @@ namespace RomVaultX
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandMD5.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
-                    _commandMD5.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandMD5.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
                 }
 
-                return _commandMD5;
+                return field;
             }
         }
-        private static SqliteCommand? _commandMD5;
 
         public static SqliteCommand CommandCRC
         {
             get
             {
-                if (_commandCRC == null)
+                if (field == null)
                 {
-                    _commandCRC = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT FileId FROM FILES
                         WHERE
 	                        (                  @crc  = crc  ) AND
@@ -502,43 +493,41 @@ namespace RomVaultX
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandCRC.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandCRC.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
                 }
 
-                return _commandCRC;
+                return field;
             }
         }
-        private static SqliteCommand? _commandCRC;
 
         public static SqliteCommand CommandSize
         {
             get
             {
-                if (_commandSize == null)
+                if (field == null)
                 {
-                    _commandSize = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT FileId FROM FILES
                         WHERE
 	                        ( @size = size )
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandSize.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
                 }
 
-                return _commandSize;
+                return field;
             }
         }
-        private static SqliteCommand? _commandSize;
 
         public static SqliteCommand CommandSHA1Alt
         {
             get
             {
-                if (_commandSHA1Alt == null)
+                if (field == null)
                 {
-                    _commandSHA1Alt = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT FileId FROM FILES
                         WHERE
                             (               @alttype = alttype ) AND
@@ -549,25 +538,24 @@ namespace RomVaultX
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandSHA1Alt.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
-                    _commandSHA1Alt.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandSHA1Alt.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
-                    _commandSHA1Alt.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandSHA1Alt.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
                 }
 
-                return _commandSHA1Alt;
+                return field;
             }
         }
-        private static SqliteCommand? _commandSHA1Alt;
 
         public static SqliteCommand CommandMD5Alt
         {
             get
             {
-                if (_commandMD5Alt == null)
+                if (field == null)
                 {
-                    _commandMD5Alt = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT FileId FROM FILES
                         WHERE
                             (               @alttype = alttype ) AND
@@ -577,24 +565,23 @@ namespace RomVaultX
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandMD5Alt.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
-                    _commandMD5Alt.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
-                    _commandMD5Alt.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandMD5Alt.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
                 }
 
-                return _commandMD5Alt;
+                return field;
             }
         }
-        private static SqliteCommand? _commandMD5Alt;
 
         public static SqliteCommand CommandCRCAlt
         {
             get
             {
-                if (_commandCRCAlt == null)
+                if (field == null)
                 {
-                    _commandCRCAlt = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT FileId FROM FILES
                         WHERE
                             (               @alttype = alttype ) AND
@@ -603,15 +590,14 @@ namespace RomVaultX
                         limit 1",
                     Program.db.Connection);
 
-                    _commandCRCAlt.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
-                    _commandCRCAlt.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandCRCAlt.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
                 }
 
-                return _commandCRCAlt;
+                return field;
             }
         }
-        private static SqliteCommand? _commandCRCAlt;
 
         public static uint? FindAFile(RvRom tFile)
         {

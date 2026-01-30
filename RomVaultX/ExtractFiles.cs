@@ -3,8 +3,8 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using Microsoft.Data.Sqlite;
 using Compress.ZipFile;
+using Microsoft.Data.Sqlite;
 using RomVaultX.SupportedFiles.GZ;
 using RomVaultX.Util;
 using FileStream = RVIO.FileStream;
@@ -17,9 +17,9 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandFindRomsInGame == null)
+                if (field == null)
                 {
-                    _commandFindRomsInGame = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                             ROM.RomId,
                             ROM.name,
@@ -35,17 +35,16 @@ namespace RomVaultX
                         ORDER BY ROM.RomId",
                     Program.db.Connection);
 
-                    _commandFindRomsInGame.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
                 }
 
-                return _commandFindRomsInGame;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindRomsInGame;
 
         public static void Extract(string dirName)
         {
-            FolderBrowserDialog folderBrowserDialog1 = new FolderBrowserDialog();
+            var folderBrowserDialog1 = new FolderBrowserDialog();
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result != DialogResult.OK) return;
             string outPath = folderBrowserDialog1.SelectedPath;
@@ -54,7 +53,7 @@ namespace RomVaultX
 
             Debug.WriteLine(dirName);
 
-            var getfiles = new SqliteCommand(@"
+            var getfiles = new SqliteCommand($@"
                 SELECT
                     DIR.fullname,
                     GameId,
@@ -63,7 +62,7 @@ namespace RomVaultX
                 WHERE
                     DAT.DirId = DIR.DirId
                     AND GAME.DatId = DAT.DatId
-                    AND DIR.fullname LIKE '" + dirName + "%'",
+                    AND DIR.fullname LIKE '{dirName}%'",
             Program.db.Connection);
 
             DbDataReader reader = getfiles.ExecuteReader();
@@ -71,15 +70,15 @@ namespace RomVaultX
             while (reader.Read())
             {
                 string outputFile = reader["fullname"].ToString() + reader["Name"].ToString() + ".zip";
-                outputFile = outputFile.Substring(dirName.Length);
+                outputFile = outputFile[dirName.Length..];
 
                 outputFile = Path.Combine(outPath, outputFile).Replace(@"/", @"\");
 
                 Debug.WriteLine(outputFile);
 
                 int GameId = Convert.ToInt32(reader["GameId"]);
-                string GameName = reader["name"].ToString();
-                Debug.WriteLine("Game " + GameId + " Name: " + GameName);
+                string? GameName = reader["name"].ToString();
+                Debug.WriteLine($"Game {GameId} Name: {GameName}");
 
                 var memZip = new ZipFile();
                 memZip.ZipCreateFake();
@@ -94,13 +93,13 @@ namespace RomVaultX
                     while (drRom.Read())
                     {
                         int RomId = Convert.ToInt32(drRom["RomId"]);
-                        string RomName = drRom["name"].ToString();
+                        string? RomName = drRom["name"].ToString();
                         ulong size = Convert.ToUInt64(drRom["size"]);
                         ulong compressedSize = Convert.ToUInt64(drRom["compressedsize"]);
                         byte[] CRC = VarFix.CleanMD5SHA1(drRom["crc"].ToString(), 8);
                         byte[] sha1 = VarFix.CleanMD5SHA1(drRom["sha1"].ToString(), 32);
 
-                        Debug.WriteLine("    Rom " + RomId + " Name: " + RomName + "  Size: " + size + "  Compressed: " + compressedSize + "  CRC: " + VarFix.ToString(CRC));
+                        Debug.WriteLine($"    Rom {RomId} Name: {RomName}  Size: {size}  Compressed: {compressedSize}  CRC: {VarFix.ToString(CRC)}");
 
                         memZip.ZipFileAddFake(RomName, fileOffset, size, compressedSize, CRC, out byte[] localHeader);
 

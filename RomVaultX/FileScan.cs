@@ -62,17 +62,17 @@ namespace FileHeaderReader
 
         public List<FileResults> Scan(ICompress file, bool testcrc, bool deepScan)
         {
-            List<FileResults> lstFileResults = new List<FileResults>();
+            List<FileResults> lstFileResults = [];
             int fileCount = file.LocalFilesCount();
             for (int i = 0; i < fileCount; i++)
             {
-                FileResults fileResults = new FileResults();
+                var fileResults = new FileResults();
                 if (file.IsDirectory(i))
                 {
                     fileResults.HeaderFileType = HeaderFileType.Nothing;
                     fileResults.FileStatus = ZipReturn.ZipGood;
                     fileResults.Size = 0;
-                    fileResults.CRC = new byte[] { 0, 0, 0, 0 };
+                    fileResults.CRC = [0, 0, 0, 0];
 
                     lstFileResults.Add(fileResults);
                     continue;
@@ -107,7 +107,7 @@ namespace FileHeaderReader
 
 
 
-        private static bool ByteArrCompare(byte[] b0, byte[] b1)
+        private static bool ByteArrCompare(byte[]? b0, byte[]? b1)
         {
             if (b0 == null || b1 == null)
             {
@@ -140,15 +140,15 @@ namespace FileHeaderReader
             fileResults.SHA1 = null;
             fileResults.CRC = null;
 
-            ThreadLoadBuffer lbuffer = null;
+            ThreadLoadBuffer? lbuffer = null;
 
-            ThreadCRC tcrc32 = null;
-            ThreadMD5 tmd5 = null;
-            ThreadSHA1 tsha1 = null;
+            ThreadCRC? tcrc32 = null;
+            ThreadMD5? tmd5 = null;
+            ThreadSHA1? tsha1 = null;
 
-            ThreadCRC altCrc32 = null;
-            ThreadMD5 altMd5 = null;
-            ThreadSHA1 altSha1 = null;
+            ThreadCRC? altCrc32 = null;
+            ThreadMD5? altMd5 = null;
+            ThreadSHA1? altSha1 = null;
 
             try
             {
@@ -372,14 +372,14 @@ namespace FileHeaderReader
             public HeaderFileType HeaderFileType;
             public ZipReturn FileStatus;
             public ulong Size;
-            public byte[] CRC;
-            public byte[] SHA1;
-            public byte[] MD5;
+            public byte[]? CRC;
+            public byte[]? SHA1;
+            public byte[]? MD5;
 
             public ulong? AltSize;
-            public byte[] AltCRC;
-            public byte[] AltSHA1;
-            public byte[] AltMD5;
+            public byte[]? AltCRC;
+            public byte[]? AltSHA1;
+            public byte[]? AltMD5;
         }
     }
 }

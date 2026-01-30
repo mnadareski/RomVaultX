@@ -27,8 +27,6 @@ namespace Compress.SevenZip.Compress.LZMA
         private bool uncompressedChunk = false;
         private bool needDictReset = true;
         private bool needProps = true;
-        private byte[] props = new byte[5];
-
         private Encoder encoder;
 
         public LzmaStream(byte[] properties, Stream inputStream)
@@ -65,7 +63,7 @@ namespace Compress.SevenZip.Compress.LZMA
 
                 decoder = new Decoder();
                 decoder.SetDecoderProperties(properties);
-                props = properties;
+                Properties = properties;
 
                 availableBytes = outputSize < 0 ? long.MaxValue : outputSize;
                 rangeDecoderLimit = inputSize;
@@ -82,7 +80,7 @@ namespace Compress.SevenZip.Compress.LZMA
                     needDictReset = false;
                 }
 
-                props = new byte[1];
+                Properties = new byte[1];
                 availableBytes = 0;
             }
         }
@@ -105,7 +103,7 @@ namespace Compress.SevenZip.Compress.LZMA
             encoder.SetCoderProperties(properties.propIDs, properties.properties);
             MemoryStream propStream = new MemoryStream(5);
             encoder.WriteCoderProperties(propStream);
-            props = propStream.ToArray();
+            Properties = propStream.ToArray();
 
             encoder.SetStreams(null, outputStream, -1, -1);
             if (presetDictionary != null)
@@ -253,18 +251,18 @@ namespace Compress.SevenZip.Compress.LZMA
                 if (control >= 0xC0)
                 {
                     needProps = false;
-                    props[0] = (byte)inputStream.ReadByte();
+                    Properties[0] = (byte)inputStream.ReadByte();
                     inputPosition++;
 
                     decoder = new Decoder();
-                    decoder.SetDecoderProperties(props);
+                    decoder.SetDecoderProperties(Properties);
                 }
                 else if (needProps)
                     throw new DataErrorException();
                 else if (control >= 0xA0)
                 {
                     decoder = new Decoder();
-                    decoder.SetDecoderProperties(props);
+                    decoder.SetDecoderProperties(Properties);
                 }
 
                 rangeDecoder.Init(inputStream);
@@ -292,7 +290,7 @@ namespace Compress.SevenZip.Compress.LZMA
                 Read(tmpBuff, 0, sizenow);
                 sizeToGo -= sizenow;
             }
-            
+
             return offset;
         }
 
@@ -307,12 +305,6 @@ namespace Compress.SevenZip.Compress.LZMA
                 position = encoder.Code(new MemoryStream(buffer, offset, count), false);
         }
 
-        public byte[] Properties
-        {
-            get
-            {
-                return props;
-            }
-        }
+        public byte[] Properties { get; } = new byte[5];
     }
 }

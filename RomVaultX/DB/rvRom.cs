@@ -13,9 +13,9 @@ namespace RomVaultX.DB
         {
             get
             {
-                if (_commandRead == null)
+                if (field == null)
                 {
-                    _commandRead = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                             RomId,
                             name,
@@ -42,22 +42,21 @@ namespace RomVaultX.DB
                         ORDER BY RomId",
                     Program.db.Connection);
 
-                    _commandRead.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
                 }
 
-                return _commandRead;
+                return field;
             }
         }
-        private static SqliteCommand? _commandRead;
 
         public static SqliteCommand CommandWrite
         {
             get
             {
-                if (_commandWrite == null)
+                if (field == null)
                 {
-                    _commandWrite = new SqliteCommand(@"
-                        INSERT INTO ROM 
+                    field = new SqliteCommand(@"
+                        INSERT INTO ROM
                         (
                             GameId,
                             name,
@@ -89,32 +88,31 @@ namespace RomVaultX.DB
                         SELECT last_insert_rowid();",
                     Program.db.Connection);
 
-                    _commandWrite.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("merge", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("status", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("putinzip", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("merge", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("status", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("putinzip", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("FileId", SqliteType.Integer));
                 }
 
-                return _commandWrite;
+                return field;
             }
         }
-        private static SqliteCommand? _commandWrite;
 
         public static SqliteCommand CommandWriteNoFiles
         {
             get
             {
-                if (_commandWriteNoFiles == null)
+                if (field == null)
                 {
-                    _commandWriteNoFiles = new SqliteCommand(@"
-                        INSERT INTO ROM 
+                    field = new SqliteCommand(@"
+                        INSERT INTO ROM
                         (
                             GameId,
                             name,
@@ -144,22 +142,21 @@ namespace RomVaultX.DB
                         SELECT last_insert_rowid();",
                     Program.db.Connection);
 
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("merge", SqliteType.Text));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("status", SqliteType.Text));
-                    _commandWriteNoFiles.Parameters.Add(new SqliteParameter("putinzip", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("GameId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("type", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("merge", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("status", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("putinzip", SqliteType.Integer));
                 }
 
-                return _commandWriteNoFiles;
+                return field;
             }
         }
-        private static SqliteCommand? _commandWriteNoFiles;
 
         public uint RomId;
         public uint GameId;

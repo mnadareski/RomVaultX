@@ -34,9 +34,11 @@ namespace RomVaultX.DB
 
             bool datFound = File.Exists(_dbFilename);
 
-            var builder = new SqliteConnectionStringBuilder();
-            builder.DataSource = _dbFilename;
-            builder.Mode = SqliteOpenMode.ReadWriteCreate;
+            var builder = new SqliteConnectionStringBuilder
+            {
+                DataSource = _dbFilename,
+                Mode = SqliteOpenMode.ReadWriteCreate
+            };
             Connection = new SqliteConnection(builder.ConnectionString);
 
             Connection.Open();
@@ -56,7 +58,7 @@ namespace RomVaultX.DB
                 dbCheckOnStartup = AppSettings.ReadSetting("DBCheckOnStartup");
             }
 
-            if (dbCheckOnStartup.ToLowerInvariant() == "true")
+            if (dbCheckOnStartup!.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
                 DbCommand dbCheck = new SqliteCommand(@"PRAGMA quick_check;", Connection);
                 var res = dbCheck.ExecuteScalar();
@@ -148,16 +150,16 @@ namespace RomVaultX.DB
             /*DELETE*/
             ExecuteNonQuery(@"
                 DROP TRIGGER IF EXISTS [FileDelete];
-                CREATE TRIGGER IF NOT EXISTS [FileDelete] 
-                AFTER DELETE ON [FILES] 
-                FOR EACH ROW 
-                BEGIN 
-                    UPDATE ROM SET 
+                CREATE TRIGGER IF NOT EXISTS [FileDelete]
+                AFTER DELETE ON [FILES]
+                FOR EACH ROW
+                BEGIN
+                    UPDATE ROM SET
                         FileId=null,
                         LocalFileHeader=null,
                         LocalFileHeaderOffset=null,
-                        LocalFileHeaderLength=null 
-                    WHERE 
+                        LocalFileHeaderLength=null
+                    WHERE
                         FileId=OLD.FileId;
                 END;
             ");
@@ -166,10 +168,10 @@ namespace RomVaultX.DB
             //INSERT
             ExecuteNonQuery(@"
                 DROP TRIGGER IF EXISTS [RomInsert];
-                CREATE TRIGGER IF NOT EXISTS [RomInsert] 
-                AFTER INSERT ON [ROM] 
+                CREATE TRIGGER IF NOT EXISTS [RomInsert]
+                AFTER INSERT ON [ROM]
                 FOR EACH ROW
-                BEGIN 
+                BEGIN
                     UPDATE GAME SET
                         RomTotal = RomTotal + 1,
                         RomGot = RomGot + (IFNULL(New.FileId,0)>0),
@@ -181,17 +183,17 @@ namespace RomVaultX.DB
                         CentralDirectory=null,
                         CentralDirectoryOffset=null,
                         CentralDirectoryLength=null
-                    WHERE 
+                    WHERE
                         Game.GameId = New.GameId;
                 END;
             ");
             //DELETE
             ExecuteNonQuery(@"
                 DROP TRIGGER IF EXISTS [RomDelete];
-                CREATE TRIGGER IF NOT EXISTS [RomDelete] 
-                AFTER DELETE ON [ROM] 
+                CREATE TRIGGER IF NOT EXISTS [RomDelete]
+                AFTER DELETE ON [ROM]
                 FOR EACH ROW
-                BEGIN 
+                BEGIN
                     UPDATE GAME SET
                         RomTotal = RomTotal - 1,
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0),
@@ -203,7 +205,7 @@ namespace RomVaultX.DB
                         CentralDirectory=null,
                         CentralDirectoryOffset=null,
                         CentralDirectoryLength=null
-                    WHERE 
+                    WHERE
                         Game.GameId = Old.GameId;
                 END;
             ");
@@ -213,7 +215,7 @@ namespace RomVaultX.DB
                 CREATE TRIGGER IF NOT EXISTS [RomUpdate]
                 AFTER UPDATE ON [ROM]
                 FOR EACH ROW WHEN (IFNULL(Old.FileId,0)>0) != (IFNULL(New.FileId,0)>0)
-                BEGIN 
+                BEGIN
                     UPDATE GAME SET
                         RomGot = RomGot - (IFNULL(Old.FileId,0)>0) + (IFNULL(New.FileId,0)>0),
                         RomNoDump = RomNoDump - (IFNULL(New.status ='nodump',0) and Old.FileId IS null) + (IFNULL(New.status ='nodump',0) and New.FileId IS null),
@@ -224,7 +226,7 @@ namespace RomVaultX.DB
                         CentralDirectory=null,
                         CentralDirectoryOffset=null,
                         CentralDirectoryLength=null
-                    WHERE 
+                    WHERE
                         Game.GameId = New.GameId;
                 END;
             ");
@@ -238,7 +240,7 @@ namespace RomVaultX.DB
                 FOR EACH ROW
                 BEGIN
                     UPDATE DAT SET
-                            RomTotal   =RomTotal  + New.RomTotal  , 
+                            RomTotal   =RomTotal  + New.RomTotal  ,
                             RomGot     =RomGot    + New.RomGot    ,
                             RomNoDump  =RomNoDump + New.RomNoDump
                     WHERE
@@ -252,7 +254,7 @@ namespace RomVaultX.DB
                 AFTER DELETE ON [GAME]
                 FOR EACH ROW
                 BEGIN
-                    UPDATE DAT SET 
+                    UPDATE DAT SET
                             RomTotal   =RomTotal  - Old.RomTotal  ,
                             RomGot     =RomGot    - Old.RomGot    ,
                             RomNoDump  =RomNoDump - Old.RomNoDump
@@ -263,10 +265,10 @@ namespace RomVaultX.DB
             //UPDATE
             ExecuteNonQuery(@"
                 DROP TRIGGER IF EXISTS [GameUpdate];
-                CREATE TRIGGER IF NOT EXISTS [GameUpdate] 
-                AFTER UPDATE ON [GAME] 
+                CREATE TRIGGER IF NOT EXISTS [GameUpdate]
+                AFTER UPDATE ON [GAME]
                 FOR EACH ROW WHEN Old.RomTotal!=New.RomTotal OR Old.RomGot!=New.RomGot OR old.RomNoDump!=New.RomNoDump
-                BEGIN 
+                BEGIN
                   UPDATE DAT SET
                             RomTotal   =RomTotal  - Old.RomTotal  + New.RomTotal ,
                             RomGot     =RomGot    - Old.RomGot    + New.RomGot ,
@@ -282,86 +284,86 @@ namespace RomVaultX.DB
             if (bgw == null)
                 ConsoleManager.Show();
 
-            bgw?.ReportProgress(0, new bgwRange2Visible(true));
-            bgw?.ReportProgress(0, new bgwSetRange2(15));
+            bgw?.ReportProgress(0, new BgwRange2Visible(true));
+            bgw?.ReportProgress(0, new BgwSetRange2(15));
 
-            bgw?.ReportProgress(0, new bgwValue2(0));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index ROM-SHA1"));
+            bgw?.ReportProgress(0, new BgwValue2(0));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index ROM-SHA1"));
             Console.WriteLine("Creating Index 1/15: ROM-SHA1");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSHA1Index]   ON [ROM]   ([sha1]        ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(1));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index ROM-MD5"));
+            bgw?.ReportProgress(0, new BgwValue2(1));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index ROM-MD5"));
             Console.WriteLine("Creating Index 2/15: ROM-MD5");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMMD5Index]    ON [ROM]   ([md5]         ASC); ");
 
-            bgw?.ReportProgress(0, new bgwValue2(2));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index ROM-CRC"));
+            bgw?.ReportProgress(0, new BgwValue2(2));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index ROM-CRC"));
             Console.WriteLine("Creating Index 3/15: ROM-CRC");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMCRCIndex]    ON [ROM]   ([crc]         ASC); ");
 
-            bgw?.ReportProgress(0, new bgwValue2(3));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index ROM-Size"));
+            bgw?.ReportProgress(0, new BgwValue2(3));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index ROM-Size"));
             Console.WriteLine("Creating Index 4/15: ROM-Size");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMSizeIndex]   ON [ROM]   ([size]        ASC); ");
 
-            bgw?.ReportProgress(0, new bgwValue2(4));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index ROM-FileId"));
+            bgw?.ReportProgress(0, new BgwValue2(4));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index ROM-FileId"));
             Console.WriteLine("Creating Index 5/15: ROM-FileId");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMFileIdIndex] ON [ROM]   ([FileId]      ASC); ");
 
-            bgw?.ReportProgress(0, new bgwValue2(5));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index ROM-GameId-Name"));
+            bgw?.ReportProgress(0, new BgwValue2(5));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index ROM-GameId-Name"));
             Console.WriteLine("Creating Index 6/15: ROM-GameId-Name");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [ROMGameId]      ON [ROM]   ([GameId]      ASC,[name] ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(6));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index Game-DatId"));
+            bgw?.ReportProgress(0, new BgwValue2(6));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index Game-DatId"));
             Console.WriteLine("Creating Index 7/15: Game-DatId");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [GameDatId]      ON [GAME]  ([DatId]       ASC,[name] ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(7));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index Game-DirId"));
+            bgw?.ReportProgress(0, new BgwValue2(7));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index Game-DirId"));
             Console.WriteLine("Creating Index 8/15: Game-DirId");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [GameDirId]      ON [GAME]  ([DirId]       ASC,[ZipFileLength] ASC,[name] ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(8));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index FILE-SHA1"));
+            bgw?.ReportProgress(0, new BgwValue2(8));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index FILE-SHA1"));
             Console.WriteLine("Creating Index 9/15: FILE-SHA1");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILESHA1]       ON [FILES] ([sha1]        ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(9));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index FILE-MD5"));
+            bgw?.ReportProgress(0, new BgwValue2(9));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index FILE-MD5"));
             Console.WriteLine("Creating Index 10/15: FILE-MD5");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILEMD5]        ON [FILES] ([md5]         ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(10));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index FILE-CRC"));
+            bgw?.ReportProgress(0, new BgwValue2(10));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index FILE-CRC"));
             Console.WriteLine("Creating Index 11/15: FILE-CRC");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILECRC]        ON [FILES] ([crc]         ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(11));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index FILE-AltSHA1"));
+            bgw?.ReportProgress(0, new BgwValue2(11));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index FILE-AltSHA1"));
             Console.WriteLine("Creating Index 12/15: FILE-AltSHA1");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [FILEAltSHA1]    ON [FILES] ([altsha1]     ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(12));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index DAT-DirId"));
+            bgw?.ReportProgress(0, new BgwValue2(12));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index DAT-DirId"));
             Console.WriteLine("Creating Index 13/15: DAT-DirId");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DATDIRID]       ON [DAT]   ([DirId]       ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(13));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index Dir-ParentDirId"));
+            bgw?.ReportProgress(0, new BgwValue2(13));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index Dir-ParentDirId"));
             Console.WriteLine("Creating Index 14/15: Dir-ParentDirId");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DIRPARENTDIRID] ON [DIR]   ([ParentDirId] ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(14));
-            bgw?.ReportProgress(0, new bgwText2("Creating Index Dir-FullName"));
+            bgw?.ReportProgress(0, new BgwValue2(14));
+            bgw?.ReportProgress(0, new BgwText2("Creating Index Dir-FullName"));
             Console.WriteLine("Creating Index 15/15: Dir-FullName");
             ExecuteNonQuery(@"CREATE INDEX IF NOT EXISTS [DIRFULLNAME]    ON [DIR]   ([fullname]    ASC);");
 
-            bgw?.ReportProgress(0, new bgwValue2(15));
-            bgw?.ReportProgress(0, new bgwText2("Indexing Complete"));
+            bgw?.ReportProgress(0, new BgwValue2(15));
+            bgw?.ReportProgress(0, new BgwText2("Indexing Complete"));
             Console.WriteLine("Indexing Complete");
 
             if (bgw == null)

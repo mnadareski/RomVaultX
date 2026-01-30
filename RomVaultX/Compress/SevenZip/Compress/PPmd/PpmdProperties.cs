@@ -14,8 +14,6 @@ namespace Compress.SevenZip.Compress.PPmd
         public PpmdVersion Version = PpmdVersion.I1;
         public int ModelOrder;
         internal I1.ModelRestorationMethod ModelRestorationMethod;
-
-        private int allocatorSize;
         internal I1.Allocator Allocator;
 
         public PpmdProperties()
@@ -54,18 +52,15 @@ namespace Compress.SevenZip.Compress.PPmd
 
         public int AllocatorSize
         {
-            get
-            {
-                return allocatorSize;
-            }
+            get;
             set
             {
-                allocatorSize = value;
+                field = value;
                 if (Version == PpmdVersion.I1)
                 {
                     if (Allocator == null)
                         Allocator = new I1.Allocator();
-                    Allocator.Start(allocatorSize);
+                    Allocator.Start(field);
                 }
             }
         }

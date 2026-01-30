@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using Compress.Utils;
-using Path = RVIO.Path;
 using FileInfo = RVIO.FileInfo;
 using FileStream = RVIO.FileStream;
+using Path = RVIO.Path;
 
 namespace Compress.File
 {

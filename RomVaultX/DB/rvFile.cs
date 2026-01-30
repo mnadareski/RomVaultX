@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.Data.Sqlite;
 using FileHeaderReader;
+using Microsoft.Data.Sqlite;
 using RomVaultX.Util;
 
 namespace RomVaultX.DB
@@ -11,9 +11,9 @@ namespace RomVaultX.DB
         {
             get
             {
-                if (_commandWrite == null)
+                if (field == null)
                 {
-                    _commandWrite = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         INSERT INTO FILES
                         (
                             size,
@@ -44,32 +44,30 @@ namespace RomVaultX.DB
                         SELECT last_insert_rowid();",
                     Program.db.Connection);
 
-                    _commandWrite.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("compressedsize", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("altsize", SqliteType.Integer));
-                    _commandWrite.Parameters.Add(new SqliteParameter("altcrc", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("altsha1", SqliteType.Text));
-                    _commandWrite.Parameters.Add(new SqliteParameter("altmd5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("size", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("compressedsize", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("crc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("sha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("md5", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("alttype", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("altsize", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("altcrc", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("altsha1", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("altmd5", SqliteType.Text));
                 }
 
-                return _commandWrite;
+                return field;
             }
         }
-        private static SqliteCommand? _commandWrite;
 
         public static SqliteCommand CommandCheckForAnyFiles
         {
             get
             {
-                _commandCheckForAnyFiles ??= new SqliteCommand("SELECT COUNT(1) FROM FILES LIMIT 1", Program.db.Connection);
-                return _commandCheckForAnyFiles;
+                field ??= new SqliteCommand("SELECT COUNT(1) FROM FILES LIMIT 1", Program.db.Connection);
+                return field;
             }
         }
-        private static SqliteCommand? _commandCheckForAnyFiles;
 
         public uint FileId;
         public ulong Size;

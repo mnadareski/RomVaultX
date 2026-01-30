@@ -21,18 +21,18 @@ namespace RomVaultX
     public static class RomScanner
     {
         private const int Buffersize = 1024 * 1024;
-        private static BackgroundWorker _bgw;
+        private static BackgroundWorker? _bgw;
 
-        public static string RootDir = AppSettings.ReadSetting("ToSort");
+        public static string? RootDir = AppSettings.ReadSetting("ToSort");
         private static readonly byte[] Buffer = new byte[Buffersize];
-        private static string _tmpDir = AppSettings.ReadSetting("TempDir");
+        private static string? _tmpDir = AppSettings.ReadSetting("TempDir");
 
         private static ulong _inMemorySize;
         public static bool DelFiles = true;
 
-        public static void ScanFiles(object sender, DoWorkEventArgs e)
+        public static void ScanFiles(object? sender, DoWorkEventArgs e)
         {
-            string sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
+            string? sInMemorySize = AppSettings.ReadSetting("ScanInMemorySize");
             if (sInMemorySize == null)
             {
                 // I use 1000000
@@ -62,12 +62,12 @@ namespace RomVaultX
             ScanADirNew(RootDir);
 
             DatUpdate.UpdateGotTotal();
-            _bgw?.ReportProgress(0, new bgwText("Scanning Files Complete"));
+            _bgw?.ReportProgress(0, new BgwText("Scanning Files Complete"));
             _bgw = null;
             Program.SyncCont = null;
         }
 
-        private static bool ScanAFile(string realFilename, Stream memzip, string displayFilename)
+        private static bool ScanAFile(string? realFilename, Stream? memzip, string displayFilename)
         {
             Stream fStream;
             if (string.IsNullOrEmpty(realFilename) && memzip != null)
@@ -76,7 +76,7 @@ namespace RomVaultX
             }
             else
             {
-                int errorCode = FileStream.OpenFileRead(realFilename, out fStream);
+                int errorCode = FileStream.OpenFileRead(realFilename!, out fStream);
                 if (errorCode != 0)
                 {
                     return false;
@@ -103,10 +103,10 @@ namespace RomVaultX
 
             if (res == FindStatus.FileNeededInArchive)
             {
-                _bgw?.ReportProgress(0, new bgwShowError(displayFilename, "found"));
-                Debug.WriteLine("Reading file as " + tFile.SHA1);
+                _bgw?.ReportProgress(0, new BgwShowError(displayFilename, "found"));
+                Debug.WriteLine($"Reading file as {tFile.SHA1}");
                 GZip gz = new GZip(tFile);
-                string outfile = RomRootDir.GetFilename(tFile.SHA1, false);
+                string outfile = RomRootDir.GetFilename(tFile.SHA1!, false);
                 fStream.Position = 0;
                 gz.WriteGZip(outfile, fStream, false);
 
@@ -121,23 +121,13 @@ namespace RomVaultX
 
             if (foundFileType == HeaderFileType.ZIP || foundFileType == HeaderFileType.SevenZip || foundFileType == HeaderFileType.GZ)
             {
-
-                ICompress fz;
-                switch (foundFileType)
+                ICompress fz = foundFileType switch
                 {
-                    case HeaderFileType.SevenZip:
-                        fz = new SevenZ();
-                        break;
-                    case HeaderFileType.GZ:
-                        fz = new gZip();
-                        break;
-
-                    //case HeaderFileType.ZIP:
-                    default:
-                        fz = new ZipFile();
-                        break;
-                }
-
+                    HeaderFileType.SevenZip => new SevenZ(),
+                    HeaderFileType.GZ => new gZip(),
+                    //HeaderFileType.ZIP => new ZipFile(),
+                    _ => new ZipFile(),
+                };
                 fStream.Position = 0;
 
                 ZipReturn zp;
@@ -164,14 +154,12 @@ namespace RomVaultX
                                 continue;
                             byte[] tmpFile = new byte[streamSize];
                             stream.Read(tmpFile, 0, (int)streamSize);
-                            using (Stream memStream = new MemoryStream(tmpFile, false))
-                            {
-                                allZipFound &= ScanAFile(null, memStream, fz.Filename(i));
-                            }
+                            using Stream memStream = new MemoryStream(tmpFile, false);
+                            allZipFound &= ScanAFile(null, memStream, fz.Filename(i));
                         }
                         else
                         {
-                            string file = Path.Combine(_tmpDir, Guid.NewGuid().ToString());
+                            string file = Path.Combine(_tmpDir!, Guid.NewGuid().ToString());
                             FileStream.OpenFileWrite(file, out Stream fs);
                             ulong sizetogo = streamSize;
                             while (sizetogo > 0)
@@ -207,26 +195,26 @@ namespace RomVaultX
             return ret;
         }
 
-        private static void ScanADirNew(string directory)
+        private static void ScanADirNew(string? directory)
         {
-            _bgw.ReportProgress(0, new bgwText("Scanning Dir : " + directory));
-            DirectoryInfo di = new DirectoryInfo(directory);
+            _bgw?.ReportProgress(0, new BgwText($"Scanning Dir : {directory}"));
+            var di = new DirectoryInfo(directory!);
 
             FileInfo[] fi = di.GetFiles();
 
-            _bgw.ReportProgress(0, new bgwRange2Visible(true));
-            _bgw.ReportProgress(0, new bgwSetRange2(fi.Length));
+            _bgw?.ReportProgress(0, new BgwRange2Visible(true));
+            _bgw?.ReportProgress(0, new BgwSetRange2(fi.Length));
 
             for (int j = 0; j < fi.Length; j++)
             {
-                if (_bgw.CancellationPending)
+                if (_bgw?.CancellationPending != false)
                 {
                     return;
                 }
 
                 FileInfo f = fi[j];
-                _bgw.ReportProgress(0, new bgwValue2(j));
-                _bgw.ReportProgress(0, new bgwText2(f.Name));
+                _bgw.ReportProgress(0, new BgwValue2(j));
+                _bgw.ReportProgress(0, new BgwText2(f.Name));
 
                 bool fileFound = ScanAFile(f.FullName, null, f.Name);
 
@@ -240,7 +228,7 @@ namespace RomVaultX
             DirectoryInfo[] childdi = di.GetDirectories();
             foreach (DirectoryInfo d in childdi)
             {
-                if (_bgw.CancellationPending)
+                if (_bgw?.CancellationPending != false)
                 {
                     return;
                 }
@@ -251,12 +239,12 @@ namespace RomVaultX
             {
                 return;
             }
-            if (IsDirectoryEmpty(directory))
+            if (IsDirectoryEmpty(directory!))
             {
-                System.IO.DirectoryInfo dii = new System.IO.DirectoryInfo(directory);
+                var dii = new System.IO.DirectoryInfo(directory!);
                 dii.Attributes &= ~FileAttributes.ReadOnly;
 
-                Directory.Delete(directory);
+                Directory.Delete(directory!);
             }
         }
 

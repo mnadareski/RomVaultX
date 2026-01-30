@@ -11,28 +11,27 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using RomVaultX.DB;
-using RomVaultX.Util;
 
 namespace RomVaultX
 {
     public static class ReportError
     {
-        private static string _logfilename;
+        private static string? _logfilename;
 
-        public static void UnhandledExceptionHandler(object sender, ThreadExceptionEventArgs e)
+        public static void UnhandledExceptionHandler(object? sender, ThreadExceptionEventArgs e)
         {
             try
             {
                 // Create Error Message
-                string message = string.Format("An Application Error has occurred.\r\n\r\nEXCEPTION:\r\nSource: {0}\r\nMessage: {1}\r\n", e.Exception.Source, e.Exception.Message);
+                string message = $"An Application Error has occurred.\r\n\r\nEXCEPTION:\r\nSource: {e.Exception.Source}\r\nMessage: {e.Exception.Message}\r\n";
                 if (e.Exception.InnerException != null)
                 {
-                    message += string.Format("\r\nINNER EXCEPTION:\r\nSource: {0}\r\nMessage: {1}\r\n", e.Exception.InnerException.Source, e.Exception.InnerException.Message);
+                    message += $"\r\nINNER EXCEPTION:\r\nSource: {e.Exception.InnerException.Source}\r\nMessage: {e.Exception.InnerException.Message}\r\n";
                 }
-                message += string.Format("\r\nSTACK TRACE:\r\n{0}", e.Exception.StackTrace);
+                message += $"\r\nSTACK TRACE:\r\n{e.Exception.StackTrace}";
 
-                frmShowError fshow = new frmShowError();
-                fshow.settype(message);
+                var fshow = new frmShowError();
+                fshow.SetType(message);
                 fshow.ShowDialog();
 
                 Environment.Exit(0);
@@ -48,15 +47,15 @@ namespace RomVaultX
             try
             {
                 // Create Error Message
-                string message = string.Format("An Application Error has occurred.\r\n\r\nEXCEPTION:\r\nSource: {0}\r\nMessage: {1}\r\n", e.Source, e.Message);
+                string message = $"An Application Error has occurred.\r\n\r\nEXCEPTION:\r\nSource: {e.Source}\r\nMessage: {e.Message}\r\n";
                 if (e.InnerException != null)
                 {
-                    message += string.Format("\r\nINNER EXCEPTION:\r\nSource: {0}\r\nMessage: {1}\r\n", e.InnerException.Source, e.InnerException.Message);
+                    message += $"\r\nINNER EXCEPTION:\r\nSource: {e.InnerException.Source}\r\nMessage: {e.InnerException.Message}\r\n";
                 }
-                message += string.Format("\r\nSTACK TRACE:\r\n{0}", e.StackTrace);
+                message += $"\r\nSTACK TRACE:\r\n{e.StackTrace}";
 
-                frmShowError fshow = new frmShowError();
-                fshow.settype(message);
+                var fshow = new frmShowError();
+                fshow.SetType(message);
                 fshow.ShowDialog();
             }
             catch
@@ -70,12 +69,12 @@ namespace RomVaultX
             {
                 // Create Error Message
                 string message = "An Application Error has occurred.\r\n\r\nEXCEPTION:\r\nMessage:";
-                message += e1 + "\r\n";
+                message += $"{e1}\r\n";
 
-                message += string.Format("\r\nSTACK TRACE:\r\n{0}", Environment.StackTrace);
+                message += $"\r\nSTACK TRACE:\r\n{Environment.StackTrace}";
 
-                frmShowError fshow = new frmShowError();
-                fshow.settype(message);
+                var fshow = new frmShowError();
+                fshow.SetType(message);
                 fshow.ShowDialog();
 
                 Environment.Exit(0);
@@ -112,9 +111,8 @@ namespace RomVaultX
 
         public static void ReportList(List<RvFile> files)
         {
-            string dir, now;
-            OpenLogFile(out dir, out now);
-            dir = Path.Combine(dir, now + " DataBaseLog.txt");
+            OpenLogFile(out string dir, out string now);
+            dir = Path.Combine(dir, $"{now} DataBaseLog.txt");
             TextWriter sw = new StreamWriter(dir, false);
             for (int i = 0; i < files.Count; i++)
             {
@@ -140,7 +138,7 @@ namespace RomVaultX
             now = now.Replace("/", "-");
             now = now.Replace(":", "-");
 
-            _logfilename = Path.Combine(dir, now + " UpdateLog.txt");
+            _logfilename = Path.Combine(dir, $"{now} UpdateLog.txt");
         }
 
         private static void ReportFile(TextWriter sw, RvFile f)
@@ -152,22 +150,19 @@ namespace RomVaultX
         {
             if (_logfilename == null)
             {
-                string dir, now;
-                OpenLogFile(out dir, out now);
+                OpenLogFile(out _, out _);
             }
 
-            StreamWriter sw = new StreamWriter(_logfilename, true);
+            using var sw = new StreamWriter(_logfilename!, true);
             sw.WriteLine(s);
             sw.Flush();
-            sw.Close();
         }
 
         public static void LogOut(RvFile f)
         {
-            StreamWriter sw = new StreamWriter(_logfilename, true);
+            using var sw = new StreamWriter(_logfilename!, true);
             ReportFile(sw, f);
             sw.Flush();
-            sw.Close();
         }
     }
 }

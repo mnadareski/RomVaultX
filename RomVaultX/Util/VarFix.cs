@@ -12,15 +12,17 @@ namespace RomVaultX.Util
 
         public static bool StringYesNo(string b)
         {
-            return (b != null) && ((b.ToLowerInvariant() == "yes") || (b.ToLowerInvariant() == "true"));
+            return (b != null)
+                && (b.Equals("yes", StringComparison.OrdinalIgnoreCase)
+                    || b.Equals("true", StringComparison.OrdinalIgnoreCase));
         }
 
-        public static ulong? ULong(XmlNode n)
+        public static ulong? ULong(XmlNode? n)
         {
-            return ULong(n == null ? "" : n.InnerText);
+            return ULong(n == null ? string.Empty : n.InnerText);
         }
 
-        public static ulong? ULong(string n)
+        public static ulong? ULong(string? n)
         {
             if (string.IsNullOrEmpty(n))
             {
@@ -34,9 +36,9 @@ namespace RomVaultX.Util
 
             try
             {
-                if ((n.Length >= 2) && (n.Substring(0, 2).ToLowerInvariant() == "0x"))
+                if ((n.Length >= 2) && n[..2].Equals("0x", StringComparison.OrdinalIgnoreCase))
                 {
-                    return Convert.ToUInt64(n.Substring(2), 16);
+                    return Convert.ToUInt64(n[2..], 16);
                 }
 
                 return Convert.ToUInt64(n);
@@ -47,22 +49,22 @@ namespace RomVaultX.Util
             }
         }
 
-        public static string String(XmlNode n)
+        public static string String(XmlNode? n)
         {
-            return String(n == null ? "" : n.InnerText);
+            return String(n == null ? string.Empty : n.InnerText);
         }
 
-        public static string String(string n)
+        public static string String(string? n)
         {
-            return n ?? "";
+            return n ?? string.Empty;
         }
 
-        private static string CleanCheck(string crc, int length)
+        private static string CleanCheck(string? crc, int length)
         {
             string retcrc = crc ?? "";
             retcrc = retcrc.ToLowerInvariant().Trim();
 
-            if ((retcrc.Length >= 2) && (retcrc.Substring(0, 2).ToLowerInvariant() == "0x"))
+            if ((retcrc.Length >= 2) && retcrc[..2].Equals("0x", StringComparison.OrdinalIgnoreCase))
             {
                 retcrc = retcrc.Substring(2);
             }
@@ -82,19 +84,19 @@ namespace RomVaultX.Util
 
 
             retcrc = new string('0', length) + retcrc;
-            retcrc = retcrc.Substring(retcrc.Length - length);
+            retcrc = retcrc[^length..];
 
             return retcrc;
         }
 
 
         //CleanMD5SHA1 with a null or empty string will return null
-        public static byte[] CleanMD5SHA1(XmlNode n, int length)
+        public static byte[]? CleanMD5SHA1(XmlNode? n, int length)
         {
-            return CleanMD5SHA1(n == null ? null : n.InnerText, length);
+            return CleanMD5SHA1(n?.InnerText, length);
         }
 
-        public static byte[] CleanMD5SHA1(string? checksum, int length)
+        public static byte[]? CleanMD5SHA1(string? checksum, int length)
         {
             if (string.IsNullOrEmpty(checksum))
             {
@@ -105,9 +107,9 @@ namespace RomVaultX.Util
 
             if (checksum.Length >= 2)
             {
-                if (checksum.Substring(0, 2) == "0x")
+                if (checksum[..2] == "0x")
                 {
-                    checksum = checksum.Substring(2);
+                    checksum = checksum[2..];
                 }
             }
 
@@ -145,16 +147,16 @@ namespace RomVaultX.Util
         }
 
 
-        public static string CleanFullFileName(XmlNode n)
+        public static string CleanFullFileName(XmlNode? n)
         {
-            return CleanFullFileName(n == null ? "" : n.InnerText);
+            return CleanFullFileName(n == null ? string.Empty : n.InnerText);
         }
 
-        public static string CleanFullFileName(string name)
+        public static string CleanFullFileName(string? name)
         {
             if (string.IsNullOrEmpty(name))
             {
-                return "";
+                return string.Empty;
             }
 
             string retName = name;
@@ -177,16 +179,16 @@ namespace RomVaultX.Util
             return new string(charName);
         }
 
-        public static string CleanFileName(XmlNode n)
+        public static string CleanFileName(XmlNode? n)
         {
-            return CleanFileName(n == null ? "" : n.InnerText);
+            return CleanFileName(n == null ? string.Empty : n.InnerText);
         }
 
-        public static string CleanFileName(string name, char crep = '-')
+        public static string CleanFileName(string? name, char crep = '-')
         {
             if (string.IsNullOrEmpty(name))
             {
-                return "";
+                return string.Empty;
             }
             string retName = name;
             retName = retName.TrimStart();
@@ -204,9 +206,9 @@ namespace RomVaultX.Util
             return new string(charName);
         }
 
-        public static String GetShortPathName(String longPath)
+        public static string GetShortPathName(string longPath)
         {
-            StringBuilder shortPath = new StringBuilder(longPath.Length + 1);
+            var shortPath = new StringBuilder(longPath.Length + 1);
 
             if (0 == GetShortPathName(longPath, shortPath, shortPath.Capacity))
             {
@@ -217,20 +219,20 @@ namespace RomVaultX.Util
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        private static extern Int32 GetShortPathName(String path, StringBuilder shortPath, Int32 shortPathLength);
+        private static extern int GetShortPathName(string path, StringBuilder shortPath, int shortPathLength);
 
-        public static string ToLower(XmlNode n)
+        public static string ToLower(XmlNode? n)
         {
-            return ToLower(n == null ? "" : n.InnerText);
+            return ToLower(n == null ? string.Empty : n.InnerText);
         }
 
-        public static string ToLower(string name)
+        public static string ToLower(string? name)
         {
-            return name == null ? "" : name.ToLowerInvariant();
+            return name == null ? string.Empty : name.ToLowerInvariant();
         }
 
 
-        public static string PCombine(string path1, string path2)
+        public static string? PCombine(string? path1, string? path2)
         {
             if (string.IsNullOrEmpty(path1))
             {
@@ -241,12 +243,12 @@ namespace RomVaultX.Util
                 return path1;
             }
 
-            return path1 + "/" + path2;
+            return $"{path1}/{path2}";
         }
 
         public static string ToString(byte[]? b)
         {
-            return b == null ? "" : BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
+            return b == null ? string.Empty : BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
         }
 
         public static string ToString(byte b)
@@ -256,7 +258,7 @@ namespace RomVaultX.Util
 
         public static object ToDBString(byte[]? b)
         {
-            return b == null ? DBNull.Value : (object)BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
+            return b == null ? DBNull.Value : BitConverter.ToString(b).ToLowerInvariant().Replace("-", "");
         }
 
         public static ulong? FixLong(object v)

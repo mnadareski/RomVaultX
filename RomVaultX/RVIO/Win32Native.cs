@@ -33,11 +33,11 @@ namespace RVIO
 
         [DllImport(KERNEL32, SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
         [ResourceExposure(ResourceScope.None)]
-        internal static extern SafeFindHandle FindFirstFile(string fileName, [In] [Out] WIN32_FIND_DATA data);
+        internal static extern SafeFindHandle FindFirstFile(string fileName, [In][Out] WIN32_FIND_DATA data);
 
         [DllImport(KERNEL32, SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
         [ResourceExposure(ResourceScope.None)]
-        internal static extern bool FindNextFile(SafeFindHandle hndFindFile, [In] [Out] [MarshalAs(UnmanagedType.LPStruct)] WIN32_FIND_DATA lpFindFileData);
+        internal static extern bool FindNextFile(SafeFindHandle hndFindFile, [In][Out][MarshalAs(UnmanagedType.LPStruct)] WIN32_FIND_DATA lpFindFileData);
 
         [DllImport(KERNEL32)]
         [ResourceExposure(ResourceScope.None)]
@@ -125,7 +125,6 @@ namespace RVIO
 
     internal sealed class SafeFindHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
         internal SafeFindHandle() : base(true)
         {
         }
@@ -145,16 +144,16 @@ namespace RVIO
         private const long TicksPerHour = TicksPerMinute * 60;
         private const long TicksPerDay = TicksPerHour * 24;
 
-        // Number of days in a non-leap year 
+        // Number of days in a non-leap year
         private const int DaysPerYear = 365;
-        // Number of days in 4 years 
+        // Number of days in 4 years
         private const int DaysPer4Years = DaysPerYear * 4 + 1;
         // Number of days in 100 years
         private const int DaysPer100Years = DaysPer4Years * 25 - 1;
         // Number of days in 400 years
         private const int DaysPer400Years = DaysPer100Years * 4 + 1;
 
-        // Number of days from 1/1/0001 to 12/31/1600 
+        // Number of days from 1/1/0001 to 12/31/1600
         private const int DaysTo1601 = DaysPer400Years * 4;
         public const long FileTimeOffset = DaysTo1601 * TicksPerDay;
 

@@ -12,7 +12,7 @@ namespace RomVaultX.SupportedFiles.Files
 {
     public static class UnCompFiles
     {
-        private const int Buffersize = 1024*1024;
+        private const int Buffersize = 1024 * 1024;
         private static readonly byte[] Buffer0;
         private static readonly byte[] Buffer1;
 
@@ -29,22 +29,22 @@ namespace RomVaultX.SupportedFiles.Files
 
             ThreadLoadBuffer lbuffer = new ThreadLoadBuffer(ds);
 
-            ThreadCRC crc32 = new ThreadCRC();
-            ThreadMD5 md5 = new ThreadMD5();
-            ThreadSHA1 sha1 = new ThreadSHA1();
+            var crc32 = new ThreadCRC();
+            var md5 = new ThreadMD5();
+            var sha1 = new ThreadSHA1();
 
-            ThreadCRC altCrc32 = offset > 0 ? new ThreadCRC() : null;
-            ThreadMD5 altMd5 = offset > 0 ? new ThreadMD5() : null;
-            ThreadSHA1 altSha1 = offset > 0 ? new ThreadSHA1() : null;
+            ThreadCRC? altCrc32 = offset > 0 ? new ThreadCRC() : null;
+            ThreadMD5? altMd5 = offset > 0 ? new ThreadMD5() : null;
+            ThreadSHA1? altSha1 = offset > 0 ? new ThreadSHA1() : null;
 
 
-            file.Size = (ulong) ds.Length;
+            file.Size = (ulong)ds.Length;
             long sizetogo = ds.Length;
 
             // just read header into main Hash
             if (offset > 0)
             {
-                int sizenow = sizetogo > offset ? offset : (int) sizetogo;
+                int sizenow = sizetogo > offset ? offset : (int)sizetogo;
                 ds.Read(Buffer0, 0, sizenow);
 
                 crc32.Trigger(Buffer0, sizenow);
@@ -58,7 +58,7 @@ namespace RomVaultX.SupportedFiles.Files
             }
 
             // Pre load the first buffer0
-            int sizeNext = sizetogo > Buffersize ? Buffersize : (int) sizetogo;
+            int sizeNext = sizetogo > Buffersize ? Buffersize : (int)sizetogo;
             ds.Read(Buffer0, 0, sizeNext);
             int sizebuffer = sizeNext;
             sizetogo -= sizeNext;
@@ -67,7 +67,7 @@ namespace RomVaultX.SupportedFiles.Files
             while (sizebuffer > 0)
             {
                 // trigger the buffer loading worker
-                sizeNext = sizetogo > Buffersize ? Buffersize : (int) sizetogo;
+                sizeNext = sizetogo > Buffersize ? Buffersize : (int)sizetogo;
                 if (sizeNext > 0)
                 {
                     lbuffer.Trigger(whichBuffer ? Buffer1 : Buffer0, sizeNext);
@@ -114,7 +114,7 @@ namespace RomVaultX.SupportedFiles.Files
             file.CRC = crc32.Hash;
             file.MD5 = md5.Hash;
             file.SHA1 = sha1.Hash;
-            file.AltSize = offset > 0 ? (ulong?) (ds.Length - offset) : null;
+            file.AltSize = offset > 0 ? (ulong?)(ds.Length - offset) : null;
             file.AltCRC = altCrc32?.Hash;
             file.AltMD5 = altMd5?.Hash;
             file.AltSHA1 = altSha1?.Hash;

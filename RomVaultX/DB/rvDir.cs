@@ -9,9 +9,9 @@ namespace RomVaultX.DB
         {
             get
             {
-                if (_commandFindInDir == null)
+                if (field == null)
                 {
-                    _commandFindInDir = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT DirId
                         FROM DIR
                         WHERE
@@ -19,21 +19,20 @@ namespace RomVaultX.DB
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandFindInDir.Parameters.Add(new SqliteParameter("fullname", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("fullname", SqliteType.Text));
                 }
 
-                return _commandFindInDir;
+                return field;
             }
         }
-        private static SqliteCommand? _commandFindInDir;
 
         public static SqliteCommand CommandSetDirFound
         {
             get
             {
-                if (_commandSetDirFound == null)
+                if (field == null)
                 {
-                    _commandSetDirFound = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         UPDATE DIR
                         SET
                             found = 1
@@ -41,21 +40,20 @@ namespace RomVaultX.DB
                             DirId = @DirId",
                     Program.db.Connection);
 
-                    _commandSetDirFound.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
                 }
 
-                return _commandSetDirFound;
+                return field;
             }
         }
-        private static SqliteCommand? _commandSetDirFound;
 
         public static SqliteCommand CommandInsertIntoDir
         {
             get
             {
-                if (_commandInsertIntoDir == null)
+                if (field == null)
                 {
-                    _commandInsertIntoDir = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         INSERT INTO DIR
                         (
                             ParentDirId,
@@ -78,16 +76,15 @@ namespace RomVaultX.DB
                         SELECT last_insert_rowid();",
                     Program.db.Connection);
 
-                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("ParentDirId", SqliteType.Integer));
-                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
-                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("fullname", SqliteType.Text));
-                    _commandInsertIntoDir.Parameters.Add(new SqliteParameter("TimeStamp", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("ParentDirId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("name", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("fullname", SqliteType.Text));
+                    field.Parameters.Add(new SqliteParameter("TimeStamp", SqliteType.Integer));
                 }
 
-                return _commandInsertIntoDir;
+                return field;
             }
         }
-        private static SqliteCommand? _commandInsertIntoDir;
 
         public static void CreateTable()
         {

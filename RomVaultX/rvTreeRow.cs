@@ -12,9 +12,9 @@ namespace RomVaultX
         {
             get
             {
-                if (_commandGetFirstExpanded == null)
+                if (field == null)
                 {
-                    _commandGetFirstExpanded = new SqliteCommand(@"
+                    field = new SqliteCommand(@"
                         SELECT
                             expanded
                         FROM DIR
@@ -24,22 +24,19 @@ namespace RomVaultX
                         LIMIT 1",
                     Program.db.Connection);
 
-                    _commandGetFirstExpanded.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
+                    field.Parameters.Add(new SqliteParameter("DirId", SqliteType.Integer));
                 }
 
-                return _commandGetFirstExpanded;
+                return field;
             }
         }
-        private static SqliteCommand? _commandGetFirstExpanded;
 
         public static SqliteCommand CommandReadTree
         {
             get
             {
-                if (_commandReadTree == null)
-                {
-                    _commandReadTree = new SqliteCommand(@"
-                        SELECT 
+                field ??= new SqliteCommand(@"
+                        SELECT
                             DIR.DirId as DirId,
                             DIR.name as dirname,
                             DIR.fullname,
@@ -59,12 +56,10 @@ namespace RomVaultX
                             DIR.DirId = DAT.DirId
                         ORDER BY DIR.fullname, DAT.Filename",
                     Program.db.Connection);
-                }
 
-                return _commandReadTree;
+                return field;
             }
         }
-        private static SqliteCommand? _commandReadTree;
 
         public uint DirId;
         public string? dirName;
@@ -79,7 +74,7 @@ namespace RomVaultX
         public int RomGot;
         public int RomNoDump;
 
-        public string? TreeBranches;
+        public string TreeBranches = string.Empty;
 
         public bool MultiDatDir;
 
@@ -95,7 +90,7 @@ namespace RomVaultX
             {
                 bool multiDatDirFound = false;
 
-                string skipUntil = "";
+                string? skipUntil = "";
 
                 RvTreeRow? lastTree = null;
                 while (dr.Read())
@@ -119,7 +114,7 @@ namespace RomVaultX
                     {
                         if (pTree.dirFullName.Length >= skipUntil.Length)
                         {
-                            if (pTree.dirFullName.Substring(0, skipUntil.Length) == skipUntil)
+                            if (pTree.dirFullName[..skipUntil.Length] == skipUntil)
                                 continue;
                         }
                     }
@@ -204,7 +199,7 @@ namespace RomVaultX
         private static void UpdateSelectedFromList(List<uint> todo, int value)
         {
             string todoList = string.Join(",", todo);
-            using DbCommand SetStatus = new SqliteCommand(@"UPDATE DIR SET expanded = " + value + " WHERE ParentDirId in (" + todoList + ")", Program.db.Connection);
+            using DbCommand SetStatus = new SqliteCommand($"UPDATE DIR SET expanded = {value} WHERE ParentDirId in ({todoList})", Program.db.Connection);
             SetStatus.ExecuteNonQuery();
         }
 
@@ -213,7 +208,7 @@ namespace RomVaultX
             string todoList = string.Join(",", todo);
             List<uint> retList = [];
 
-            using DbCommand GetChild = new SqliteCommand(@"SELECT DirId FROM DIR WHERE ParentDirId in (" + todoList + ")", Program.db.Connection);
+            using DbCommand GetChild = new SqliteCommand($"SELECT DirId FROM DIR WHERE ParentDirId in ({todoList})", Program.db.Connection);
             using DbDataReader dr = GetChild.ExecuteReader();
             while (dr.Read())
             {

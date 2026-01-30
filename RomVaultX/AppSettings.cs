@@ -5,7 +5,7 @@ namespace RomVaultX
 {
     public static class AppSettings
     {
-        public static string ReadSetting(string key)
+        public static string? ReadSetting(string key)
         {
             try
             {

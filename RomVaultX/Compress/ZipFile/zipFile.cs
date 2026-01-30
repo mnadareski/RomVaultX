@@ -25,7 +25,7 @@ namespace Compress.ZipFile
         private readonly List<LocalFile> _localFiles = new List<LocalFile>();
 
 
-        private FileInfo _zipFileInfo;
+        private FileInfo? _zipFileInfo;
 
         private ulong _centerDirStart;
         private ulong _centerDirSize;
@@ -365,7 +365,7 @@ namespace Compress.ZipFile
 
                 _localFilesCount = zipBr.ReadUInt16(); // TotalNumberOfEnteriesDisk
 
-                tushort = zipBr.ReadUInt16(); // TotalNumber of enteries in the central directory 
+                tushort = zipBr.ReadUInt16(); // TotalNumber of enteries in the central directory
                 if (tushort != _localFilesCount)
                 {
                     return ZipReturn.ZipEndOfCentralDirectoryError;
@@ -395,7 +395,7 @@ namespace Compress.ZipFile
                 bw.Write((ushort)0); // NumberOfThisDisk
                 bw.Write((ushort)0); // NumberOfThisDiskCenterDir
                 bw.Write((ushort)(_localFiles.Count >= 0xffff ? 0xffff : _localFiles.Count)); // TotalNumberOfEnteriesDisk
-                bw.Write((ushort)(_localFiles.Count >= 0xffff ? 0xffff : _localFiles.Count)); // TotalNumber of enteries in the central directory 
+                bw.Write((ushort)(_localFiles.Count >= 0xffff ? 0xffff : _localFiles.Count)); // TotalNumber of enteries in the central directory
                 bw.Write((uint)(_centerDirSize >= 0xffffffff ? 0xffffffff : _centerDirSize));
                 bw.Write((uint)(_centerDirStart >= 0xffffffff ? 0xffffffff : _centerDirStart));
                 bw.Write((ushort)_fileComment.Length);
@@ -855,7 +855,7 @@ namespace Compress.ZipFile
             return zRet;
         }
 
-        public ZipReturn ZipFileAddFake(string filename, ulong fileOffset, ulong uncompressedSize, ulong compressedSize, byte[] crc32, out byte[] localHeader)
+        public ZipReturn ZipFileAddFake(string? filename, ulong fileOffset, ulong uncompressedSize, ulong compressedSize, byte[] crc32, out byte[] localHeader)
         {
             localHeader = null;
 
@@ -1090,7 +1090,7 @@ namespace Compress.ZipFile
             {
             }
 
-            public LocalFile(string filename)
+            public LocalFile(string? filename)
             {
                 Zip64 = false;
                 GeneralPurposeBitFlag = 2; // Maximum Compression Deflating
@@ -1101,7 +1101,7 @@ namespace Compress.ZipFile
                 FileName = filename;
             }
 
-            public string FileName { get; private set; }
+            public string? FileName { get; private set; }
             public ushort GeneralPurposeBitFlag { get; private set; }
             public byte[] CRC { get; private set; }
             public ulong UncompressedSize { get; private set; }
@@ -1804,7 +1804,7 @@ namespace Compress.ZipFile
                 long posNow = zipFs.Position;
                 using (BinaryWriter bw = new BinaryWriter(zipFs, Encoding.UTF8, true))
                 {
-                    // _crc32Loction - 10  needs set to 45  
+                    // _crc32Loction - 10  needs set to 45
                     zipFs.Seek((long)_crc32Location - 10, SeekOrigin.Begin);
                     ushort versionNeededToExtract = 45;
                     bw.Write(versionNeededToExtract);

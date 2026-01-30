@@ -17,14 +17,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
                 binSumm[i2] = new int[64];
             }
         }
-        public SubAllocator SubAlloc
-        {
-            get
-            {
-                return subAlloc;
-            }
-
-        }
+        public SubAllocator SubAlloc { get; } = new SubAllocator();
         virtual public SEE2Context DummySEE2Cont
         {
             get
@@ -135,27 +128,13 @@ namespace Compress.SevenZip.Compress.PPmd.H
             }
 
         }
-        internal RangeCoder Coder
-        {
-            get
-            {
-                return coder;
-            }
-
-        }
-        internal State FoundState
-        {
-            get
-            {
-                return foundState;
-            }
-
-        }
+        internal RangeCoder Coder { get; private set; }
+        internal State FoundState { get; private set; }
         virtual public byte[] Heap
         {
             get
             {
-                return subAlloc.Heap;
+                return SubAlloc.Heap;
             }
 
         }
@@ -191,9 +170,6 @@ namespace Compress.SevenZip.Compress.PPmd.H
         private PPMContext minContext; //medContext
 
         private PPMContext maxContext;
-
-        private State foundState; // found next state transition
-
         private int numMasked, initEsc, orderFall, maxOrder, runLength, initRL;
 
         private int[] charMask = new int[256];
@@ -208,10 +184,6 @@ namespace Compress.SevenZip.Compress.PPmd.H
         private int escCount, prevSuccess, hiBitsFlag;
 
         private int[][] binSumm = new int[128][]; // binary SEE-contexts
-
-        private RangeCoder coder;
-
-        private SubAllocator subAlloc = new SubAllocator();
 
         private static int[] InitBinEsc = new int[] { 0x3CDD, 0x1F3F, 0x59BF, 0x48F3, 0x64A1, 0x5ABC, 0x6632, 0x6051 };
 
@@ -250,9 +222,9 @@ namespace Compress.SevenZip.Compress.PPmd.H
         private void restartModelRare()
         {
             Utility.Fill(charMask, 0);
-            subAlloc.initSubAllocator();
+            SubAlloc.initSubAllocator();
             initRL = -(maxOrder < 12 ? maxOrder : 12) - 1;
-            int addr = subAlloc.allocContext();
+            int addr = SubAlloc.allocContext();
             minContext.Address = addr;
             maxContext.Address = addr;
             minContext.setSuffix(0);
@@ -260,11 +232,11 @@ namespace Compress.SevenZip.Compress.PPmd.H
             minContext.NumStats = 256;
             minContext.FreqData.SummFreq = minContext.NumStats + 1;
 
-            addr = subAlloc.allocUnits(256 / 2);
-            foundState.Address = addr;
+            addr = SubAlloc.allocUnits(256 / 2);
+            FoundState.Address = addr;
             minContext.FreqData.SetStats(addr);
 
-            State state = new State(subAlloc.Heap);
+            State state = new State(SubAlloc.Heap);
             addr = minContext.FreqData.GetStats();
             runLength = initRL;
             prevSuccess = 0;
@@ -348,14 +320,14 @@ namespace Compress.SevenZip.Compress.PPmd.H
             // Debug
             //subAlloc.dumpHeap();
 
-            if (minContext.Address <= subAlloc.PText || minContext.Address > subAlloc.HeapEnd)
+            if (minContext.Address <= SubAlloc.PText || minContext.Address > SubAlloc.HeapEnd)
             {
                 return (-1);
             }
 
             if (minContext.NumStats != 1)
             {
-                if (minContext.FreqData.GetStats() <= subAlloc.PText || minContext.FreqData.GetStats() > subAlloc.HeapEnd)
+                if (minContext.FreqData.GetStats() <= SubAlloc.PText || minContext.FreqData.GetStats() > SubAlloc.HeapEnd)
                 {
                     return (-1);
                 }
@@ -368,15 +340,15 @@ namespace Compress.SevenZip.Compress.PPmd.H
             {
                 minContext.decodeBinSymbol(this);
             }
-            coder.Decode();
-            while (foundState.Address == 0)
+            Coder.Decode();
+            while (FoundState.Address == 0)
             {
-                coder.AriDecNormalize();
+                Coder.AriDecNormalize();
                 do
                 {
                     orderFall++;
                     minContext.Address = minContext.getSuffix(); // =MinContext->Suffix;
-                    if (minContext.Address <= subAlloc.PText || minContext.Address > subAlloc.HeapEnd)
+                    if (minContext.Address <= SubAlloc.PText || minContext.Address > SubAlloc.HeapEnd)
                     {
                         return (-1);
                     }
@@ -386,13 +358,13 @@ namespace Compress.SevenZip.Compress.PPmd.H
                 {
                     return (-1);
                 }
-                coder.Decode();
+                Coder.Decode();
             }
-            int Symbol = foundState.Symbol;
-            if ((orderFall == 0) && foundState.GetSuccessor() > subAlloc.PText)
+            int Symbol = FoundState.Symbol;
+            if ((orderFall == 0) && FoundState.GetSuccessor() > SubAlloc.PText)
             {
                 // MinContext=MaxContext=FoundState->Successor;
-                int addr = foundState.GetSuccessor();
+                int addr = FoundState.GetSuccessor();
                 minContext.Address = addr;
                 maxContext.Address = addr;
             }
@@ -405,7 +377,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
                     clearMask();
                 }
             }
-            coder.AriDecNormalize(); // ARI_DEC_NORMALIZE(Coder.code,Coder.low,Coder.range,Coder.UnpackRead);
+            Coder.AriDecNormalize(); // ARI_DEC_NORMALIZE(Coder.code,Coder.low,Coder.range,Coder.UnpackRead);
             return (Symbol);
         }
 
@@ -449,7 +421,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
             PPMContext pc = tempPPMContext1.Initialize(Heap);
             pc.Address = minContext.Address;
             PPMContext upBranch = tempPPMContext2.Initialize(Heap);
-            upBranch.Address = foundState.GetSuccessor();
+            upBranch.Address = FoundState.GetSuccessor();
 
             // STATE * p, * ps[MAX_O], ** pps=ps;
             State p = tempState2.Initialize(Heap);
@@ -459,7 +431,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
 
             if (!Skip)
             {
-                ps[pps++] = foundState.Address; // *pps++ = FoundState;
+                ps[pps++] = FoundState.Address; // *pps++ = FoundState;
                 if (pc.getSuffix() == 0)
                 {
                     noLoop = true;
@@ -482,13 +454,13 @@ namespace Compress.SevenZip.Compress.PPmd.H
                         if (pc.NumStats != 1)
                         {
                             p.Address = pc.FreqData.GetStats(); // p=pc->U.Stats
-                            if (p.Symbol != foundState.Symbol)
+                            if (p.Symbol != FoundState.Symbol)
                             {
                                 do
                                 {
                                     p.IncrementAddress();
                                 }
-                                while (p.Symbol != foundState.Symbol);
+                                while (p.Symbol != FoundState.Symbol);
                             }
                         }
                         else
@@ -516,7 +488,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
             upState.SetSuccessor(upBranch.Address + 1); //TODO check if +1 necessary
             if (pc.NumStats != 1)
             {
-                if (pc.Address <= subAlloc.PText)
+                if (pc.Address <= SubAlloc.PText)
                 {
                     return (0);
                 }
@@ -563,7 +535,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
             //System.out.println("ModelPPM.updateModel()");
             // STATE fs = *FoundState, *p = NULL;
             StateRef fs = tempStateRef1;
-            fs.Values = foundState;
+            fs.Values = FoundState;
             State p = tempState3.Initialize(Heap);
             State tempState = tempState4.Initialize(Heap);
 
@@ -608,9 +580,9 @@ namespace Compress.SevenZip.Compress.PPmd.H
             }
             if (orderFall == 0)
             {
-                foundState.SetSuccessor(createSuccessors(true, p));
-                minContext.Address = foundState.GetSuccessor();
-                maxContext.Address = foundState.GetSuccessor();
+                FoundState.SetSuccessor(createSuccessors(true, p));
+                minContext.Address = FoundState.GetSuccessor();
+                maxContext.Address = FoundState.GetSuccessor();
                 if (minContext.Address == 0)
                 {
                     updateModelRestart();
@@ -618,10 +590,10 @@ namespace Compress.SevenZip.Compress.PPmd.H
                 }
                 return;
             }
-            subAlloc.Heap[subAlloc.PText] = (byte)fs.Symbol;
-            subAlloc.incPText();
-            successor.Address = subAlloc.PText;
-            if (subAlloc.PText >= subAlloc.FakeUnitsStart)
+            SubAlloc.Heap[SubAlloc.PText] = (byte)fs.Symbol;
+            SubAlloc.incPText();
+            successor.Address = SubAlloc.PText;
+            if (SubAlloc.PText >= SubAlloc.FakeUnitsStart)
             {
                 updateModelRestart();
                 return;
@@ -630,7 +602,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
             //        subAlloc.dumpHeap();
             if (fs.GetSuccessor() != 0)
             {
-                if (fs.GetSuccessor() <= subAlloc.PText)
+                if (fs.GetSuccessor() <= SubAlloc.PText)
                 {
                     fs.SetSuccessor(createSuccessors(false, p));
                     if (fs.GetSuccessor() == 0)
@@ -644,13 +616,13 @@ namespace Compress.SevenZip.Compress.PPmd.H
                     successor.Address = fs.GetSuccessor();
                     if (maxContext.Address != minContext.Address)
                     {
-                        subAlloc.decPText(1);
+                        SubAlloc.decPText(1);
                     }
                 }
             }
             else
             {
-                foundState.SetSuccessor(successor.Address);
+                FoundState.SetSuccessor(successor.Address);
                 fs.SetSuccessor(minContext);
             }
             //        // Debug
@@ -664,7 +636,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
                     if ((ns1 & 1) == 0)
                     {
                         //System.out.println(ns1);
-                        pc.FreqData.SetStats(subAlloc.expandUnits(pc.FreqData.GetStats(), Utility.URShift(ns1, 1)));
+                        pc.FreqData.SetStats(SubAlloc.expandUnits(pc.FreqData.GetStats(), Utility.URShift(ns1, 1)));
                         if (pc.FreqData.GetStats() == 0)
                         {
                             updateModelRestart();
@@ -680,7 +652,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
                 }
                 else
                 {
-                    p.Address = subAlloc.allocUnits(1);
+                    p.Address = SubAlloc.allocUnits(1);
                     if (p.Address == 0)
                     {
                         updateModelRestart();
@@ -752,11 +724,11 @@ namespace Compress.SevenZip.Compress.PPmd.H
             buffer.Append("\n  prevSuccess=");
             buffer.Append(prevSuccess);
             buffer.Append("\n  foundState=");
-            buffer.Append(foundState);
+            buffer.Append(FoundState);
             buffer.Append("\n  coder=");
-            buffer.Append(coder);
+            buffer.Append(Coder);
             buffer.Append("\n  subAlloc=");
-            buffer.Append(subAlloc);
+            buffer.Append(SubAlloc);
             buffer.Append("\n]");
             return buffer.ToString();
         }
@@ -769,18 +741,18 @@ namespace Compress.SevenZip.Compress.PPmd.H
         internal bool decodeInit(Stream stream, int maxOrder, int maxMemory)
         {
             if (stream != null)
-                coder = new RangeCoder(stream);
+                Coder = new RangeCoder(stream);
 
             if (maxOrder == 1)
             {
-                subAlloc.stopSubAllocator();
+                SubAlloc.stopSubAllocator();
                 return (false);
             }
-            subAlloc.startSubAllocator(maxMemory);
+            SubAlloc.startSubAllocator(maxMemory);
             minContext = new PPMContext(Heap);
             //medContext = new PPMContext(Heap);
             maxContext = new PPMContext(Heap);
-            foundState = new State(Heap);
+            FoundState = new State(Heap);
             dummySEE2Cont = new SEE2Context();
             for (int i = 0; i < 25; i++)
             {
@@ -796,8 +768,8 @@ namespace Compress.SevenZip.Compress.PPmd.H
 
         internal void nextContext()
         {
-            int addr = foundState.GetSuccessor();
-            if (orderFall == 0 && addr > subAlloc.PText)
+            int addr = FoundState.GetSuccessor();
+            if (orderFall == 0 && addr > SubAlloc.PText)
             {
                 minContext.Address = addr;
                 maxContext.Address = addr;
@@ -841,7 +813,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
                 while (--i > 0);
                 if (count >= minContext.FreqData.SummFreq)
                     return -2;
-                hiBitsFlag = HB2Flag[foundState.Symbol];
+                hiBitsFlag = HB2Flag[FoundState.Symbol];
                 decoder.Decode((uint)hiCnt, (uint)(minContext.FreqData.SummFreq - hiCnt));
                 for (i = 0; i < 256; i++)
                     charMask[i] = -1;
@@ -858,7 +830,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
             {
                 State rs = tempState1.Initialize(Heap);
                 rs.Address = minContext.getOneState().Address;
-                hiBitsFlag = getHB2Flag()[foundState.Symbol];
+                hiBitsFlag = getHB2Flag()[FoundState.Symbol];
                 int off1 = rs.Freq - 1;
                 int off2 = minContext.getArrayIndex(this, rs);
                 int bs = binSumm[off1][off2];
@@ -866,7 +838,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
                 {
                     byte symbol;
                     binSumm[off1][off2] = (bs + INTERVAL - minContext.getMean(bs, PERIOD_BITS, 2)) & 0xFFFF;
-                    foundState.Address = rs.Address;
+                    FoundState.Address = rs.Address;
                     symbol = (byte)rs.Symbol;
                     rs.IncrementFreq((rs.Freq < 128) ? 1 : 0);
                     prevSuccess = 1;
@@ -894,7 +866,7 @@ namespace Compress.SevenZip.Compress.PPmd.H
                 {
                     orderFall++;
                     minContext.Address = minContext.getSuffix();
-                    if (minContext.Address <= subAlloc.PText || minContext.Address > subAlloc.HeapEnd)
+                    if (minContext.Address <= SubAlloc.PText || minContext.Address > SubAlloc.HeapEnd)
                         return -1;
                 }
                 while (minContext.NumStats == numMasked);
